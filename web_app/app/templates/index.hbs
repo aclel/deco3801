@@ -1,0 +1,52 @@
+{{!-- FILTERING MODEL --}}
+<div class="left filterbar">
+	<div class="box boxSelectBuoys">
+		<h1>Select Buoys</h1>
+		{{#each record in buoyActivated}}
+			<div>
+				{{input class='checkbox' type="checkbox" checked=record.activated}} Buoy {{record.name}}
+			</div>
+		{{/each}}
+	</div>
+	
+	<div class="box boxTime">	
+		<span>
+			<h1>Time</h1>
+		</span>
+		<span>
+			{{view "select" content=timeFilterToggle}}
+		</span>
+		<p>
+			<span>Date:</span>
+			{{input type="text" class="textinput" value=sliceDate}}
+		</p>
+		<p>
+			<span>Time:</span>
+			{{input type="text" class="textinput" value=sliceTime}}
+		</p>
+	</div>
+
+	<div class="box boxFilters">	
+		<h1>Filters</h1>
+	</div>
+</div>
+
+
+{{!-- MAPS --}}
+<div class="left map"> 
+	{{maps-view model=filteredModel}}
+</div>
+
+
+{{!-- SEMESTER 2: GRAPHS VIEW HERE --}}
+{{!-- There should be one for each sensor, so loop through sensor model --}}
+
+{{!-- #each record in sensors --}}
+<div class="left graphs">
+	<p class='graphPlaceholder'>GRAPHS</p>
+	{{!-- {{graphs-view data=filteredModel}} --}}
+</div>
+{{!-- /each --}}
+
+
+

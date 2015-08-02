@@ -1,0 +1,16 @@
+<header>
+	<h1 class='title'>RMS</h1>
+	<div class="menu">
+		<ul class="active menuLink" id="dashboard" {{action "changeActiveMenu" "dashboard" on="click"}}>
+			{{#link-to 'index'}}Dashboard{{/link-to}}
+		</ul>
+		<ul class="menuLink"id="config" {{action "changeActiveMenu" "config" on="click"}}>
+			{{#link-to 'config'}}Config{{/link-to}}
+		</ul>
+		<ul class="menuLink"id="warnings" {{action "changeActiveMenu" "warnings" on="click"}}>
+			{{#link-to 'warnings'}}Warnings{{/link-to}}
+		</ul>
+	</div>
+</header>
+
+{{outlet}}

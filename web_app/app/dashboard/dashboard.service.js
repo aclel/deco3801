@@ -10,7 +10,7 @@
 		var enabledBuoys = []; // initially enable all buoys
 		var buoyFilter = [];
 		var timesFilter = {
-			type: 'range', // range or point or all
+			type: 'all', // range or point or all
 			from: {},
 			to: {},
 			point: {}
@@ -23,6 +23,7 @@
 			readings: getReadings,
 			buoys: getBuoys,
 			times: getTimes,
+			timeRange: getTimeRange,
 			filterBuoy: filterBuoy,
 			filterTimes: filterTimes
 		};
@@ -66,6 +67,10 @@
 		
 		function getTimes() {
 			return timesInputs;
+		}
+		
+		function getTimeRange() {
+			return timesFilter;
 		}
 		
 		function filterBuoy(buoy) {

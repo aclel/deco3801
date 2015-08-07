@@ -8,12 +8,9 @@
 		var vm = this;
 		
 		vm.buoys = dashboard.buoys();
+		vm.times = dashboard.times();
 		vm.updateBuoysFilter = updateBuoysFilter;
-		
-		vm.fromDate = "1430626500";
-		vm.fromTime = "1430626500";
-		vm.toDate = "28 May 2015";
-		vm.toTime = "3:00 PM";
+		vm.updateTimesFilter = updateTimesFilter;
 			
 		$document.ready(function() {
 			map.initialiseMap();
@@ -22,6 +19,18 @@
 		
 		function updateBuoysFilter(buoy) {
 			dashboard.filterBuoy(buoy);
+			map.updateReadings();
+		}
+		
+		function updateTimesFilter() {	
+			// make sure all time inputs have a value when filtering on times
+			if (vm.times.from.date && vm.times.from.time
+					&& vm.times.to.date && vm.times.to.time) {
+				dashboard.filterTimes('range', vm.times);
+			} else {
+				dashboard.filterTimes('all');
+			}
+			
 			map.updateReadings();
 		}
 	}

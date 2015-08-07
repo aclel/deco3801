@@ -148,9 +148,12 @@
 				}
 			}
 			
+			var formattedTime = moment.unix(reading.timestamp)
+										.format('D MMMM h:mm A');
+			
 			var content = "<div>" +
 							"<h5 style='color: white'>Buoy " + reading.buoy + "</h5>" +
-							reading.timestamp + 
+							formattedTime + 
 							"<br>---" +
 							"<br>Battery: " + reading.readings[1] +
 							"<br>Turbidity: " + reading.readings[2] +

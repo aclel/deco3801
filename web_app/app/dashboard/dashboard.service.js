@@ -9,13 +9,22 @@
 		var filteredReadings = readings;
 		var enabledBuoys = []; // initially enable all buoys
 		var buoyFilter = [];
+		var timesFilter = {
+			type: 'range', // range or point or all
+			from: {},
+			to: {},
+			point: {}
+		};
+		var timesInputs = {};
 		
 		initialiseFilters();
 		
 		return {
 			readings: getReadings,
 			buoys: getBuoys,
-			filterBuoy: filterBuoy
+			times: getTimes,
+			filterBuoy: filterBuoy,
+			filterTimes: filterTimes
 		};
 		
 		function initialiseFilters() {
@@ -34,6 +43,17 @@
 					enabled: true
 				});
 			}
+			
+			timesInputs = {
+				from: {
+					date: "",
+					time: ""
+				},
+				to: {
+					date: "",
+					time: ""
+				}
+			};
 		}
 
 		function getReadings() {
@@ -42,6 +62,10 @@
 		
 		function getBuoys() {
 			return buoyFilter;
+		}
+		
+		function getTimes() {
+			return timesInputs;
 		}
 		
 		function filterBuoy(buoy) {
@@ -59,10 +83,35 @@
 			}
 		}
 		
+		function filterTimes(timeType, times) {
+			timesFilter.type = timeType;
+			var timeFormat = "D/M/YY h:mm A";
+			
+			if (timeType == 'range') {
+				timesFilter.from = moment(times.from.date
+				 		+ " " + times.from.time, timeFormat);
+				timesFilter.to = moment(times.to.date
+				 		+ " " + times.to.time, timeFormat);
+			} else if (timeType == 'point') {
+				// timesFilter.point = value;
+			}
+			updateFilters();
+		}
+		
 		function updateFilters() {
 			filteredReadings = $filter('filter')(readings, function(reading) {
-				if (enabledBuoys.indexOf(reading.buoy) == -1) 
+				// buoys
+				if (enabledBuoys.indexOf(reading.buoy) == -1) {
 					return false;
+				}
+					
+				// times
+				if (timesFilter.type == 'range') {
+					var time = moment.unix(reading.timestamp);
+					if (!time.isBetween(timesFilter.from, timesFilter.to)) {
+						return false;
+					}
+				}
 				
 				return true;
 			});

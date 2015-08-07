@@ -22,7 +22,12 @@
 input[type="text"] {
 	width: 40%;
 	display: inline;
-	margin: 0 10px;
+	margin-right: 10px;
+}
+
+.timefilters {
+  margin-left: 8px;
+  margin-top: 15px;
 }
 
 

@@ -1,16 +1,16 @@
-import Ember from 'ember';
-import Resolver from 'ember/resolver';
-import loadInitializers from 'ember/load-initializers';
-import config from './config/environment';
-
-Ember.MODEL_FACTORY_INJECTIONS = true;
-
-var App = Ember.Application.extend({
-  modulePrefix: config.modulePrefix,
-  podModulePrefix: config.podModulePrefix,
-  Resolver: Resolver
-});
-
-loadInitializers(App, config.modulePrefix);
-
-export default App;
+/// <reference path="../typings/angularjs/angular.d.ts"/>
+(function() {
+    'use strict';
+    
+    angular.module('app', [
+        'ui.router',
+        'mgcrea.ngStrap',
+        'mgcrea.ngStrap.helpers.dimensions',
+        'mgcrea.ngStrap.helpers.dateParser',
+        'mgcrea.ngStrap.tooltip',
+        'mgcrea.ngStrap.datepicker',
+        'mgcrea.ngStrap.timepicker',
+        
+        'app.dashboard'
+    ]);
+})();

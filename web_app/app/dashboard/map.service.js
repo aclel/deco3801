@@ -1,3 +1,4 @@
+/* global moment */
 /* global google */
 (function() {
 	'use strict';
@@ -109,7 +110,7 @@
 				position: new google.maps.LatLng(reading.latitude, reading.longitude),
 				map: map,
 				title: 'Buoy ' + reading.buoy + ': reading ' + reading.readingId,
-				opacity: 0.85
+				opacity: calculateOpacity(reading)
 			});
 			
 			google.maps.event.addListener(marker, 'click', function() {
@@ -125,6 +126,15 @@
 		
 		function enableMarker(readingId) {
 			markers[readingId].setMap(map);
+		}
+		
+		function calculateOpacity(reading) {
+			// calculate opacity of marker based on age
+			// should be dependent on time filters
+			// for now let's just say 1 day is 5%
+			var markerMoment = moment.unix(reading.timestamp);
+			var daysAgo = moment().diff(markerMoment, 'days');
+			return Math.max(1.00 - (daysAgo * 0.05), 0);
 		}
 		
 		

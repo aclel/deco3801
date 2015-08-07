@@ -16,6 +16,7 @@
 			point: {}
 		};
 		var timesInputs = {};
+		var readingsAtTimePoint = {};
 		
 		initialiseFilters();
 		
@@ -51,6 +52,10 @@
 					time: ""
 				},
 				to: {
+					date: "",
+					time: ""
+				},
+				point: {
 					date: "",
 					time: ""
 				}
@@ -98,7 +103,34 @@
 				timesFilter.to = moment(times.to.date
 				 		+ " " + times.to.time, timeFormat);
 			} else if (timeType == 'point') {
-				// timesFilter.point = value;
+				timesFilter.point = moment(times.point.date
+		 				+ " " + times.point.time, timeFormat); 
+				// figure out the reading with the time closest to point for each buoy
+				var buoyReadings = {};
+				for (var i = 0; i < readings.length; i++) {
+					var reading = readings[i];
+					if (buoyReadings.hasOwnProperty(reading.buoy)) {
+						// determine which reading is closer to point
+						var oldReading = buoyReadings[reading.buoy].time;
+						var newReading = reading.timestamp;
+								 
+						var diffOld = moment.unix(oldReading).diff(timesFilter.point);
+						var diffNew = moment.unix(newReading).diff(timesFilter.point);
+						
+						if (Math.abs(diffNew) < Math.abs(diffOld)) {
+							buoyReadings[reading.buoy] = {
+								id: reading.readingId,
+								time: reading.timestamp
+							};
+						} 
+					} else {
+						buoyReadings[reading.buoy] = {
+							id: reading.readingId,
+							time: reading.timestamp
+						};
+					}
+				}
+				readingsAtTimePoint = buoyReadings;
 			}
 			updateFilters();
 		}
@@ -114,6 +146,10 @@
 				if (timesFilter.type == 'range') {
 					var time = moment.unix(reading.timestamp);
 					if (!time.isBetween(timesFilter.from, timesFilter.to)) {
+						return false;
+					}
+				} else if (timesFilter.type == 'point') {
+					if (readingsAtTimePoint[reading.buoy].id != reading.readingId) {
 						return false;
 					}
 				}

@@ -8,6 +8,7 @@
 		var vm = this;
 		
 		vm.buoys = dashboard.buoys();
+		vm.timeFilterType = 'range';
 		vm.times = dashboard.times();
 		vm.updateBuoysFilter = updateBuoysFilter;
 		vm.updateTimesFilter = updateTimesFilter;
@@ -23,12 +24,20 @@
 		}
 		
 		function updateTimesFilter() {	
-			// make sure all time inputs have a value when filtering on times
-			if (vm.times.from.date && vm.times.from.time
-					&& vm.times.to.date && vm.times.to.time) {
-				dashboard.filterTimes('range', vm.times);
-			} else {
-				dashboard.filterTimes('all');
+			if (vm.timeFilterType == 'range') {
+				// make sure all time inputs have a value when filtering on times
+				if (vm.times.from.date && vm.times.from.time
+						&& vm.times.to.date && vm.times.to.time) {
+					dashboard.filterTimes(vm.timeFilterType, vm.times);
+				} else {
+					dashboard.filterTimes('all');
+				}
+			} else if (vm.timeFilterType == 'point') {
+				if (vm.times.point.date && vm.times.point.time) {
+					dashboard.filterTimes(vm.timeFilterType, vm.times);
+				} else {
+					dashboard.filterTimes('all');
+				}
 			}
 			
 			map.updateReadings();

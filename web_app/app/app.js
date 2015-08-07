@@ -10,7 +10,7 @@
         'mgcrea.ngStrap.tooltip',
         'mgcrea.ngStrap.datepicker',
         'mgcrea.ngStrap.timepicker',
-        // 'mgcrea.ngStrap.popover',
+        'mgcrea.ngStrap.button',
         
         'app.dashboard'
     ]);

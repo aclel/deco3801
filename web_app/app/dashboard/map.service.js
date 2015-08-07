@@ -51,8 +51,6 @@
 					infoBoxOpen = false;
 				}
 		    });
-			
-			
 		}
 		
 		function markReadings() {
@@ -147,8 +145,26 @@
 					/ timeRange.to.diff(timeRange.from));
 				return opacity * (1 - minVisibleOpacity) + minVisibleOpacity;
 			} else if (timeRange.type == 'point') {
-				return 1.0;
+				// range opacities between point and time of oldest marker
+				var min = getOldestReading();
+				var max = timeRange.point;
+				
+				var opacity = (markerMoment.diff(min) / max.diff(min));
+				return opacity * (1 - minVisibleOpacity) + minVisibleOpacity;
 			}
+		}
+		
+		function getOldestReading() {
+			var readings = dashboard.readings();
+			var oldest = moment.unix(readings[0].timestamp);
+			for (var i = 1; i < readings.length; i++) {
+				if (disabledMarkers.indexOf(readings[i].readingId) != -1) {
+					if (moment.unix(readings[i].timestamp).isBefore(oldest)) {
+						oldest = moment.unix(readings[i].timestamp);
+					}
+				}
+			}
+			return oldest;
 		}
 		
 		

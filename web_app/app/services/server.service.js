@@ -32,7 +32,7 @@
 				}
 			}, {
 				readingId: 3, 
-				buoy: 3,
+				buoy: 2,
 				timestamp: 1438760876,
 				latitude: -27.491475, 
 				longitude: 153.006655,

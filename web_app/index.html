@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en" ng-app="app">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flood Monitoring</title>
+    
+    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/assets/css/foundation-apps.css">
+    
+    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="stylesheet" href="/assets/css/app2.css">
+</head>
+<body>
+    
+    <div class="grid-frame vertical">
+        <div class="grid-content shrink" style="padding: 0;">
+            <header>
+            	<h1 class='title'>RMS</h1>
+            	<div class="menu">
+            		<ul class="menuLink" id="dashboard"
+                        ng-class="{ active: $state.includes('dashboard') }">
+            			<a ui-sref="dashboard">Dashboard</a>
+            		</ul>
+            		<ul class="menuLink"id="config"
+                        ng-class="{ active: $state.includes('config') }">
+            			<a ui-sref="config">Config</a>
+            		</ul>
+            		<ul class="menuLink"id="warnings"
+                        ng-class="{ active: $state.includes('warnings') }">
+            			<a ui-sref="warnings">Warnings</a>
+            		</ul>
+            	</div>
+            </header>
+        </div>
+      <!--<div class="grid-content shrink" style="padding: 0;">
+        <ul class="primary condense menu-bar">
+          <li><a><strong>RMS</strong></a></li>
+        </ul>
+      </div>-->
+      <div ui-view class="grid-block">
+      </div>
+    </div>
+
+
+    <script src='https://maps.googleapis.com/maps/api/js?sensor=false'></script>
+    <script src="/assets/js/infobox.js"></script>
+    
+    <script src="/bower_components/angular/angular.js"></script>
+    <script src="/bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+    
+    <script src="/bower_components/angular-strap/dist/angular-strap.min.js"></script>
+    <script src="/bower_components/angular-strap/dist/angular-strap.tpl.min.js"></script>
+    
+    <script src="/app/app.js"></script>
+    <script src="/app/app.routes.js"></script>
+    
+    <script src="/app/dashboard/dashboard.module.js"></script>
+    <script src="/app/dashboard/dashboard.controller.js"></script>
+    <script src="/app/dashboard/dashboard.service.js"></script>
+    <script src="/app/dashboard/map.service.js"></script>
+</body>
+</html>

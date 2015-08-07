@@ -1,0 +1,56 @@
+#map-canvas { 
+	height: 1200px;	
+	margin: 0 -15px;
+}
+
+.no-overflow {
+	overflow: hidden;
+}
+
+.grid-block, .grid-content {
+	border: 1px solid black;
+}
+
+.shadow-right {
+	box-shadow: 2px 0 2px lightgray;
+}
+
+.mapWindow {
+	background-color: darkgrey;
+}
+
+input[type="text"] {
+	width: 40%;
+	display: inline;
+	margin: 0 10px;
+}
+
+
+.datepicker.dropdown-menu {
+  width: 250px;
+  height: 250px;
+}
+.datepicker.dropdown-menu button {
+  outline: none;
+  border: 0px;
+}
+.datepicker.dropdown-menu tbody {
+  height: 180px;
+}
+.datepicker.dropdown-menu tbody button {
+  padding: 6px;
+}
+.datepicker.dropdown-menu.datepicker-mode-1 tbody button, .datepicker.dropdown-menu.datepicker-mode-2 tbody button {
+  height: 65px;
+}
+
+.timepicker.dropdown-menu {
+  padding: 0 4px;
+}
+.timepicker.dropdown-menu button {
+  outline: none;
+  border: 0px;
+}
+.timepicker.dropdown-menu tbody button {
+  padding: 6px;
+}

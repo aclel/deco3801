@@ -9,8 +9,10 @@
 			
 		vm.buoys = dashboard.buoys();
 		vm.times = dashboard.times();
+		vm.battery = dashboard.battery();
 		vm.updateBuoysFilter = updateBuoysFilter;
 		vm.updateTimesFilter = updateTimesFilter;
+		vm.updateBatteryFilter = updateBatteryFilter;
 		
 		var dateFormat = "D/M/YY";
 		var timeFormat = "h:mm A";
@@ -68,6 +70,12 @@
 			}
 			
 			return false;
+		}
+		
+		function updateBatteryFilter() {
+			console.log(vm.battery);
+			dashboard.updateBattery();
+			map.updateReadings();
 		}
 	}
 })();

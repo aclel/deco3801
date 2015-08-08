@@ -16,8 +16,10 @@
 			readings: getReadings,
 			buoys: getBuoys,
 			times: getTimes,
+			battery: getBattery,
 			updateBuoys: updateBuoys,
 			updateTimes: updateTimes,
+			updateBattery: updateBattery,
 			getOldestReading: getOldestReading,
 			getRelativeAge: getRelativeAge
 		};
@@ -43,6 +45,13 @@
 					point: { date: "", time: "" },
 				}
 			}
+			
+			filters.battery = {
+				enabled: false,
+				options: [">", "<", "="],
+				selected: ">",
+				value: ""
+			}
 		}
 
 		function getReadings() {
@@ -57,6 +66,10 @@
 			return filters.times;
 		}
 		
+		function getBattery() {
+			return filters.battery;
+		}
+		
 		function updateBuoys() {
 			updateFilters();
 		}
@@ -65,6 +78,10 @@
 			if (filters.times.type == 'point') {
 				calculatePointReadings();
 			}
+			updateFilters();
+		}
+		
+		function updateBattery() {
 			updateFilters();
 		}
 		
@@ -111,6 +128,7 @@
 			filteredReadings = $filter('filter')(readings, function(reading) {
 				if (!filterBuoys(reading)) return false;
 				if (!filterTimes(reading)) return false;
+				if (!filterBattery(reading)) return false;
 				return true;
 			});
 		}
@@ -130,6 +148,27 @@
 				}
 			} else if (filters.times.type == 'point') {
 				if (filters.times.pointReadings[reading.buoy].id != reading.readingId) {
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		function filterBattery(reading) {
+			if (!filters.battery.enabled) {
+				return true;
+			}
+			var value = parseInt(filters.battery.value, 10);
+			if (filters.battery.selected == ">") {
+				if (reading.readings.battery <= value) {
+					return false;
+				}
+			} else if (filters.battery.selected == "<") {
+				if (reading.readings.battery >= value) {
+					return false;
+				}
+			} else if (filters.battery.selected == "=") {
+				if (reading.readings.battery != value) {
 					return false;
 				}
 			}

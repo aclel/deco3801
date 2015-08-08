@@ -148,9 +148,10 @@
 							"<h5 style='color: white'>Buoy " + reading.buoy + "</h5>" +
 							formattedTime + 
 							"<br>---" +
-							"<br>Battery: " + reading.readings[1] +
-							"<br>Turbidity: " + reading.readings[2] +
-							"<br>Temperature: " + reading.readings[3] +
+							"<br>Battery: " + reading.readings.battery +
+							"<br>Pressure: " + reading.readings.pressure +
+							"<br>Sea level: " + reading.readings.sealevel +
+							"<br>Turbidity: " + reading.readings.turbidity +
 							"</div>";
 							
 			infoBox = new InfoBox({

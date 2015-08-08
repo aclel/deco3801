@@ -194,6 +194,9 @@
 			
 			}  else if (times.type == 'point') {
 				// range: from two weeks before point until point
+				if (times.point === null) {
+					return 1.0;
+				}
 				var max = times.point;
 				var min = max.clone().subtract(2, 'weeks');
 				return calculateAgeInRange(time, min, max);

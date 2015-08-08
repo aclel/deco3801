@@ -8,7 +8,7 @@
 		var vm = this;
 		
 		vm.buoys = dashboard.buoys();
-		vm.timeFilterType = 'range';
+		vm.timeFilterType = 'all';
 		vm.times = dashboard.times();
 		vm.updateBuoysFilter = updateBuoysFilter;
 		vm.updateTimesFilter = updateTimesFilter;
@@ -23,8 +23,10 @@
 			map.updateReadings();
 		}
 		
-		function updateTimesFilter() {	
-			if (vm.timeFilterType == 'range') {
+		function updateTimesFilter() {
+			if (vm.timeFilterType == 'all') {
+				dashboard.filterTimes('all');
+			} else if (vm.timeFilterType == 'range') {
 				// make sure all time inputs have a value when filtering on times
 				if (vm.times.from.date && vm.times.from.time
 						&& vm.times.to.date && vm.times.to.time) {

@@ -11,6 +11,7 @@
 		<h3>Times</h3>
 		
 		<div class="btn-group" ng-model="vm.timeFilterType" bs-radio-group>
+			<label class="btn btn-default"><input type="radio" class="btn btn-default" value="all" ng-change="vm.updateTimesFilter()">All</label>
 			<label class="btn btn-default"><input type="radio" class="btn btn-default" value="range" ng-change="vm.updateTimesFilter()">Range</label>
 			<label class="btn btn-default"><input type="radio" class="btn btn-default" value="point" ng-change="vm.updateTimesFilter()">Slice</label>
 		</div>

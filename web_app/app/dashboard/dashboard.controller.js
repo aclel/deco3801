@@ -73,7 +73,6 @@
 		}
 		
 		function updateBatteryFilter() {
-			console.log(vm.battery);
 			dashboard.updateBattery();
 			map.updateReadings();
 		}

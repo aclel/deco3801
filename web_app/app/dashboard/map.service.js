@@ -26,7 +26,27 @@
 		};
 
 		function initialiseMap() {
+			// disable points of interest
+			var noPoi = [
+			    {
+			        featureType: "poi",
+			        elementType: "labels",
+			        stylers: [
+			              { visibility: "off" }
+			        ]
+			    },
+				{
+			        featureType: "transit.station",
+			        elementType: "labels",
+			        stylers: [
+			              { visibility: "off" }
+			        ]
+			    }
+			];
+			mapOptions.styles = noPoi;
+			
 			map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions); 
+			
 			
 			google.maps.event.addListener(map, 'zoom_changed', function() {
 				mapOptions.zoom = map.getZoom();

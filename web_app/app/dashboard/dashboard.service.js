@@ -1,3 +1,4 @@
+/// <reference path="../../../typings/angularjs/angular.d.ts"/>
 (function() {
 	'use strict';
 	
@@ -7,59 +8,41 @@
 	function dashboard($filter, server) {
 		var readings = server.getReadings();
 		var filteredReadings = readings;
-		var enabledBuoys = []; // initially enable all buoys
-		var buoyFilter = [];
-		var timesFilter = {
-			type: 'all', // range or point or all
-			from: {},
-			to: {},
-			point: {}
-		};
-		var timesInputs = {};
-		var readingsAtTimePoint = {};
-		
+
+		var filters = {};
 		initialiseFilters();
 		
 		return {
 			readings: getReadings,
 			buoys: getBuoys,
 			times: getTimes,
-			timeRange: getTimeRange,
-			filterBuoy: filterBuoy,
-			filterTimes: filterTimes
+			updateBuoys: updateBuoys,
+			updateTimes: updateTimes,
+			getOldestReading: getOldestReading,
+			getRelativeAge: getRelativeAge
 		};
 		
 		function initialiseFilters() {
-			// set up buoy filters
-			var buoyArray = [];
+			filters.buoys = {}; // { buoyId: enabled }
 			for (var i = 0; i < readings.length; i++) {
-				if (buoyArray.indexOf(readings[i].buoy) == -1) {
-					buoyArray.push(readings[i].buoy);
+				if (!filters.buoys.hasOwnProperty(readings[i].buoy)) {
+					filters.buoys[readings[i].buoy] = true;
 				}
 			}
-			enabledBuoys = buoyArray;
 			
-			for (var i = 0; i < buoyArray.length; i++) {
-				buoyFilter.push({
-					id: buoyArray[i],
-					enabled: true
-				});
-			}
-			
-			timesInputs = {
-				from: {
-					date: "",
-					time: ""
-				},
-				to: {
-					date: "",
-					time: ""
-				},
-				point: {
-					date: "",
-					time: ""
+			filters.times = {
+				type: "all",
+				range: { from: null, to: null }, // from and to contain moments
+				point: null,
+				pointReadings: {}, // contains list of closest readings to point
+				inputs: {
+					range: {
+						from: { date: "", time: "" },
+						to: { date: "", time: "" },
+					},
+					point: { date: "", time: "" },
 				}
-			};
+			}
 		}
 
 		function getReadings() {
@@ -67,95 +50,124 @@
 		}
 		
 		function getBuoys() {
-			return buoyFilter;
+			return filters.buoys;
 		}
 		
 		function getTimes() {
-			return timesInputs;
+			return filters.times;
 		}
 		
-		function getTimeRange() {
-			return timesFilter;
+		function updateBuoys() {
+			updateFilters();
 		}
 		
-		function filterBuoy(buoy) {
-			var index = enabledBuoys.indexOf(buoy.id);
-			if (buoy.enabled) {
-				if (index == -1) {
-					enabledBuoys.push(buoy.id);
-					updateFilters();
-				}
-			} else {
-				if (index != -1) {
-					enabledBuoys.splice(index, 1);
-					updateFilters();
-				}
-			}
-		}
-		
-		function filterTimes(timeType, times) {
-			timesFilter.type = timeType;
-			var timeFormat = "D/M/YY h:mm A";
-			
-			if (timeType == 'range') {
-				timesFilter.from = moment(times.from.date
-				 		+ " " + times.from.time, timeFormat);
-				timesFilter.to = moment(times.to.date
-				 		+ " " + times.to.time, timeFormat);
-			} else if (timeType == 'point') {
-				timesFilter.point = moment(times.point.date
-		 				+ " " + times.point.time, timeFormat); 
-				// figure out the reading with the time closest to point for each buoy
-				var buoyReadings = {};
-				for (var i = 0; i < readings.length; i++) {
-					var reading = readings[i];
-					if (buoyReadings.hasOwnProperty(reading.buoy)) {
-						// determine which reading is closer to point
-						var oldReading = buoyReadings[reading.buoy].time;
-						var newReading = reading.timestamp;
-								 
-						var diffOld = moment.unix(oldReading).diff(timesFilter.point);
-						var diffNew = moment.unix(newReading).diff(timesFilter.point);
-						
-						if (Math.abs(diffNew) < Math.abs(diffOld)) {
-							buoyReadings[reading.buoy] = {
-								id: reading.readingId,
-								time: reading.timestamp
-							};
-						} 
-					} else {
-						buoyReadings[reading.buoy] = {
-							id: reading.readingId,
-							time: reading.timestamp
-						};
-					}
-				}
-				readingsAtTimePoint = buoyReadings;
+		function updateTimes() {
+			if (filters.times.type == 'point') {
+				calculatePointReadings();
 			}
 			updateFilters();
 		}
 		
+		function getOldestReading() {
+			var readings = filteredReadings;
+			var oldest = moment.unix(readings[0].timestamp);
+			for (var i = 1; i < readings.length; i++) {
+				if (moment.unix(readings[i].timestamp).isBefore(oldest)) {
+					oldest = moment.unix(readings[i].timestamp);
+				}
+			}
+			return oldest;
+		}
+		
+		function calculatePointReadings() {
+			var buoyReadings = {};
+			for (var i = 0; i < readings.length; i++) {
+				var reading = readings[i];
+				if (buoyReadings.hasOwnProperty(reading.buoy)) {
+					// determine which reading is closer to point
+					var oldReading = buoyReadings[reading.buoy].time;
+					var newReading = reading.timestamp;
+							 
+					var diffOld = moment.unix(oldReading).diff(filters.times.point);
+					var diffNew = moment.unix(newReading).diff(filters.times.point);
+					
+					if (Math.abs(diffNew) < Math.abs(diffOld)) {
+						buoyReadings[reading.buoy] = {
+							id: reading.readingId,
+							time: reading.timestamp
+						};
+					} 
+				} else {
+					buoyReadings[reading.buoy] = {
+						id: reading.readingId,
+						time: reading.timestamp
+					};
+				}
+			}
+			filters.times.pointReadings = buoyReadings;
+		}
+		
 		function updateFilters() {
 			filteredReadings = $filter('filter')(readings, function(reading) {
-				// buoys
-				if (enabledBuoys.indexOf(reading.buoy) == -1) {
-					return false;
-				}
-					
-				// times
-				if (timesFilter.type == 'range') {
-					var time = moment.unix(reading.timestamp);
-					if (!time.isBetween(timesFilter.from, timesFilter.to)) {
-						return false;
-					}
-				} else if (timesFilter.type == 'point') {
-					if (readingsAtTimePoint[reading.buoy].id != reading.readingId) {
-						return false;
-					}
-				}
-				
+				if (!filterBuoys(reading)) return false;
+				if (!filterTimes(reading)) return false;
 				return true;
 			});
+		}
+		
+		function filterBuoys(reading) {
+			if (!filters.buoys[reading.buoy]) {
+				return false;
+			}
+			return true;
+		}
+		
+		function filterTimes(reading) {
+			if (filters.times.type == 'range') {
+				var time = moment.unix(reading.timestamp);
+				if (!time.isBetween(filters.times.range.from, filters.times.range.to)) {
+					return false;
+				}
+			} else if (filters.times.type == 'point') {
+				if (filters.times.pointReadings[reading.buoy].id != reading.readingId) {
+					return false;
+				}
+			}
+			return true;
+		}
+		
+		function getRelativeAge(reading) {
+			// returns age between 0 and 1, based on a range determined as seen below
+			var time = moment.unix(reading.timestamp);
+			var times = filters.times;
+			
+			if (times.type == 'all') {
+				// range: from 2 weeks ago until now
+				var max = moment();
+				var min = max.clone().subtract(2, 'weeks');
+				return calculateAgeInRange(time, min, max);
+			
+			} else if (times.type == 'range') {
+				// range: range of time filters
+				var max = times.range.to;
+				var min = times.range.from;
+				return calculateAgeInRange(time, min, max);
+			
+			}  else if (times.type == 'point') {
+				// range: from two weeks before point until point
+				var max = times.point;
+				var min = max.clone().subtract(2, 'weeks');
+				return calculateAgeInRange(time, min, max);
+			}
+		}
+		
+		function calculateAgeInRange(time, min, max) {
+			if (time.isBefore(min)) {
+				return 0;
+			} else if (!time.isBefore(max)) {
+				return 1.0;
+			}
+			return (time.diff(min) / max.diff(min));
 		}
 	}
 })();

@@ -136,8 +136,23 @@
 			
 			if (timeRange.type == 'all') {
 				// decrease opacity by about 3% per day from now
-				var daysAgo = moment().diff(markerMoment, 'days');
-				return Math.max(1.00 - (daysAgo * 0.03), minVisibleOpacity);
+				// var daysAgo = moment().diff(markerMoment, 'days');
+				// return Math.max(1.00 - (daysAgo * 0.03), minVisibleOpacity);
+				
+				// range opacities at between now and 2 weeks ago
+				var max = moment();
+				var min = max.clone().subtract(2, 'weeks');
+				
+				if (!markerMoment.isBefore(max)) {
+					return 1.0;
+				}
+				
+				if (markerMoment.isBefore(min)) {
+					return minVisibleOpacity;
+				}
+				
+				var opacity = (markerMoment.diff(min) / max.diff(min));
+				return opacity * (1 - minVisibleOpacity) + minVisibleOpacity;
 			}
 			else if (timeRange.type == 'range') {
 				// calculate based on range of time filters
@@ -145,9 +160,18 @@
 					/ timeRange.to.diff(timeRange.from));
 				return opacity * (1 - minVisibleOpacity) + minVisibleOpacity;
 			} else if (timeRange.type == 'point') {
-				// range opacities between point and time of oldest marker
-				var min = getOldestReading();
+				// range opacities two weeks from point (newer have full opacity)
+				// var min = getOldestReading();
 				var max = timeRange.point;
+				var min = max.clone().subtract(2, 'weeks');
+				
+				if (!markerMoment.isBefore(max)) {
+					return 1.0;
+				}
+				
+				if (markerMoment.isBefore(min)) {
+					return minVisibleOpacity;
+				}
 				
 				var opacity = (markerMoment.diff(min) / max.diff(min));
 				return opacity * (1 - minVisibleOpacity) + minVisibleOpacity;

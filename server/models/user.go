@@ -8,6 +8,7 @@ type User struct {
 	Password string
 }
 
+// Inserts a User into the database
 func CreateUser(db *sqlx.DB, user User) error {
 	stmt, err := db.Preparex("INSERT INTO user (username, password) VALUES(?, ?);")
 	if err != nil {

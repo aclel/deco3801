@@ -13,6 +13,8 @@ type Buoy struct {
 	NewPoll     string `db:"new_poll"`
 }
 
+// Gets all buoys from the database
+// Returns a slice of buoys
 func GetAllBuoys(db *sqlx.DB) ([]Buoy, error) {
 	buoys := []Buoy{}
 	err := db.Select(&buoys, "SELECT * FROM buoy;")

@@ -10,6 +10,9 @@ import (
 	"github.com/aclel/deco3801/server/models"
 )
 
+// POST /users
+// Create a User, hash the password and store the User in the database
+// Responds with HTTP 200 if successful
 func UsersCreate(env *config.Env, w http.ResponseWriter, r *http.Request) (int, error) {
 	requestUser := new(models.User)
 	decoder := json.NewDecoder(r.Body)

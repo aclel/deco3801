@@ -13,12 +13,19 @@ The web server is written in Go, meaning that the entire project needs to be clo
 3. Make a Go workspace
 4. Set your GOPATH
 5. Run `go get github.com/aclel/deco3801` from inside your GOPATH. This will clone the repository into `$GOPATH/src/github.com/aclel/deco3801`.
-6. `cd` into deco3801/server and run `go run *.go`  
-7. The application will now the running
+6. Run `go get` to get all project dependencies
 
-### Building an exe
+#### Configuring the database
 
-You can build a binary executable by running `go install` inside the server directory. This will create a binary called 'server' in $GOPATH/bin/. Double click on it to run it.
+1. Setup a MySQL server
+2. Create a database called deco3801 and import deco3801.sql
+3. Create a user called deco3801 with password deco3801 and give them access to the database
+
+If you run into a problem with the database or users feel free to change the connection string in `main.go`.
+
+### Running the server
+1. `cd` into `deco3801/server`
+2. Run go run *.go and if it was successful you should see a message saying that the web service is running
 
 
 ### Using Postman to test the API

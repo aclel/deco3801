@@ -22,6 +22,7 @@ type JWTAuth struct {
 
 var jwtAuth *JWTAuth = nil
 
+// Initialise a JWTAuth object which has a public key and private key
 func InitJWTAuth() *JWTAuth {
 	if jwtAuth == nil {
 		jwtAuth = &JWTAuth{
@@ -50,15 +51,18 @@ func (jwtAuth *JWTAuth) GenerateToken(username string) (string, error) {
 
 // Authenticates the given user
 // Pulls the user record from the database and checks that the passwords are the same
+// Returns true if authenticated
 func (jwtAuth *JWTAuth) Authenticate(db *sqlx.DB, user *models.User) bool {
 	dbUser := models.User{}
 	err := db.Get(&dbUser, "SELECT * FROM user WHERE username = ?", user.Username)
 	if err != nil {
 		return false
 	}
+	// Check that the usernames and password hashes are the same
 	return user.Username == dbUser.Username && bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(user.Password)) == nil
 }
 
+// Get a private key from a local file
 func getPrivateKey() *rsa.PrivateKey {
 	absPath, _ := filepath.Abs("./config/api.rsa")
 	privateKeyFile, err := os.Open(absPath)
@@ -86,6 +90,7 @@ func getPrivateKey() *rsa.PrivateKey {
 	return privateKey
 }
 
+// Get a public key from a local file
 func getPublicKey() *rsa.PublicKey {
 	absPath, _ := filepath.Abs("./config/api.rsa.pub")
 	publicKeyFile, err := os.Open(absPath)

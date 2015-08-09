@@ -12,20 +12,27 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Setup authenticated and unauthenticated routes in gorilla mux router
 func NewRouter(env *config.Env) *mux.Router {
 	r := mux.NewRouter().StrictSlash(true)
+	// Authenticated routes
 	r.Handle("/buoys", AuthHandler{env, handlers.BuoysIndex})
+
+	// Unauthenticated routes
 	r.Handle("/users", AppHandler{env, handlers.UsersCreate})
 	r.Handle("/login", AppHandler{env, handlers.Login})
 
 	return r
 }
 
+// HandlerFunc which wraps handlers which require authentication
 type AuthHandler struct {
 	*config.Env
 	handle func(*config.Env, http.ResponseWriter, *http.Request) (int, error)
 }
 
+// Checks the presence and validity of JWT tokens in authenticated routes
+// Responds with HTTP 401 Unauthorized if the token is not valid
 func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	jwtAuth := auth.InitJWTAuth()
 
@@ -58,11 +65,18 @@ func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	}
 }
 
+// HandlerFunc which wraps handlers which do not require authentication
+// Adds (int, error) return type to handler
 type AppHandler struct {
 	*config.Env
 	handle func(*config.Env, http.ResponseWriter, *http.Request) (int, error)
 }
 
+// Executes handler and responds with a HTTP error if the handler returned an error
+// This makes handlers a bit easier to use because they don't need to call http.Error.
+// http.Error does not make the handler return, meaning that code will keep executing
+// and it will be hard to debug what's going on. The handler can now just return an error
+// code and this function will server the http.Error.
 func (appHandler AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if status, err := appHandler.handle(appHandler.Env, w, r); err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), status)

@@ -6,22 +6,74 @@
 		
 	function DashboardController($document, dashboard, map) {
 		var vm = this;
-		
+			
 		vm.buoys = dashboard.buoys();
+		vm.times = dashboard.times();
+		vm.battery = dashboard.battery();
 		vm.updateBuoysFilter = updateBuoysFilter;
+		vm.updateTimesFilter = updateTimesFilter;
+		vm.updateBatteryFilter = updateBatteryFilter;
 		
-		vm.fromDate = "1430626500";
-		vm.fromTime = "1430626500";
-		vm.toDate = "28 May 2015";
-		vm.toTime = "3:00 PM";
+		var dateFormat = "D/M/YY";
+		var timeFormat = "h:mm A";
 			
 		$document.ready(function() {
 			map.initialiseMap();
-			map.markReadings();
 		});
 		
-		function updateBuoysFilter(buoy) {
-			dashboard.filterBuoy(buoy);
+		function updateBuoysFilter(id, enabled) {
+			vm.buoys[id] = enabled;
+			dashboard.updateBuoys();
+			map.updateReadings();
+		}
+		
+		function updateTimesFilter() {
+			// convert input strings to moments 
+			// and update vm.times, which updates reference in dashboard service
+			if (timesInputsValid()) {
+				var momentFormat = dateFormat + " " + timeFormat;
+				if (vm.times.type == 'range') {
+					vm.times.range.from = moment(vm.times.inputs.range.from.date
+						+ " " + vm.times.inputs.range.from.time, momentFormat);
+					vm.times.range.to = moment(vm.times.inputs.range.to.date
+						+ " " + vm.times.inputs.range.to.time, momentFormat);
+				} else if (vm.times.type == 'point') {
+					vm.times.point = moment(vm.times.inputs.point.date
+						+ " " + vm.times.inputs.point.time, momentFormat);
+				}
+				
+				dashboard.updateTimes();
+				map.updateReadings();
+			}
+		}
+		
+		function timesInputsValid() {
+			if (vm.times.type == 'all') {
+				return true;
+			}
+			if (vm.times.type == 'range') {
+				// valid combinations: all filled, dates filled, times filled
+				var fromDate = vm.times.inputs.range.from.date;
+				var fromTime = vm.times.inputs.range.from.time;
+				var toDate = vm.times.inputs.range.to.date;
+				var toTime = vm.times.inputs.range.to.time;
+				
+				if (fromDate && fromTime && toDate && toTime) return true;
+				// if (fromDate && !fromTime && toDate && !toTime) return true;
+				// if (fromDate && fromTime && toDate && toTime) return true;
+			}
+			if (vm.times.type == 'point') {
+				// must have date, time is optional
+				if (vm.times.inputs.point.date) {
+					return true;
+				}
+			}
+			
+			return false;
+		}
+		
+		function updateBatteryFilter() {
+			dashboard.updateBattery();
 			map.updateReadings();
 		}
 	}

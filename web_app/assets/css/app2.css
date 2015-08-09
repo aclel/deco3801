@@ -19,10 +19,21 @@
 	background-color: darkgrey;
 }
 
-input[type="text"] {
+.timefilters input[type="text"] {
 	width: 40%;
 	display: inline;
-	margin: 0 10px;
+	margin-right: 10px;
+}
+
+.timefilters {
+  margin-left: 8px;
+  margin-top: 15px;
+}
+
+.readingfilters input[type="text"] {
+	width: 60px;
+	display: inline;
+	margin-right: 5px;
 }
 
 

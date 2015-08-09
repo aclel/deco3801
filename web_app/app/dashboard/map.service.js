@@ -9,9 +9,11 @@
 	function map(dashboard) {
 				
 		var map;
-		var mapZoom = 11;
-		var mapCenter = new google.maps.LatLng(-27.573704, 153.055818);
-		var mapType = google.maps.MapTypeId.ROADMAP;
+		var mapOptions = {
+			zoom: 11,
+			center: new google.maps.LatLng(-27.573704, 153.055818),
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		};
 		var markers = {};
 		var disabledMarkers = [];
 		var infoBox;
@@ -20,47 +22,54 @@
 		
 		return {
 			initialiseMap: initialiseMap,
-			updateReadings: updateReadings,
-			markReadings: markReadings
+			updateReadings: updateReadings
 		};
 
 		function initialiseMap() {
-			var mapOptions = {
-				zoom: mapZoom,
-				center: mapCenter,
-				mapTypeId: mapType
-	        };
+			// disable points of interest
+			var noPoi = [
+			    {
+			        featureType: "poi",
+			        elementType: "labels",
+			        stylers: [
+			              { visibility: "off" }
+			        ]
+			    },
+				{
+			        featureType: "transit.station",
+			        elementType: "labels",
+			        stylers: [
+			              { visibility: "off" }
+			        ]
+			    }
+			];
+			mapOptions.styles = noPoi;
 			
 			map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions); 
 			
+			
 			google.maps.event.addListener(map, 'zoom_changed', function() {
-				mapZoom = map.getZoom();
+				mapOptions.zoom = map.getZoom();
 			});
 			
 			google.maps.event.addListener(map, 'center_changed', function() {
-				mapCenter = map.getCenter();
+				mapOptions.center = map.getCenter();
 			});
 			
 			google.maps.event.addListener(map, 'maptypeid_changed', function() {
-				mapType = map.getMapTypeId();
+				mapOptions.mapTypeId = map.getMapTypeId();
 			});
 			
 		    google.maps.event.addListener(map, 'click', function() {
 		        if (infoBoxOpen) {
-					infoBox.close();
-					infoBoxOpen = false;
+					closeInfoBox();
 				}
 		    });
 			
-			
-		}
-		
-		function markReadings() {
-			// call this when view is loaded
-			// updateReadings has a bug that markers aren't shown when changing tab?
-			var rd = dashboard.readings();
-			for (var i = 0; i < rd.length; i++) {
-				addMarker(rd[i]);
+			// mark readings
+			var readings = dashboard.readings();
+			for (var i = 0; i < readings.length; i++) {
+				addMarker(readings[i]);
 			}
 		}
 		
@@ -73,34 +82,29 @@
 				enabledReadings.push(readings[i].readingId);
 			}
 			
+			// disable markers which shouldn't be enabled
 			for (var key in markers) {
 				if (markers.hasOwnProperty(key)) {
 					key = parseInt(key, 10);
 					if (enabledReadings.indexOf(key) == -1) {
-						// disable markers which aren't in enabledReadings array
 						disableMarker(key);
-						disabledMarkers.push(key);
 					}
 				}
 			}
 			
 			// add and re-enable markers
 			for (var i = 0; i < readings.length; i++) {
-				if (!markers.hasOwnProperty(readings[i].readingId)) {
+				var readingId = readings[i].readingId;
+				if (!markers.hasOwnProperty(readingId)) {
 					addMarker(readings[i]);
 				} else {
-					if (disabledMarkers.indexOf(readings[i].readingId) != -1) {
-						enableMarker(readings[i].readingId);
-						disabledMarkers.splice(disabledMarkers.indexOf(readings[i].readingId), 1);
+					// update opacity
+					markers[readingId].setOpacity(calculateOpacity(readings[i]));
+					
+					// re-enable disabled markers
+					if (disabledMarkers.indexOf(readingId) != -1) {
+						enableMarker(readingId);
 					}
-				}
-			}
-			
-			// close infobox of disabled marker
-			if (infoBoxOpen) {
-				if (disabledMarkers.indexOf(currentMarkerId) != -1) {
-					infoBox.close();
-					infoBoxOpen = false;
 				}
 			}
 		}
@@ -109,7 +113,7 @@
 			var marker = new google.maps.Marker({
 				position: new google.maps.LatLng(reading.latitude, reading.longitude),
 				map: map,
-				title: 'Buoy ' + reading.buoy + ': reading ' + reading.readingId,
+				// title: 'Buoy ' + reading.buoy + ': reading ' + reading.readingId,
 				opacity: calculateOpacity(reading)
 			});
 			
@@ -122,26 +126,35 @@
 		
 		function disableMarker(readingId) {
 			markers[readingId].setMap(null);
+			disabledMarkers.push(readingId);
+			
+			// close infobox of disabled marker
+			if (infoBoxOpen) {
+				if (disabledMarkers.indexOf(currentMarkerId) != -1) {
+					closeInfoBox();
+				}
+			}
 		}
 		
 		function enableMarker(readingId) {
 			markers[readingId].setMap(map);
+			disabledMarkers.splice(disabledMarkers.indexOf(readingId), 1);
 		}
 		
 		function calculateOpacity(reading) {
-			// calculate opacity of marker based on age
-			// should be dependent on time filters
-			// for now let's just say 1 day is 5%
-			var markerMoment = moment.unix(reading.timestamp);
-			var daysAgo = moment().diff(markerMoment, 'days');
-			return Math.max(1.00 - (daysAgo * 0.05), 0);
+			var age = dashboard.getRelativeAge(reading);
+			var minVisibleOpacity = 0.3;
+			return age * (1 - minVisibleOpacity) + minVisibleOpacity;
 		}
 		
+		function closeInfoBox() {
+			infoBox.close();
+			infoBoxOpen = false;
+		}
 		
 		function openInfoBox(reading, marker) {
 			if (infoBoxOpen) {
-				infoBox.close();
-				infoBoxOpen = false;
+				closeInfoBox();
 				
 				if (reading.readingId == currentMarkerId) {
 					return;
@@ -155,9 +168,10 @@
 							"<h5 style='color: white'>Buoy " + reading.buoy + "</h5>" +
 							formattedTime + 
 							"<br>---" +
-							"<br>Battery: " + reading.readings[1] +
-							"<br>Turbidity: " + reading.readings[2] +
-							"<br>Temperature: " + reading.readings[3] +
+							"<br>Battery: " + reading.readings.battery +
+							"<br>Pressure: " + reading.readings.pressure +
+							"<br>Sea level: " + reading.readings.sealevel +
+							"<br>Turbidity: " + reading.readings.turbidity +
 							"</div>";
 							
 			infoBox = new InfoBox({

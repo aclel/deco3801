@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"code.google.com/p/go.crypto/bcrypt"
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/aclel/deco3801/server/config"
 	"github.com/aclel/deco3801/server/models"

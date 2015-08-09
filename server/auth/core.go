@@ -9,11 +9,10 @@ import (
 	"path/filepath"
 	"time"
 
-	"code.google.com/p/go.crypto/bcrypt"
-
 	"github.com/aclel/deco3801/server/models"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/jmoiron/sqlx"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type JWTAuth struct {

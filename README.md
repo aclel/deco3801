@@ -64,4 +64,20 @@ Now that you are logged in you are able to access the Buoys. If you try to do so
 
 The /buoys route just returns text at the moment but this will be changed to JSON.
 
+## Web Interface
 
+The web interface is a single-page application built with [AngularJS](https://angularjs.org/).
+
+### Quickstart
+
+Run `http-server -o` from `deco301/web_app`.
+
+### Getting Started
+
+The web app needs to be served through a web server with the server root directory configured as *deco3801/web_app*. One way to do this is by running a Node.js http-server from this directory.
+
+ 1. Install [Node.js](https://nodejs.org/)
+ 2. Run `npm install -g http-server`. This will perform a global install of the node [http-server](https://www.npmjs.com/package/http-server) package.
+ 3. `cd` into `deco3801/web_app`
+ 4. Run `http-server`. You should get a message saying which port the server is using.
+ 5. Browse to http://localhost:8080 or whichever port the server is using.

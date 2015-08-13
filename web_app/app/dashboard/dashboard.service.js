@@ -184,8 +184,10 @@
 					return false;
 				}
 			} else if (filters.times.type == 'point') {
-				if (filters.times.pointReadings[reading.buoy].id != reading.id) {
-					return false;
+				if (filters.times.pointReadings.hasOwnProperty(reading.buoy)) {
+					if (filters.times.pointReadings[reading.buoy].id != reading.id) {
+						return false;
+					}
 				}
 			}
 			return true;

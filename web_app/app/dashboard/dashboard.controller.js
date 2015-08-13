@@ -9,16 +9,18 @@
 			
 		vm.buoys = dashboard.buoys();
 		vm.times = dashboard.times();
-		vm.battery = dashboard.battery();
+		vm.sensors = dashboard.sensors();
 		vm.updateBuoysFilter = updateBuoysFilter;
 		vm.updateTimesFilter = updateTimesFilter;
-		vm.updateBatteryFilter = updateBatteryFilter;
+		vm.updateSensorsFilter = updateSensorsFilter;
 		
 		var dateFormat = "D/M/YY";
 		var timeFormat = "h:mm A";
 			
 		$document.ready(function() {
 			map.initialiseMap();
+			dashboard.updateFilters();
+			map.updateReadings();
 		});
 		
 		function updateBuoysFilter(id, enabled) {
@@ -72,8 +74,8 @@
 			return false;
 		}
 		
-		function updateBatteryFilter() {
-			dashboard.updateBattery();
+		function updateSensorsFilter() {
+			dashboard.updateSensors();
 			map.updateReadings();
 		}
 	}

@@ -7,7 +7,7 @@
 	function dashboard($filter, server) {
 		var readings = server.getReadings();
 		var filteredReadings = readings;
-
+		
 		var filters = {};
 		initialiseFilters();
 		
@@ -15,10 +15,11 @@
 			readings: getReadings,
 			buoys: getBuoys,
 			times: getTimes,
-			battery: getBattery,
+			sensors: getSensors,
 			updateBuoys: updateBuoys,
 			updateTimes: updateTimes,
-			updateBattery: updateBattery,
+			updateFilters: updateFilters,
+			updateSensors: updateSensors,
 			getOldestReading: getOldestReading,
 			getRelativeAge: getRelativeAge
 		};
@@ -45,12 +46,9 @@
 				}
 			}
 			
-			filters.battery = {
-				enabled: false,
-				options: [">", "<", "="],
-				selected: ">",
-				value: ""
-			}
+			filters.sensors = {};
+			filters.sensorInputs = {};
+			initialiseSensors();
 		}
 
 		function getReadings() {
@@ -65,8 +63,22 @@
 			return filters.times;
 		}
 		
-		function getBattery() {
-			return filters.battery;
+		function getSensors() {
+			initialiseSensors();
+			for (var key in filters.sensorInputs) {
+				if (filters.sensorInputs.hasOwnProperty(key)) {
+					filters.sensors[key].inputs = filters.sensorInputs[key];
+				}
+			}
+			var sensors = []; 
+			for (var key in filters.sensors) {
+				if (filters.sensors.hasOwnProperty(key)) {
+					if (filters.sensors[key].display) {
+						sensors.push(filters.sensors[key]);
+					}
+				}
+			}
+			return sensors;
 		}
 		
 		function updateBuoys() {
@@ -80,8 +92,29 @@
 			updateFilters();
 		}
 		
-		function updateBattery() {
+		function updateSensors() {
 			updateFilters();
+		}
+		
+		function initialiseSensors() {
+			var sensors = server.getSensors();
+			for (var i = 0; i < sensors.length; i++) {
+				filters.sensors[sensors[i].id] = sensors[i];
+				
+				if (!filters.sensorInputs.hasOwnProperty(sensors[i].id)) {
+					filters.sensorInputs[sensors[i].id] = {
+						enabled: false,
+						options: [">", "<", "="],
+						selected: ">",
+						value: ""
+					}
+				}
+				
+				// disable inputs which aren't set to display
+				if (!sensors[i].display) {
+					filters.sensorInputs[sensors[i].id].enabled = false;
+				}				
+			}
 		}
 		
 		function getOldestReading() {
@@ -109,13 +142,13 @@
 					
 					if (Math.abs(diffNew) < Math.abs(diffOld)) {
 						buoyReadings[reading.buoy] = {
-							id: reading.readingId,
+							id: reading.id,
 							time: reading.timestamp
 						};
 					} 
 				} else {
 					buoyReadings[reading.buoy] = {
-						id: reading.readingId,
+						id: reading.id,
 						time: reading.timestamp
 					};
 				}
@@ -127,7 +160,12 @@
 			filteredReadings = $filter('filter')(readings, function(reading) {
 				if (!filterBuoys(reading)) return false;
 				if (!filterTimes(reading)) return false;
-				if (!filterBattery(reading)) return false;
+				for (var key in filters.sensorInputs) {
+					if (filters.sensorInputs.hasOwnProperty(key)) {
+						if (!filterSensor(key, filters.sensorInputs[key], reading)) 
+							return false;
+					}
+				}
 				return true;
 			});
 		}
@@ -146,28 +184,28 @@
 					return false;
 				}
 			} else if (filters.times.type == 'point') {
-				if (filters.times.pointReadings[reading.buoy].id != reading.readingId) {
+				if (filters.times.pointReadings[reading.buoy].id != reading.id) {
 					return false;
 				}
 			}
 			return true;
 		}
 		
-		function filterBattery(reading) {
-			if (!filters.battery.enabled) {
+		function filterSensor(id, sensor, reading) {
+			if (!sensor.enabled) {
 				return true;
 			}
-			var value = parseInt(filters.battery.value, 10);
-			if (filters.battery.selected == ">") {
-				if (reading.readings.battery <= value) {
+			var value = parseInt(sensor.value, 10);
+			if (sensor.selected == ">") {
+				if (reading.readings[id] <= value) {
 					return false;
 				}
-			} else if (filters.battery.selected == "<") {
-				if (reading.readings.battery >= value) {
+			} else if (sensor.selected == "<") {
+				if (reading.readings[id] >= value) {
 					return false;
 				}
-			} else if (filters.battery.selected == "=") {
-				if (reading.readings.battery != value) {
+			} else if (sensor.selected == "=") {
+				if (reading.readings[id] != value) {
 					return false;
 				}
 			}

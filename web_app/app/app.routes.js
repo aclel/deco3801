@@ -20,10 +20,10 @@
 					templateUrl: '/app/dashboard/dashboard.html'
 				})
 				.state('config', {
-					url: '/config'
-					// controller: 'ConfigController',
-					// controllerAs: 'vm',
-					// templateUrl: '/app/config/config.html'
+					url: '/config',
+					controller: 'ConfigController',
+					controllerAs: 'vm',
+					templateUrl: '/app/config/config.html'
 				})
 				.state('warnings', {
 					url: '/warnings'

@@ -13,6 +13,7 @@
         'mgcrea.ngStrap.button',
         'mgcrea.ngStrap.select',
         
-        'app.dashboard'
+        'app.dashboard',
+        'app.config'
     ]);
 })();

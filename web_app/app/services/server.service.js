@@ -7,7 +7,7 @@
 	function server() {
 		var dummyReadings = [
 			{
-				readingId: 1,
+				id: 1,
 				buoy: 1,
 				timestamp: 1438933614,
 				latitude: -27.44613423,
@@ -19,7 +19,7 @@
 					turbidity: 14
 				}
 			}, {
-				readingId: 2, 
+				id: 2, 
 				buoy: 2,
 				timestamp: 1438588117,
 				latitude: -27.42693772,
@@ -31,7 +31,7 @@
 					turbidity: 4
 				}
 			}, {
-				readingId: 3, 
+				id: 3, 
 				buoy: 2,
 				timestamp: 1438760876,
 				latitude: -27.491475, 
@@ -43,7 +43,7 @@
 					turbidity: 45
 				}
 			}, {
-				readingId: 4, 
+				id: 4, 
 				buoy: 4,
 				timestamp: 1438847291,
 				latitude: -27.400357, 
@@ -55,7 +55,7 @@
 					turbidity: 66
 				}
 			}, {
-				readingId: 77, 
+				id: 77, 
 				buoy: 1,
 				timestamp: 1438328839,
 				latitude: -27.44713423,
@@ -69,12 +69,53 @@
 			}
 		];
 		
+		var dummySensors = [
+			{
+				id: "battery",
+				name: "Battery",
+				description: "Battery level of buoy",
+				colour: "",
+				units: "%",
+				lowerBound: 0,
+				upperBound: 100,
+				display: true,
+				unconfigured: false				
+			},
+			{
+				id: "turbidity",
+				name: "Turbidity",
+				description: "Water quality around buoy",
+				colour: "",
+				units: "g/ml",
+				lowerBound: 0,
+				upperBound: 70,
+				display: true,
+				unconfigured: false				
+			},
+			{
+				id: "pressure",
+				name: "",
+				description: "",
+				colour: "",
+				units: "",
+				lowerBound: -1,
+				upperBound: -1,
+				display: false,
+				unconfigured: true				
+			}
+		];
+		
 		return {
-			getReadings: getReadings
+			getReadings: getReadings,
+			getSensors: getSensors
 		};
 		
 		function getReadings() {
 			return dummyReadings; // replace with AJAX request
+		}
+		
+		function getSensors() {
+			return dummySensors;
 		}
 	}
 })();

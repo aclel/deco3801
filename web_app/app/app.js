@@ -1,4 +1,3 @@
-/// <reference path="../typings/angularjs/angular.d.ts"/>
 (function() {
     'use strict';
     
@@ -14,6 +13,7 @@
         'mgcrea.ngStrap.button',
         'mgcrea.ngStrap.select',
         
-        'app.dashboard'
+        'app.dashboard',
+        'app.config'
     ]);
 })();

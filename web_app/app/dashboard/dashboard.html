@@ -57,17 +57,19 @@
 	</div>
 	<div class="grid-content">
 		<h3>Filters</h3>
-		<div class="readingfilters">
-			<input type="checkbox" ng-model="vm.battery.enabled" ng-change="vm.updateBatteryFilter()">
-			Battery
-			<!--<div>-->
-				<button type="button" class="btn btn-default" 
-						ng-model="vm.battery.selected" 
-						bs-options="opt for opt in vm.battery.options"
-						ng-change="vm.updateBatteryFilter()" bs-select>
-				</button>
-				<input type="text" ng-model="vm.battery.value" ng-change="vm.updateBatteryFilter()">%
-			<!--</div>-->
+		<div class="sensorfilters">
+			<div ng-repeat="sensor in vm.sensors">
+				<input type="checkbox" ng-model="sensor.inputs.enabled" ng-change="vm.updateSensorsFilter()">
+				{{ sensor.name }}
+				<!--<div>-->
+					<button type="button" class="btn btn-default" 
+							ng-model="sensor.inputs.selected" 
+							bs-options="opt for opt in sensor.inputs.options"
+							ng-change="vm.updateSensorsFilter()" bs-select>
+					</button>
+					<input type="text" ng-model="sensor.inputs.value" ng-change="vm.updateSensorsFilter()"> {{ sensor.units }}
+				<!--</div>-->
+			</div>
 		</div>
 	</div>
 </div>

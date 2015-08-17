@@ -29,7 +29,7 @@
 			var promise = server.getReadings();
 			promise.then(function(res) {
 				console.log(res);
-				readings = res;
+				readings = res.data;
 				initialiseFilters();
 			}, function(res) {
 				console.log('error');

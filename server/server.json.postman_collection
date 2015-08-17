@@ -1,50 +1,51 @@
 {
-	"id": "9acb319a-96c2-e101-1de7-41293dd8b4bd",
+	"id": "4276d430-5ee8-7210-7cfc-bba9fb000da0",
 	"name": "server",
 	"description": "API endpoints for Go server",
 	"order": [],
 	"folders": [
 		{
-			"id": "2cad90fb-fa24-7b5a-e17d-33a58ceff6e7",
+			"id": "20a7bb3b-9e55-7a08-caff-15242551349f",
 			"name": "auth",
 			"description": "",
 			"write": true,
 			"order": [
-				"362e03ab-6462-ef1e-0e81-c337ef9fa606"
+				"dfce8243-885c-e35e-8be7-85cf3f6fc082"
 			],
 			"collection": "9acb319a-96c2-e101-1de7-41293dd8b4bd",
 			"owner": 0,
 			"collection_name": "server",
 			"collection_owner": 0,
-			"collection_id": "9acb319a-96c2-e101-1de7-41293dd8b4bd"
+			"collection_id": "4276d430-5ee8-7210-7cfc-bba9fb000da0"
 		},
 		{
-			"id": "3a5c40b4-1566-27a1-1311-e235b6048bf3",
+			"id": "209612ee-3f3b-528f-a4d7-b5188da94670",
 			"name": "buoys",
 			"description": "",
 			"write": true,
 			"order": [
-				"54d89253-a901-0caf-7bb1-8f8bd1c10e6b"
+				"554f76e8-9f28-73e6-dc9d-d958b0815939",
+				"17c95d68-993b-130c-a150-359d23d73f22"
 			],
 			"collection": "9acb319a-96c2-e101-1de7-41293dd8b4bd",
 			"owner": 0,
 			"collection_name": "server",
 			"collection_owner": 0,
-			"collection_id": "9acb319a-96c2-e101-1de7-41293dd8b4bd"
+			"collection_id": "4276d430-5ee8-7210-7cfc-bba9fb000da0"
 		},
 		{
-			"id": "747bdcfe-892f-08fe-76e2-e395a8ba9a88",
+			"id": "0b19ae1f-4e5f-d6b9-ef0d-80a879f4423d",
 			"name": "users",
 			"description": "",
 			"write": true,
 			"order": [
-				"655d1da7-83a5-b70e-a03b-2db69449b9f1"
+				"1d0d2222-fe9a-8b8f-577d-ec1bedab226e"
 			],
 			"collection": "9acb319a-96c2-e101-1de7-41293dd8b4bd",
 			"owner": 0,
 			"collection_name": "server",
 			"collection_owner": 0,
-			"collection_id": "9acb319a-96c2-e101-1de7-41293dd8b4bd"
+			"collection_id": "4276d430-5ee8-7210-7cfc-bba9fb000da0"
 		}
 	],
 	"timestamp": 1439028133134,
@@ -53,29 +54,9 @@
 	"public": false,
 	"requests": [
 		{
-			"id": "362e03ab-6462-ef1e-0e81-c337ef9fa606",
-			"headers": "Content-Type: application/json\n",
-			"url": "localhost:8080/api/login",
-			"preRequestScript": "",
-			"pathVariables": {},
-			"method": "POST",
-			"data": [],
-			"dataMode": "raw",
-			"version": 2,
-			"tests": "",
-			"currentHelper": "normal",
-			"helperAttributes": {},
-			"time": 1439733474987,
-			"name": "/api/login",
-			"description": "",
-			"collectionId": "9acb319a-96c2-e101-1de7-41293dd8b4bd",
-			"responses": [],
-			"rawModeData": "{\n    \"username\":\"aclel\",\n    \"password\": \"secret\"\n}"
-		},
-		{
-			"id": "54d89253-a901-0caf-7bb1-8f8bd1c10e6b",
+			"id": "17c95d68-993b-130c-a150-359d23d73f22",
 			"headers": "Content-Type: application/json\nAuthorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0MzkxMjE3MTYsImlhdCI6MTQzOTAzNTMxNiwic3ViIjoiYW5kcmV3In0.ha4_TSlOOyydp3xCEjkNlA2IZ152bdrG2R-0f1lt7R0Zrghtk_cLzz30pUUNPymbsBmwwWFDQ6Vi7cQ2U30pVZYTfn0j1oH12EakiLJbE8G840MGr5sjwL9QSK0sQUgmJVFpXha-6hcr6CdLARLIC0Oec2FTUKgROtcD7MkbAds\n",
-			"url": "localhost:8080/api/buoys",
+			"url": "http://teamneptune.co/api/readings",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "GET",
@@ -85,16 +66,16 @@
 			"tests": "",
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1439733476613,
-			"name": "/api/buoys",
+			"time": 1439830895999,
+			"name": "/readings",
 			"description": "",
-			"collectionId": "9acb319a-96c2-e101-1de7-41293dd8b4bd",
+			"collectionId": "4276d430-5ee8-7210-7cfc-bba9fb000da0",
 			"responses": []
 		},
 		{
-			"id": "655d1da7-83a5-b70e-a03b-2db69449b9f1",
+			"id": "1d0d2222-fe9a-8b8f-577d-ec1bedab226e",
 			"headers": "Content-Type: application/json\n",
-			"url": "localhost:8080/api/users",
+			"url": "http://teamneptune.co/api/users",
 			"preRequestScript": "",
 			"pathVariables": {},
 			"method": "POST",
@@ -104,12 +85,51 @@
 			"tests": "",
 			"currentHelper": "normal",
 			"helperAttributes": {},
-			"time": 1439733478089,
-			"name": "/api/users",
+			"time": 1439830900903,
+			"name": "/users",
 			"description": "",
-			"collectionId": "9acb319a-96c2-e101-1de7-41293dd8b4bd",
+			"collectionId": "4276d430-5ee8-7210-7cfc-bba9fb000da0",
 			"responses": [],
 			"rawModeData": "{\n    \"username\": \"aclel\",\n    \"password\": \"secret\"\n}"
+		},
+		{
+			"id": "554f76e8-9f28-73e6-dc9d-d958b0815939",
+			"headers": "Content-Type: application/json\nAuthorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0MzkxMjE3MTYsImlhdCI6MTQzOTAzNTMxNiwic3ViIjoiYW5kcmV3In0.ha4_TSlOOyydp3xCEjkNlA2IZ152bdrG2R-0f1lt7R0Zrghtk_cLzz30pUUNPymbsBmwwWFDQ6Vi7cQ2U30pVZYTfn0j1oH12EakiLJbE8G840MGr5sjwL9QSK0sQUgmJVFpXha-6hcr6CdLARLIC0Oec2FTUKgROtcD7MkbAds\n",
+			"url": "http://teamneptune.co/api/buoys",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "GET",
+			"data": [],
+			"dataMode": "params",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1439830939797,
+			"name": "/buoys",
+			"description": "",
+			"collectionId": "4276d430-5ee8-7210-7cfc-bba9fb000da0",
+			"responses": []
+		},
+		{
+			"id": "dfce8243-885c-e35e-8be7-85cf3f6fc082",
+			"headers": "Content-Type: application/json\n",
+			"url": "http://teamneptune.co/api/login",
+			"preRequestScript": "",
+			"pathVariables": {},
+			"method": "POST",
+			"data": [],
+			"dataMode": "raw",
+			"version": 2,
+			"tests": "",
+			"currentHelper": "normal",
+			"helperAttributes": {},
+			"time": 1439830935526,
+			"name": "/login",
+			"description": "",
+			"collectionId": "4276d430-5ee8-7210-7cfc-bba9fb000da0",
+			"responses": [],
+			"rawModeData": "{\n    \"username\":\"andrew\",\n    \"password\": \"secret123\"\n}"
 		}
 	]
 }

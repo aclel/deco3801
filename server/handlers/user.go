@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -20,6 +21,7 @@ func UsersCreate(env *config.Env, w http.ResponseWriter, r *http.Request) (int, 
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(requestUser.Password), 10)
 	if err != nil {
+		log.Println(err)
 		return 500, err
 	}
 
@@ -28,6 +30,7 @@ func UsersCreate(env *config.Env, w http.ResponseWriter, r *http.Request) (int, 
 
 	err = models.CreateUser(env.DB, user)
 	if err != nil {
+		log.Println(err)
 		return 500, err
 	}
 

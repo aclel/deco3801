@@ -16,11 +16,12 @@ import (
 func NewRouter(env *config.Env) *mux.Router {
 	r := mux.NewRouter().StrictSlash(true)
 	// Authenticated routes
-	r.Handle("/buoys", AuthHandler{env, handlers.BuoysIndex})
+	r.Handle("/api/buoys", AuthHandler{env, handlers.BuoysIndex})
+	r.Handle("/api/readings", AuthHandler{env, handlers.ReadingsIndex})
 
 	// Unauthenticated routes
-	r.Handle("/users", AppHandler{env, handlers.UsersCreate})
-	r.Handle("/login", AppHandler{env, handlers.Login})
+	r.Handle("/api/users", AppHandler{env, handlers.UsersCreate})
+	r.Handle("/api/login", AppHandler{env, handlers.Login})
 
 	return r
 }

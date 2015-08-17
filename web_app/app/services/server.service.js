@@ -4,7 +4,7 @@
 	angular.module('app')
 		.factory('server', server);
 	
-	function server() {
+	function server($http) {
 		var dummyReadings = [
 			{
 				id: 1,
@@ -111,7 +111,7 @@
 		};
 		
 		function getReadings() {
-			return dummyReadings; // replace with AJAX request
+			return $http.get('http://teamneptune.co/api/readings');
 		}
 		
 		function getSensors() {

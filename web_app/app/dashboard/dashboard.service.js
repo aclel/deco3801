@@ -5,13 +5,14 @@
 		.factory('dashboard', dashboard);
 		
 	function dashboard($filter, server) {
-		var readings = server.getReadings();
-		var filteredReadings = readings;
+		var readings = [];
+		var filteredReadings = [];
 		
 		var filters = {};
 		initialiseFilters();
 		
 		return {
+			initialise: initialise,
 			readings: getReadings,
 			buoys: getBuoys,
 			times: getTimes,
@@ -23,6 +24,15 @@
 			getOldestReading: getOldestReading,
 			getRelativeAge: getRelativeAge
 		};
+		
+		function initialise() {
+			var promise = server.getReadings();
+			promise.then(function(res) {
+				readings = res;
+				initialiseFilters();
+			});
+			return promise;
+		}
 		
 		function initialiseFilters() {
 			filters.buoys = {}; // { buoyId: enabled }

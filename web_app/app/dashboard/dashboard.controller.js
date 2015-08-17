@@ -14,13 +14,22 @@
 		vm.updateTimesFilter = updateTimesFilter;
 		vm.updateSensorsFilter = updateSensorsFilter;
 		
+		dashboard.initialise().then(function() {
+			vm.buoys = dashboard.buoys();
+			vm.times = dashboard.times();
+			vm.sensors = dashboard.sensors();
+			
+			dashboard.updateFilters();
+			map.updateReadings();
+		});
+		
 		var dateFormat = "D/M/YY";
 		var timeFormat = "h:mm A";
 			
 		$document.ready(function() {
 			map.initialiseMap();
-			dashboard.updateFilters();
-			map.updateReadings();
+			// dashboard.updateFilters();
+			// map.updateReadings();
 		});
 		
 		function updateBuoysFilter(id, enabled) {

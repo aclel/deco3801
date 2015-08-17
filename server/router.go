@@ -17,6 +17,7 @@ func NewRouter(env *config.Env) *mux.Router {
 	r := mux.NewRouter().StrictSlash(true)
 	// Authenticated routes
 	r.Handle("/api/buoys", AuthHandler{env, handlers.BuoysIndex})
+	r.Handle("/api/readings", AuthHandler{env, handlers.ReadingsIndex})
 
 	// Unauthenticated routes
 	r.Handle("/api/users", AppHandler{env, handlers.UsersCreate})

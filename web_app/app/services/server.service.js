@@ -112,7 +112,15 @@
 		
 		function getReadings() {
 			console.log('querying server');
-			return $http.get('/api/readings');
+			
+			var token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0Mzk5MDQwNjksImlhdCI6MTQzOTgxNzY2OSwic3ViIjoiYXdkeWVyIn0.gW40-A5yU01xuvqf2yHcYMrehSfNYC52X1T5KI0dtArB8X_6rCUgXEw7ql3-RfL3kivJsa-6RBnu8x84xc1VUvWY_t0wa7qyOwv8R-1klaP4H7D6Vv-f0L--zwYV_8hEYwwil9wh9_cyUYetW2N5cUTBHJ-zoGZlSu6P1VvwslY';
+			var config = {
+				headers: {
+					'Authorization': 'Bearer ' + token
+				}
+			};
+			
+			return $http.get('/api/readings', config);
 		}
 		
 		function getSensors() {

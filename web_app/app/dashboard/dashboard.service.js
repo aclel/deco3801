@@ -28,8 +28,12 @@
 		function initialise() {
 			var promise = server.getReadings();
 			promise.then(function(res) {
+				console.log(res);
 				readings = res;
 				initialiseFilters();
+			}, function(res) {
+				console.log('error');
+				console.log(res);
 			});
 			return promise;
 		}

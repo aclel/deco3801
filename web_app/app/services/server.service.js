@@ -111,7 +111,8 @@
 		};
 		
 		function getReadings() {
-			return $http.get('http://teamneptune.co/api/readings');
+			console.log('querying server');
+			return $http.get('/api/readings');
 		}
 		
 		function getSensors() {

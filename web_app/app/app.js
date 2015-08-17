@@ -12,6 +12,7 @@
         'mgcrea.ngStrap.timepicker',
         'mgcrea.ngStrap.button',
         'mgcrea.ngStrap.select',
+        'chart.js',
         
         'app.dashboard',
         'app.config'

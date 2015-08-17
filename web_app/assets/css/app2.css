@@ -1,6 +1,6 @@
 #map-canvas { 
 	height: 1200px;	
-	margin: 0 -15px;
+	margin: 0 -16px 0 -16px;
 }
 
 .no-overflow {
@@ -8,11 +8,19 @@
 }
 
 .grid-block, .grid-content {
-	border: 1px solid black;
+	/*border: 1px solid black;*/
 }
 
-.shadow-right {
+/*.shadow-right {
 	box-shadow: 2px 0 2px lightgray;
+}*/
+
+.shadow-glow {
+  box-shadow: 0 0 5px 2px lightgray;
+}
+
+.shadow-bottom {
+  box-shadow: 0 2px 2px lightgray;
 }
 
 .mapWindow {

@@ -24,6 +24,7 @@ func NewRouter(env *config.Env) *mux.Router {
 		//AllowedOrigins:   []string{"http://localhost:3000", "http://teamneptune.co"},
 		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"POST", "GET", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Content-Type", "Accept-Encoding", "X-CSRF-Token", "Authorization"},
 		AllowCredentials: true,
 	})
 

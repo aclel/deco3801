@@ -10,18 +10,33 @@ import (
 	"github.com/aclel/deco3801/server/handlers"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
+	"github.com/justinas/alice"
+	"github.com/rs/cors"
 )
 
 // Setup authenticated and unauthenticated routes in gorilla mux router
 func NewRouter(env *config.Env) *mux.Router {
 	r := mux.NewRouter().StrictSlash(true)
+
+	// Enable CORS on all domains
+	c := cors.New(cors.Options{
+		// This can be uncommented to restrict CORS to only localhost:3000 and teamneptune.co
+		//AllowedOrigins:   []string{"http://localhost:3000", "http://teamneptune.co"},
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"POST", "GET", "PUT", "DELETE", "OPTIONS"},
+		AllowCredentials: true,
+	})
+
+	// Setup the default middleware chain
+	defaultChain := alice.New(c.Handler)
+
 	// Authenticated routes
-	r.Handle("/api/buoys", AuthHandler{env, handlers.BuoysIndex})
-	r.Handle("/api/readings", AuthHandler{env, handlers.ReadingsIndex})
+	r.Handle("/api/buoys", defaultChain.Then(AuthHandler{env, handlers.BuoysIndex}))
+	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, handlers.ReadingsIndex}))
 
 	// Unauthenticated routes
-	r.Handle("/api/users", AppHandler{env, handlers.UsersCreate})
-	r.Handle("/api/login", AppHandler{env, handlers.Login})
+	r.Handle("/api/users", defaultChain.Then(AppHandler{env, handlers.UsersCreate}))
+	r.Handle("/api/login", defaultChain.Then(AppHandler{env, handlers.Login}))
 
 	return r
 }

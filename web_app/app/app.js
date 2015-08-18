@@ -1,4 +1,3 @@
-/// <reference path="../typings/angularjs/angular.d.ts"/>
 (function() {
     'use strict';
     
@@ -13,7 +12,9 @@
         'mgcrea.ngStrap.timepicker',
         'mgcrea.ngStrap.button',
         'mgcrea.ngStrap.select',
+        'chart.js',
         
-        'app.dashboard'
+        'app.dashboard',
+        'app.config'
     ]);
 })();

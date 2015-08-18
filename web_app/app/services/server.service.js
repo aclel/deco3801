@@ -4,10 +4,10 @@
 	angular.module('app')
 		.factory('server', server);
 	
-	function server() {
+	function server($http) {
 		var dummyReadings = [
 			{
-				readingId: 1,
+				id: 1,
 				buoy: 1,
 				timestamp: 1438933614,
 				latitude: -27.44613423,
@@ -19,7 +19,7 @@
 					turbidity: 14
 				}
 			}, {
-				readingId: 2, 
+				id: 2, 
 				buoy: 2,
 				timestamp: 1438588117,
 				latitude: -27.42693772,
@@ -31,7 +31,7 @@
 					turbidity: 4
 				}
 			}, {
-				readingId: 3, 
+				id: 3, 
 				buoy: 2,
 				timestamp: 1438760876,
 				latitude: -27.491475, 
@@ -43,7 +43,7 @@
 					turbidity: 45
 				}
 			}, {
-				readingId: 4, 
+				id: 4, 
 				buoy: 4,
 				timestamp: 1438847291,
 				latitude: -27.400357, 
@@ -55,7 +55,7 @@
 					turbidity: 66
 				}
 			}, {
-				readingId: 77, 
+				id: 77, 
 				buoy: 1,
 				timestamp: 1438328839,
 				latitude: -27.44713423,
@@ -69,12 +69,65 @@
 			}
 		];
 		
+		var dummySensors = [
+			{
+				id: "battery",
+				name: "Battery",
+				description: "Battery level of buoy",
+				colour: "",
+				units: "%",
+				lowerBound: 0,
+				upperBound: 100,
+				display: true,
+				unconfigured: false				
+			},
+			{
+				id: "turbidity",
+				name: "Turbidity",
+				description: "Water quality around buoy",
+				colour: "",
+				units: "g/ml",
+				lowerBound: 0,
+				upperBound: 70,
+				display: true,
+				unconfigured: false				
+			},
+			{
+				id: "pressure",
+				name: "",
+				description: "",
+				colour: "",
+				units: "",
+				lowerBound: -1,
+				upperBound: -1,
+				display: false,
+				unconfigured: true				
+			}
+		];
+		
 		return {
-			getReadings: getReadings
+			getReadings: getReadings,
+			getSensors: getSensors
 		};
 		
 		function getReadings() {
-			return dummyReadings; // replace with AJAX request
+			console.log('querying server');
+			
+			/* This token is temporarily hardcoded to demonstrate authentication
+				between the web interface and server without the need for a login page
+			*/
+			var token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0Mzk5MDQwNjksImlhdCI6MTQzOTgxNzY2OSwic3ViIjoiYXdkeWVyIn0.gW40-A5yU01xuvqf2yHcYMrehSfNYC52X1T5KI0dtArB8X_6rCUgXEw7ql3-RfL3kivJsa-6RBnu8x84xc1VUvWY_t0wa7qyOwv8R-1klaP4H7D6Vv-f0L--zwYV_8hEYwwil9wh9_cyUYetW2N5cUTBHJ-zoGZlSu6P1VvwslY';
+			var config = {
+				headers: {
+					'Authorization': 'Bearer ' + token
+				}
+			};
+			
+			return $http.get('/api/readings', config);
+		}
+		
+		function getSensors() {
+			return dummySensors;
 		}
 	}
 })();

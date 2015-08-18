@@ -54,14 +54,28 @@ Now that you have a User account you are able to login
 4. You should get a response with Status 200 OK. The request body contains a [JSON Web Token](http://jwt.io/).
 4. Copy the token 
 
-#### Get all the Buoys
+#### Get all readings
 
-Now that you are logged in you are able to access the Buoys. If you try to do so without logging in you will get a 401 Unauthorized.
+Now that you are logged in you are able to access the readings. If you try to do so without logging in you will get a 401 Unauthorized.
 
-1. Click on the GET /buoys route in the buoys folder
+1. Click on the GET /readings route in the buoys folder
 2. Click on the Headers tab and replace the token in the value of the Authorization field with the one that you copied. Note that "Bearer" must remain at the beginning of the field. The value field should look like: `Bearer eyJhbGciOiJSUzI1NiIsInR5...`
 3. Click the blue Send button
 
-The /buoys route just returns text at the moment but this will be changed to JSON.
+## Web Interface
 
+The web interface is a single-page application built with [AngularJS](https://angularjs.org/).
 
+### Quickstart
+
+Run `http-server -o` from `deco3801/web_app`.
+
+### Getting Started
+
+The web app needs to be served through a web server with the server root directory configured as *deco3801/web_app*. One way to do this is by running a Node.js http-server from this directory.
+
+ 1. Install [Node.js](https://nodejs.org/)
+ 2. Run `npm install -g http-server`. This will perform a global install of the node [http-server](https://www.npmjs.com/package/http-server) package.
+ 3. `cd` into `deco3801/web_app`
+ 4. Run `http-server`. You should get a message saying which port the server is using.
+ 5. Browse to http://localhost:8080 or whichever port the server is using.

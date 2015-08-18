@@ -79,7 +79,7 @@
 			// create an array of readings which should be enabled
 			var enabledReadings = [];
 			for (var i = 0; i < readings.length; i++) {
-				enabledReadings.push(readings[i].readingId);
+				enabledReadings.push(readings[i].id);
 			}
 			
 			// disable markers which shouldn't be enabled
@@ -94,16 +94,16 @@
 			
 			// add and re-enable markers
 			for (var i = 0; i < readings.length; i++) {
-				var readingId = readings[i].readingId;
-				if (!markers.hasOwnProperty(readingId)) {
+				var id = readings[i].id;
+				if (!markers.hasOwnProperty(id)) {
 					addMarker(readings[i]);
 				} else {
 					// update opacity
-					markers[readingId].setOpacity(calculateOpacity(readings[i]));
+					markers[id].setOpacity(calculateOpacity(readings[i]));
 					
 					// re-enable disabled markers
-					if (disabledMarkers.indexOf(readingId) != -1) {
-						enableMarker(readingId);
+					if (disabledMarkers.indexOf(id) != -1) {
+						enableMarker(id);
 					}
 				}
 			}
@@ -113,7 +113,7 @@
 			var marker = new google.maps.Marker({
 				position: new google.maps.LatLng(reading.latitude, reading.longitude),
 				map: map,
-				// title: 'Buoy ' + reading.buoy + ': reading ' + reading.readingId,
+				// title: 'Buoy ' + reading.buoy + ': reading ' + reading.id,
 				opacity: calculateOpacity(reading)
 			});
 			
@@ -121,12 +121,12 @@
 				openInfoBox(reading, marker);
 			});
 			
-			markers[reading.readingId] = marker;
+			markers[reading.id] = marker;
 		}
 		
-		function disableMarker(readingId) {
-			markers[readingId].setMap(null);
-			disabledMarkers.push(readingId);
+		function disableMarker(id) {
+			markers[id].setMap(null);
+			disabledMarkers.push(id);
 			
 			// close infobox of disabled marker
 			if (infoBoxOpen) {
@@ -136,9 +136,9 @@
 			}
 		}
 		
-		function enableMarker(readingId) {
-			markers[readingId].setMap(map);
-			disabledMarkers.splice(disabledMarkers.indexOf(readingId), 1);
+		function enableMarker(id) {
+			markers[id].setMap(map);
+			disabledMarkers.splice(disabledMarkers.indexOf(id), 1);
 		}
 		
 		function calculateOpacity(reading) {
@@ -156,7 +156,7 @@
 			if (infoBoxOpen) {
 				closeInfoBox();
 				
-				if (reading.readingId == currentMarkerId) {
+				if (reading.id == currentMarkerId) {
 					return;
 				}
 			}
@@ -191,7 +191,7 @@
 			
 			infoBox.open(map, marker);			
 			infoBoxOpen = true;
-			currentMarkerId = reading.readingId;
+			currentMarkerId = reading.id;
 		}
 	}
 })();

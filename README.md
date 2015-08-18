@@ -23,6 +23,23 @@ The web server is written in Go, meaning that the entire project needs to be clo
 
 If you run into a problem with the database or users feel free to change the connection string in `main.go`.
 
+### Create Environment Variables
+Serveral environment variables need to be configured for the server to run:
+- `FMS_DB_HOST` - The hostname of the database, for example "localhost"
+- `FMS_DB_PORT` - The port of the database at the hostname, for example "3306"
+- `FMS_DB_USERNAME` - The username of the database
+- `FMS_DB_PASSWORD` - The password of the database
+- `FMS_DB_NAME` - The name of the database
+
+On Mac OSX you can set environment variables in `~/.bash_profile`. An example file:  
+
+>#FMS variables  
+>export FMS_DB_HOST="localhost"  
+>export FMS_DB_PORT="3306"  
+>export FMS_DB_USERNAME="deco3801"  
+>export FMS_DB_PASSWORD="deco3801"  
+>export FMS_DB_NAME="deco3801"`  
+
 ### Running the server
 1. `cd` into `deco3801/server`
 2. Run go run *.go and if it was successful you should see a message saying that the web service is running

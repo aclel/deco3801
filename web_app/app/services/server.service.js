@@ -5,6 +5,10 @@
 		.factory('server', server);
 	
 	function server($http) {
+		
+		var serverAddress = "http://localhost:8080";
+		// var serverAddress = "";
+		
 		var dummyReadings = [
 			{
 				id: 1,
@@ -116,14 +120,14 @@
 			/* This token is temporarily hardcoded to demonstrate authentication
 				between the web interface and server without the need for a login page
 			*/
-			var token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0Mzk5MDQwNjksImlhdCI6MTQzOTgxNzY2OSwic3ViIjoiYXdkeWVyIn0.gW40-A5yU01xuvqf2yHcYMrehSfNYC52X1T5KI0dtArB8X_6rCUgXEw7ql3-RfL3kivJsa-6RBnu8x84xc1VUvWY_t0wa7qyOwv8R-1klaP4H7D6Vv-f0L--zwYV_8hEYwwil9wh9_cyUYetW2N5cUTBHJ-zoGZlSu6P1VvwslY';
+			var token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0NDAwNzY3MTIsImlhdCI6MTQzOTk5MDMxMiwic3ViIjoiYW5keXJvbyJ9.Gk_-UQGWqy22tPuiPRNNimaBx1OnC1JsBg9t3-CWFhkvtlpPXH0YAjXaTHxhkLsjKEeRM6WLWsq7B72vjdlj51CETjFY6H4eM84YKWnk9RcUPiwJ3N2eUoT4hxtwZ3ix4Z1sRm0xKiCm35etpgxYHGYBsDCEvaeMHG8hs77eRww';
 			var config = {
 				headers: {
 					'Authorization': 'Bearer ' + token
 				}
 			};
 			
-			return $http.get('/api/readings', config);
+			return $http.get(serverAddress + '/api/readings', config);
 		}
 		
 		function getSensors() {

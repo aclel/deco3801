@@ -4,10 +4,7 @@
 	angular.module('app')
 		.factory('server', server);
 	
-	function server($http) {
-		
-		var serverAddress = "http://localhost:8080";
-		// var serverAddress = "";
+	function server($http, SERVER_ADDRESS) {
 		
 		var dummyReadings = [
 			{
@@ -127,7 +124,7 @@
 				}
 			};
 			
-			return $http.get(serverAddress + '/api/readings', config);
+			return $http.get(SERVER_ADDRESS + '/api/readings', config);
 		}
 		
 		function getSensors() {

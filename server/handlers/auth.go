@@ -11,7 +11,7 @@ import (
 
 // POST /login
 // Responds with HTTP 200 if login is successful. Stores JWT in response body.
-func Login(env *config.Env, w http.ResponseWriter, r *http.Request) (int, error) {
+func LoginHandler(env *config.Env, w http.ResponseWriter, r *http.Request) (int, error) {
 	requestUser := new(models.User)
 	decoder := json.NewDecoder(r.Body)
 	decoder.Decode(&requestUser)
@@ -25,7 +25,7 @@ func Login(env *config.Env, w http.ResponseWriter, r *http.Request) (int, error)
 }
 
 // Not currently implemented in API
-func RefreshToken(env *config.Env, w http.ResponseWriter, r *http.Request) (int, error) {
+func RefreshTokenHandler(env *config.Env, w http.ResponseWriter, r *http.Request) (int, error) {
 	requestUser := new(models.User)
 	decoder := json.NewDecoder(r.Body)
 	decoder.Decode(&requestUser)

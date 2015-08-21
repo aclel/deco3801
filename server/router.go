@@ -37,7 +37,7 @@ func NewRouter(env *config.Env) *mux.Router {
 
 	// Unauthenticated routes
 	r.Handle("/api/users", defaultChain.Then(AppHandler{env, handlers.UsersCreate}))
-	r.Handle("/api/login", defaultChain.Then(AppHandler{env, handlers.Login}))
+	r.Handle("/api/login", defaultChain.Then(AppHandler{env, handlers.LoginHandler}))
 
 	return r
 }

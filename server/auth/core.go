@@ -1,12 +1,10 @@
 package auth
 
 import (
-	"bufio"
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/aclel/deco3801/server/models"
@@ -63,23 +61,14 @@ func (jwtAuth *JWTAuth) Authenticate(db *sqlx.DB, user *models.User) bool {
 }
 
 // Get a private key from a local file
+// Get a private key from an environment variable
 func getPrivateKey() *rsa.PrivateKey {
-	absPath, _ := filepath.Abs("./config/api.rsa")
-	privateKeyFile, err := os.Open(absPath)
-	if err != nil {
-		panic(err)
+	pemBytes := os.Getenv("FMS_PRIVATE_KEY")
+	if pemBytes == "" {
+		panic("No environment variable named FMS_PRIVATE_KEY")
 	}
 
-	pemfileinfo, _ := privateKeyFile.Stat()
-	var size int64 = pemfileinfo.Size()
-	pembytes := make([]byte, size)
-
-	buffer := bufio.NewReader(privateKeyFile)
-	_, err = buffer.Read(pembytes)
-
-	data, _ := pem.Decode([]byte(pembytes))
-
-	privateKeyFile.Close()
+	data, _ := pem.Decode([]byte(pemBytes))
 
 	privateKey, err := x509.ParsePKCS1PrivateKey(data.Bytes)
 
@@ -90,25 +79,14 @@ func getPrivateKey() *rsa.PrivateKey {
 	return privateKey
 }
 
-// Get a public key from a local file
+// Get a public key from an environment variable
 func getPublicKey() *rsa.PublicKey {
-	absPath, _ := filepath.Abs("./config/api.rsa.pub")
-	publicKeyFile, err := os.Open(absPath)
-
-	if err != nil {
-		panic(err)
+	pemBytes := os.Getenv("FMS_PUBLIC_KEY")
+	if pemBytes == "" {
+		panic("No environment variable named FMS_PUBLIC_KEY")
 	}
 
-	pemfileinfo, _ := publicKeyFile.Stat()
-	var size int64 = pemfileinfo.Size()
-	pembytes := make([]byte, size)
-
-	buffer := bufio.NewReader(publicKeyFile)
-	_, err = buffer.Read(pembytes)
-
-	data, _ := pem.Decode([]byte(pembytes))
-
-	publicKeyFile.Close()
+	data, _ := pem.Decode([]byte(pemBytes))
 
 	publicKeyImported, err := x509.ParsePKIXPublicKey(data.Bytes)
 

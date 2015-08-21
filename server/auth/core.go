@@ -9,7 +9,6 @@ import (
 
 	"github.com/aclel/deco3801/server/models"
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/jmoiron/sqlx"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -50,17 +49,12 @@ func (jwtAuth *JWTAuth) GenerateToken(username string) (string, error) {
 // Authenticates the given user
 // Pulls the user record from the database and checks that the passwords are the same
 // Returns true if authenticated
-func (jwtAuth *JWTAuth) Authenticate(db *sqlx.DB, user *models.User) bool {
-	dbUser := models.User{}
-	err := db.Get(&dbUser, "SELECT * FROM user WHERE username = ?", user.Username)
-	if err != nil {
-		return false
-	}
+func (jwtAuth *JWTAuth) Authenticate(dbUser *models.User, user *models.User) bool {
+
 	// Check that the usernames and password hashes are the same
 	return user.Username == dbUser.Username && bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(user.Password)) == nil
 }
 
-// Get a private key from a local file
 // Get a private key from an environment variable
 func getPrivateKey() *rsa.PrivateKey {
 	pemBytes := os.Getenv("FMS_PRIVATE_KEY")

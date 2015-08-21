@@ -15,12 +15,20 @@ type TokenAuth struct {
 
 // Authenticates the given user and issues a token in a json
 // response if the authentication was successful.
-// 
+//
 // Returns 401 Unauthorized if authentication was unsuccessful
 func Login(db *sqlx.DB, user *models.User) (int, []byte) {
 	jwtAuth := InitJWTAuth()
 
-	if jwtAuth.Authenticate(db, user) {
+	// Get user with given username from the database
+	dbUser := &models.User{}
+	err := db.Get(&dbUser, "SELECT * FROM user WHERE username = ?", user.Username)
+
+	if err != nil {
+		return http.StatusInternalServerError, []byte("")
+	}
+
+	if jwtAuth.Authenticate(dbUser, user) {
 		log.Println("Authenticated")
 		token, err := jwtAuth.GenerateToken(user.Username)
 		if err != nil {

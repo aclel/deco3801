@@ -1,8 +1,6 @@
 package models
 
-import "github.com/jmoiron/sqlx"
-
-func GetAllReadings(db *sqlx.DB) ([]byte, error) {
+func (db *DB) GetAllReadings() ([]byte, error) {
 	readings := []byte(`
 			[{
 				"id": 1,

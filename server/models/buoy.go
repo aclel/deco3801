@@ -1,7 +1,5 @@
 package models
 
-import "github.com/jmoiron/sqlx"
-
 type Buoy struct {
 	Id          int    `db:"ID"`
 	Name        string `db:"name"`
@@ -15,7 +13,7 @@ type Buoy struct {
 
 // Gets all buoys from the database
 // Returns a slice of buoys
-func GetAllBuoys(db *sqlx.DB) ([]Buoy, error) {
+func (db *DB) GetAllBuoys() ([]Buoy, error) {
 	buoys := []Buoy{}
 	err := db.Select(&buoys, "SELECT * FROM buoy;")
 	if err != nil {

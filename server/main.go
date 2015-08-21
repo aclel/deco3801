@@ -4,20 +4,12 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/aclel/deco3801/server/config"
+	"github.com/aclel/deco3801/server/models"
 	"github.com/kelseyhightower/envconfig"
 )
 
-type Config struct {
-	DbHost     string `envconfig:"db_host"`
-	DbPort     string `envconfig:"db_port"`
-	DbUsername string `envconfig:"db_username"`
-	DbPassword string `envconfig:"db_password"`
-	DbName     string `envconfig:"db_name"`
-}
-
 func main() {
-	var conf Config
+	var conf models.DBConfig
 	err := envconfig.Process("fms", &conf)
 	if err != nil {
 		log.Fatal(err)
@@ -29,13 +21,13 @@ func main() {
 		conf.DbPort + ")/" +
 		conf.DbName
 
-	db, err := config.NewDB(dataSourceName)
+	db, err := models.NewDB(dataSourceName)
 
 	if err != nil {
 		log.Println("Connection to database was unsuccessful.")
 		log.Panic(err)
 	}
-	env := &config.Env{DB: db}
+	env := &models.Env{db}
 	router := NewRouter(env)
 
 	log.Println("Database connection successful. Connected to " + dataSourceName)

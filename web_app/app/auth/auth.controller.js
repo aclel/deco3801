@@ -11,6 +11,8 @@
 		vm.login = login;
 		vm.logout = logout;
 		
+		resetForm();
+		
 		// Redirect to login page if not logged in, otherwise redirect from login page
 		$rootScope.$on('$stateChangeStart', function(event, toState) {
 			if (auth.authed()) {
@@ -34,8 +36,7 @@
 				if (auth.authed()) {
 					vm.authed = true;
 					$state.go('dashboard');
-					vm.username = "";
-					vm.password = "";
+					resetForm();
 				}
 				
 			},
@@ -48,6 +49,11 @@
 			server.logout();
 			vm.authed = false;
 			$state.go('login');			
+		}
+		
+		function resetForm() {
+			vm.username = "imafake"; // obviously get rid of these
+			vm.password = "ekafami";
 		}
 	}
 })();

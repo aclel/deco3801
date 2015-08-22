@@ -12,25 +12,34 @@
     <link rel="stylesheet" href="/assets/css/app.css">
     <link rel="stylesheet" href="/assets/css/app2.css">
 </head>
-<body>
+<body ng-controller="AuthController as authVm">
     
     <div class="grid-frame vertical">
         <div class="grid-content shrink" style="padding: 0;">
             <header>
-            	<h1 class='title'>RMS</h1>
+            	<h1 class='title'>FMS</h1>
             	<div class="menu">
-            		<ul class="menuLink" id="dashboard"
+            		<ul ng-show="authVm.authed" ng-cloak
                         ng-class="{ active: $state.includes('dashboard') }">
             			<a ui-sref="dashboard">Dashboard</a>
             		</ul>
-            		<ul class="menuLink"id="config"
+            		<ul ng-show="authVm.authed" ng-cloak
                         ng-class="{ active: $state.includes('config') }">
             			<a ui-sref="config">Config</a>
             		</ul>
-            		<ul class="menuLink"id="warnings"
+            		<ul ng-show="authVm.authed" ng-cloak
                         ng-class="{ active: $state.includes('warnings') }">
             			<a ui-sref="warnings">Warnings</a>
             		</ul>
+                    <!--<ul ng-hide="authVm.authed" ng-cloak
+                        class="login"
+                        ng-class="{ active: $state.includes('login') }">
+                        <a ui-sref="login">Login</a>
+                    </ul>-->
+                    <ul ng-show="authVm.authed" ng-cloak
+                        class="login">
+                        <a href="" ng-click="authVm.logout()">Logout</a>
+                    </ul>
             	</div>
             </header>
         </div>
@@ -59,6 +68,11 @@
     <script src="/app/app.routes.js"></script>
     <script src="/app/app.config.js"></script>
     <script src="/app/app.constants.js"></script>
+    
+    <script src="/app/auth/auth.module.js"></script>
+    <script src="/app/auth/auth.controller.js"></script>
+    <script src="/app/auth/auth.service.js"></script>
+    <script src="/app/auth/authInterceptor.service.js"></script>
     
     <script src="/app/dashboard/dashboard.module.js"></script>
     <script src="/app/dashboard/dashboard.controller.js"></script>

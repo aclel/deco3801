@@ -127,3 +127,7 @@ table {
 .unconfiguredSensor {
   border: 1px solid limegreen;
 }
+
+[ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none !important;
+}

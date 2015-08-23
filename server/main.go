@@ -14,6 +14,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println(conf)
 
 	dataSourceName := conf.DbUsername + ":" +
 		conf.DbPassword + "@tcp(" +

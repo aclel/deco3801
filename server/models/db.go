@@ -1,15 +1,23 @@
-package config
+package models
 
 import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
 
-// Represents app context.
-// Provides a means to safely pass around context variables,
-// such as the database.
-type Env struct {
-	DB *sqlx.DB
+// Stores database environment variables.
+type DBConfig struct {
+	DbHost     string `envconfig:"db_host"`
+	DbPort     string `envconfig:"db_port"`
+	DbUsername string `envconfig:"db_username"`
+	DbPassword string `envconfig:"db_password"`
+	DbName     string `envconfig:"db_name"`
+}
+
+// Custom type which embeds db connection pool.
+// This makes it possible to mock the database for unit testing.
+type DB struct {
+	*sqlx.DB
 }
 
 // Opens a database with the given data source name.
@@ -22,7 +30,7 @@ type Env struct {
 // Returns a *sqlx.DB which is a pointer to a database handle
 // that maintains a pool of underlying connections. It's safe
 // for concurrent use by multiple go routines.
-func NewDB(dataSourceName string) (*sqlx.DB, error) {
+func NewDB(dataSourceName string) (*DB, error) {
 	var err error
 	db, err := sqlx.Open("mysql", dataSourceName)
 	if err != nil {
@@ -33,5 +41,5 @@ func NewDB(dataSourceName string) (*sqlx.DB, error) {
 		return nil, err
 	}
 
-	return db, nil
+	return &DB{db}, nil
 }

@@ -2,7 +2,9 @@
 	'use strict';
 	
 	angular.module('app')
-		.config(function($datepickerProvider, $timepickerProvider) {
+		.config(function($datepickerProvider, $timepickerProvider, $httpProvider) {
+			
+			$httpProvider.interceptors.push('authInterceptor');
 			
 			angular.extend($datepickerProvider.defaults, {
 				autoclose: true,

@@ -1,12 +1,9 @@
-package auth
+package models
 
 import (
 	"encoding/json"
 	"log"
 	"net/http"
-
-	"github.com/aclel/deco3801/server/models"
-	"github.com/jmoiron/sqlx"
 )
 
 type TokenAuth struct {
@@ -15,14 +12,21 @@ type TokenAuth struct {
 
 // Authenticates the given user and issues a token in a json
 // response if the authentication was successful.
-// 
+//
 // Returns 401 Unauthorized if authentication was unsuccessful
-func Login(db *sqlx.DB, user *models.User) (int, []byte) {
+func (db *DB) Login(user *User) (int, []byte) {
 	jwtAuth := InitJWTAuth()
 
-	if jwtAuth.Authenticate(db, user) {
+	// Get user with given email from the database
+	dbUser, err := db.GetUserWithEmail(user.Email)
+
+	if err != nil {
+		return http.StatusInternalServerError, []byte("")
+	}
+
+	if jwtAuth.Authenticate(dbUser, user) {
 		log.Println("Authenticated")
-		token, err := jwtAuth.GenerateToken(user.Username)
+		token, err := jwtAuth.GenerateToken(user.Email)
 		if err != nil {
 			return http.StatusInternalServerError, []byte("")
 		} else {
@@ -36,9 +40,9 @@ func Login(db *sqlx.DB, user *models.User) (int, []byte) {
 }
 
 // Reissues a token to an authenticated user
-func RefreshToken(db *sqlx.DB, user *models.User) []byte {
+func (db *DB) RefreshToken(user *User) []byte {
 	jwtAuth := InitJWTAuth()
-	token, err := jwtAuth.GenerateToken(user.Username)
+	token, err := jwtAuth.GenerateToken(user.Email)
 	if err != nil {
 		panic(err)
 	}

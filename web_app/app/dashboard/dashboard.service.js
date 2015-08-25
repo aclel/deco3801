@@ -30,7 +30,7 @@
 			promise.then(function(res) {
 				console.log(res);
 				readings = res.data;
-				initialiseFilters();
+				repopulateFilters();
 			}, function(res) {
 				console.log('error');
 				console.log(res);
@@ -40,11 +40,7 @@
 		
 		function initialiseFilters() {
 			filters.buoys = {}; // { buoyId: enabled }
-			for (var i = 0; i < readings.length; i++) {
-				if (!filters.buoys.hasOwnProperty(readings[i].buoy)) {
-					filters.buoys[readings[i].buoy] = true;
-				}
-			}
+			populateBuoys();
 			
 			filters.times = {
 				type: "all",
@@ -62,7 +58,20 @@
 			
 			filters.sensors = {};
 			filters.sensorInputs = {};
-			initialiseSensors();
+			populateSensors();
+		}
+		
+		function repopulateFilters() {
+			populateBuoys();
+			populateSensors();
+		}
+		
+		function populateBuoys() {
+			for (var i = 0; i < readings.length; i++) {
+				if (!filters.buoys.hasOwnProperty(readings[i].buoy)) {
+					filters.buoys[readings[i].buoy] = true;
+				}
+			}
 		}
 
 		function getReadings() {
@@ -78,7 +87,7 @@
 		}
 		
 		function getSensors() {
-			initialiseSensors();
+			populateSensors();
 			for (var key in filters.sensorInputs) {
 				if (filters.sensorInputs.hasOwnProperty(key)) {
 					filters.sensors[key].inputs = filters.sensorInputs[key];
@@ -110,7 +119,7 @@
 			updateFilters();
 		}
 		
-		function initialiseSensors() {
+		function populateSensors() {
 			var sensors = server.getSensors();
 			for (var i = 0; i < sensors.length; i++) {
 				filters.sensors[sensors[i].id] = sensors[i];

@@ -7,14 +7,13 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/aclel/deco3801/server/config"
 	"github.com/aclel/deco3801/server/models"
 )
 
 // POST /users
 // Create a User, hash the password and store the User in the database
 // Responds with HTTP 200 if successful
-func UsersCreate(env *config.Env, w http.ResponseWriter, r *http.Request) (int, error) {
+func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) (int, error) {
 	requestUser := new(models.User)
 	decoder := json.NewDecoder(r.Body)
 	decoder.Decode(&requestUser)
@@ -28,7 +27,7 @@ func UsersCreate(env *config.Env, w http.ResponseWriter, r *http.Request) (int, 
 	user := *requestUser
 	user.Password = string(hashedPassword)
 
-	err = models.CreateUser(env.DB, user)
+	err = env.DB.CreateUser(&user)
 	if err != nil {
 		log.Println(err)
 		return 500, err

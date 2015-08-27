@@ -79,39 +79,45 @@ header .title {
 }
 
 header .menu {
-	display: inline-block;
-	margin-left: 32%;
-	vertical-align: middle;
+    display: inline-block;
+    margin-left: 32%;
+    vertical-align: middle;
 }
 
 header .menu ul{
-	display: inline-block;
-	float: left;
-	padding: 0px;
-	margin-left: 21px;
+    display: inline-block;
+    float: left;
+    padding: 0px;
+    margin-left: 21px;
 
 }
 
 header .menu ul.active {
-	border-bottom: 2px solid orange;
+    border-bottom: 2px solid orange;
 }
 
 header .menu a {
-	/*transition: font-size 0.25s;*/
-	cursor: pointer;
-	
-	color: white;
-	text-transform: uppercase;
-	font-size: 0.75em;
-	text-decoration: none;
+    /*transition: font-size 0.25s;*/
+    cursor: pointer;
+    
+    color: white;
+    text-transform: uppercase;
+    font-size: 0.75em;
+    text-decoration: none;
 }
 
 /*header .menu a:hover {
     font-size: 0.8em;
 }*/
 
-header .menu ul:hover {
+header .menu a:hover {
+    padding-bottom: 5px;
     border-bottom: 2px solid rgba(255, 165, 0, 0.44);
+}
+
+
+header .menu .login {
+    margin-left: 100px;
 }
 
 /******************     FILTERBAR   ******************/

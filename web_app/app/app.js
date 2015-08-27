@@ -14,6 +14,7 @@
         'mgcrea.ngStrap.select',
         'chart.js',
         
+        'app.auth',
         'app.dashboard',
         'app.config'
     ]);

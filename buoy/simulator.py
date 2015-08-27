@@ -1,4 +1,7 @@
 import socket, sys
+from threading import Thread
+from time import sleep
+
 
 HOSTNAME = "localhost"
 PORT = 8080
@@ -18,6 +21,14 @@ class BuoyNode():
 	def __init__(self):
 		pass
 
+	def go_to_sleep(self, time):
+		print "Buoy ({0}): sleeping for {1} (hrs)".format(guid, time*360000)
+		sleep(time)
+
+	def send_command(self):
+		conn = Connection()
+		
+
 
 class Simulate():
 
@@ -33,12 +44,7 @@ class Simulate():
 		print HEADER + "Team Neptune DECO3801 Buoy Simulator" + ENDC
 		print HEADER + "Type 'help' for help" + ENDC
 
-		commands = [["    new <guid> <cvar>    ", "creates a new buoy"],
-					["    list                 ", "list all buoys"],
-					["    update <buoy> <cvar> ", "update a buoy"],
-					["    use <buoy> <cvar>    ", "do something on a buoy"],
-					["    start <buoy>         ", "start a buoy"],
-					["    stop <buoy>          ", "stop a buoy"]]
+		
 		while True:
 			try:
 				cmd = raw_input("> ")
@@ -49,11 +55,28 @@ class Simulate():
 				print OKGREEN + "User quit" + ENDC
 				sys.exit(0)
 			elif (cmd in ("help", "?")):
-				print OKGREEN + "Available tasks: " + ENDC
-				for name, desc in commands:
-					print OKGREEN + name + "... " + desc + ENDC
+				self.cmd_help()
+			elif (cmd in ("ls", "list")):
+				self.cmd_ls_buoys()
 			else:
 				print WARNING + "Command not found." + ENDC
+
+	def cmd_ls_buoys(self):
+		pass
+
+	def cmd_help(self):
+		commands = [["    new <guid> <name> <ip>", "creates a new buoy"],
+					["    list                  ", "list all buoys"],
+					["    update <buoy> <cvar>  ", "update a buoy"],
+					["    use <buoy> <cvar>     ", "do something on a buoy"],
+					["    start <buoy>          ", "start a buoy"],
+					["    stop <buoy>           ", "stop a buoy"]]
+		print OKGREEN + "Available tasks: " + ENDC
+		for name, desc in commands:
+			print OKGREEN + name + "... " + desc + ENDC
+
+	def cmd_start(self, args):
+
 
 class Connection():
 

@@ -5,9 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/aclel/deco3801/server/auth"
-	"github.com/aclel/deco3801/server/config"
 	"github.com/aclel/deco3801/server/handlers"
+	"github.com/aclel/deco3801/server/models"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
@@ -15,7 +14,7 @@ import (
 )
 
 // Setup authenticated and unauthenticated routes in gorilla mux router
-func NewRouter(env *config.Env) *mux.Router {
+func NewRouter(env *models.Env) *mux.Router {
 	r := mux.NewRouter().StrictSlash(true)
 
 	// Enable CORS on all domains
@@ -37,21 +36,21 @@ func NewRouter(env *config.Env) *mux.Router {
 
 	// Unauthenticated routes
 	r.Handle("/api/users", defaultChain.Then(AppHandler{env, handlers.UsersCreate}))
-	r.Handle("/api/login", defaultChain.Then(AppHandler{env, handlers.Login}))
+	r.Handle("/api/login", defaultChain.Then(AppHandler{env, handlers.LoginHandler}))
 
 	return r
 }
 
 // HandlerFunc which wraps handlers which require authentication
 type AuthHandler struct {
-	*config.Env
-	handle func(*config.Env, http.ResponseWriter, *http.Request) (int, error)
+	*models.Env
+	handle func(*models.Env, http.ResponseWriter, *http.Request) (int, error)
 }
 
 // Checks the presence and validity of JWT tokens in authenticated routes
 // Responds with HTTP 401 Unauthorized if the token is not valid
 func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	jwtAuth := auth.InitJWTAuth()
+	jwtAuth := models.InitJWTAuth()
 
 	// Could do some logging here as well
 	token, err := jwt.ParseFromRequest(r, func(token *jwt.Token) (interface{}, error) {
@@ -85,8 +84,8 @@ func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 // HandlerFunc which wraps handlers which do not require authentication
 // Adds (int, error) return type to handler
 type AppHandler struct {
-	*config.Env
-	handle func(*config.Env, http.ResponseWriter, *http.Request) (int, error)
+	*models.Env
+	handle func(*models.Env, http.ResponseWriter, *http.Request) (int, error)
 }
 
 // Executes handler and responds with a HTTP error if the handler returned an error

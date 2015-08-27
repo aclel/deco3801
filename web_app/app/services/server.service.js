@@ -4,7 +4,7 @@
 	angular.module('app')
 		.factory('server', server);
 	
-	function server($http, SERVER_ADDRESS) {
+	function server($http, SERVER_ADDRESS, auth) {
 		
 		var dummyReadings = [
 			{
@@ -108,16 +108,15 @@
 		
 		return {
 			getReadings: getReadings,
-			getSensors: getSensors
+			getSensors: getSensors,
+			login: login,
+			logout: logout
 		};
 		
 		function getReadings() {
 			console.log('querying server');
 			
-			/* This token is temporarily hardcoded to demonstrate authentication
-				between the web interface and server without the need for a login page
-			*/
-			var token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0NDAwNzY3MTIsImlhdCI6MTQzOTk5MDMxMiwic3ViIjoiYW5keXJvbyJ9.Gk_-UQGWqy22tPuiPRNNimaBx1OnC1JsBg9t3-CWFhkvtlpPXH0YAjXaTHxhkLsjKEeRM6WLWsq7B72vjdlj51CETjFY6H4eM84YKWnk9RcUPiwJ3N2eUoT4hxtwZ3ix4Z1sRm0xKiCm35etpgxYHGYBsDCEvaeMHG8hs77eRww';
+			var token = auth.getToken();
 			var config = {
 				headers: {
 					'Authorization': 'Bearer ' + token
@@ -129,6 +128,18 @@
 		
 		function getSensors() {
 			return dummySensors;
+		}
+		
+		function login(username, password) {
+			var data = {
+				email: username,
+				password: password
+			};
+			return $http.post(SERVER_ADDRESS + '/api/login', data);
+		}
+		
+		function logout() {
+			auth.logout();
 		}
 	}
 })();

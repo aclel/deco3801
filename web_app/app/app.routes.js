@@ -13,6 +13,12 @@
 			$urlRouterProvider.otherwise('/dashboard');
 			
 			$stateProvider
+				.state('login', {
+					url: '/login',
+					// controller: 'AuthController', now uses parent controller
+					// controllerAs: 'vm',
+					templateUrl: '/app/auth/login.html'
+				})
 				.state('dashboard', {
 					url: '/dashboard',
 					controller: 'DashboardController',

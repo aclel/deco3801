@@ -30,10 +30,14 @@ Serveral environment variables need to be configured for the server to run:
 - `FMS_DB_USERNAME` - The username of the database
 - `FMS_DB_PASSWORD` - The password of the database
 - `FMS_DB_NAME` - The name of the database
+- `FMS_PRIVATE_KEY` - This is used to sign Json Web Tokens
+- `FMS_PUBLIC_KEY` - This is used to decodee Json Web Tokens
+
+A private key can be generated with: `openssl genrsa -out mykey.pem 1024`  
+A public key can be generated with: `openssl rsa -in mykey.pem -pubout > mykey.pub`
 
 On Mac OSX you can set environment variables in `~/.bash_profile`. An example file:  
 
->#FMS variables  
 >export FMS_DB_HOST="localhost"  
 >export FMS_DB_PORT="3306"  
 >export FMS_DB_USERNAME="deco3801"  

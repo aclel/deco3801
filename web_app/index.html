@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="no-js" lang="en" ng-app="app">
+<html class="no-js" lang="en" ng-app="app" ng-strict-di>
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -15,6 +15,7 @@
 <body ng-controller="AuthController as authVm">
     
     <div class="grid-frame vertical">
+        
         <div class="grid-content shrink" style="padding: 0;">
             <header>
             	<h1 class='title'>FMS</h1>
@@ -56,35 +57,17 @@
     <script src='https://maps.googleapis.com/maps/api/js?sensor=false'></script>
     <script src="/assets/js/infobox.js"></script>
     
-    <script src="/bower_components/moment/moment.js"></script>
-    
     <script src="/bower_components/angular/angular.js"></script>
     <script src="/bower_components/angular-ui-router/release/angular-ui-router.js"></script>
     
     <script src="/bower_components/angular-strap/dist/angular-strap.min.js"></script>
     <script src="/bower_components/angular-strap/dist/angular-strap.tpl.min.js"></script>
-    
-    <script src="/app/app.js"></script>
-    <script src="/app/app.routes.js"></script>
-    <script src="/app/app.config.js"></script>
-    <script src="/app/app.constants.js"></script>
-    
-    <script src="/app/auth/auth.module.js"></script>
-    <script src="/app/auth/auth.controller.js"></script>
-    <script src="/app/auth/auth.service.js"></script>
-    <script src="/app/auth/authInterceptor.service.js"></script>
-    
-    <script src="/app/dashboard/dashboard.module.js"></script>
-    <script src="/app/dashboard/dashboard.controller.js"></script>
-    <script src="/app/dashboard/dashboard.service.js"></script>
-    <script src="/app/dashboard/map.service.js"></script>
-    
-    <script src="/app/config/config.module.js"></script>
-    <script src="/app/config/config.controller.js"></script>
-    
-    <script src="/app/services/server.service.js"></script>
-    
+        
     <script src="/bower_components/Chart.js/Chart.min.js"></script>
     <script src="/bower_components/angular-chart.js/dist/angular-chart.min.js"></script>
+    
+    <script src="/bower_components/moment/moment.js"></script>
+    
+    <script src="/assets/js/app.js"></script>
 </body>
 </html>

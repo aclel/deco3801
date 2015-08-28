@@ -1,6 +1,6 @@
 package models
 
-type ReadingManager interface {
+type ReadingRepository interface {
 	GetAllReadings() ([]byte, error)
 }
 

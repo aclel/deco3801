@@ -10,7 +10,7 @@ type TokenAuth struct {
 	Token string `json:"token"`
 }
 
-type AuthManager interface {
+type AuthRepository interface {
 	Login(*User) (int, []byte)
 	RefreshToken(*User) []byte
 }

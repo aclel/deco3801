@@ -11,7 +11,7 @@ type Buoy struct {
 	NewPoll     string `db:"new_poll"`
 }
 
-type BuoyManager interface {
+type BuoyRepository interface {
 	GetAllBuoys() ([]Buoy, error)
 }
 

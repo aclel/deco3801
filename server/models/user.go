@@ -6,7 +6,7 @@ type User struct {
 	Password string
 }
 
-type UserManager interface {
+type UserRepository interface {
 	CreateUser(*User) error
 	GetUserWithEmail(string) (*User, error)
 }

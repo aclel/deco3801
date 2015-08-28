@@ -22,7 +22,8 @@ func (mdb *MockDB) CreateUser(user *User) error {
 }
 
 func (mdb *MockDB) Login(user *User) (int, []byte) {
-	return 200, []byte("")
+	//shortened token, only checking for non-empty
+	return 200, []byte(`{"token": "eyJhbGciOiJSUzI..."}`)
 }
 
 func (mdb *MockDB) RefreshToken(user *User) []byte {

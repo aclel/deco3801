@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/aclel/deco3801/server/handlers"
 	"github.com/aclel/deco3801/server/models"
 	"github.com/kelseyhightower/envconfig"
 )
@@ -29,7 +30,7 @@ func main() {
 		log.Panic(err)
 	}
 	env := &models.Env{db}
-	router := NewRouter(env)
+	router := handlers.NewRouter(env)
 
 	log.Println("Database connection successful. Connected to " + dataSourceName)
 	log.Println("Web service listening on :8080")

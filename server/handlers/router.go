@@ -1,11 +1,10 @@
-package main
+package handlers
 
 import (
 	"fmt"
 	"log"
 	"net/http"
 
-	"github.com/aclel/deco3801/server/handlers"
 	"github.com/aclel/deco3801/server/models"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
@@ -31,12 +30,12 @@ func NewRouter(env *models.Env) *mux.Router {
 	defaultChain := alice.New(c.Handler)
 
 	// Authenticated routes
-	r.Handle("/api/buoys", defaultChain.Then(AuthHandler{env, handlers.BuoysIndex}))
-	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, handlers.ReadingsIndex}))
+	r.Handle("/api/buoys", defaultChain.Then(AuthHandler{env, BuoysIndex}))
+	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsIndex}))
 
 	// Unauthenticated routes
-	r.Handle("/api/users", defaultChain.Then(AppHandler{env, handlers.UsersCreate}))
-	r.Handle("/api/login", defaultChain.Then(AppHandler{env, handlers.LoginHandler}))
+	r.Handle("/api/users", defaultChain.Then(AppHandler{env, UsersCreate}))
+	r.Handle("/api/login", defaultChain.Then(AppHandler{env, LoginHandler}))
 
 	return r
 }

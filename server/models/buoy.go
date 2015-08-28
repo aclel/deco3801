@@ -11,6 +11,10 @@ type Buoy struct {
 	NewPoll     string `db:"new_poll"`
 }
 
+type BuoyManager interface {
+	GetAllBuoys() ([]Buoy, error)
+}
+
 // Gets all buoys from the database
 // Returns a slice of buoys
 func (db *DB) GetAllBuoys() ([]Buoy, error) {

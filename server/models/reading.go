@@ -1,5 +1,9 @@
 package models
 
+type ReadingManager interface {
+	GetAllReadings() ([]byte, error)
+}
+
 func (db *DB) GetAllReadings() ([]byte, error) {
 	readings := []byte(`
 			[{

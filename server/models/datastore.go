@@ -8,12 +8,11 @@ type Env struct {
 }
 
 // Implements the same methods as DB struct.
-// Every method that's added to the model needs to be added to this interface as well.
+// Every model that's added needs to have a Manager interface
+// added here as well
 type Datastore interface {
-	GetAllBuoys() ([]Buoy, error)
-	GetAllReadings() ([]byte, error)
-	GetUserWithEmail(string) (*User, error)
-	CreateUser(*User) error
-	Login(*User) (int, []byte)
-	RefreshToken(*User) []byte
+	BuoyManager
+	ReadingManager
+	UserManager
+	AuthManager
 }

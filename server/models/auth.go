@@ -10,6 +10,11 @@ type TokenAuth struct {
 	Token string `json:"token"`
 }
 
+type AuthManager interface {
+	Login(*User) (int, []byte)
+	RefreshToken(*User) []byte
+}
+
 // Authenticates the given user and issues a token in a json
 // response if the authentication was successful.
 //

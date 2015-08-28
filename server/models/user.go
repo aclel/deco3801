@@ -6,6 +6,11 @@ type User struct {
 	Password string
 }
 
+type UserManager interface {
+	CreateUser(*User) error
+	GetUserWithEmail(string) (*User, error)
+}
+
 // Inserts a User into the database
 func (db *DB) CreateUser(user *User) error {
 	stmt, err := db.Preparex("INSERT INTO user (email, password) VALUES(?, ?);")

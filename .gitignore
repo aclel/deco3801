@@ -31,3 +31,5 @@ node_modules
 
 # Environment constants files
 web_app/app/app.constants.js
+*.sublime-project
+*.sublime-workspace

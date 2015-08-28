@@ -132,7 +132,7 @@
 		
 		function login(username, password) {
 			var data = {
-				username: username,
+				email: username,
 				password: password
 			};
 			return $http.post(SERVER_ADDRESS + '/api/login', data);

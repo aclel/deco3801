@@ -20,3 +20,7 @@ gulp.task('watch', ['js'], function() {
   livereload.listen();
   gulp.watch('app/**/*.js', ['js']);
 });
+
+gulp.task('build', ['js'], function() {
+  //
+});

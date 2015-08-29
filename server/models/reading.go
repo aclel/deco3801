@@ -1,5 +1,9 @@
 package models
 
+type ReadingRepository interface {
+	GetAllReadings() ([]byte, error)
+}
+
 func (db *DB) GetAllReadings() ([]byte, error) {
 	readings := []byte(`
 			[{

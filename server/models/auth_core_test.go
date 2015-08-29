@@ -40,7 +40,7 @@ func TestGenerateToken(t *testing.T) {
 	want := true
 	got := token.Valid
 	if got != want {
-		t.Errorf("token.Valid = %v, want %v")
+		t.Errorf("token.Valid = %v, want %v", got, want)
 	}
 }
 

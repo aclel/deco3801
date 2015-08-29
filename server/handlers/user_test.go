@@ -18,7 +18,7 @@ func TestLogin(t *testing.T) {
 	env := &models.Env{DB: &models.MockDB{}}
 	AppHandler{env, LoginHandler}.ServeHTTP(rec, req)
 
-	resp := models.TokenAuth{}
+	resp := models.User{}
 	err := json.Unmarshal([]byte(rec.Body.String()), &resp)
 	if err != nil {
 		t.Errorf("could not unmarshal JSON into struct: %v", err)

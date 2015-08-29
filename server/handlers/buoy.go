@@ -21,7 +21,7 @@ func BuoysIndex(env *models.Env, w http.ResponseWriter, r *http.Request) (int, e
 	w.WriteHeader(http.StatusOK)
 
 	for _, buoy := range buoys {
-		fmt.Fprintf(w, "%s", buoy.Name)
+		fmt.Fprintf(w, "%s", buoy.Guid)
 	}
 
 	return 200, nil

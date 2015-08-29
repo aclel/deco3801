@@ -7,6 +7,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
+	"github.com/aclel/deco3801/server/mail"
 	"github.com/aclel/deco3801/server/models"
 )
 
@@ -31,6 +32,12 @@ func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) (int, 
 	if err != nil {
 		log.Println(err)
 		return 500, err
+	}
+
+	log.Println("About to send mail")
+	err = mail.SendNewUserEmail(&user)
+	if err != nil {
+		log.Println("Sending mail failed")
 	}
 
 	w.WriteHeader(http.StatusOK)

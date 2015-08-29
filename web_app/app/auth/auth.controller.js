@@ -31,7 +31,7 @@
 		});
 		
 		function login() {
-			server.login(vm.username, vm.password).then(
+			server.login(vm.email, vm.password).then(
 			function(res) {
 				if (auth.authed()) {
 					vm.authed = true;
@@ -41,7 +41,7 @@
 				
 			},
 			function(res) {
-				alert('Invalid username or password');
+				alert('Invalid email or password');
 			});
 		}
 		
@@ -52,8 +52,8 @@
 		}
 		
 		function resetForm() {
-			vm.username = "imafake"; // obviously get rid of these
-			vm.password = "ekafami";
+			vm.email = "neptune"; // placeholder
+			vm.password = "secret123";
 		}
 	}
 })();

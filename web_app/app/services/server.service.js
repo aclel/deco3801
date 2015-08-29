@@ -130,9 +130,9 @@
 			return dummySensors;
 		}
 		
-		function login(username, password) {
+		function login(email, password) {
 			var data = {
-				email: username,
+				email: email,
 				password: password
 			};
 			return $http.post(SERVER_ADDRESS + '/api/login', data);

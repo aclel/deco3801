@@ -9,16 +9,11 @@
 		
 		
 		return {
-			login: login,
 			logout: logout,
 			authed: authed,
 			getToken: getToken,
 			saveToken: saveToken
 		};
-		
-		function login(username, password) {
-			
-		}
 		
 		function logout() {
 			$window.localStorage.removeItem('token');

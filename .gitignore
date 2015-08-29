@@ -33,3 +33,6 @@ web_app/bower_components
 web_app/app/app.constants.js
 *.sublime-project
 *.sublime-workspace
+
+# Built files
+assets/js/app.js

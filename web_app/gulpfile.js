@@ -6,7 +6,7 @@ var ngAnnotate = require('gulp-ng-annotate');
 var livereload = require('gulp-livereload');
 
 gulp.task('js', function () {
-  gulp.src(['app/**/*.module.js', 'app/**/*.js'])
+  gulp.src(['app/**/*.module.js', 'app/**/*.js', '!app/**/*.spec.js'])
     .pipe(sourcemaps.init())
       .pipe(concat('app.js'))
       .pipe(ngAnnotate())

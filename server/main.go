@@ -9,8 +9,21 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
+// Stores environment variables
+type EnvVars struct {
+	DbHost       string `envconfig:"db_host"`
+	DbPort       string `envconfig:"db_port"`
+	DbUsername   string `envconfig:"db_username"`
+	DbPassword   string `envconfig:"db_password"`
+	DbName       string `envconfig:"db_name"`
+	SmtpUsername string `envconfig:"smtp_username"`
+	SmtpPassword string `envconfig:"smtp_password"`
+	SmtpServer   string `envconfig:"smtp_server"`
+	SmtpPort     int    `envconfig:"smtp_port"`
+}
+
 func main() {
-	var conf models.DBConfig
+	var conf EnvVars
 	err := envconfig.Process("fms", &conf)
 	if err != nil {
 		log.Fatal(err)
@@ -29,7 +42,15 @@ func main() {
 		log.Println("Connection to database was unsuccessful.")
 		log.Panic(err)
 	}
-	env := &models.Env{db}
+
+	emailUser := models.EmailCredentials{
+		Username: conf.SmtpUsername,
+		Password: conf.SmtpPassword,
+		Server:   conf.SmtpServer,
+		Port:     conf.SmtpPort,
+	}
+
+	env := &models.Env{db, emailUser}
 	router := handlers.NewRouter(env)
 
 	log.Println("Database connection successful. Connected to " + dataSourceName)

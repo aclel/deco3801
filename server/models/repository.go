@@ -4,7 +4,8 @@ package models
 // Provides a means to safely pass around context variables,
 // such as the database.
 type Env struct {
-	DB Repository
+	DB        Repository
+	EmailUser EmailCredentials
 }
 
 // Implements the same methods as DB struct.

@@ -5,15 +5,6 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// Stores database environment variables.
-type DBConfig struct {
-	DbHost     string `envconfig:"db_host"`
-	DbPort     string `envconfig:"db_port"`
-	DbUsername string `envconfig:"db_username"`
-	DbPassword string `envconfig:"db_password"`
-	DbName     string `envconfig:"db_name"`
-}
-
 // Custom type which embeds db connection pool.
 // This makes it possible to mock the database for unit testing.
 type DB struct {

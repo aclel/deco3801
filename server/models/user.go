@@ -1,6 +1,10 @@
 package models
 
-import "github.com/go-sql-driver/mysql"
+import (
+	"database/sql"
+
+	"github.com/go-sql-driver/mysql"
+)
 
 type User struct {
 	Id        int32          `json:"id" 	db:"id"`
@@ -37,6 +41,10 @@ func (db *DB) GetUserWithEmail(email string) (*User, error) {
 	dbUser := User{}
 	err := db.Get(&dbUser, "SELECT * FROM user WHERE email = ?;", email)
 
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -53,6 +61,24 @@ func (db *DB) UpdateUser(email string, updatedUser *User) error {
 	}
 
 	_, err = stmt.Exec(updatedUser.Password, updatedUser.FirstName,
+		updatedUser.LastName, updatedUser.LastLogin, email)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Update the old user record with the new one, excluding the password.
+// This avoids the password being rehashed each time.
+func (db *DB) UpdateUserExcludePassword(email string, updatedUser *User) error {
+	stmt, err := db.Preparex(`UPDATE user SET first_name=?,
+		last_name=?, last_login=? WHERE email=?;`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(updatedUser.FirstName,
 		updatedUser.LastName, updatedUser.LastLogin, email)
 	if err != nil {
 		return err

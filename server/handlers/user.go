@@ -32,7 +32,7 @@ func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) (int, 
 		return 500, err
 	}
 
-	if u.Email != "" {
+	if u != nil {
 		return http.StatusConflict, errors.New("User already exists with email: " + u.Email)
 	}
 

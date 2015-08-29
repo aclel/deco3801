@@ -1,9 +1,15 @@
 package models
 
+import "github.com/go-sql-driver/mysql"
+
 type User struct {
-	Id       int32
-	Email    string
-	Password string
+	Id        int32          `json:"id" 	db:"id"`
+	Email     string         `json:"email" db:"email"`
+	Password  string         `json:"password" db:"password"`
+	FirstName string         `json:"firstName" db:"first_name"`
+	LastName  string         `json:"lastName" db:"last_name"`
+	LastLogin mysql.NullTime `json:"lastLogin" db:"last_login"`
+	Token     string         `json:"token"`
 }
 
 type UserRepository interface {
@@ -13,12 +19,12 @@ type UserRepository interface {
 
 // Inserts a User into the database
 func (db *DB) CreateUser(user *User) error {
-	stmt, err := db.Preparex("INSERT INTO user (email, password) VALUES(?, ?);")
+	stmt, err := db.Preparex("INSERT INTO user (email, password, first_name, last_name) VALUES(?, ?, ?, ?);")
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(user.Email, user.Password)
+	_, err = stmt.Exec(user.Email, user.Password, user.FirstName, user.LastName)
 	if err != nil {
 		return err
 	}

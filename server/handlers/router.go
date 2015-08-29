@@ -94,6 +94,7 @@ type AppHandler struct {
 // code and this function will server the http.Error.
 func (appHandler AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if status, err := appHandler.handle(appHandler.Env, w, r); err != nil {
-		http.Error(w, http.StatusText(http.StatusInternalServerError), status)
+		log.Println(err)
+		http.Error(w, http.StatusText(status), status)
 	}
 }

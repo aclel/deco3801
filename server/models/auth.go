@@ -6,10 +6,6 @@ import (
 	"net/http"
 )
 
-type TokenAuth struct {
-	Token string `json:"token"`
-}
-
 type AuthRepository interface {
 	Login(*User) (int, []byte)
 	RefreshToken(*User) []byte
@@ -30,17 +26,19 @@ func (db *DB) Login(user *User) (int, []byte) {
 	}
 
 	if jwtAuth.Authenticate(dbUser, user) {
-		log.Println("Authenticated")
+		log.Println("Authenticated " + user.Email)
 		token, err := jwtAuth.GenerateToken(user.Email)
 		if err != nil {
 			return http.StatusInternalServerError, []byte("")
 		} else {
-			response, _ := json.Marshal(TokenAuth{token})
+			user.Token = token
+			user.Password = "" // don't want to send the password back to the client
+			response, _ := json.Marshal(user)
 			return http.StatusOK, response
 		}
 	}
 
-	log.Printf("Unauthorized")
+	log.Printf("Unauthorized: " + user.Email)
 	return http.StatusUnauthorized, []byte("")
 }
 
@@ -51,7 +49,8 @@ func (db *DB) RefreshToken(user *User) []byte {
 	if err != nil {
 		panic(err)
 	}
-	response, err := json.Marshal(TokenAuth{token})
+	user.Token = token
+	response, err := json.Marshal(user)
 	if err != nil {
 		panic(err)
 	}

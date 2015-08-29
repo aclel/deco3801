@@ -27,7 +27,6 @@ func SendNewUserEmail(user *User, emailUser *EmailCredentials) error {
 	d := gomail.NewPlainDialer(emailUser.Server, emailUser.Port, emailUser.Username, emailUser.Password)
 
 	if err := d.DialAndSend(m); err != nil {
-		log.Println("Error sending mail")
 		return err
 	}
 

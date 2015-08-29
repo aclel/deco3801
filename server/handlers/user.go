@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
+	"errors"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
@@ -18,24 +18,33 @@ func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) (int, 
 	decoder := json.NewDecoder(r.Body)
 	decoder.Decode(&requestUser)
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(requestUser.Password), 10)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("secret123"), 10)
 	if err != nil {
-		log.Println(err)
 		return 500, err
 	}
 
 	user := *requestUser
 	user.Password = string(hashedPassword)
 
-	err = env.DB.CreateUser(&user)
+	// Check if a user with the chosen email already exists
+	u, err := env.DB.GetUserWithEmail(requestUser.Email)
 	if err != nil {
-		log.Println(err)
 		return 500, err
 	}
 
+	if u.Email != "" {
+		return http.StatusConflict, errors.New("User already exists with email: " + u.Email)
+	}
+
+	// Insert user into db
+	err = env.DB.CreateUser(&user)
+	if err != nil {
+		return 500, err
+	}
+
+	// Send email to new user with sign in link
 	err = models.SendNewUserEmail(&user, &env.EmailUser)
 	if err != nil {
-		log.Println(err)
 		return 500, err
 	}
 

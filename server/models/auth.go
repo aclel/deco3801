@@ -20,13 +20,21 @@ func (db *DB) Login(user *User) (int, []byte) {
 
 	// Get user with given email from the database
 	dbUser, err := db.GetUserWithEmail(user.Email)
-
 	if err != nil {
 		return http.StatusInternalServerError, []byte("")
 	}
 
 	if jwtAuth.Authenticate(dbUser, user) {
 		log.Println("Authenticated " + user.Email)
+
+		// Update last login time
+		user.LastLogin = Now()
+		err = db.UpdateUser(user.Email, user)
+		if err != nil {
+			return http.StatusInternalServerError, []byte("")
+		}
+
+		// Generate JWT and respond with User object
 		token, err := jwtAuth.GenerateToken(user.Email)
 		if err != nil {
 			return http.StatusInternalServerError, []byte("")

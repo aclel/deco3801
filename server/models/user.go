@@ -43,3 +43,20 @@ func (db *DB) GetUserWithEmail(email string) (*User, error) {
 
 	return &dbUser, nil
 }
+
+// Updates the old user record with the new one
+func (db *DB) UpdateUser(email string, updatedUser *User) error {
+	stmt, err := db.Preparex(`UPDATE user SET password=?, first_name=?,
+		last_name=?, last_login=? WHERE email=?;`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(updatedUser.Password, updatedUser.FirstName,
+		updatedUser.LastName, updatedUser.LastLogin, email)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -1,7 +1,9 @@
 package models
 
 import (
-	_ "github.com/go-sql-driver/mysql"
+	"time"
+
+	mysql "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -33,4 +35,8 @@ func NewDB(dataSourceName string) (*DB, error) {
 	}
 
 	return &DB{db}, nil
+}
+
+func Now() mysql.NullTime {
+	return mysql.NullTime{Time: time.Now().In(time.UTC), Valid: true}
 }

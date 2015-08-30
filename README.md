@@ -21,28 +21,24 @@ The web server is written in Go, meaning that the entire project needs to be clo
 2. Create a database called deco3801 and import deco3801.sql
 3. Create a user called deco3801 with password deco3801 and give them access to the database
 
-If you run into a problem with the database or users feel free to change the connection string in `main.go`.
-
 ### Create Environment Variables
-Serveral environment variables need to be configured for the server to run:
+Several environment variables need to be configured for the server to run:
 - `FMS_DB_HOST` - The hostname of the database, for example "localhost"
 - `FMS_DB_PORT` - The port of the database at the hostname, for example "3306"
 - `FMS_DB_USERNAME` - The username of the database
 - `FMS_DB_PASSWORD` - The password of the database
 - `FMS_DB_NAME` - The name of the database
+- `FMS_SMTP_USERNAME` - Ask Andrew C for this
+- `FMS_SMTP_PASSWORD` - Ask Andrew C for this
+- `FMS_SMTP_SERVER` - smtp.gmail.com
+- `FMS_SMTP_PORT` - 587
 - `FMS_PRIVATE_KEY` - This is used to sign Json Web Tokens
 - `FMS_PUBLIC_KEY` - This is used to decodee Json Web Tokens
 
 A private key can be generated with: `openssl genrsa -out mykey.pem 1024`  
 A public key can be generated with: `openssl rsa -in mykey.pem -pubout > mykey.pub`
 
-On Mac OSX you can set environment variables in `~/.bash_profile`. An example file:  
-
->export FMS_DB_HOST="localhost"  
->export FMS_DB_PORT="3306"  
->export FMS_DB_USERNAME="deco3801"  
->export FMS_DB_PASSWORD="deco3801"  
->export FMS_DB_NAME="deco3801"`  
+On Mac OSX you can set environment variables in `~/.bash_profile`.
 
 ### Running the server
 1. `cd` into `deco3801/server`

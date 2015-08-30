@@ -8,16 +8,17 @@ import (
 )
 
 // POST /login
-// Responds with HTTP 200 if login is successful. Stores JWT in response body.
+// Responds with HTTP 200 if login is successful. Stores User in response body.
+// User contains token.
 func LoginHandler(env *models.Env, w http.ResponseWriter, r *http.Request) (int, error) {
 	requestUser := new(models.User)
 	decoder := json.NewDecoder(r.Body)
 	decoder.Decode(&requestUser)
 
-	responseStatus, token := env.DB.Login(requestUser)
+	responseStatus, response := env.DB.Login(requestUser)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(responseStatus)
-	w.Write(token)
+	w.Write(response)
 
 	return responseStatus, nil
 }

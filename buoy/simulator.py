@@ -1,14 +1,19 @@
-import socket, sys, threading, json
+import socket, sys, threading, json, httplib
 from time import sleep
 
 HOSTNAME = "localhost"
-PORT = 8080
+PORT = 1337
+
 HEADER = '\033[95m'
 OKBLUE = '\033[94m'
 OKGREEN = '\033[92m'
 WARNING = '\033[93m'
 FAIL = '\033[91m'
 ENDC = '\033[0m'
+
+def jprint(jstr):
+	print json.dumps(jstr, sort_keys=True, 
+		indent=4, separators=(',', ': '))
 
 class InvalidBuoy(Exception):
 	def __init__(self, value):
@@ -38,7 +43,13 @@ class Buoy():
 		self.running = running
 
 	def send_command(self):
-		conn = Connection()
+		pass
+
+	def send_reading(self, jstr):
+		data = json.load(open('reading.json'))
+		headers = {"Content-type": "application/json", "Accept": "text/plain"}
+		conn = httplib.HTTPConnection("localhost", 1337)
+		conn.request("POST", "/", json.dumps(data), headers)
 
 	def update_running(self, running):
 		self.running = running
@@ -54,16 +65,19 @@ class BuoyThread():
 
 	def run(self, lock):
 		i = 0
+		jstr = json.load(open('reading.json'))
 		lock.acquire()
 		running = self.buoy.running
 		lock.release()
 		while i < self.timeout and running:
 			lock.acquire()
-			print "\nBuoy {0} (Thread {1}): Sleeping".format(self.buoy.name, threading.current_thread().name)
+			print "\nBuoy {0}: POSTing example".format(self.buoy_name)
+			self.buoy.send_reading(jstr)
 			lock.release()
+			print "\nBuoy {0}: Sleeping".format(self.buoy.name)
 			sleep(self.timeout)
 			i += 1
-		
+
 class Simulate():
 
 	hostname = HOSTNAME
@@ -135,12 +149,12 @@ class Simulate():
 			print buoy.name
 
 	def cmd_help(self):
-		commands = [["    new <guid> <name> <ip>   ", "creates a new buoy"],
-					["    list                     ", "list all buoys"],
-					["    update <name> <interval> ", "update a buoy's ping time"],
-					["    use <name> <cvar>        ", "do something on a buoy"],
-					["    start <name>             ", "start a buoy"],
-					["    stop <name>              ", "stop a buoy"]]
+		commands = [["  new <guid> <name> <ip>   ", "creates a new buoy"],
+					["  list                     ", "list all buoys"],
+					["  update <name> <interval> ", "update a buoy's ping time"],
+					["  use <name> <cvar>        ", "do something on a buoy"],
+					["  start <name>             ", "start a buoy"],
+					["  stop <name>              ", "stop a buoy"]]
 		print OKGREEN + "Available tasks: " + ENDC
 		for name, desc in commands:
 			print OKGREEN + name + "... " + desc + ENDC
@@ -152,7 +166,8 @@ class Simulate():
 		ip = ""
 		try:
 			if (len(cvars) != 4):
-				raise InvalidArguments("Wrong number of arguments for new: new <guid> <name> <ip>")
+				raise InvalidArguments("Wrong number of arguments for new: " +
+					"new <guid> <name> <ip>")
 			else:
 				guid = cvars[1]
 				name = cvars[2]
@@ -197,7 +212,8 @@ class Simulate():
 					if (buoy.name == name):
 						print "Starting buoy in new thread."
 						buoythread = BuoyThread(buoy, 5)
-						thread = threading.Thread(target=buoythread.run, args=(lock,))
+						thread = threading.Thread(target=buoythread.run, 
+							args=(lock,))
 						thread.daemon = True
 						thread.name = buoy.name
 						self.threads.append(thread)
@@ -210,7 +226,8 @@ class Simulate():
 		name = ""
 		try:
 			if (len(cvars) != 2):
-				raise InvalidArguments("Wrong number of arguments for stop: stop <name>")
+				raise InvalidArguments("Wrong number of arguments for stop: " +
+					"stop <name>")
 			else:
 				name = cvars[1]
 		except InvalidArguments as e:

@@ -70,6 +70,7 @@ func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	}
 
 	if status, err := authHandler.handle(authHandler.Env, w, r); err != nil {
+		log.Println(err)
 		switch status {
 		case http.StatusNotFound:
 			http.Error(w, http.StatusText(http.StatusNotFound), status)

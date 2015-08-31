@@ -34,7 +34,7 @@ func main() {
 		conf.DbPassword + "@tcp(" +
 		conf.DbHost + ":" +
 		conf.DbPort + ")/" +
-		conf.DbName
+		conf.DbName + "?parseTime=True"
 
 	db, err := models.NewDB(dataSourceName)
 

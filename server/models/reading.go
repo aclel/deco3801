@@ -11,7 +11,7 @@ type Reading struct {
 	BuoyGuid       string    `json:"guid"`
 	SensorTypeId   int       `json:"sensorTypeId" db:"sensor_type_id"`
 	BuoyInstanceId int
-	SensorTypeName string
+	SensorTypeName string    `json:"sensorTypeName"`
 }
 
 type ReadingRepository interface {

@@ -1,7 +1,39 @@
 package models
 
+import "time"
+
+type Reading struct {
+	Id             int       `json:"id" db:"id"`
+	Latitude       float32   `json:"latitude" db:"latitude"`
+	Longitude      float32   `json:"longitude" db:"longitude"`
+	Value          float32   `json:"value" db:"value"`
+	Timestamp      time.Time `json:"timestamp" db:"timestamp"`
+	BuoyGuid       string    `json:"guid"`
+	SensorTypeId   int       `json:"sensorTypeId" db:"sensor_type_id"`
+	BuoyInstanceId int
+	SensorTypeName string
+}
+
 type ReadingRepository interface {
+	CreateReading(*Reading) error
 	GetAllReadings() ([]byte, error)
+}
+
+// Insert a new Reading into the database
+func (db *DB) CreateReading(reading *Reading) error {
+	stmt, err := db.Preparex(`INSERT INTO reading (sensor_type_id, buoy_instance_id, value, 
+		latitude, longitude, timestamp) VALUES(?, ?, ?, ?, ?, ?);`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(reading.SensorTypeId, reading.BuoyInstanceId,
+		reading.Value, reading.Latitude, reading.Longitude, reading.Timestamp)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (db *DB) GetAllReadings() ([]byte, error) {

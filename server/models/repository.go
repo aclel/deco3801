@@ -13,7 +13,9 @@ type Env struct {
 // added here as well
 type Repository interface {
 	BuoyRepository
+	BuoyInstanceRepository
 	ReadingRepository
+	SensorTypeRepository
 	UserRepository
 	AuthRepository
 }

@@ -26,7 +26,7 @@ func (mdb *MockDB) GetSensorTypeWithName(name string) (*SensorType, error) {
 }
 
 func (mdb *MockDB) GetUserWithEmail(email string) (*User, error) {
-	return &User{}, nil
+	return nil, nil
 }
 
 func (mdb *MockDB) CreateUser(user *User) error {
@@ -40,4 +40,8 @@ func (mdb *MockDB) Login(user *User) ([]byte, error) {
 
 func (mdb *MockDB) RefreshToken(user *User) ([]byte, error) {
 	return []byte(""), nil
+}
+
+func (mdb *MockDB) SendNewUserEmail(user *User, emailUser *EmailCredentials) error {
+	return nil
 }

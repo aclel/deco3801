@@ -50,7 +50,10 @@ type AuthHandler struct {
 // Checks the presence and validity of JWT tokens in authenticated routes
 // Responds with HTTP 401 Unauthorized if the token is not valid
 func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	jwtAuth := models.InitJWTAuth()
+	jwtAuth, err := models.InitJWTAuth()
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	}
 
 	// Could do some logging here as well
 	token, err := jwt.ParseFromRequest(r, func(token *jwt.Token) (interface{}, error) {
@@ -65,20 +68,13 @@ func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		log.Println("Token is valid")
 	} else {
 		fmt.Println(err)
-		http.Error(w, http.StatusText(http.StatusUnauthorized), 401)
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
 
 	if status, err := authHandler.handle(authHandler.Env, w, r); err != nil {
 		log.Println(err)
-		switch status {
-		case http.StatusNotFound:
-			http.Error(w, http.StatusText(http.StatusNotFound), status)
-		case http.StatusInternalServerError:
-			http.Error(w, http.StatusText(http.StatusInternalServerError), status)
-		default:
-			http.Error(w, http.StatusText(http.StatusInternalServerError), status)
-		}
+		http.Error(w, http.StatusText(status), status)
 	}
 }
 

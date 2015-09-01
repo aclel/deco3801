@@ -4,6 +4,7 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"os"
 	"time"
 
@@ -19,14 +20,24 @@ type JWTAuth struct {
 var jwtAuth *JWTAuth = nil
 
 // Initialise a JWTAuth object which has a public key and private key
-func InitJWTAuth() *JWTAuth {
+func InitJWTAuth() (*JWTAuth, error) {
 	if jwtAuth == nil {
+		privateKey, err := getPrivateKey()
+		if err != nil {
+			return nil, err
+		}
+
+		publicKey, err := getPublicKey()
+		if err != nil {
+			return nil, err
+		}
+
 		jwtAuth = &JWTAuth{
-			privateKey: getPrivateKey(),
-			PublicKey:  getPublicKey(),
+			privateKey: privateKey,
+			PublicKey:  publicKey,
 		}
 	}
-	return jwtAuth
+	return jwtAuth, nil
 }
 
 // Generate a JWT for the user with the given email
@@ -55,43 +66,49 @@ func (jwtAuth *JWTAuth) Authenticate(dbUser *User, user *User) bool {
 }
 
 // Get a private key from an environment variable
-func getPrivateKey() *rsa.PrivateKey {
+func getPrivateKey() (*rsa.PrivateKey, error) {
 	pemBytes := os.Getenv("FMS_PRIVATE_KEY")
 	if pemBytes == "" {
-		panic("No environment variable named FMS_PRIVATE_KEY")
+		return nil, errors.New("No environment variable named FMS_PRIVATE_KEY")
 	}
 
 	data, _ := pem.Decode([]byte(pemBytes))
+	if data == nil {
+		return nil, errors.New("FMS_PRIVATE_KEY is an invalid RSA key")
+	}
 
 	privateKey, err := x509.ParsePKCS1PrivateKey(data.Bytes)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return privateKey
+	return privateKey, nil
 }
 
 // Get a public key from an environment variable
-func getPublicKey() *rsa.PublicKey {
+func getPublicKey() (*rsa.PublicKey, error) {
 	pemBytes := os.Getenv("FMS_PUBLIC_KEY")
 	if pemBytes == "" {
-		panic("No environment variable named FMS_PUBLIC_KEY")
+		return nil, errors.New("No environment variable named FMS_PUBLIC_KEY")
 	}
 
 	data, _ := pem.Decode([]byte(pemBytes))
+	if data == nil {
+		return nil, errors.New("FMS_PUBLIC_KEY is an invalid RSA key")
+	}
 
 	publicKeyImported, err := x509.ParsePKIXPublicKey(data.Bytes)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	publicKey, ok := publicKeyImported.(*rsa.PublicKey)
 
 	if !ok {
-		panic(err)
+		return nil, err
 	}
 
-	return publicKey
+	return publicKey, nil
 }

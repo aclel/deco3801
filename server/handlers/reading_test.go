@@ -10,6 +10,8 @@ import (
 )
 
 func TestReadingsCreate(t *testing.T) {
+	env := &models.Env{DB: &models.MockDB{}}
+
 	rec := httptest.NewRecorder()
 	reqBody := []byte(`
 		{
@@ -19,10 +21,17 @@ func TestReadingsCreate(t *testing.T) {
 			"sensorTypeName": "Turbidity",
 			"value": 14
 		}`)
-	req, _ := http.NewRequest("POST", "/api/readings", bytes.NewBuffer(reqBody))
-	req.Header.Set("Authorization", "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0NDEwMjcxODIsImlhdCI6MTQ0MDk0MDc4Miwic3ViIjoiYW5kcmV3LmNsZWxhbmQzQGdtYWlsLmNvbSJ9.tJL9KnXj-RHXWTObWXASzHwtqnwG48lslHXWkXQM4cW8i8wppDG81J8vhZ54qVZWvBCxzYvmbWvpuaAYeREMLr-fNgwwzFzzjdNXClXF_NoljIiOTFKN9FG5s3yndhanNMY_syvFunx2nWr7ht4hxQ-85N54Ef8TlEWLJJWWuRc")
 
-	env := &models.Env{DB: &models.MockDB{}}
+	jwtAuth, err := models.InitJWTAuth()
+	if err != nil {
+		t.Error(err)
+	}
+
+	token, err := jwtAuth.GenerateToken("test@email.com")
+
+	req, _ := http.NewRequest("POST", "/api/readings", bytes.NewBuffer(reqBody))
+	req.Header.Set("Authorization", "Bearer "+string(token))
+
 	AuthHandler{env, ReadingsCreate}.ServeHTTP(rec, req)
 
 	got := rec.Code

@@ -12,7 +12,7 @@ import (
 
 // POST /users
 // Create a User, hash the password and store the User in the database
-// Responds with HTTP 200 if successful
+// Responds with HTTP 201 if successful
 func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) (int, error) {
 	requestUser := new(models.User)
 	decoder := json.NewDecoder(r.Body)
@@ -20,7 +20,7 @@ func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) (int, 
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte("secret123"), 10)
 	if err != nil {
-		return 500, err
+		return http.StatusInternalServerError, err
 	}
 
 	user := *requestUser
@@ -29,7 +29,7 @@ func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) (int, 
 	// Check if a user with the chosen email already exists
 	u, err := env.DB.GetUserWithEmail(requestUser.Email)
 	if err != nil {
-		return 500, err
+		return http.StatusInternalServerError, err
 	}
 
 	if u != nil {
@@ -39,15 +39,15 @@ func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) (int, 
 	// Insert user into db
 	err = env.DB.CreateUser(&user)
 	if err != nil {
-		return 500, err
+		return http.StatusInternalServerError, err
 	}
 
 	// Send email to new user with sign in link
 	err = models.SendNewUserEmail(&user, &env.EmailUser)
 	if err != nil {
-		return 500, err
+		return http.StatusInternalServerError, err
 	}
 
-	w.WriteHeader(http.StatusOK)
-	return 200, nil
+	w.WriteHeader(http.StatusCreated)
+	return http.StatusCreated, nil
 }

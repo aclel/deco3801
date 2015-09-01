@@ -18,8 +18,13 @@ import (
 func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) (int, error) {
 	user := new(models.User)
 	decoder := json.NewDecoder(r.Body)
-	decoder.Decode(&user)
+	err := decoder.Decode(&user)
+	// Check if the request is valid and the email is present
+	if err != nil || user.Email == "" {
+		return http.StatusBadRequest, nil
+	}
 
+	// Check if the email is valid
 	validEmail, err := regexp.MatchString(`(\w[-._\w]*\w@\w[-._\w]*\w\.\w{2,3})`, user.Email)
 	if err != nil {
 		return http.StatusInternalServerError, err
@@ -63,6 +68,5 @@ func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) (int, 
 		return http.StatusInternalServerError, err
 	}
 
-	w.WriteHeader(http.StatusCreated)
 	return http.StatusCreated, nil
 }

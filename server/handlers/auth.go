@@ -28,7 +28,6 @@ func LoginHandler(env *models.Env, w http.ResponseWriter, r *http.Request) (int,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(responseStatus)
 	w.Write(response)
 
 	return responseStatus, nil

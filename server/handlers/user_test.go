@@ -9,25 +9,34 @@ import (
 	"github.com/aclel/deco3801/server/models"
 )
 
-func TestUsersCreateWithValidEmail(t *testing.T) {
+var userCreateTests = []struct {
+	in  string
+	out int
+}{
+	{`{"email":"test@email.com"}`, http.StatusCreated},
+	{`{"email":""}`, http.StatusBadRequest},
+	{`{"email":"test@"}`, http.StatusBadRequest},
+	{`dfgdfg`, http.StatusBadRequest},
+	{`{}`, http.StatusBadRequest},
+}
+
+func TestUsersCreate(t *testing.T) {
 	env := &models.Env{DB: &models.MockDB{}}
-
 	rec := httptest.NewRecorder()
-	reqBody := []byte(`
-		{
-			"email": "test@email.com"
-		}`)
 
-	req, err := http.NewRequest("POST", "/api/readings", bytes.NewBuffer(reqBody))
-	if err != nil {
-		t.Error(err)
-	}
+	for _, tt := range userCreateTests {
+		reqBody := []byte(tt.in)
+		req, err := http.NewRequest("POST", "/api/users", bytes.NewBuffer(reqBody))
+		req.Header.Set("Content-Type", "application/json")
+		if err != nil {
+			t.Error(err)
+		}
 
-	AppHandler{env, UsersCreate}.ServeHTTP(rec, req)
+		handler := AppHandler{env, UsersCreate}
+		status, err := handler.handle(handler.Env, rec, req)
 
-	got := rec.Code
-	want := http.StatusCreated
-	if got != want {
-		t.Errorf("HTTP status = %v, want %v", got, want)
+		if status != tt.out {
+			t.Errorf("%v: HTTP status = %v, want %v", tt.in, status, tt.out)
+		}
 	}
 }

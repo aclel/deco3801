@@ -47,8 +47,10 @@ type AuthHandler struct {
 	handle func(*models.Env, http.ResponseWriter, *http.Request) (int, error)
 }
 
-// Checks the presence and validity of JWT tokens in authenticated routes
-// Responds with HTTP 401 Unauthorized if the token is not valid
+// Checks the presence and validity of JWT tokens in authenticated routes.
+// Responds with HTTP 401 Unauthorized if the token is not valid.
+// Status code does not need to be set in the handlers. The handlers just need to return
+// the status which is to be written to the header by this function.
 func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	jwtAuth, err := models.InitJWTAuth()
 	if err != nil {
@@ -72,10 +74,12 @@ func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if status, err := authHandler.handle(authHandler.Env, w, r); err != nil {
+	status, err := authHandler.handle(authHandler.Env, w, r)
+	if err != nil {
 		log.Println(err)
 		http.Error(w, http.StatusText(status), status)
 	}
+	w.WriteHeader(status)
 }
 
 // HandlerFunc which wraps handlers which do not require authentication
@@ -89,10 +93,13 @@ type AppHandler struct {
 // This makes handlers a bit easier to use because they don't need to call http.Error.
 // http.Error does not make the handler return, meaning that code will keep executing
 // and it will be hard to debug what's going on. The handler can now just return an error
-// code and this function will server the http.Error.
+// code and this function will server the http.Error. Status code does not need to be set in the handlers.
+// The handlers just need to return the status which is to be written to the header by this function
 func (appHandler AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if status, err := appHandler.handle(appHandler.Env, w, r); err != nil {
+	status, err := appHandler.handle(appHandler.Env, w, r)
+	if err != nil {
 		log.Println(err)
 		http.Error(w, http.StatusText(status), status)
 	}
+	w.WriteHeader(status)
 }

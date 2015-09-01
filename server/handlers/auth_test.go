@@ -16,15 +16,17 @@ func TestLogin(t *testing.T) {
 	req, _ := http.NewRequest("POST", "/api/login", bytes.NewBuffer(jsonStr))
 
 	env := &models.Env{DB: &models.MockDB{}}
-	AppHandler{env, LoginHandler}.ServeHTTP(rec, req)
+
+	handler := AppHandler{env, LoginHandler}
+	status, err := handler.handle(handler.Env, rec, req)
 
 	resp := models.User{}
-	err := json.Unmarshal([]byte(rec.Body.String()), &resp)
+	err = json.Unmarshal([]byte(rec.Body.String()), &resp)
 	if err != nil {
 		t.Errorf("could not unmarshal JSON into struct: %v", err)
 	}
 
-	got := rec.Code
+	got := status
 	want := http.StatusOK
 	if got != want {
 		t.Errorf("HTTP status = %v, want %v", got, want)

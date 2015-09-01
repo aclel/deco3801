@@ -28,8 +28,15 @@ func TestReadingsCreate(t *testing.T) {
 	}
 
 	token, err := jwtAuth.GenerateToken("test@email.com")
+	if err != nil {
+		t.Error(err)
+	}
 
-	req, _ := http.NewRequest("POST", "/api/readings", bytes.NewBuffer(reqBody))
+	req, err := http.NewRequest("POST", "/api/readings", bytes.NewBuffer(reqBody))
+	if err != nil {
+		t.Error(err)
+	}
+
 	req.Header.Set("Authorization", "Bearer "+string(token))
 
 	AuthHandler{env, ReadingsCreate}.ServeHTTP(rec, req)

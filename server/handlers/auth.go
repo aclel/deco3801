@@ -10,14 +10,15 @@ import (
 // POST /login
 // Responds with HTTP 200 if login is successful. Sends User in response body.
 // User contains auth token.
-func LoginHandler(env *models.Env, w http.ResponseWriter, r *http.Request) (int, error) {
+func LoginHandler(env *models.Env, w http.ResponseWriter, r *http.Request) (int, *AppError) {
 	requestUser := new(models.User)
 	decoder := json.NewDecoder(r.Body)
 	decoder.Decode(&requestUser)
 
 	response, err := env.DB.Login(requestUser)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return http.StatusInternalServerError,
+			&AppError{err, "Error while authenticating the user", http.StatusInternalServerError}
 	}
 
 	var responseStatus int
@@ -28,23 +29,26 @@ func LoginHandler(env *models.Env, w http.ResponseWriter, r *http.Request) (int,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(responseStatus)
 	w.Write(response)
 
 	return responseStatus, nil
 }
 
 // Not currently implemented in API
-func RefreshTokenHandler(env *models.Env, w http.ResponseWriter, r *http.Request) (int, error) {
+func RefreshTokenHandler(env *models.Env, w http.ResponseWriter, r *http.Request) (int, *AppError) {
 	requestUser := new(models.User)
 	decoder := json.NewDecoder(r.Body)
 	decoder.Decode(&requestUser)
 
 	response, err := env.DB.RefreshToken(requestUser)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return http.StatusInternalServerError,
+			&AppError{err, "Error refreshing the token", http.StatusInternalServerError}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	w.Write(response)
 
 	return http.StatusOK, nil

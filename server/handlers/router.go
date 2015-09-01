@@ -41,16 +41,22 @@ func NewRouter(env *models.Env) *mux.Router {
 	return r
 }
 
+// Custom error type. The message field can be used to store
+// an error string which is returned to the client.
+type AppError struct {
+	Error   error
+	Message string
+	Code    int
+}
+
 // HandlerFunc which wraps handlers which require authentication
 type AuthHandler struct {
 	*models.Env
-	handle func(*models.Env, http.ResponseWriter, *http.Request) (int, error)
+	handle func(*models.Env, http.ResponseWriter, *http.Request) (int, *AppError)
 }
 
-// Checks the presence and validity of JWT tokens in authenticated routes.
-// Responds with HTTP 401 Unauthorized if the token is not valid.
-// Status code does not need to be set in the handlers. The handlers just need to return
-// the status which is to be written to the header by this function.
+// Checks the presence and validity of JWT tokens in authenticated routes
+// Responds with HTTP 401 Unauthorized if the token is not valid
 func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	jwtAuth, err := models.InitJWTAuth()
 	if err != nil {
@@ -74,32 +80,27 @@ func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	status, err := authHandler.handle(authHandler.Env, w, r)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, http.StatusText(status), status)
+	if _, e := authHandler.handle(authHandler.Env, w, r); e != nil {
+		log.Println(e.Message + ": " + e.Error.Error())
+		http.Error(w, e.Message, e.Code)
 	}
-	w.WriteHeader(status)
 }
 
 // HandlerFunc which wraps handlers which do not require authentication
 // Adds (int, error) return type to handler
 type AppHandler struct {
 	*models.Env
-	handle func(*models.Env, http.ResponseWriter, *http.Request) (int, error)
+	handle func(*models.Env, http.ResponseWriter, *http.Request) (int, *AppError)
 }
 
 // Executes handler and responds with a HTTP error if the handler returned an error
 // This makes handlers a bit easier to use because they don't need to call http.Error.
 // http.Error does not make the handler return, meaning that code will keep executing
 // and it will be hard to debug what's going on. The handler can now just return an error
-// code and this function will server the http.Error. Status code does not need to be set in the handlers.
-// The handlers just need to return the status which is to be written to the header by this function
+// code and this function will server the http.Error.
 func (appHandler AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	status, err := appHandler.handle(appHandler.Env, w, r)
-	if err != nil {
-		log.Println(err)
-		http.Error(w, http.StatusText(status), status)
+	if _, e := appHandler.handle(appHandler.Env, w, r); e != nil {
+		log.Println(e.Message + ": " + e.Error.Error())
+		http.Error(w, e.Message, e.Code)
 	}
-	w.WriteHeader(status)
 }

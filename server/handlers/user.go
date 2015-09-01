@@ -13,32 +13,35 @@ import (
 )
 
 // POST /api/users
-// Create a User, hash the password and store the User in the database
+// Create a User, hash the password and store the User in the database, send email to user
 // Responds with HTTP 201 if successful
-func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) (int, error) {
+func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) (int, *AppError) {
 	user := new(models.User)
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&user)
 	// Check if the request is valid and the email is present
 	if err != nil || user.Email == "" {
-		return http.StatusBadRequest, nil
+		return http.StatusBadRequest,
+			&AppError{err, "Invalid User JSON", http.StatusBadRequest}
 	}
 
 	// Check if the email is valid
 	validEmail, err := regexp.MatchString(`(\w[-._\w]*\w@\w[-._\w]*\w\.\w{2,3})`, user.Email)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return http.StatusInternalServerError,
+			&AppError{err, "Error while validating email address", http.StatusInternalServerError}
 	}
 
 	if !validEmail {
-		return http.StatusBadRequest, nil
+		return http.StatusBadRequest, &AppError{err, "Invalid email address", http.StatusBadRequest}
 	}
 
 	// random password 8 characters long
 	randomPassword := uniuri.NewLen(8)
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(randomPassword), 10)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return http.StatusInternalServerError,
+			&AppError{err, "Error hashing password", http.StatusInternalServerError}
 	}
 
 	user.Password = string(hashedPassword)
@@ -46,17 +49,20 @@ func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) (int, 
 	// Check if a user with the chosen email already exists
 	u, err := env.DB.GetUserWithEmail(user.Email)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return http.StatusInternalServerError,
+			&AppError{err, "Error while checking if user exists", http.StatusInternalServerError}
 	}
 
 	if u != nil {
-		return http.StatusConflict, errors.New("User already exists with email: " + u.Email)
+		return http.StatusConflict,
+			&AppError{errors.New("User error"), "User already exists with email: " + u.Email, http.StatusConflict}
 	}
 
 	// Insert user into db
 	err = env.DB.CreateUser(user)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return http.StatusInternalServerError,
+			&AppError{err, "Could not insert user into database", http.StatusInternalServerError}
 	}
 
 	// Set back to plain text so that it shows in the email
@@ -65,8 +71,10 @@ func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) (int, 
 	// Send email to new user with sign in link
 	err = env.DB.SendNewUserEmail(user, &env.EmailUser)
 	if err != nil {
-		return http.StatusInternalServerError, err
+		return http.StatusInternalServerError,
+			&AppError{err, "Error sending email to user", http.StatusInternalServerError}
 	}
 
+	w.WriteHeader(http.StatusCreated)
 	return http.StatusCreated, nil
 }

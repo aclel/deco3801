@@ -40,7 +40,7 @@ func TestReadingsCreate(t *testing.T) {
 	req.Header.Set("Authorization", "Bearer "+string(token))
 
 	handler := AuthHandler{env, ReadingsCreate}
-	status, err := handler.handle(handler.Env, rec, req)
+	status, _ := handler.handle(handler.Env, rec, req)
 
 	got := status
 	want := http.StatusCreated

@@ -9,13 +9,11 @@ import (
 
 // GET /buoys
 // Responds with HTTP 200. All buoys are sent in the response body.
-func BuoysIndex(env *models.Env, w http.ResponseWriter, r *http.Request) (int, error) {
-	if r.Method != "GET" {
-		return 405, nil
-	}
+func BuoysIndex(env *models.Env, w http.ResponseWriter, r *http.Request) (int, *AppError) {
 	buoys, err := env.DB.GetAllBuoys()
 	if err != nil {
-		return 405, err
+		return http.StatusInternalServerError,
+			&AppError{err, "Error retrieving buoys", http.StatusInternalServerError}
 	}
 
 	w.WriteHeader(http.StatusOK)

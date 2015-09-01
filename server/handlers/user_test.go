@@ -33,7 +33,7 @@ func TestUsersCreate(t *testing.T) {
 		}
 
 		handler := AppHandler{env, UsersCreate}
-		status, err := handler.handle(handler.Env, rec, req)
+		status, _ := handler.handle(handler.Env, rec, req)
 
 		if status != tt.out {
 			t.Errorf("%v: HTTP status = %v, want %v", tt.in, status, tt.out)

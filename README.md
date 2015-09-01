@@ -18,7 +18,7 @@ The web server is written in Go, meaning that the entire project needs to be clo
 #### Configuring the database
 
 1. Setup a MySQL server
-2. Create a database called deco3801 and import deco3801.sql
+2. Create a database called deco3801 and import fms.sql
 3. Create a user called deco3801 with password deco3801 and give them access to the database
 
 ### Create Environment Variables
@@ -42,7 +42,7 @@ On Mac OSX you can set environment variables in `~/.bash_profile`.
 
 ### Running the server
 1. `cd` into `deco3801/server`
-2. Run go run *.go and if it was successful you should see a message saying that the web service is running
+2. Run go run main.go and if it was successful you should see the logs saying that the web service is running
 
 
 ### Using Postman to test the API
@@ -50,13 +50,13 @@ On Mac OSX you can set environment variables in `~/.bash_profile`.
 [Postman](https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop?hl=en) is an Chrome extension that we can use to send requests the the web service.
 
 1. Download, install and open Postman
-2. Import server.json.postman_collection into Postman from the server directory. This will import a collection of requests.
-3. Make sure that the server is running, either with the binary or by running `go run *.go` in the server directory
+2. Import requests.postman_dump. You are able to run all of the teamneptune.co requests without having a local go server running
+3. Make sure that the server is running, either with the binary or by running `go run main.go` in the server directory
 
 #### Creating a User
 
 1. Click on the POST /users route in the users folder in Postman
-2. Click on the Body tab and modify the username and password to whatever you like
+2. Click on the Body tab and modify the email to whatever you like
 3. Click the blue Send button
 
 You should get a response with Status 200 OK.
@@ -66,7 +66,7 @@ You should get a response with Status 200 OK.
 Now that you have a User account you are able to login
 
 1. Click on the POST /login route in the auth folder
-2. Click on the Body tab and change the username and password to your own
+2. Click on the Body tab and change the email to your own
 3. Click the blue Send button
 4. You should get a response with Status 200 OK. The request body contains a [JSON Web Token](http://jwt.io/).
 4. Copy the token 

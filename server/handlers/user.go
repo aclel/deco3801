@@ -21,22 +21,11 @@ func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 	err := decoder.Decode(&user)
 	// Check if the request is valid
 	if err != nil {
-		return &AppError{err, "Invalid User JSON", http.StatusBadRequest}
+		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
 	}
 
-	// Check if email is present
-	if user.Email == "" {
-		return &AppError{errors.New("No email"), "No email", http.StatusBadRequest}
-	}
-
-	// Check if the email is valid
-	validEmail, err := regexp.MatchString(`(\w[-._\w]*\w@\w[-._\w]*\w\.\w{2,3})`, user.Email)
-	if err != nil {
-		return &AppError{err, "Error while validating email address", http.StatusInternalServerError}
-	}
-
-	if !validEmail {
-		return &AppError{errors.New("Invalid email address"), "Invalid email address", http.StatusBadRequest}
+	if e := validateUser(user); e != nil {
+		return e
 	}
 
 	// random password 8 characters long
@@ -74,5 +63,25 @@ func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	return nil
+}
+
+// Validate the User object that is created with the request body.
+func validateUser(user *models.User) *AppError {
+	// Check if email is present
+	if user.Email == "" {
+		return &AppError{errors.New("No email"), "No email", http.StatusBadRequest}
+	}
+
+	// Check if the email is valid
+	validEmail, err := regexp.MatchString(`(\w[-._\w]*\w@\w[-._\w]*\w\.\w{2,3})`, user.Email)
+	if err != nil {
+		return &AppError{err, "Error while validating email address", http.StatusInternalServerError}
+	}
+
+	if !validEmail {
+		return &AppError{errors.New("Invalid email address"), "Invalid email address", http.StatusBadRequest}
+	}
+
 	return nil
 }

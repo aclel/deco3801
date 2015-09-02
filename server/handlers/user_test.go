@@ -13,18 +13,18 @@ var userCreateTests = []struct {
 	in  string
 	out int
 }{
-	//{`{"email":"test@email.com"}`, http.StatusCreated},
+	{`{"email":"test@email.com"}`, http.StatusCreated},
 	{`{"email":""}`, http.StatusBadRequest},
-	//{`{"email":"test@"}`, http.StatusBadRequest},
-	//{`dfgdfg`, http.StatusBadRequest},
-	//{`{}`, http.StatusBadRequest},
+	{`{"email":"test@"}`, http.StatusBadRequest},
+	{`dfgdfg`, http.StatusBadRequest},
+	{`{}`, http.StatusBadRequest},
 }
 
 func TestUsersCreate(t *testing.T) {
 	env := &models.Env{DB: &models.MockDB{}}
-	rec := httptest.NewRecorder()
 
 	for _, tt := range userCreateTests {
+		rec := httptest.NewRecorder()
 		reqBody := []byte(tt.in)
 		req, err := http.NewRequest("POST", "/api/users", bytes.NewBuffer(reqBody))
 		req.Header.Set("Content-Type", "application/json")

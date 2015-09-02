@@ -99,7 +99,6 @@ type AppHandler struct {
 // and it will be hard to debug what's going on. The handler can now just return an error
 // code and this function will server the http.Error.
 func (appHandler AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Println("hello")
 	if e := appHandler.handle(appHandler.Env, w, r); e != nil {
 		log.Println(e.Message + ": " + e.Error.Error())
 		http.Error(w, e.Message, e.Code)

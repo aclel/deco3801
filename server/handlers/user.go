@@ -36,7 +36,7 @@ func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 	}
 
 	if !validEmail {
-		return &AppError{err, "Invalid email address", http.StatusBadRequest}
+		return &AppError{errors.New("Invalid email address"), "Invalid email address", http.StatusBadRequest}
 	}
 
 	// random password 8 characters long

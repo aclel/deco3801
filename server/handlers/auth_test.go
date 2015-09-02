@@ -18,7 +18,7 @@ func TestLogin(t *testing.T) {
 	env := &models.Env{DB: &models.MockDB{}}
 
 	handler := AppHandler{env, LoginHandler}
-	status, _ := handler.handle(handler.Env, rec, req)
+	handler.handle(handler.Env, rec, req)
 
 	resp := models.User{}
 	err := json.Unmarshal([]byte(rec.Body.String()), &resp)
@@ -26,7 +26,7 @@ func TestLogin(t *testing.T) {
 		t.Errorf("could not unmarshal JSON into struct: %v", err)
 	}
 
-	got := status
+	got := rec.Code
 	want := http.StatusOK
 	if got != want {
 		t.Errorf("HTTP status = %v, want %v", got, want)

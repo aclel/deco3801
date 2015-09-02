@@ -52,7 +52,7 @@ type AppError struct {
 // HandlerFunc which wraps handlers which require authentication
 type AuthHandler struct {
 	*models.Env
-	handle func(*models.Env, http.ResponseWriter, *http.Request) (int, *AppError)
+	handle func(*models.Env, http.ResponseWriter, *http.Request) *AppError
 }
 
 // Checks the presence and validity of JWT tokens in authenticated routes
@@ -80,7 +80,7 @@ func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if _, e := authHandler.handle(authHandler.Env, w, r); e != nil {
+	if e := authHandler.handle(authHandler.Env, w, r); e != nil {
 		log.Println(e.Message + ": " + e.Error.Error())
 		http.Error(w, e.Message, e.Code)
 	}
@@ -90,7 +90,7 @@ func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 // Adds (int, error) return type to handler
 type AppHandler struct {
 	*models.Env
-	handle func(*models.Env, http.ResponseWriter, *http.Request) (int, *AppError)
+	handle func(*models.Env, http.ResponseWriter, *http.Request) *AppError
 }
 
 // Executes handler and responds with a HTTP error if the handler returned an error
@@ -99,7 +99,8 @@ type AppHandler struct {
 // and it will be hard to debug what's going on. The handler can now just return an error
 // code and this function will server the http.Error.
 func (appHandler AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if _, e := appHandler.handle(appHandler.Env, w, r); e != nil {
+	log.Println("hello")
+	if e := appHandler.handle(appHandler.Env, w, r); e != nil {
 		log.Println(e.Message + ": " + e.Error.Error())
 		http.Error(w, e.Message, e.Code)
 	}

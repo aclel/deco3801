@@ -16,7 +16,10 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+    // Setup initial themes
+    [Interface setupThemes];
+    
+    // Do other things
     return YES;
 }
 

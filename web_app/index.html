@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en" ng-app="app" ng-strict-di>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flood Monitoring</title>
+    
+    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="bower_components/angular-chart.js/dist/angular-chart.css">
+    <link rel="stylesheet" href="/bower_components/foundation-apps/dist/css/foundation-apps.css">
+    
+    <link rel="stylesheet" href="/assets/css/app.css">
+    <link rel="stylesheet" href="/assets/css/app2.css">
+    <link rel="stylesheet" href="/assets/css/dugong.css">
+</head>
+<body ng-controller="AuthController as authVm">
+    
+    <div class="grid-frame vertical">
+        
+        <div class="grid-content shrink" style="padding: 0;">
+            <header>
+            	<h1 class='title'>FMS</h1>
+            	<div class="menu">
+            		<ul ng-show="authVm.authed" ng-cloak
+                        ng-class="{ active: $state.includes('dashboard') }">
+            			<a ui-sref="dashboard">Dashboard</a>
+            		</ul>
+            		<ul ng-show="authVm.authed" ng-cloak
+                        ng-class="{ active: $state.includes('config') }">
+            			<a ui-sref="config">Config</a>
+            		</ul>
+            		<ul ng-show="authVm.authed" ng-cloak
+                        ng-class="{ active: $state.includes('warnings') }">
+            			<a ui-sref="warnings">Warnings</a>
+            		</ul>
+                    <!--<ul ng-hide="authVm.authed" ng-cloak
+                        class="login"
+                        ng-class="{ active: $state.includes('login') }">
+                        <a ui-sref="login">Login</a>
+                    </ul>-->
+                    <ul ng-show="authVm.authed" ng-cloak
+                        class="login">
+                        <a href="" ng-click="authVm.logout()">Logout</a>
+                    </ul>
+            	</div>
+                <img id="dugong" src="/assets/img/dugong.gif" alt="dugong">
+            </header>
+        </div>
+      <!--<div class="grid-content shrink" style="padding: 0;">
+        <ul class="primary condense menu-bar">
+          <li><a><strong>RMS</strong></a></li>
+        </ul>
+      </div>-->
+      <div ui-view class="grid-block">
+      </div>
+    </div>
+
+
+    <script src='https://maps.googleapis.com/maps/api/js?sensor=false'></script>
+    <script src="/assets/js/infobox.js"></script>
+    
+    <script src="/bower_components/angular/angular.js"></script>
+    <script src="/bower_components/angular-ui-router/release/angular-ui-router.js"></script>
+    
+    <script src="/bower_components/angular-strap/dist/angular-strap.min.js"></script>
+    <script src="/bower_components/angular-strap/dist/angular-strap.tpl.min.js"></script>
+        
+    <script src="/bower_components/Chart.js/Chart.min.js"></script>
+    <script src="/bower_components/angular-chart.js/dist/angular-chart.min.js"></script>
+    
+    <script src="/bower_components/moment/moment.js"></script>
+    
+    <script src="/assets/js/app.js"></script>
+</body>
+</html>

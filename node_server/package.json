@@ -1,0 +1,20 @@
+{
+  "name": "server",
+  "version": "0.0.1",
+  "description": "Web service",
+  "main": "main.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/aclel/deco3801/server"
+  },
+  "dependencies": {
+    "express": "^4.13.2",
+    "mysql": "^2.8.0"
+  },
+  "license": "MIT",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": ""
+}

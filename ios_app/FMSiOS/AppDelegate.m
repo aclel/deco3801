@@ -19,6 +19,16 @@
     // Setup initial themes
     [Interface setupThemes];
     
+    // Build model
+    self.d = [[DataModel alloc] init];
+    
+    // Setup initial screen
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    LoginScreen *l = [[LoginScreen alloc] init];
+    l.d = self.d;
+    self.window.rootViewController = l;
+    [self.window makeKeyAndVisible];
+    
     // Do other things
     return YES;
 }

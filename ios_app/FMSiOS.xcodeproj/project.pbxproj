@@ -10,11 +10,11 @@
 		D45892C61B98500100EB8DCC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D45892C51B98500100EB8DCC /* main.m */; };
 		D45892C91B98500100EB8DCC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D45892C81B98500100EB8DCC /* AppDelegate.m */; };
 		D45892CC1B98500100EB8DCC /* LoginScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = D45892CB1B98500100EB8DCC /* LoginScreen.m */; };
-		D45892CF1B98500100EB8DCC /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D45892CD1B98500100EB8DCC /* Main.storyboard */; };
 		D45892D11B98500100EB8DCC /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D45892D01B98500100EB8DCC /* Images.xcassets */; };
 		D4ECE1D31B986054006D5142 /* BuoyScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = D4ECE1D21B986054006D5142 /* BuoyScreen.m */; };
 		D4ECE1D61B988B02006D5142 /* Interface.m in Sources */ = {isa = PBXBuildFile; fileRef = D4ECE1D51B988B02006D5142 /* Interface.m */; };
 		D4ECE1D91B988B84006D5142 /* DataModel.m in Sources */ = {isa = PBXBuildFile; fileRef = D4ECE1D81B988B84006D5142 /* DataModel.m */; };
+		D4ECE1DB1B989EE4006D5142 /* Launch.xib in Resources */ = {isa = PBXBuildFile; fileRef = D4ECE1DA1B989EE4006D5142 /* Launch.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,7 +35,6 @@
 		D45892C81B98500100EB8DCC /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		D45892CA1B98500100EB8DCC /* LoginScreen.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoginScreen.h; sourceTree = "<group>"; };
 		D45892CB1B98500100EB8DCC /* LoginScreen.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LoginScreen.m; sourceTree = "<group>"; };
-		D45892CE1B98500100EB8DCC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D45892D01B98500100EB8DCC /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		D45892D91B98500100EB8DCC /* FMSiOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FMSiOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D4ECE1D11B986054006D5142 /* BuoyScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BuoyScreen.h; sourceTree = "<group>"; };
@@ -44,6 +43,7 @@
 		D4ECE1D51B988B02006D5142 /* Interface.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Interface.m; sourceTree = "<group>"; };
 		D4ECE1D71B988B84006D5142 /* DataModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataModel.h; sourceTree = "<group>"; };
 		D4ECE1D81B988B84006D5142 /* DataModel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataModel.m; sourceTree = "<group>"; };
+		D4ECE1DA1B989EE4006D5142 /* Launch.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Launch.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -94,8 +94,8 @@
 				D45892CB1B98500100EB8DCC /* LoginScreen.m */,
 				D4ECE1D11B986054006D5142 /* BuoyScreen.h */,
 				D4ECE1D21B986054006D5142 /* BuoyScreen.m */,
-				D45892CD1B98500100EB8DCC /* Main.storyboard */,
 				D45892D01B98500100EB8DCC /* Images.xcassets */,
+				D4ECE1DA1B989EE4006D5142 /* Launch.xib */,
 				D45892C31B98500100EB8DCC /* Supporting Files */,
 			);
 			path = FMSiOS;
@@ -190,7 +190,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D45892CF1B98500100EB8DCC /* Main.storyboard in Resources */,
+				D4ECE1DB1B989EE4006D5142 /* Launch.xib in Resources */,
 				D45892D11B98500100EB8DCC /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -234,17 +234,6 @@
 			targetProxy = D45892DA1B98500100EB8DCC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-
-/* Begin PBXVariantGroup section */
-		D45892CD1B98500100EB8DCC /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				D45892CE1B98500100EB8DCC /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		D45892E11B98500100EB8DCC /* Debug */ = {

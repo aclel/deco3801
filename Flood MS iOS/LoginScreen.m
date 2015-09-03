@@ -1,18 +1,18 @@
 //
-//  ViewController.m
+//  LoginScreen.m
 //  Flood MS iOS
 //
 //  Created by Sean M on 3/09/2015.
 //  Copyright (c) 2015 Team Neptune. All rights reserved.
 //
 
-#import "ViewController.h"
+#import "LoginScreen.h"
 
-@interface ViewController ()
+@interface LoginScreen ()
 
 @end
 
-@implementation ViewController
+@implementation LoginScreen
 
 - (void)viewDidLoad {
     [super viewDidLoad];

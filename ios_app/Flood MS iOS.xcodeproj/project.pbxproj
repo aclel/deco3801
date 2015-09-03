@@ -60,6 +60,7 @@
 		D45892B71B98500100EB8DCC = {
 			isa = PBXGroup;
 			children = (
+				D45892C11B98500100EB8DCC /* Products */,
 				D45892C21B98500100EB8DCC /* Flood MS iOS */,
 			);
 			sourceTree = "<group>";
@@ -71,7 +72,6 @@
 				D45892D91B98500100EB8DCC /* Flood MS iOSTests.xctest */,
 			);
 			name = Products;
-			path = ..;
 			sourceTree = "<group>";
 		};
 		D45892C21B98500100EB8DCC /* Flood MS iOS */ = {
@@ -84,7 +84,6 @@
 				D45892CD1B98500100EB8DCC /* Main.storyboard */,
 				D45892D01B98500100EB8DCC /* Images.xcassets */,
 				D45892D21B98500100EB8DCC /* LaunchScreen.xib */,
-				D45892C11B98500100EB8DCC /* Products */,
 				D45892C31B98500100EB8DCC /* Supporting Files */,
 			);
 			path = "Flood MS iOS";
@@ -397,6 +396,7 @@
 				D45892E51B98500100EB8DCC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		D45892E61B98500100EB8DCC /* Build configuration list for PBXNativeTarget "Flood MS iOSTests" */ = {
 			isa = XCConfigurationList;
@@ -405,6 +405,7 @@
 				D45892E81B98500100EB8DCC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

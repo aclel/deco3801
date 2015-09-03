@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D45892BF1B98500100EB8DCC"
-               BuildableName = "Flood MS iOS.app"
-               BlueprintName = "Flood MS iOS"
-               ReferencedContainer = "container:Flood MS iOS.xcodeproj">
+               BuildableName = "FMSiOS.app"
+               BlueprintName = "FMSiOS"
+               ReferencedContainer = "container:FMSiOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,9 +29,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D45892D81B98500100EB8DCC"
-               BuildableName = "Flood MS iOSTests.xctest"
-               BlueprintName = "Flood MS iOSTests"
-               ReferencedContainer = "container:Flood MS iOS.xcodeproj">
+               BuildableName = "FMSiOSTests.xctest"
+               BlueprintName = "FMSiOSTests"
+               ReferencedContainer = "container:FMSiOS.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -47,9 +47,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D45892D81B98500100EB8DCC"
-               BuildableName = "Flood MS iOSTests.xctest"
-               BlueprintName = "Flood MS iOSTests"
-               ReferencedContainer = "container:Flood MS iOS.xcodeproj">
+               BuildableName = "FMSiOSTests.xctest"
+               BlueprintName = "FMSiOSTests"
+               ReferencedContainer = "container:FMSiOS.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -57,9 +57,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D45892BF1B98500100EB8DCC"
-            BuildableName = "Flood MS iOS.app"
-            BlueprintName = "Flood MS iOS"
-            ReferencedContainer = "container:Flood MS iOS.xcodeproj">
+            BuildableName = "FMSiOS.app"
+            BlueprintName = "FMSiOS"
+            ReferencedContainer = "container:FMSiOS.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
    </TestAction>
@@ -77,9 +77,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D45892BF1B98500100EB8DCC"
-            BuildableName = "Flood MS iOS.app"
-            BlueprintName = "Flood MS iOS"
-            ReferencedContainer = "container:Flood MS iOS.xcodeproj">
+            BuildableName = "FMSiOS.app"
+            BlueprintName = "FMSiOS"
+            ReferencedContainer = "container:FMSiOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -96,9 +96,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D45892BF1B98500100EB8DCC"
-            BuildableName = "Flood MS iOS.app"
-            BlueprintName = "Flood MS iOS"
-            ReferencedContainer = "container:Flood MS iOS.xcodeproj">
+            BuildableName = "FMSiOS.app"
+            BlueprintName = "FMSiOS"
+            ReferencedContainer = "container:FMSiOS.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

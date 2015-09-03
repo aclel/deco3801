@@ -26,7 +26,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D45892C01B98500100EB8DCC /* Flood MS iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Flood MS iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D45892C01B98500100EB8DCC /* FMSiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FMSiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D45892C41B98500100EB8DCC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D45892C51B98500100EB8DCC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D45892C71B98500100EB8DCC /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -36,7 +36,7 @@
 		D45892CE1B98500100EB8DCC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D45892D01B98500100EB8DCC /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		D45892D31B98500100EB8DCC /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		D45892D91B98500100EB8DCC /* Flood MS iOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Flood MS iOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		D45892D91B98500100EB8DCC /* FMSiOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FMSiOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,20 +61,20 @@
 			isa = PBXGroup;
 			children = (
 				D45892C11B98500100EB8DCC /* Products */,
-				D45892C21B98500100EB8DCC /* Flood MS iOS */,
+				D45892C21B98500100EB8DCC /* FMSiOS */,
 			);
 			sourceTree = "<group>";
 		};
 		D45892C11B98500100EB8DCC /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D45892C01B98500100EB8DCC /* Flood MS iOS.app */,
-				D45892D91B98500100EB8DCC /* Flood MS iOSTests.xctest */,
+				D45892C01B98500100EB8DCC /* FMSiOS.app */,
+				D45892D91B98500100EB8DCC /* FMSiOSTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		D45892C21B98500100EB8DCC /* Flood MS iOS */ = {
+		D45892C21B98500100EB8DCC /* FMSiOS */ = {
 			isa = PBXGroup;
 			children = (
 				D45892C71B98500100EB8DCC /* AppDelegate.h */,
@@ -86,7 +86,7 @@
 				D45892D21B98500100EB8DCC /* LaunchScreen.xib */,
 				D45892C31B98500100EB8DCC /* Supporting Files */,
 			);
-			path = "Flood MS iOS";
+			path = FMSiOS;
 			sourceTree = "<group>";
 		};
 		D45892C31B98500100EB8DCC /* Supporting Files */ = {
@@ -101,9 +101,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D45892BF1B98500100EB8DCC /* Flood MS iOS */ = {
+		D45892BF1B98500100EB8DCC /* FMSiOS */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D45892E31B98500100EB8DCC /* Build configuration list for PBXNativeTarget "Flood MS iOS" */;
+			buildConfigurationList = D45892E31B98500100EB8DCC /* Build configuration list for PBXNativeTarget "FMSiOS" */;
 			buildPhases = (
 				D45892BC1B98500100EB8DCC /* Sources */,
 				D45892BD1B98500100EB8DCC /* Frameworks */,
@@ -113,14 +113,14 @@
 			);
 			dependencies = (
 			);
-			name = "Flood MS iOS";
+			name = FMSiOS;
 			productName = "Flood MS iOS";
-			productReference = D45892C01B98500100EB8DCC /* Flood MS iOS.app */;
+			productReference = D45892C01B98500100EB8DCC /* FMSiOS.app */;
 			productType = "com.apple.product-type.application";
 		};
-		D45892D81B98500100EB8DCC /* Flood MS iOSTests */ = {
+		D45892D81B98500100EB8DCC /* FMSiOSTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D45892E61B98500100EB8DCC /* Build configuration list for PBXNativeTarget "Flood MS iOSTests" */;
+			buildConfigurationList = D45892E61B98500100EB8DCC /* Build configuration list for PBXNativeTarget "FMSiOSTests" */;
 			buildPhases = (
 				D45892D51B98500100EB8DCC /* Sources */,
 				D45892D61B98500100EB8DCC /* Frameworks */,
@@ -131,9 +131,9 @@
 			dependencies = (
 				D45892DB1B98500100EB8DCC /* PBXTargetDependency */,
 			);
-			name = "Flood MS iOSTests";
+			name = FMSiOSTests;
 			productName = "Flood MS iOSTests";
-			productReference = D45892D91B98500100EB8DCC /* Flood MS iOSTests.xctest */;
+			productReference = D45892D91B98500100EB8DCC /* FMSiOSTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -154,7 +154,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D45892BB1B98500100EB8DCC /* Build configuration list for PBXProject "Flood MS iOS" */;
+			buildConfigurationList = D45892BB1B98500100EB8DCC /* Build configuration list for PBXProject "FMSiOS" */;
 			compatibilityVersion = "Xcode 3.2";
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
@@ -167,8 +167,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				D45892BF1B98500100EB8DCC /* Flood MS iOS */,
-				D45892D81B98500100EB8DCC /* Flood MS iOSTests */,
+				D45892BF1B98500100EB8DCC /* FMSiOS */,
+				D45892D81B98500100EB8DCC /* FMSiOSTests */,
 			);
 		};
 /* End PBXProject section */
@@ -216,7 +216,7 @@
 /* Begin PBXTargetDependency section */
 		D45892DB1B98500100EB8DCC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = D45892BF1B98500100EB8DCC /* Flood MS iOS */;
+			target = D45892BF1B98500100EB8DCC /* FMSiOS */;
 			targetProxy = D45892DA1B98500100EB8DCC /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -327,9 +327,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_FILE = "Flood MS iOS/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/FMSiOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = FMSiOS;
 			};
 			name = Debug;
 		};
@@ -337,9 +337,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				INFOPLIST_FILE = "Flood MS iOS/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/FMSiOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = FMSiOS;
 			};
 			name = Release;
 		};
@@ -355,10 +355,10 @@
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "Flood MS iOSTests/Info.plist";
+				INFOPLIST_FILE = FMSiOSTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Flood MS iOS.app/Flood MS iOS";
+				PRODUCT_NAME = FMSiOSTests;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FMSiOS.app/FMSiOS";
 			};
 			name = Debug;
 		};
@@ -370,17 +370,17 @@
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = "Flood MS iOSTests/Info.plist";
+				INFOPLIST_FILE = FMSiOSTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Flood MS iOS.app/Flood MS iOS";
+				PRODUCT_NAME = FMSiOSTests;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/FMSiOS.app/FMSiOS";
 			};
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D45892BB1B98500100EB8DCC /* Build configuration list for PBXProject "Flood MS iOS" */ = {
+		D45892BB1B98500100EB8DCC /* Build configuration list for PBXProject "FMSiOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D45892E11B98500100EB8DCC /* Debug */,
@@ -389,7 +389,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D45892E31B98500100EB8DCC /* Build configuration list for PBXNativeTarget "Flood MS iOS" */ = {
+		D45892E31B98500100EB8DCC /* Build configuration list for PBXNativeTarget "FMSiOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D45892E41B98500100EB8DCC /* Debug */,
@@ -398,7 +398,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D45892E61B98500100EB8DCC /* Build configuration list for PBXNativeTarget "Flood MS iOSTests" */ = {
+		D45892E61B98500100EB8DCC /* Build configuration list for PBXNativeTarget "FMSiOSTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				D45892E71B98500100EB8DCC /* Debug */,

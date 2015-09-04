@@ -1,0 +1,11 @@
+{
+	"reading": {
+		"ReadingTimestamp": 10000, 
+		"Guid": "e14e37db-159b-49af-91e0-000dcced97c3",
+		"JSONWebToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ",
+		"Latitude": -27.425676, 
+		"Longitude": 153.147055,
+		"Sensor": 1,
+		"Reading": 14
+	}
+}

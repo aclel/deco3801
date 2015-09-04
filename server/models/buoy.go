@@ -2,7 +2,7 @@ package models
 
 type Buoy struct {
 	Id   int    `db:"id"`
-	Guid string `db:"name"`
+	Guid string `db:"guid"`
 }
 
 type BuoyRepository interface {

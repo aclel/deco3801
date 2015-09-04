@@ -30,26 +30,38 @@ func NewRouter(env *models.Env) *mux.Router {
 	defaultChain := alice.New(c.Handler)
 
 	// Authenticated routes
-	r.Handle("/api/buoys", defaultChain.Then(AuthHandler{env, BuoysIndex}))
-	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsIndex}))
+	r.Handle("/api/buoys", defaultChain.Then(AuthHandler{env, BuoysIndex})).Methods("GET")
+	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsIndex})).Methods("GET")
+	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsCreate})).Methods("POST")
 
 	// Unauthenticated routes
-	r.Handle("/api/users", defaultChain.Then(AppHandler{env, UsersCreate}))
-	r.Handle("/api/login", defaultChain.Then(AppHandler{env, LoginHandler}))
+	r.Handle("/api/users", defaultChain.Then(AppHandler{env, UsersCreate})).Methods("POST")
+	r.Handle("/api/login", defaultChain.Then(AppHandler{env, LoginHandler})).Methods("POST")
 
 	return r
+}
+
+// Custom error type. The message field can be used to store
+// an error string which is returned to the client.
+type AppError struct {
+	Error   error
+	Message string
+	Code    int
 }
 
 // HandlerFunc which wraps handlers which require authentication
 type AuthHandler struct {
 	*models.Env
-	handle func(*models.Env, http.ResponseWriter, *http.Request) (int, error)
+	handle func(*models.Env, http.ResponseWriter, *http.Request) *AppError
 }
 
 // Checks the presence and validity of JWT tokens in authenticated routes
 // Responds with HTTP 401 Unauthorized if the token is not valid
 func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	jwtAuth := models.InitJWTAuth()
+	jwtAuth, err := models.InitJWTAuth()
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	}
 
 	// Could do some logging here as well
 	token, err := jwt.ParseFromRequest(r, func(token *jwt.Token) (interface{}, error) {
@@ -64,19 +76,13 @@ func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		log.Println("Token is valid")
 	} else {
 		fmt.Println(err)
-		http.Error(w, http.StatusText(http.StatusUnauthorized), 401)
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
 
-	if status, err := authHandler.handle(authHandler.Env, w, r); err != nil {
-		switch status {
-		case http.StatusNotFound:
-			http.Error(w, http.StatusText(http.StatusNotFound), status)
-		case http.StatusInternalServerError:
-			http.Error(w, http.StatusText(http.StatusInternalServerError), status)
-		default:
-			http.Error(w, http.StatusText(http.StatusInternalServerError), status)
-		}
+	if e := authHandler.handle(authHandler.Env, w, r); e != nil {
+		log.Println(e.Message + ": " + e.Error.Error())
+		http.Error(w, e.Message, e.Code)
 	}
 }
 
@@ -84,7 +90,7 @@ func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 // Adds (int, error) return type to handler
 type AppHandler struct {
 	*models.Env
-	handle func(*models.Env, http.ResponseWriter, *http.Request) (int, error)
+	handle func(*models.Env, http.ResponseWriter, *http.Request) *AppError
 }
 
 // Executes handler and responds with a HTTP error if the handler returned an error
@@ -93,8 +99,8 @@ type AppHandler struct {
 // and it will be hard to debug what's going on. The handler can now just return an error
 // code and this function will server the http.Error.
 func (appHandler AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if status, err := appHandler.handle(appHandler.Env, w, r); err != nil {
-		log.Println(err)
-		http.Error(w, http.StatusText(status), status)
+	if e := appHandler.handle(appHandler.Env, w, r); e != nil {
+		log.Println(e.Message + ": " + e.Error.Error())
+		http.Error(w, e.Message, e.Code)
 	}
 }

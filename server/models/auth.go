@@ -36,10 +36,10 @@ func (db *DB) Login(user *User) ([]byte, error) {
 		} else {
 			user.Token = token
 			user.Password = "" // don't want to send the password back to the client
-			response, _ := json.Marshal(user)
-
 			// Update last login time
 			user.LastLogin = Now()
+
+			response, _ := json.Marshal(user)
 			err = db.UpdateUserExcludePassword(user.Email, user)
 			if err != nil {
 				return []byte(""), err

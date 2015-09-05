@@ -30,13 +30,13 @@ func NewRouter(env *models.Env) *mux.Router {
 	defaultChain := alice.New(c.Handler)
 
 	// Authenticated routes
-	r.Handle("/api/buoys", defaultChain.Then(AuthHandler{env, BuoysIndex})).Methods("GET")
-	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsIndex})).Methods("GET")
-	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsCreate})).Methods("POST")
+	r.Handle("/api/buoys", defaultChain.Then(AuthHandler{env, BuoysIndex})).Methods("GET", "OPTIONS")
+	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsIndex})).Methods("GET", "OPTIONS")
+	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsCreate})).Methods("POST", "OPTIONS")
 
 	// Unauthenticated routes
-	r.Handle("/api/users", defaultChain.Then(AppHandler{env, UsersCreate})).Methods("POST")
-	r.Handle("/api/login", defaultChain.Then(AppHandler{env, LoginHandler})).Methods("POST")
+	r.Handle("/api/users", defaultChain.Then(AppHandler{env, UsersCreate})).Methods("POST", "OPTIONS")
+	r.Handle("/api/login", defaultChain.Then(AppHandler{env, LoginHandler})).Methods("POST", "OPTIONS")
 
 	return r
 }

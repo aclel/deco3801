@@ -21,7 +21,6 @@ type buoyId struct {
 
 // GET /buoys
 // Responds with HTTP 200. All buoys are sent in the response body.
-<<<<<<< HEAD
 func BuoysIndex(env *models.Env, w http.ResponseWriter, r *http.Request) (int, error) {
 	
 	if r.Method != "GET" {
@@ -32,12 +31,8 @@ func BuoysIndex(env *models.Env, w http.ResponseWriter, r *http.Request) (int, e
 	newWrapping := new(wrapping)
 	var err error
 	newWrapping.Buoys, err = env.DB.GetAllBuoys()
-=======
-func BuoysIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
-	buoys, err := env.DB.GetAllBuoys()
->>>>>>> origin/master
 	if err != nil {
-		return &AppError{err, "Error retrieving buoys", http.StatusInternalServerError}
+		return 405, err
 	}
 
 	// Set return status and write to response body.
@@ -70,7 +65,6 @@ func BuoyShow(env *models.Env, w http.ResponseWriter, r *http.Request) (int, err
 		return 405, err
 	}
 
-<<<<<<< HEAD
 	ourBuoy := new(models.Buoy)
 	ourBuoy, err = env.DB.GetById(newBuoyId.Id)          
 	if err != nil {
@@ -116,7 +110,4 @@ func BuoysCreate(env *models.Env, w http.ResponseWriter, r *http.Request) (int, 
 	w.WriteHeader(http.StatusOK)
 
 	return 200, nil
-=======
-	return nil
->>>>>>> origin/master
 }

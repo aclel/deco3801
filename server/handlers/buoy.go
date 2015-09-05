@@ -2,12 +2,13 @@ package handlers
 
 import (
 	//"fmt"
-	"net/http"
 	"encoding/json"
+	"net/http"
+
 	"github.com/aclel/deco3801/server/models"
 )
 
-// A scruct for wrapping our Array in. 
+// A struct for wrapping our Array in.
 // This way the decoder will make a JSON object for us.
 type wrapping struct {
 	Buoys []models.Buoy
@@ -18,21 +19,14 @@ type buoyId struct {
 	Id int
 }
 
-
 // GET /buoys
 // Responds with HTTP 200. All buoys are sent in the response body.
-func BuoysIndex(env *models.Env, w http.ResponseWriter, r *http.Request) (int, error) {
-	
-	if r.Method != "GET" {
-		return 405, nil
-	}
-
-
+func BuoysIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	newWrapping := new(wrapping)
 	var err error
 	newWrapping.Buoys, err = env.DB.GetAllBuoys()
 	if err != nil {
-		return 405, err
+		return &AppError{err, "Error retrieving buoys", http.StatusInternalServerError}
 	}
 
 	// Set return status and write to response body.
@@ -40,9 +34,8 @@ func BuoysIndex(env *models.Env, w http.ResponseWriter, r *http.Request) (int, e
 	encoder := json.NewEncoder(w)
 	encoder.Encode(newWrapping)
 
-	return 200, nil
+	return nil
 }
-
 
 // GET /buoys/id/
 // Responds with HTTP 200. Specified buoy sent in response body.
@@ -52,30 +45,24 @@ Example request:
     "Id": 429
 }
 */
-func BuoyShow(env *models.Env, w http.ResponseWriter, r *http.Request) (int, error) {
-	
-	if r.Method != "POST" {
-		return 405, nil
-	}
-
+func BuoyShow(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	newBuoyId := new(buoyId)
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&newBuoyId)
 	if err != nil {
-		return 405, err
+		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
 	}
 
-	ourBuoy := new(models.Buoy)
-	ourBuoy, err = env.DB.GetById(newBuoyId.Id)          
+	ourBuoy, err := env.DB.GetById(newBuoyId.Id)
 	if err != nil {
-		return 405, err
+		return &AppError{err, "Error retrieving buoy", http.StatusInternalServerError}
 	}
 
 	w.WriteHeader(http.StatusOK)
 	encoder := json.NewEncoder(w)
 	encoder.Encode(ourBuoy)
 
-	return 200, nil
+	return nil
 }
 
 // POST /buoys
@@ -88,26 +75,20 @@ Example request:
     "Guid": "123abc"
 }
 */
-func BuoysCreate(env *models.Env, w http.ResponseWriter, r *http.Request) (int, error) {
-	
-	if r.Method != "POST" {
-		return 405, nil
-	}
-
+func BuoysCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	newBuoy := new(models.Buoy)
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&newBuoy)
 	if err != nil {
-		return 405, err
+		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
 	}
-	
+
 	err = env.DB.AddBuoy(newBuoy)
 	if err != nil {
-		return 405, err
+		return &AppError{err, "Error inserting buoy into the database", http.StatusInternalServerError}
 	}
-	
+
 	// Set return status.
 	w.WriteHeader(http.StatusOK)
-
-	return 200, nil
+	return nil
 }

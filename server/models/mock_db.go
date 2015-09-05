@@ -9,6 +9,14 @@ func (mdb *MockDB) GetAllBuoys() ([]Buoy, error) {
 	return mdb.buoys, nil
 }
 
+func (mdb *MockDB) AddBuoy(buoy *Buoy) error {
+	return nil
+}
+
+func (mdb *MockDB) GetById(d int) (*Buoy, error) {
+	return &Buoy{}, nil
+}
+
 func (mdb *MockDB) GetMostRecentBuoyInstance(guid string) (*BuoyInstance, error) {
 	return &BuoyInstance{}, nil
 }

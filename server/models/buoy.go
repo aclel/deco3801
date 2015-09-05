@@ -7,8 +7,8 @@ type Buoy struct {
 
 type BuoyRepository interface {
 	GetAllBuoys() ([]Buoy, error)
-	GetById(Id int) (Buoy, error)
-	AddBuoy(buoy *Buoy) (error)
+	GetById(Id int) (*Buoy, error)
+	AddBuoy(buoy *Buoy) error
 }
 
 // Gets all buoys from the database
@@ -24,24 +24,24 @@ func (db *DB) GetAllBuoys() ([]Buoy, error) {
 	return buoys, nil
 }
 
-func (db *DB) GetById(Id int) (Buoy, error) {
+func (db *DB) GetById(Id int) (*Buoy, error) {
 
 	ourBuoy := Buoy{}
 	err := db.Get(&ourBuoy, "SELECT * FROM buoy WHERE id=?", Id)
 
 	if err != nil {
-		return ourBuoy, err
+		return &ourBuoy, err
 	}
 
 	// Assume that the id is unique and that one row was retrieved.
-	return ourBuoy, nil
+	return &ourBuoy, nil
 }
 
-func (db *DB) AddBuoy(buoy *Buoy) (error) {
+func (db *DB) AddBuoy(buoy *Buoy) error {
 
 	query, err := db.Preparex("INSERT INTO buoy (id, guid) VALUES(?, ?);")
 	if err != nil {
-		return err   
+		return err
 	}
 
 	_, err = query.Exec(buoy.Id, buoy.Guid)

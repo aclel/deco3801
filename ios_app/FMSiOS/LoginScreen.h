@@ -7,9 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "DataModel.h"
 
 @interface LoginScreen : UIViewController
 
+@property (nonatomic, weak) DataModel *d;
 
 @end
 

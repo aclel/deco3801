@@ -14,3 +14,20 @@
 + (void)setupThemes;
 
 @end
+
+
+// Special text field used to pad text from edges
+@interface SpacedTextField : UITextField
+
+@property UIEdgeInsets edgeInsets;
+
+@end
+
+// Special custom UIButton which can act depressed, because that's cool
+@interface ShadowButton : UIButton
+
+@property UIColor *normalColour;
+@property UIColor *highlightColour;
+@property UIColor *selectedColour;
+
+@end

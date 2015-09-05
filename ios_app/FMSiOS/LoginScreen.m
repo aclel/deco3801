@@ -12,45 +12,12 @@
 
 #import "LoginScreen.h"
 
-// Special text field used to pad text from edges
-@interface SpacedTextField : UITextField
-
-@property UIEdgeInsets edgeInsets;
-
-@end
-
-@implementation SpacedTextField
-
-- (instancetype)initWithFrame:(CGRect)frame {
-    self = [super initWithFrame:frame];
-    if (self) {
-        self.edgeInsets = UIEdgeInsetsZero;
-    }
-    return self;
-}
-
-- (instancetype)initWithCoder:(NSCoder *)aDecoder {
-    self = [super initWithCoder:aDecoder];
-    if (self) {
-        self.edgeInsets = UIEdgeInsetsZero;
-    }
-    return self;
-}
-
-- (CGRect)textRectForBounds:(CGRect)bounds {
-    return [super textRectForBounds:UIEdgeInsetsInsetRect(bounds, self.edgeInsets)];
-}
-
-- (CGRect)editingRectForBounds:(CGRect)bounds {
-    return [super editingRectForBounds:UIEdgeInsetsInsetRect(bounds, self.edgeInsets)];
-}
-
-@end
-
-@interface LoginScreen ()
+@interface LoginScreen () <UITextFieldDelegate>
 
 @property UIImageView *bg;
 @property UIView *loginDialog;
+@property UITextField *emailField;
+@property UITextField *passField;
 
 @end
 
@@ -62,7 +29,7 @@
     // Load background
     self.bg = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Background" inBundle:nil compatibleWithTraitCollection:nil]];
     self.bg.contentMode = UIViewContentModeScaleAspectFill;
-    self.bg.frame = CGRectMake(-50, -25, self.view.frame.size.width + 100, self.view.frame.size.height + 50);
+    self.bg.frame = CGRectMake(-30, -25, self.view.frame.size.width + 60, self.view.frame.size.height + 50);
     [self.view addSubview:self.bg];
     
     // Add cool parallax effect
@@ -70,8 +37,8 @@
     vEffect.minimumRelativeValue = @(-25);
     vEffect.maximumRelativeValue = @(25);
     UIInterpolatingMotionEffect *hEffect = [[UIInterpolatingMotionEffect alloc] initWithKeyPath:@"center.x" type:UIInterpolatingMotionEffectTypeTiltAlongHorizontalAxis];
-    hEffect.minimumRelativeValue = @(-50);
-    hEffect.maximumRelativeValue = @(50);
+    hEffect.minimumRelativeValue = @(-30);
+    hEffect.maximumRelativeValue = @(30);
     [self.bg addMotionEffect:vEffect];
     [self.bg addMotionEffect:hEffect];
     
@@ -87,25 +54,42 @@
     topLabel.textColor = [UIColor whiteColor];
     topLabel.text = @"UQ FMS";
     topLabel.center = CGPointMake(150, 40);
-    [self.loginDialog addSubview:topLabel];
     
     // Text dialogs
-    SpacedTextField *emailField = [[SpacedTextField alloc] initWithFrame:CGRectMake(0, 0, 250, 50)];
+    SpacedTextField *emailField = [[SpacedTextField alloc] initWithFrame:CGRectMake(0, 0, 280, 50)];
     emailField.edgeInsets = UIEdgeInsetsMake(0, 10, 0, 10);
     emailField.backgroundColor = [UIColor whiteColor];
     emailField.keyboardType = UIKeyboardTypeEmailAddress;
+    emailField.returnKeyType = UIReturnKeyNext;
     emailField.placeholder = @"E-mail";
     emailField.center = CGPointMake(150, 120);
-    SpacedTextField *passField = [[SpacedTextField alloc] initWithFrame:CGRectMake(0, 0, 250, 50)];
+    emailField.delegate = self;
+    SpacedTextField *passField = [[SpacedTextField alloc] initWithFrame:CGRectMake(0, 0, 280, 50)];
     passField.edgeInsets = UIEdgeInsetsMake(0, 10, 0, 10);
     passField.backgroundColor = [UIColor whiteColor];
     passField.keyboardType = UIKeyboardTypeASCIICapable;
+    passField.returnKeyType = UIReturnKeyDone;
     passField.autocorrectionType = UITextAutocorrectionTypeNo;
     passField.secureTextEntry = YES;
     passField.placeholder = @"Password";
     passField.center = CGPointMake(150, 172);
+    passField.delegate = self;
+    
+    // Handle tapping outside
+    UITapGestureRecognizer *t = [[UITapGestureRecognizer alloc] initWithTarget:self.view action:@selector(endEditing:)];
+    [self.view addGestureRecognizer:t];
     
     // Login button
+    ShadowButton *loginButton = [ShadowButton buttonWithType:UIButtonTypeCustom];
+    loginButton.backgroundColor = [UIColor purpleColor];
+    loginButton.normalColour = [UIColor purpleColor];
+    loginButton.highlightColour = [UIColor colorWithRed:115.0/255 green:30.0/255 blue:123.0/255 alpha:1.0];
+    loginButton.selectedColour = [UIColor purpleColor];
+    [loginButton setTitle:@"Login" forState:UIControlStateNormal];
+    [loginButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    loginButton.titleLabel.font = [UIFont systemFontOfSize:20];
+    loginButton.frame = CGRectMake(0, 0, 170, 45);
+    loginButton.center = CGPointMake(150, 250);
     
     // Round corners
     UIBezierPath *topMaskPath = [UIBezierPath bezierPathWithRoundedRect:emailField.bounds byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight cornerRadii:CGSizeMake(10.0, 10.0)];
@@ -118,17 +102,27 @@
     bottomMaskLayer.frame = passField.bounds;
     bottomMaskLayer.path = bottomMaskPath.CGPath;
     passField.layer.mask = bottomMaskLayer;
+    loginButton.layer.cornerRadius = 20.0;
+    loginButton.clipsToBounds = YES;
+    loginButton.layer.masksToBounds = NO;
     
     // End
+    [self.loginDialog addSubview:topLabel];
     [self.loginDialog addSubview:emailField];
     [self.loginDialog addSubview:passField];
+    [self.loginDialog addSubview:loginButton];
     [self.view addSubview:self.loginDialog];
+    self.emailField = emailField;
+    self.passField = passField;
+    
+    // Events
+    [loginButton addTarget:self action:@selector(loginButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
     
-    self.bg.frame = CGRectMake(-50, -25, self.view.frame.size.width + 100, self.view.frame.size.height + 50);
+    self.bg.frame = CGRectMake(-30, -25, self.view.frame.size.width + 60, self.view.frame.size.height + 50);
     self.loginDialog.center = self.view.center;
 }
 
@@ -139,6 +133,34 @@
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
     return UIStatusBarStyleLightContent;
+}
+
+#pragma mark - text field selection
+- (void)textFieldDidBeginEditing:(UITextField *)textField {
+    textField.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1.0];
+}
+
+- (void)textFieldDidEndEditing:(UITextField *)textField {
+    textField.backgroundColor = [UIColor whiteColor];
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    if (textField == self.emailField) {
+        [self.passField becomeFirstResponder];
+        return NO;
+    } else {
+        [textField resignFirstResponder];
+        return YES;
+    }
+}
+
+#pragma mark - button pressed
+- (void)loginButtonPressed:(UIControl *)button {
+    // Check for valid email/password
+    
+    // Prepare UI for server connection
+    
+    // Start connection process
 }
 
 @end

@@ -12,10 +12,45 @@
 
 #import "LoginScreen.h"
 
+// Special text field used to pad text from edges
+@interface SpacedTextField : UITextField
+
+@property UIEdgeInsets edgeInsets;
+
+@end
+
+@implementation SpacedTextField
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.edgeInsets = UIEdgeInsetsZero;
+    }
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        self.edgeInsets = UIEdgeInsetsZero;
+    }
+    return self;
+}
+
+- (CGRect)textRectForBounds:(CGRect)bounds {
+    return [super textRectForBounds:UIEdgeInsetsInsetRect(bounds, self.edgeInsets)];
+}
+
+- (CGRect)editingRectForBounds:(CGRect)bounds {
+    return [super editingRectForBounds:UIEdgeInsetsInsetRect(bounds, self.edgeInsets)];
+}
+
+@end
+
 @interface LoginScreen ()
 
 @property UIImageView *bg;
-@property UILabel *topLabel;
+@property UIView *loginDialog;
 
 @end
 
@@ -41,18 +76,60 @@
     [self.bg addMotionEffect:hEffect];
     
     // Load UI
-    self.topLabel = [[UILabel alloc] init];
-    self.topLabel.font = [UIFont fontWithName:@"Avenir Next" size:50];
-    self.topLabel.textColor = [UIColor whiteColor];
-    self.topLabel.text = @"UQ Flood Monitoring System";
-    self.topLabel.frame = CGRectMake(20, 20, 300, 50);
-    [self.view addSubview:self.topLabel];
+    // Overall
+    self.loginDialog = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 300, 300)];
+    self.loginDialog.center = self.view.center;
+    
+    // Logo
+    UILabel *topLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 50)];
+    topLabel.textAlignment = NSTextAlignmentCenter;
+    topLabel.font = [UIFont fontWithName:@"Avenir Next" size:50];
+    topLabel.textColor = [UIColor whiteColor];
+    topLabel.text = @"UQ FMS";
+    topLabel.center = CGPointMake(150, 40);
+    [self.loginDialog addSubview:topLabel];
+    
+    // Text dialogs
+    SpacedTextField *emailField = [[SpacedTextField alloc] initWithFrame:CGRectMake(0, 0, 250, 50)];
+    emailField.edgeInsets = UIEdgeInsetsMake(0, 10, 0, 10);
+    emailField.backgroundColor = [UIColor whiteColor];
+    emailField.keyboardType = UIKeyboardTypeEmailAddress;
+    emailField.placeholder = @"E-mail";
+    emailField.center = CGPointMake(150, 120);
+    SpacedTextField *passField = [[SpacedTextField alloc] initWithFrame:CGRectMake(0, 0, 250, 50)];
+    passField.edgeInsets = UIEdgeInsetsMake(0, 10, 0, 10);
+    passField.backgroundColor = [UIColor whiteColor];
+    passField.keyboardType = UIKeyboardTypeASCIICapable;
+    passField.autocorrectionType = UITextAutocorrectionTypeNo;
+    passField.secureTextEntry = YES;
+    passField.placeholder = @"Password";
+    passField.center = CGPointMake(150, 172);
+    
+    // Login button
+    
+    // Round corners
+    UIBezierPath *topMaskPath = [UIBezierPath bezierPathWithRoundedRect:emailField.bounds byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight cornerRadii:CGSizeMake(10.0, 10.0)];
+    CAShapeLayer *topMaskLayer = [CAShapeLayer layer];
+    topMaskLayer.frame = emailField.bounds;
+    topMaskLayer.path = topMaskPath.CGPath;
+    emailField.layer.mask = topMaskLayer;
+    UIBezierPath *bottomMaskPath = [UIBezierPath bezierPathWithRoundedRect:emailField.bounds byRoundingCorners:UIRectCornerBottomLeft | UIRectCornerBottomRight cornerRadii:CGSizeMake(10.0, 10.0)];
+    CAShapeLayer *bottomMaskLayer = [CAShapeLayer layer];
+    bottomMaskLayer.frame = passField.bounds;
+    bottomMaskLayer.path = bottomMaskPath.CGPath;
+    passField.layer.mask = bottomMaskLayer;
+    
+    // End
+    [self.loginDialog addSubview:emailField];
+    [self.loginDialog addSubview:passField];
+    [self.view addSubview:self.loginDialog];
 }
 
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
     
     self.bg.frame = CGRectMake(-50, -25, self.view.frame.size.width + 100, self.view.frame.size.height + 50);
+    self.loginDialog.center = self.view.center;
 }
 
 - (void)didReceiveMemoryWarning {

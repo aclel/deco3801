@@ -1,13 +1,18 @@
 package models
 
 import (
+	"os"
 	"testing"
 
 	"github.com/dgrijalva/jwt-go"
 )
 
+func TestMain(m *testing.M) {
+	jwtAuth, _ = InitJWTAuth()
+	os.Exit(m.Run())
+}
+
 func TestInitJWTAuth(t *testing.T) {
-	jwtAuth := InitJWTAuth()
 	if jwtAuth.PublicKey == nil {
 		t.Errorf("Public key was nil")
 	}
@@ -18,7 +23,6 @@ func TestInitJWTAuth(t *testing.T) {
 }
 
 func TestGenerateToken(t *testing.T) {
-	jwtAuth := InitJWTAuth()
 	tokenString, err := jwtAuth.GenerateToken("test@email.com")
 
 	if err != nil {
@@ -48,7 +52,6 @@ func TestGenerateToken(t *testing.T) {
 var passwordHash = "$2a$08$cMD2Z9/EYtJQUgfyfKPzKu/JGjbHIxnAqUIZO6ah9zRkzrG41REeq"
 
 func TestAuthenticate(t *testing.T) {
-	jwtAuth := InitJWTAuth()
 	user := &User{
 		Email:    "bobby",
 		Password: "secret",
@@ -67,7 +70,6 @@ func TestAuthenticate(t *testing.T) {
 }
 
 func TestAuthenticateIncorrectPassword(t *testing.T) {
-	jwtAuth := InitJWTAuth()
 	user := &User{
 		Email:    "bobby",
 		Password: "wrongpassword",
@@ -86,7 +88,6 @@ func TestAuthenticateIncorrectPassword(t *testing.T) {
 }
 
 func TestAuthenticateIncorrectEmail(t *testing.T) {
-	jwtAuth := InitJWTAuth()
 	user := &User{
 		Email:    "bobby",
 		Password: "secret",
@@ -101,5 +102,12 @@ func TestAuthenticateIncorrectEmail(t *testing.T) {
 	got := jwtAuth.Authenticate(dbUser, user)
 	if got != want {
 		t.Errorf("Authenticate(dbUser, user) got %v, want %v", got, want)
+	}
+}
+
+func TestGetPrivateKey(t *testing.T) {
+	_, err := getPrivateKey()
+	if err != nil {
+		t.Error(err)
 	}
 }

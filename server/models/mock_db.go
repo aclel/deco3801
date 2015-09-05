@@ -26,18 +26,22 @@ func (mdb *MockDB) GetSensorTypeWithName(name string) (*SensorType, error) {
 }
 
 func (mdb *MockDB) GetUserWithEmail(email string) (*User, error) {
-	return &User{}, nil
+	return nil, nil
 }
 
 func (mdb *MockDB) CreateUser(user *User) error {
 	return nil
 }
 
-func (mdb *MockDB) Login(user *User) (int, []byte) {
+func (mdb *MockDB) Login(user *User) ([]byte, error) {
 	//shortened token, only checking for non-empty
-	return 200, []byte(`{"token": "eyJhbGciOiJSUzI..."}`)
+	return []byte(`{"token": "eyJhbGciOiJSUzI..."}`), nil
 }
 
-func (mdb *MockDB) RefreshToken(user *User) []byte {
-	return []byte("")
+func (mdb *MockDB) RefreshToken(user *User) ([]byte, error) {
+	return []byte(""), nil
+}
+
+func (mdb *MockDB) SendNewUserEmail(user *User, emailUser *EmailCredentials) error {
+	return nil
 }

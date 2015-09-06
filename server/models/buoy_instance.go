@@ -3,10 +3,13 @@ package models
 import "time"
 
 type BuoyInstance struct {
-	Id          int       `json:"id" db:"id"`
-	BuoyId      int       `json:"buoyId" db:"buoy_id"`
-	BuoyGroupId int       `json:"buoyGroupId" db:"buoy_group_id"`
-	DateCreated time.Time `db:"date_created"`
+	Id            int       `json:"id" db:"id"`
+	BuoyId        int       `json:"buoyId" db:"buoy_id"`
+	BuoyName      string    `json:"buoyName" db:"buoy_name"`
+	BuoyGuid      string    `json:"buoyGuid" db:"buoy_guid"`
+	BuoyGroupId   int       `json:"buoyGroupId" db:"buoy_group_id"`
+	BuoyGroupName string    `json:"buoyGroupName" db:"buoy_group_name"`
+	DateCreated   time.Time `json:"dateCreated" db:"date_created"`
 }
 
 type BuoyInstanceRepository interface {

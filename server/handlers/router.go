@@ -34,11 +34,18 @@ func NewRouter(env *models.Env) *mux.Router {
 	// Authenticated routes
 	r.Handle("/api/buoys", defaultChain.Then(AuthHandler{env, BuoysIndex, "researcher"})).Methods("GET", "OPTIONS")
 	r.Handle("/api/buoys", defaultChain.Then(AuthHandler{env, BuoysCreate, "researcher"})).Methods("POST", "OPTIONS")
+	r.Handle("/api/buoys/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoysUpdate, "researcher"})).Methods("PUT", "OPTIONS")
 	r.Handle("/api/buoys/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoysShow, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/buoys/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoysDelete, "researcher"})).Methods("DELETE", "OPTIONS")
 
 	r.Handle("/api/buoy_groups", defaultChain.Then(AuthHandler{env, BuoyGroupsIndex, "researcher"})).Methods("GET", "OPTIONS")
 	r.Handle("/api/buoy_groups", defaultChain.Then(AuthHandler{env, BuoyGroupsCreate, "researcher"})).Methods("POST", "OPTIONS")
+	r.Handle("/api/buoy_groups/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoyGroupsUpdate, "researcher"})).Methods("PUT", "OPTIONS")
 	r.Handle("/api/buoy_groups/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoyGroupsShow, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/buoy_groups/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoyGroupsDelete, "researcher"})).Methods("DELETE", "OPTIONS")
+	r.Handle("/api/buoy_groups/{id:[0-9]+}/buoys", defaultChain.Then(AuthHandler{env, BuoyGroupsBuoysIndex, "researcher"})).Methods("GET", "OPTIONS")
+
+	r.Handle("/api/buoy_instances", defaultChain.Then(AuthHandler{env, BuoyInstancesCreate, "researcher"})).Methods("POST", "OPTIONS")
 
 	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsIndex, "researcher"})).Methods("GET", "OPTIONS")
 	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsCreate, "researcher"})).Methods("POST", "OPTIONS")

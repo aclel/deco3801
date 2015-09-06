@@ -49,7 +49,6 @@ func (db *DB) CreateUser(user *User) error {
 func (db *DB) GetUserWithEmail(email string) (*User, error) {
 	dbUser := User{}
 	err := db.Get(&dbUser, "SELECT * FROM user WHERE email = ?;", email)
-
 	if err == sql.ErrNoRows {
 		return nil, nil
 	}

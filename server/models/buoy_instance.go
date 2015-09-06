@@ -1,18 +1,17 @@
 package models
 
-import (
-	"time"
-)
+import "time"
 
 type BuoyInstance struct {
-	Id          int `json:"id" db:"id"`
-	BuoyId      int `json:"buoyId" db:"buoy_id"`
-	BuoyGroupId int `json:"buoyGroupId" db:"buoy_group_id"`
+	Id          int       `json:"id" db:"id"`
+	BuoyId      int       `json:"buoyId" db:"buoy_id"`
+	BuoyGroupId int       `json:"buoyGroupId" db:"buoy_group_id"`
 	DateCreated time.Time `db:"date_created"`
 }
 
 type BuoyInstanceRepository interface {
 	GetMostRecentBuoyInstance(string) (*BuoyInstance, error)
+	CreateBuoyInstance(*BuoyInstance) error
 }
 
 // Get the most recent buoy instance for the buoy with the given guid
@@ -29,4 +28,19 @@ func (db *DB) GetMostRecentBuoyInstance(buoyGuid string) (*BuoyInstance, error) 
 	}
 
 	return &dbBuoyInstance, nil
+}
+
+// Create a new Buoy Instance - ie. Add a Buoy to a Buoy Group
+func (db *DB) CreateBuoyInstance(buoyInstance *BuoyInstance) error {
+	stmt, err := db.Preparex("INSERT INTO buoy_instance (buoy_id, buoy_group_id) VALUES (?, ?);")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(buoyInstance.BuoyId, buoyInstance.BuoyGroupId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

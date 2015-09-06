@@ -18,8 +18,25 @@ func (mdb *MockDB) GetBuoyById(id int) (*Buoy, error) {
 	return &Buoy{}, nil
 }
 
+func (mdb *MockDB) UpdateBuoy(buoy *Buoy) error {
+	return nil
+}
+
+func (mdb *MockDB) DeleteBuoyWithId(id int) error {
+	return nil
+}
+
+func (mdb *MockDB) GetBuoysForBuoyGroup(id int) ([]Buoy, error) {
+	return nil, nil
+}
+
+// BUOY INSTANCES
 func (mdb *MockDB) GetMostRecentBuoyInstance(guid string) (*BuoyInstance, error) {
 	return &BuoyInstance{}, nil
+}
+
+func (mdb *MockDB) CreateBuoyInstance(buoyInstance *BuoyInstance) error {
+	return nil
 }
 
 // BUOY GROUPS
@@ -32,6 +49,14 @@ func (mdb *MockDB) GetBuoyGroupById(id int) (*BuoyGroup, error) {
 }
 
 func (mdb *MockDB) CreateBuoyGroup(buoyGroup *BuoyGroup) error {
+	return nil
+}
+
+func (mdb *MockDB) UpdateBuoyGroup(buoyGroup *BuoyGroup) error {
+	return nil
+}
+
+func (mdb *MockDB) DeleteBuoyGroupWithId(id int) error {
 	return nil
 }
 

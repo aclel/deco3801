@@ -84,3 +84,80 @@ func BuoyGroupsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *
 	w.WriteHeader(http.StatusCreated)
 	return nil
 }
+
+// PUT /api/buoy_groups/id
+// Request body contains JSON object of the buoy group which is being replaced.
+// Response with HTTP 200. Response body empty.
+// Example request body:
+//
+// {
+//		"name": "BUOY-GROUP-1"
+// }
+func BuoyGroupsUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing buoy group id", http.StatusInternalServerError}
+	}
+
+	buoyGroup := new(models.BuoyGroup)
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&buoyGroup)
+	// Check if Buoy JSON is valid
+	if err != nil {
+		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+	}
+	buoyGroup.Id = id
+
+	// Replace Buoy Group in the database
+	err = env.DB.UpdateBuoyGroup(buoyGroup)
+	if err != nil {
+		return &AppError{err, "Error updating buoy group in the database", http.StatusInternalServerError}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	return nil
+}
+
+// DELETE /api/buoy_groups/id
+// Responds with HTTP 200 if successful. Response body empty.
+func BuoyGroupsDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing buoy group id", http.StatusInternalServerError}
+	}
+
+	err = env.DB.DeleteBuoyGroupWithId(id)
+	if err != nil {
+		return &AppError{err, "Error deleting buoy group", http.StatusInternalServerError}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	return nil
+}
+
+// GET /api/buoy_groups/id/buoys
+// Responds with HTTP 200. All buoys for the specified buoy groups are sent in the response body.
+func BuoyGroupsBuoysIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing buoy group id", http.StatusInternalServerError}
+	}
+
+	var buoysWrapper BuoysWrapper
+	buoysWrapper.Buoys, err = env.DB.GetBuoysForBuoyGroup(id)
+	if err != nil {
+		return &AppError{err, "Error retrieving buoys", http.StatusInternalServerError}
+	}
+
+	// Set return status and write to response body.
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response, _ := json.Marshal(buoysWrapper)
+	w.Write(response)
+
+	return nil
+}

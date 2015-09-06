@@ -10,14 +10,14 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type buoysWrapper struct {
+type BuoysWrapper struct {
 	Buoys []models.Buoy `json:"buoys"`
 }
 
 // GET /api/buoys
 // Responds with HTTP 200. All buoys are sent in the response body.
 func BuoysIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
-	var buoysWrapper buoysWrapper
+	var buoysWrapper BuoysWrapper
 	var err error
 
 	buoysWrapper.Buoys, err = env.DB.GetAllBuoys()

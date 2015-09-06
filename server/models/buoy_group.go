@@ -14,6 +14,7 @@ type BuoyGroupRepository interface {
 	CreateBuoyGroup(*BuoyGroup) error
 	UpdateBuoyGroup(*BuoyGroup) error
 	DeleteBuoyGroupWithId(int) error
+	GetBuoysForBuoyGroup(int) ([]Buoy, error)
 }
 
 // Get all of the buoy groups from the database
@@ -83,6 +84,21 @@ func (db *DB) DeleteBuoyGroupWithId(id int) error {
 	}
 
 	return nil
+}
+
+// Get all Buoys for the Buoy Group with the given id.
+func (db *DB) GetBuoysForBuoyGroup(id int) ([]Buoy, error) {
+	buoys := []Buoy{}
+	err := db.Select(&buoys, `SELECT buoy.id, buoy.name, buoy.guid FROM buoy 
+							 INNER JOIN buoy_instance ON buoy_instance.id=buoy.id
+							 INNER JOIN buoy_group ON buoy_instance.buoy_group_id=buoy_group.id
+							 WHERE buoy_group.id=?`, id)
+	if err != nil {
+		return nil, err
+	}
+
+	// Assume that the id is unique and that one row was retrieved.
+	return buoys, nil
 }
 
 func (db *DB) GetAllBuoyGroupReadings() ([]BuoyGroup, error) {

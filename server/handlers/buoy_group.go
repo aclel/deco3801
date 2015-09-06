@@ -136,3 +136,28 @@ func BuoyGroupsDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *
 	w.WriteHeader(http.StatusOK)
 	return nil
 }
+
+// GET /api/buoy_groups/id/buoys
+// Responds with HTTP 200. All buoys for the specified buoy groups are sent in the response body.
+func BuoyGroupsBuoysIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing buoy group id", http.StatusInternalServerError}
+	}
+
+	var buoysWrapper BuoysWrapper
+	buoysWrapper.Buoys, err = env.DB.GetBuoysForBuoyGroup(id)
+	if err != nil {
+		return &AppError{err, "Error retrieving buoys", http.StatusInternalServerError}
+	}
+
+	// Set return status and write to response body.
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response, _ := json.Marshal(buoysWrapper)
+	w.Write(response)
+
+	return nil
+}

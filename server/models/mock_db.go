@@ -26,6 +26,10 @@ func (mdb *MockDB) DeleteBuoyWithId(id int) error {
 	return nil
 }
 
+func (mdb *MockDB) GetBuoysForBuoyGroup(id int) ([]Buoy, error) {
+	return nil, nil
+}
+
 func (mdb *MockDB) GetMostRecentBuoyInstance(guid string) (*BuoyInstance, error) {
 	return &BuoyInstance{}, nil
 }

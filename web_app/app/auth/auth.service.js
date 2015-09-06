@@ -12,7 +12,8 @@
 			logout: logout,
 			authed: authed,
 			getToken: getToken,
-			saveToken: saveToken
+			saveToken: saveToken,
+			currentUser: currentUser
 		};
 		
 		function logout() {
@@ -35,6 +36,10 @@
 		
 		function getToken(token) {
 			return $window.localStorage['token'];
+		}
+		
+		function currentUser() {
+			return parseJwt(getToken()).sub;
 		}
 		
 		function parseJwt(token) {

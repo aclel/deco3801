@@ -8,8 +8,10 @@
 		var vm = this;
 		
 		vm.authed = auth.authed();
+		vm.firstLogin = false;
 		vm.login = login;
 		vm.logout = logout;
+		vm.changePassword = changePassword;
 		
 		resetForm();
 		
@@ -35,7 +37,13 @@
 			function(res) {
 				if (auth.authed()) {
 					vm.authed = true;
-					$state.go('dashboard');
+					
+					if (!res.data.lastLogin.Valid) {
+						$state.go('changepassword');
+					} else {
+						$state.go('dashboard');
+					}
+					
 					resetForm();
 				}
 				
@@ -51,9 +59,19 @@
 			$state.go('login');			
 		}
 		
+		function changePassword() {
+			// need to validate input
+			if (vm.newPassword != "" && vm.newPassword == vm.confirmPassword) {
+				server.changePassword(vm.newPassword);
+				vm.newPassword = vm.confirmPassword = "";
+			} else {
+				alert("Invalid password");
+			}
+		}
+		
 		function resetForm() {
-			vm.email = "neptune"; // placeholder
-			vm.password = "secret123";
+			vm.email = "andrew@dyergroup.com.au"; // placeholder
+			vm.password = "4UKbD953";
 		}
 	}
 })();

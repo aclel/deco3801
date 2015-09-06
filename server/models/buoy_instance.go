@@ -12,6 +12,7 @@ type BuoyInstance struct {
 type BuoyInstanceRepository interface {
 	GetMostRecentBuoyInstance(string) (*BuoyInstance, error)
 	CreateBuoyInstance(*BuoyInstance) error
+	DeleteBuoyInstanceWithId(int) error
 }
 
 // Get the most recent buoy instance for the buoy with the given guid
@@ -38,6 +39,21 @@ func (db *DB) CreateBuoyInstance(buoyInstance *BuoyInstance) error {
 	}
 
 	_, err = stmt.Exec(buoyInstance.BuoyId, buoyInstance.BuoyGroupId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Delete Buoy Instance from the database with the given id.
+func (db *DB) DeleteBuoyInstanceWithId(id int) error {
+	stmt, err := db.Preparex("DELETE FROM buoy_instance WHERE id=?")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(id)
 	if err != nil {
 		return err
 	}

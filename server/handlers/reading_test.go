@@ -21,7 +21,8 @@ func TestReadingsCreate(t *testing.T) {
 			t.Error(err)
 		}
 
-		token, err := jwtAuth.GenerateToken("test@email.com")
+		testUser := &models.User{Email: "test@email.com", Role: "system_admin"}
+		token, err := jwtAuth.GenerateToken(testUser)
 		if err != nil {
 			t.Error(err)
 		}
@@ -34,7 +35,7 @@ func TestReadingsCreate(t *testing.T) {
 
 		req.Header.Set("Authorization", "Bearer "+string(token))
 
-		AuthHandler{env, ReadingsCreate}.ServeHTTP(rec, req)
+		AuthHandler{env, ReadingsCreate, "researcher"}.ServeHTTP(rec, req)
 
 		got := rec.Code
 		want := tt.out

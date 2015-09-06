@@ -12,6 +12,7 @@
 		vm.login = login;
 		vm.logout = logout;
 		vm.changePassword = changePassword;
+		vm.checkShowNav = checkShowNav;
 		
 		resetForm();
 		
@@ -23,6 +24,14 @@
 					if ($state.is('login')) {
 						$state.go('dashboard');
 					}
+				}
+				
+				// user role restrictions
+				if (toState.name == 'config' && !configAllowed()) {
+					event.preventDefault();
+				}
+				if (toState.name == 'admin' && !adminAllowed()) {
+					event.preventDefault();
 				}
 			} else {
 				if (toState.name != 'login') {
@@ -40,6 +49,7 @@
 					
 					if (!res.data.lastLogin.Valid) {
 						$state.go('changepassword');
+						vm.firstLogin = true;
 					} else {
 						$state.go('dashboard');
 					}
@@ -64,14 +74,50 @@
 			if (vm.newPassword != "" && vm.newPassword == vm.confirmPassword) {
 				server.changePassword(vm.newPassword);
 				vm.newPassword = vm.confirmPassword = "";
+				vm.firstLogin = false;
 			} else {
 				alert("Invalid password");
 			}
 		}
 		
+		function checkShowNav(nav) {
+			switch(nav) {
+				case "dashboard":
+					return vm.authed;
+				case "config":
+					return configAllowed();
+				case "warnings":
+					return vm.authed;
+				case "admin":
+					return adminAllowed();
+				case "logout":
+					return vm.authed;
+				default:
+					return false;
+			}
+		}
+		
 		function resetForm() {
 			vm.email = "andrew@dyergroup.com.au"; // placeholder
-			vm.password = "4UKbD953";
+			vm.password = "D9mEpnvx";
+		}
+		
+		function configAllowed() {
+			if (!vm.authed) return false;
+			
+			var role = auth.currentUserRole();
+			if (role != "power_user" && role != "system_admin") return false;
+			
+			return true;
+		}
+		
+		function adminAllowed() {
+			if (!vm.authed) return false;
+			
+			var role = auth.currentUserRole();
+			if (role != "system_admin") return false;
+			
+			return true;
 		}
 	}
 })();

@@ -13,7 +13,8 @@
 			authed: authed,
 			getToken: getToken,
 			saveToken: saveToken,
-			currentUser: currentUser
+			currentUser: currentUser,
+			currentUserRole: currentUserRole
 		};
 		
 		function logout() {
@@ -40,6 +41,10 @@
 		
 		function currentUser() {
 			return parseJwt(getToken()).sub;
+		}
+		
+		function currentUserRole() {
+			return parseJwt(getToken()).role;
 		}
 		
 		function parseJwt(token) {

@@ -43,6 +43,14 @@ func (mdb *MockDB) CreateBuoyGroup(buoyGroup *BuoyGroup) error {
 	return nil
 }
 
+func (mdb *MockDB) UpdateBuoyGroup(buoyGroup *BuoyGroup) error {
+	return nil
+}
+
+func (mdb *MockDB) DeleteBuoyGroupWithId(id int) error {
+	return nil
+}
+
 // READINGS
 func (mdb *MockDB) GetAllReadings() ([]byte, error) {
 	return []byte(""), nil

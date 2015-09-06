@@ -121,3 +121,21 @@ func BuoysUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 	w.WriteHeader(http.StatusOK)
 	return nil
 }
+
+// DELETE /api/buoys/id
+// Responds with HTTP 200 if successful. Response body empty.
+func BuoysDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing buoy id", http.StatusInternalServerError}
+	}
+
+	err = env.DB.DeleteBuoyWithId(id)
+	if err != nil {
+		return &AppError{err, "Error deleting buoy", http.StatusInternalServerError}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	return nil
+}

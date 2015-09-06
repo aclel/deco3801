@@ -11,6 +11,7 @@ type BuoyRepository interface {
 	GetBuoyById(id int) (*Buoy, error)
 	CreateBuoy(buoy *Buoy) error
 	UpdateBuoy(buoy *Buoy) error
+	DeleteBuoyWithId(id int) error
 }
 
 // Gets all buoys from the database
@@ -53,7 +54,7 @@ func (db *DB) CreateBuoy(buoy *Buoy) error {
 	return nil
 }
 
-// Updates the given buoy in the database
+// Updates the given buoy in the database.
 func (db *DB) UpdateBuoy(buoy *Buoy) error {
 	stmt, err := db.Preparex("UPDATE buoy SET guid=?, name=? WHERE id=?;")
 	if err != nil {
@@ -61,6 +62,21 @@ func (db *DB) UpdateBuoy(buoy *Buoy) error {
 	}
 
 	_, err = stmt.Exec(buoy.Guid, buoy.Name, buoy.Id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Delete Buoy from the database with the given id.
+func (db *DB) DeleteBuoyWithId(id int) error {
+	stmt, err := db.Preparex("DELETE FROM buoy WHERE id=?")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(id)
 	if err != nil {
 		return err
 	}

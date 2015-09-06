@@ -157,10 +157,17 @@
 #pragma mark - button pressed
 - (void)loginButtonPressed:(UIControl *)button {
     // Check for valid email/password
+    if ([self.emailField.text isEqualToString:@""] || [self.passField.text isEqualToString:@""] || ![Interface NSStringIsValidEmail:self.emailField.text]) {
+        NSLog(@"Invalid email/pass specified; say so");
+        return;
+    }
     
     // Prepare UI for server connection
+    //disable button, set to 'connecting...'
+    //set activity indicator
     
     // Start connection process
+    //data model connect with username/pass
 }
 
 @end

@@ -1,12 +1,15 @@
 package models
 
 type Buoy struct {
-	Id   int    `db:"id"`
-	Guid string `db:"guid"`
+	Id   int    `json:"id", db:"id"`
+	Guid string `json:"guid", db:"guid"`
+	Name string `json:"name", db:"name"`
 }
 
 type BuoyRepository interface {
 	GetAllBuoys() ([]Buoy, error)
+	GetBuoyById(id int) (*Buoy, error)
+	CreateBuoy(buoy *Buoy) error
 }
 
 // Gets all buoys from the database
@@ -19,4 +22,32 @@ func (db *DB) GetAllBuoys() ([]Buoy, error) {
 	}
 
 	return buoys, nil
+}
+
+// Retrieve a buoy from the database with the given id.
+func (db *DB) GetBuoyById(id int) (*Buoy, error) {
+	buoy := Buoy{}
+	err := db.Get(&buoy, "SELECT * FROM buoy WHERE id=?", id)
+
+	if err != nil {
+		return &buoy, err
+	}
+
+	// Assume that the id is unique and that one row was retrieved.
+	return &buoy, nil
+}
+
+// Insert a new Buoy into the database.
+func (db *DB) CreateBuoy(buoy *Buoy) error {
+	query, err := db.Preparex("INSERT INTO buoy (guid, name) VALUES(?, ?);")
+	if err != nil {
+		return err
+	}
+
+	_, err = query.Exec(buoy.Guid, buoy.Name)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

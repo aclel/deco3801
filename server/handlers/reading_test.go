@@ -9,53 +9,7 @@ import (
 	"github.com/aclel/deco3801/server/models"
 )
 
-var readingCreateTests = []struct {
-	description string
-	in          string
-	out         int
-}{
-	// OK
-	{"OK", `{"guid":"test", "latitude": 27.425676, "longitude": 153.147055,
-		"sensorTypeName": "Turbidity","value": 14}`, http.StatusCreated},
-
-	// Empty guid
-	{"Empty guid", `{"guid":"", "latitude": -27.425676, "longitude": 153.147055,
-		"sensorTypeName": "Turbidity","value": 14}`, http.StatusBadRequest},
-
-	// Missing guid
-	{"Missing guid", `"latitude": -27.425676, "longitude": 153.147055,
-		"sensorTypeName": "Turbidity","value": 14}`, http.StatusBadRequest},
-
-	// Lat and Long are bad strings
-	{"Lat and Long are bad strings", `{"guid":"test", "latitude": "aaaa", "longitude": "bbbb",
-		"sensorTypeName": "Turbidity","value": 14}`, http.StatusBadRequest},
-
-	// Lat < -90.0
-	{"Lat < -90.0", `{"guid":"test", "latitude": -91, "longitude": 0,
-		"sensorTypeName": "Turbidity","value": 14}`, http.StatusBadRequest},
-
-	// Lat is > 90.0
-	{"Lat > 90.0", `{"guid":"test", "latitude": 91, "longitude": 0,
-		"sensorTypeName": "Turbidity","value": 14}`, http.StatusBadRequest},
-
-	// Long < -180.0
-	{"Long < -180.0", `{"guid":"test", "latitude": 0, "longitude": -181,
-		"sensorTypeName": "Turbidity","value": 14}`, http.StatusBadRequest},
-
-	// Long > 180.0
-	{"Long > 180.0", `{"guid":"test", "latitude": -91, "longitude": 181,
-		"sensorTypeName": "Turbidity","value": 14}`, http.StatusBadRequest},
-
-	// Lat and Long are missing
-	{"Lat and Long are missing", `{"guid":"test", 
-		"sensorTypeName": "Turbidity","value": 14}`, http.StatusBadRequest},
-
-	// Invalid JSON
-	{"Invalid JSON", `asdfasd`, http.StatusBadRequest},
-}
-
 func TestReadingsCreate(t *testing.T) {
-	//log.SetOutput(ioutil.Discard)
 	env := &models.Env{DB: &models.MockDB{}}
 
 	for _, tt := range readingCreateTests {
@@ -67,7 +21,8 @@ func TestReadingsCreate(t *testing.T) {
 			t.Error(err)
 		}
 
-		token, err := jwtAuth.GenerateToken("test@email.com")
+		testUser := &models.User{Email: "test@email.com", Role: "system_admin"}
+		token, err := jwtAuth.GenerateToken(testUser)
 		if err != nil {
 			t.Error(err)
 		}
@@ -80,7 +35,7 @@ func TestReadingsCreate(t *testing.T) {
 
 		req.Header.Set("Authorization", "Bearer "+string(token))
 
-		AuthHandler{env, ReadingsCreate}.ServeHTTP(rec, req)
+		AuthHandler{env, ReadingsCreate, "researcher"}.ServeHTTP(rec, req)
 
 		got := rec.Code
 		want := tt.out
@@ -88,5 +43,139 @@ func TestReadingsCreate(t *testing.T) {
 			t.Errorf("%v: HTTP status = %v, want %v", tt.description, got, want)
 		}
 	}
+}
 
+var readingCreateTests = []struct {
+	description string
+	in          string
+	out         int
+}{
+	// OK
+	{"OK", `{
+				"guid":"test",
+				"readings": [{
+					"latitude": 27.425676,
+					"longitude": 153.147055,
+					"sensorReadings": [{
+						"sensorName": "Turbidity",
+						"value": 40
+					}],
+					"timestamp": "2006-01-02T15:04:05Z07:00",
+					"messageNumber": 1
+				}]
+			}`, http.StatusCreated},
+
+	// Empty guid
+	{"Empty guid", `{
+						"guid":"",
+						"readings": [{
+							"latitude": 27.425676,
+							"longitude": 153.147055,
+							"sensorReadings": [{
+								"sensorName": "Turbidity",
+								"value": 40
+							}],
+							"timestamp": "2006-01-02T15:04:05Z07:00",
+							"messageNumber": 1
+						}]
+					}`, http.StatusBadRequest},
+
+	// Missing guid
+	{"Missing guid", `{
+						"readings": [{
+							"latitude": 27.425676,
+							"longitude": 153.147055,
+							"sensorReadings": [{
+								"sensorName": "Turbidity",
+								"value": 40
+							}],
+							"timestamp": "2006-01-02T15:04:05Z07:00",
+							"messageNumber": 1
+						}]
+					}`, http.StatusBadRequest},
+
+	// Lat and Long are bad strings
+	{"Lat and Long are bad strings", `{
+										"readings": [{
+											"latitude": "aaa",
+											"longitude": "bbb",
+											"sensorReadings": [{
+												"sensorName": "Turbidity",
+												"value": 40
+											}],
+											"timestamp": "2006-01-02T15:04:05Z07:00",
+											"messageNumber": 1
+										}]
+									}`, http.StatusBadRequest},
+
+	// Lat < -90.0
+	{"Lat < -90.0", `{
+						"readings": [{
+							"latitude": -91,
+							"longitude": 0,
+							"sensorReadings": [{
+								"sensorName": "Turbidity",
+								"value": 40
+							}],
+							"timestamp": "2006-01-02T15:04:05Z07:00",
+							"messageNumber": 1
+						}]
+					}`, http.StatusBadRequest},
+
+	// Lat is > 90.0
+	{"Lat > 90.0", `{
+						"readings": [{
+							"latitude": 91,
+							"longitude": 0,
+							"sensorReadings": [{
+								"sensorName": "Turbidity",
+								"value": 40
+							}],
+							"timestamp": "2006-01-02T15:04:05Z07:00",
+							"messageNumber": 1
+						}]
+					}`, http.StatusBadRequest},
+
+	// Long < -180.0
+	{"Long < -180.0", `{
+						"readings": [{
+							"latitude": 0,
+							"longitude": -181,
+							"sensorReadings": [{
+								"sensorName": "Turbidity",
+								"value": 40
+							}],
+							"timestamp": "2006-01-02T15:04:05Z07:00",
+							"messageNumber": 1
+						}]
+					}`, http.StatusBadRequest},
+
+	// Long > 180.0
+	{"Long > 180.0", `{
+						"readings": [{
+							"latitude": 0,
+							"longitude": 181,
+							"sensorReadings": [{
+								"sensorName": "Turbidity",
+								"value": 40
+							}],
+							"timestamp": "2006-01-02T15:04:05Z07:00",
+							"messageNumber": 1
+						}]
+					}`, http.StatusBadRequest},
+
+	// Lat and Long are missing
+	{"Lat and Long are missing", `{
+									"readings": [{
+										"sensorReadings": [{
+											"sensorName": "Turbidity",
+											"value": 40
+										}],
+										"timestamp": "2006-01-02T15:04:05Z07:00",
+										"messageNumber": 1
+									}]
+								}`, http.StatusBadRequest},
+
+	// Invalid JSON
+	{"Invalid JSON", `asdfasd`, http.StatusBadRequest},
 }

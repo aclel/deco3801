@@ -21,42 +21,31 @@ func ReadingsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 	return nil
 }
 
+// POST /api/readings
+// Accepts an array of readings from a particular buoy. See buoy_reading.go for an example
+// of the incoming JSON. Stores each sensor reading in the database.
 func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
-	reading := new(models.Reading)
-	// Set invalid lat and long in case lat and long aren't in the request.
-	// Cannot just check if they equal 0 because 0 is a valid lat/long.
-	reading.Latitude = 999
-	reading.Longitude = 999
-
+	readingsContainer := new(models.BuoyReadingContainer)
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&reading)
+	err := decoder.Decode(&readingsContainer)
+
 	// Check if the request is valid
 	if err != nil {
 		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
 	}
 
-	if e := validateReading(reading); e != nil {
+	// Constructs the Readings from the data
+	readings, e := buildReadings(env, readingsContainer)
+	if e != nil {
 		return e
 	}
 
-	// Get most recent buoy instance for buoy with guid
-	buoyInstance, err := env.DB.GetMostRecentBuoyInstance(reading.BuoyGuid)
-	if err != nil {
-		return &AppError{err, "Could not get the most recent buoy instance for a buoy with the specified guid", http.StatusBadRequest}
-	}
-	reading.BuoyInstanceId = buoyInstance.Id
-
-	// Get sensor type for the reading
-	sensorType, err := env.DB.GetSensorTypeWithName(reading.SensorTypeName)
-	if err != nil {
-		return &AppError{err, "Could not find a sensor type with the specified name", http.StatusBadRequest}
-	}
-	reading.SensorTypeId = sensorType.Id
-
-	// Insert reading into db
-	err = env.DB.CreateReading(reading)
-	if err != nil {
-		return &AppError{err, "Error inserting the reading into the database", http.StatusInternalServerError}
+	// Insert each reading into db
+	for _, reading := range readings {
+		err = env.DB.CreateReading(&reading)
+		if err != nil {
+			return &AppError{err, "Error inserting the reading into the database", http.StatusInternalServerError}
+		}
 	}
 
 	// Respond with 201 Created if successful
@@ -65,6 +54,50 @@ func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 	return nil
 }
 
+// Constructs Readings from the JSON which was in the request body of a /api/readings POST request.
+func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContainer) ([]models.Reading, *AppError) {
+	// Get most recent buoy instance for buoy with guid
+	buoyInstance, err := env.DB.GetMostRecentBuoyInstance(readingsContainer.BuoyGuid)
+	if err != nil {
+		return nil, &AppError{err, "Could not get the most recent buoy instance for a buoy with the specified guid", http.StatusBadRequest}
+	}
+
+	// Go through each reading in the request and build
+	// a Reading object for each individual sensor reading
+	var readings []models.Reading
+	for _, r := range readingsContainer.Readings {
+		for _, s := range r.SensorReadings {
+			// Assign all properties from BuoyContainer
+			// and BuoyReading objects to a Reading object
+			reading := &models.Reading{}
+			reading.BuoyGuid = readingsContainer.BuoyGuid
+			reading.BuoyInstanceId = buoyInstance.Id
+			reading.Latitude = r.Latitude
+			reading.Longitude = r.Longitude
+
+			// Get sensor type for the reading
+			sensorType, err := env.DB.GetSensorTypeWithName(s.SensorName)
+			if err != nil {
+				return nil, &AppError{err, "Could not find a sensor type with the specified name", http.StatusBadRequest}
+			}
+			reading.SensorTypeId = sensorType.Id
+
+			reading.Value = s.Value
+			reading.Timestamp = r.Timestamp
+			reading.MessageNumber = r.MessageNumber
+
+			if e := validateReading(reading); e != nil {
+				return nil, e
+			}
+
+			readings = append(readings, *reading)
+		}
+	}
+
+	return readings, nil
+}
+
+// Ensure the reading has a buoy guid and valid latitude and longitude.
 func validateReading(reading *models.Reading) *AppError {
 	// Check if guid is present
 	if reading.BuoyGuid == "" {

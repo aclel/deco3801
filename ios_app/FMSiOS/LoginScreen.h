@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 #import "DataModel.h"
+#import "Interface.h"
 
 @interface LoginScreen : UIViewController
 

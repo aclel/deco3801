@@ -15,3 +15,95 @@
 }
 
 @end
+
+
+@implementation SpacedTextField
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.edgeInsets = UIEdgeInsetsZero;
+    }
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        self.edgeInsets = UIEdgeInsetsZero;
+    }
+    return self;
+}
+
+- (CGRect)textRectForBounds:(CGRect)bounds {
+    return [super textRectForBounds:UIEdgeInsetsInsetRect(bounds, self.edgeInsets)];
+}
+
+- (CGRect)editingRectForBounds:(CGRect)bounds {
+    return [super editingRectForBounds:UIEdgeInsetsInsetRect(bounds, self.edgeInsets)];
+}
+
+@end
+
+
+
+@implementation ShadowButton
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.layer.shadowColor = [UIColor blackColor].CGColor;
+        self.layer.shadowOpacity = 0.5;
+        self.layer.shadowRadius = 5;
+        self.layer.shadowOffset = CGSizeMake(2.0f, 2.0f);
+    }
+    return self;
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        self.layer.shadowColor = [UIColor blackColor].CGColor;
+        self.layer.shadowOpacity = 0.8;
+        self.layer.shadowRadius = 2;
+    }
+    return self;
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    self.contentEdgeInsets = UIEdgeInsetsMake(1.0, 1.0, -1.0, -1.0);
+    self.layer.shadowRadius = 5;
+    self.layer.shadowOpacity = 1.0;
+    
+    [super touchesBegan:touches withEvent:event];
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    self.contentEdgeInsets = UIEdgeInsetsZero;
+    self.layer.shadowRadius = 2;
+    self.layer.shadowOpacity = 0.8;
+    
+    [super touchesEnded:touches withEvent:event];
+}
+
+- (void)setHighlighted:(BOOL)highlighted {
+    if (highlighted) {
+        self.backgroundColor = self.highlightColour;
+    } else {
+        self.backgroundColor = self.normalColour;
+    }
+    
+    [super setHighlighted:highlighted];
+}
+
+- (void)setSelected:(BOOL)selected {
+    if (selected) {
+        self.backgroundColor = self.selectedColour;
+    } else {
+        self.backgroundColor = self.normalColour;
+    }
+    
+    [super setSelected:selected];
+}
+
+@end

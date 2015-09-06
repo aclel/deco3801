@@ -13,7 +13,7 @@ import (
 )
 
 // POST /api/users
-// Create a User, hash the password and store the User in the database, send email to user
+// Create a User, hash the password and store the User in the database, send email to user.
 // Responds with HTTP 201 if successful
 func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	user := new(models.User)

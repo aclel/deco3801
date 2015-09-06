@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 )
 
 func TestMain(m *testing.M) {
@@ -23,7 +23,8 @@ func TestInitJWTAuth(t *testing.T) {
 }
 
 func TestGenerateToken(t *testing.T) {
-	tokenString, err := jwtAuth.GenerateToken("test@email.com")
+	testUser := &User{Email: "test@email.com", Role: "system_admin"}
+	tokenString, err := jwtAuth.GenerateToken(testUser)
 
 	if err != nil {
 		t.Errorf("Error generating token: %v", err)

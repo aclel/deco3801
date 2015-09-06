@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 )
 
@@ -30,16 +31,18 @@ func (db *DB) Login(user *User) ([]byte, error) {
 	if jwtAuth.Authenticate(dbUser, user) {
 
 		// Generate JWT and respond with User object
-		token, err := jwtAuth.GenerateToken(user.Email)
+		token, err := jwtAuth.GenerateToken(user)
 		if err != nil {
 			return []byte(""), err
 		} else {
 			user.Token = token
 			user.Password = "" // don't want to send the password back to the client
-			response, _ := json.Marshal(user)
-
 			// Update last login time
 			user.LastLogin = Now()
+			fmt.Println(dbUser.Role)
+			user.Role = dbUser.Role
+
+			response, _ := json.Marshal(user)
 			err = db.UpdateUserExcludePassword(user.Email, user)
 			if err != nil {
 				return []byte(""), err
@@ -61,7 +64,7 @@ func (db *DB) RefreshToken(user *User) ([]byte, error) {
 		return []byte(""), err
 	}
 
-	token, err := jwtAuth.GenerateToken(user.Email)
+	token, err := jwtAuth.GenerateToken(user)
 	if err != nil {
 		return []byte(""), err
 	}

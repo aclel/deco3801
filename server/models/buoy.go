@@ -39,12 +39,12 @@ func (db *DB) GetBuoyById(id int) (*Buoy, error) {
 
 // Insert a new Buoy into the database.
 func (db *DB) CreateBuoy(buoy *Buoy) error {
-	query, err := db.Preparex("INSERT INTO buoy (id, guid, name) VALUES(?, ?, ?);")
+	query, err := db.Preparex("INSERT INTO buoy (guid, name) VALUES(?, ?);")
 	if err != nil {
 		return err
 	}
 
-	_, err = query.Exec(buoy.Id, buoy.Guid, buoy.Name)
+	_, err = query.Exec(buoy.Guid, buoy.Name)
 	if err != nil {
 		return err
 	}

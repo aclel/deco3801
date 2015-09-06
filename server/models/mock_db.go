@@ -9,11 +9,11 @@ func (mdb *MockDB) GetAllBuoys() ([]Buoy, error) {
 	return mdb.buoys, nil
 }
 
-func (mdb *MockDB) AddBuoy(buoy *Buoy) error {
+func (mdb *MockDB) CreateBuoy(buoy *Buoy) error {
 	return nil
 }
 
-func (mdb *MockDB) GetById(d int) (*Buoy, error) {
+func (mdb *MockDB) GetBuoyById(id int) (*Buoy, error) {
 	return &Buoy{}, nil
 }
 

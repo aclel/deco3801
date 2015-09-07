@@ -3,15 +3,21 @@ package models
 import "time"
 
 type BuoyInstance struct {
-	Id          int       `json:"id" db:"id"`
-	BuoyId      int       `json:"buoyId" db:"buoy_id"`
-	BuoyGroupId int       `json:"buoyGroupId" db:"buoy_group_id"`
-	DateCreated time.Time `db:"date_created"`
+	Id            int       `json:"id" db:"id"`
+	BuoyId        int       `json:"buoyId" db:"buoy_id"`
+	BuoyName      string    `json:"buoyName" db:"buoy_name"`
+	BuoyGuid      string    `json:"buoyGuid" db:"buoy_guid"`
+	BuoyGroupId   int       `json:"buoyGroupId" db:"buoy_group_id"`
+	BuoyGroupName string    `json:"buoyGroupName" db:"buoy_group_name"`
+	DateCreated   time.Time `json:"dateCreated" db:"date_created"`
 }
 
 type BuoyInstanceRepository interface {
 	GetMostRecentBuoyInstance(string) (*BuoyInstance, error)
 	CreateBuoyInstance(*BuoyInstance) error
+	DeleteBuoyInstanceWithId(int) error
+	AddSensorToBuoyInstance(int, int) error
+	DeleteBuoyInstanceSensor(int, int) error
 }
 
 // Get the most recent buoy instance for the buoy with the given guid
@@ -38,6 +44,51 @@ func (db *DB) CreateBuoyInstance(buoyInstance *BuoyInstance) error {
 	}
 
 	_, err = stmt.Exec(buoyInstance.BuoyId, buoyInstance.BuoyGroupId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Delete Buoy Instance from the database with the given id.
+func (db *DB) DeleteBuoyInstanceWithId(id int) error {
+	stmt, err := db.Preparex("DELETE FROM buoy_instance WHERE id=?")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Add a Sensor Type to a Buoy Instance
+func (db *DB) AddSensorToBuoyInstance(buoyInstanceId int, sensorTypeId int) error {
+	stmt, err := db.Preparex("INSERT INTO buoy_instance_sensor (buoy_instance_id, sensor_type_id) VALUES (?,?);")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(buoyInstanceId, sensorTypeId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Delete a Sensor Type from a Buoy Instance
+func (db *DB) DeleteBuoyInstanceSensor(buoyInstanceId int, sensorTypeId int) error {
+	stmt, err := db.Preparex("DELETE FROM buoy_instance_sensor WHERE buoy_instance_id=? AND sensor_type_id=?")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(buoyInstanceId, sensorTypeId)
 	if err != nil {
 		return err
 	}

@@ -13,6 +13,10 @@ type buoyGroupsWrapper struct {
 	BuoyGroups []models.BuoyGroup `json:"buoyGroups"`
 }
 
+type buoyInstanceWrapper struct {
+	BuoyInstances []models.BuoyInstance `json:"buoyInstances"`
+}
+
 // GET /api/buoy_groups
 // Responds with HTTP 200. All buoy groups are sent in the response body
 func BuoyGroupsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
@@ -157,6 +161,31 @@ func BuoyGroupsBuoysIndex(env *models.Env, w http.ResponseWriter, r *http.Reques
 	w.WriteHeader(http.StatusOK)
 
 	response, _ := json.Marshal(buoysWrapper)
+	w.Write(response)
+
+	return nil
+}
+
+// GET /api/buoy_groups/id/buoy_instances
+// Responds with HTTP 200. All buoys instances for the specified buoy group are sent in the request body.
+func BuoyGroupsBuoyInstancesIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing buoy group id", http.StatusInternalServerError}
+	}
+
+	var buoyInstanceWrapper buoyInstanceWrapper
+	buoyInstanceWrapper.BuoyInstances, err = env.DB.GetBuoyInstancesForBuoyGroup(id)
+	if err != nil {
+		return &AppError{err, "Error retrieving buoy instances", http.StatusInternalServerError}
+	}
+
+	// Set return status and write to response body.
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response, _ := json.Marshal(buoyInstanceWrapper)
 	w.Write(response)
 
 	return nil

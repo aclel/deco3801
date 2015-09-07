@@ -30,12 +30,32 @@ func (mdb *MockDB) GetBuoysForBuoyGroup(id int) ([]Buoy, error) {
 	return nil, nil
 }
 
+func (mdb *MockDB) GetBuoyInstancesForBuoyGroup(id int) ([]BuoyInstance, error) {
+	return nil, nil
+}
+
+func (mdb *MockDB) AddCommandToBuoy(command *Command) error {
+	return nil
+}
+
 // BUOY INSTANCES
 func (mdb *MockDB) GetMostRecentBuoyInstance(guid string) (*BuoyInstance, error) {
 	return &BuoyInstance{}, nil
 }
 
 func (mdb *MockDB) CreateBuoyInstance(buoyInstance *BuoyInstance) error {
+	return nil
+}
+
+func (mdb *MockDB) DeleteBuoyInstanceWithId(id int) error {
+	return nil
+}
+
+func (db *MockDB) AddSensorToBuoyInstance(buoyId int, sensorTypeId int) error {
+	return nil
+}
+
+func (db *MockDB) DeleteBuoyInstanceSensor(buoyInstanceId int, sensorTypeId int) error {
 	return nil
 }
 
@@ -61,8 +81,9 @@ func (mdb *MockDB) DeleteBuoyGroupWithId(id int) error {
 }
 
 // READINGS
-func (mdb *MockDB) GetAllReadings() ([]byte, error) {
-	return []byte(""), nil
+
+func (db *MockDB) GetAllReadings() (*BuoyGroupsWrapper, error) {
+	return &BuoyGroupsWrapper{}, nil
 }
 
 func (mdb *MockDB) CreateReading(reading *Reading) error {

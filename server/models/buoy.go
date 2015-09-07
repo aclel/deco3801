@@ -1,9 +1,9 @@
 package models
 
 type Buoy struct {
-	Id   int    `json:"id", db:"id"`
-	Guid string `json:"guid", db:"guid"`
-	Name string `json:"name", db:"name"`
+	Id   int    `json:"id" db:"id"`
+	Guid string `json:"guid" db:"guid"`
+	Name string `json:"name" db:"name"`
 }
 
 type BuoyRepository interface {

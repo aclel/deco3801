@@ -12,6 +12,7 @@ type BuoyRepository interface {
 	CreateBuoy(buoy *Buoy) error
 	UpdateBuoy(buoy *Buoy) error
 	DeleteBuoyWithId(id int) error
+	AddCommandToBuoy(command *Command) error
 }
 
 // Gets all buoys from the database
@@ -77,6 +78,21 @@ func (db *DB) DeleteBuoyWithId(id int) error {
 	}
 
 	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Add the given Command to a Buoy
+func (db *DB) AddCommandToBuoy(command *Command) error {
+	stmt, err := db.Preparex("INSERT INTO buoy_command (buoy_id, command_type_id, value) VALUES(?, ?, ?);")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(command.BuoyId, command.CommandTypeId, command.Value)
 	if err != nil {
 		return err
 	}

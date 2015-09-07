@@ -34,6 +34,10 @@ func (mdb *MockDB) GetBuoyInstancesForBuoyGroup(id int) ([]BuoyInstance, error) 
 	return nil, nil
 }
 
+func (mdb *MockDB) AddCommandToBuoy(command *Command) error {
+	return nil
+}
+
 // BUOY INSTANCES
 func (mdb *MockDB) GetMostRecentBuoyInstance(guid string) (*BuoyInstance, error) {
 	return &BuoyInstance{}, nil

@@ -57,7 +57,7 @@ func BuoyInstancesDelete(env *models.Env, w http.ResponseWriter, r *http.Request
 	return nil
 }
 
-// POST /api/buoy_instances_id/sensors
+// POST /api/buoy_instances/id/sensors
 // Responds with HTTP 200 if successful. Response body empty.
 func BuoyInstancesSensorsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	vars := mux.Vars(r)
@@ -79,6 +79,8 @@ func BuoyInstancesSensorsCreate(env *models.Env, w http.ResponseWriter, r *http.
 	return nil
 }
 
+// DELETE /api/buoy_instances/id/sensors
+// Responds with HTTP 200 if successful. Response body empty.
 func BuoyInstancesSensorsDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	vars := mux.Vars(r)
 	buoyInstanceId, err := strconv.Atoi(vars["id"])

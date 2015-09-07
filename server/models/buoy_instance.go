@@ -16,6 +16,8 @@ type BuoyInstanceRepository interface {
 	GetMostRecentBuoyInstance(string) (*BuoyInstance, error)
 	CreateBuoyInstance(*BuoyInstance) error
 	DeleteBuoyInstanceWithId(int) error
+	AddSensorToBuoyInstance(int, int) error
+	DeleteBuoyInstanceSensor(int, int) error
 }
 
 // Get the most recent buoy instance for the buoy with the given guid
@@ -57,6 +59,36 @@ func (db *DB) DeleteBuoyInstanceWithId(id int) error {
 	}
 
 	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Add a Sensor Type to a Buoy Instance
+func (db *DB) AddSensorToBuoyInstance(buoyInstanceId int, sensorTypeId int) error {
+	stmt, err := db.Preparex("INSERT INTO buoy_instance_sensor (buoy_instance_id, sensor_type_id) VALUES (?,?);")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(buoyInstanceId, sensorTypeId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Delete a Sensor Type from a Buoy Instance
+func (db *DB) DeleteBuoyInstanceSensor(buoyInstanceId int, sensorTypeId int) error {
+	stmt, err := db.Preparex("DELETE FROM buoy_instance_sensor WHERE buoy_instance_id=? AND sensor_type_id=?")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(buoyInstanceId, sensorTypeId)
 	if err != nil {
 		return err
 	}

@@ -1,5 +1,6 @@
 package models
 
+
 // Represents a reading for one sensor from a particular buoy instance.
 type Reading struct {
 	Id             int
@@ -14,9 +15,40 @@ type Reading struct {
 	MessageNumber  int
 }
 
+
+
+type SensorTypeObject struct {
+	Id 			int 						`json:"id"`
+	Name 		string 						`json:"name"`
+}
+
+
+type ReadingObject struct {
+	Id 			int 						`json:"id"`
+	Value 		int 						`json:"value"`
+	SensorType 	SensorTypeObject 			`json:"sensor_type"`
+}
+
+type BuoyInstanceObject struct {
+	Id			int							`json:"id" db:"id"`
+	BuoyId		int 						`json:"buoy_id" db:"buoy_id"`
+	Readings	[]ReadingObject				`json:"readings"`
+}
+
+type BuoyGroupObject struct {
+	Id				int 					`db:"id" json:"id"`
+	Name			string 					`db:"name" json:"name"`
+	BuoyInstances	[]BuoyInstanceObject	`json:"buoy_instance"`
+}
+
+type BuoyGroupsWrapper struct {
+	BuoyGroups		[]BuoyGroupObject 		`json:"value"`
+}
+
+
 type ReadingRepository interface {
 	CreateReading(*Reading) error
-	GetAllReadings() ([]byte, error)
+	GetAllReadings() (*BuoyGroupsWrapper, error)
 }
 
 // Insert a new Reading into the database
@@ -36,7 +68,54 @@ func (db *DB) CreateReading(reading *Reading) error {
 	return nil
 }
 
-func (db *DB) GetAllReadings() ([]byte, error) {
+// Returns all the readings from the database
+func (db *DB) GetAllReadings() (*BuoyGroupsWrapper, error) {
+
+
+	newWrapper := new(BuoyGroupsWrapper)
+	err := db.Select(&newWrapper.BuoyGroups, "SELECT * FROM buoy_group;");
+	if err != nil {
+		return nil, err
+	}
+
+	// For each Buoy Group in newWrapper.BuoyGroupObject this loop will
+	// populate it's BuoyInstanceObject member with buoy instances
+	for i, thisBuoyGroup := range newWrapper.BuoyGroups {
+
+		err := db.Select(&thisBuoyGroup.BuoyInstances, 
+			"SELECT id, buoy_id FROM buoy_instance WHERE buoy_group_id=?;", thisBuoyGroup.Id)
+		if err != nil {
+			return nil, err
+		}
+		// For each BuoyIntanceObject populate it with it's readings
+		for j, thisBuoyInstance := range thisBuoyGroup.BuoyInstances {
+			err = db.Select(&thisBuoyInstance.Readings, 
+			"SELECT id, value FROM reading WHERE buoy_instance_id=?;", thisBuoyInstance.Id)
+			if err != nil {
+				return nil, err
+			}
+			// Populate each reading with its sensor information
+			for k, thisReading := range thisBuoyInstance.Readings {
+				err = db.Get(&thisReading.SensorType, 
+				"SELECT id, name FROM sensor_type WHERE id=(SELECT sensor_type_id FROM reading WHERE id=?);", thisReading.Id)
+				if err != nil {
+					return nil, err
+				}
+
+				thisBuoyInstance.Readings[k] = thisReading
+			}
+
+			thisBuoyGroup.BuoyInstances[j] = thisBuoyInstance
+		}
+
+		newWrapper.BuoyGroups[i] = thisBuoyGroup
+
+	}
+
+	return newWrapper, nil
+
+
+	/*
 	readings := []byte(`
 			[{
 				"id": 1,
@@ -161,4 +240,5 @@ func (db *DB) GetAllReadings() ([]byte, error) {
 			}]`)
 
 	return readings, nil
+	*/
 }

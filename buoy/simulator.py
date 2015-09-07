@@ -15,6 +15,7 @@ def jprint(jstr):
 	print json.dumps(jstr, sort_keys=True, 
 		indent=4, separators=(',', ': '))
 
+# Custom exceptions
 class InvalidBuoy(Exception):
 	def __init__(self, value):
 		self.value = value
@@ -29,6 +30,7 @@ class InvalidArguments(Exception):
 	def __str__(self):
 		return repr(self.value)
 
+# An instance of a buoy
 class Buoy():
 
 	guid = ""
@@ -52,7 +54,7 @@ class Buoy():
 		conn.request("POST", "/api/login", json.dumps(data), headers)
 		res = conn.getresponse()
 		if res.status != 200:
-			print WARNING + "Server NOT OK. returned " + res.status + ENDC
+			print WARNING + "Server NOT OK. returned " + str(res.status) + ENDC
 			return None
 		try:
 			jstr = json.loads(res.read())
@@ -61,83 +63,89 @@ class Buoy():
 			return None
 		return jstr['token']
 
-	def send_reading(self, jstr):
+	def send_reading(self, readingsf):
 		try:
-			data = json.load(open('reading.json'))
+			data = json.load(open(readingsf))
 		except ValueError:
-			print WARNING + "Could not parse reading.json" + ENDC
+			print WARNING + "Could not parse file: " + readingsf + "." + ENDC
 		token = self.get_auth_token()
 		if token == None:
-			print WARNING + "Could not open reading.json" + ENDC
+			print WARNING + "Could not open file: " + readingsf + "." + ENDC
 			return None
 		headers = {"Content-type": "application/json", 
 					"Accept": "text/plain", 
 					"Authorization": "Bearer " + token}
 		conn = httplib.HTTPConnection(HOSTNAME, PORT)
-		conn.request("POST", "/", json.dumps(data), headers)
+		conn.request("POST", "/api/readings", json.dumps(data), headers)
+		print OKBLUE + "Buoy {0}: Sent reading.json to server." + ENDC
+		res = conn.getresponse()
+		print OKBLUE + "Buoy {0}: Server response: {1}".format(self.name, res.status) + ENDC
+		print OKBLUE + res.reason + ENDC
+		print OKBLUE + res.read() + ENDC
 		return 1
 
 	def update_running(self, running):
 		self.running = running
 
+# A thread instance of a buoy instance
 class BuoyThread():
 
 	timeout = 10
 	kill = 0
 	buoy = None
-	def __init__(self, buoy, timeout):
-		self.timeout = timeout
+	readingsf = "reading.json"
+	iterations = 10
+
+	def __init__(self, buoy,  timeout, iterations, readingsf = "reading.json"):	
 		self.buoy = buoy
+		self.timeout = timeout
+		self.iterations = iterations
+		self.readingsf = readingsf
 
 	def run(self, lock):
 		i = 0
-		## GET READING ##
-		jstr = json.load(open('reading.json'))
-
 		# Parent process might be accessing/changing the buoy.running flag, 
 		# so lets not deadlock.
 		lock.acquire()
-		running = self.buoy.running
+		running = self.buoy.running = True
 		lock.release()
-		# i is hard coded at the moment
-		while i < 10 and running:
+		while i < self.iterations and running:
 			# Potentially unnecessary, I don't think the parent process will
 			# be able to access 'buoy' at this time
 			lock.acquire()
-			if (self.buoy.send_reading(jstr) == None):
+			if (self.buoy.send_reading(self.readingsf) == None):
 				print OKBLUE + ("Buoy {0}: Could not connect to server. " 
 						"Trying again in {1}.").format(self.buoy.name, 
 						self.timeout) + ENDC
-				lock.release()
-			else:
-				print OKBLUE + "Buoy {0}: POSTing example".format(self.buoy.name) + ENDC
-				#sleep(10)
-				#ontinue
-			print OKBLUE + "Buoy {0}: Sleeping for {1}".format(self.buoy.name, self.timeout) + ENDC
+			lock.release()
+			print OKBLUE + "Buoy {0}: Sleeping for {1}".format(self.buoy.name, 
+					self.timeout) + ENDC
 			sleep(self.timeout)
 			i += 1
 		print OKBLUE + "Buoy {0}: Thread ending." + ENDC
 
+# CLI
 class Simulate():
 
 	hostname = HOSTNAME
 	port = PORT
 	buoys = []
 	threads = []
-	fname = None
 	f = None
 
 	def __init__(self):
 		lock = threading.Lock()
-
+		print HEADER + "Team Neptune DECO3801 Buoy Simulator" + ENDC
+		print HEADER + "        Type 'help' for help" + ENDC
 		if (len(sys.argv) > 1):
+			print HEADER + "\nLoading commands from file.\n" + ENDC
 			try:
 				self.f = open(sys.argv[1])
 			except IOError:
 				print FAIL + "Could not open commands file. Continuing." + ENDC
 				self.run(lock)
-			for line in f:
-				parse_command(line, lock)
+			for line in self.f:
+				self.parse_command(line, lock)
 
 		self.run(lock)
 
@@ -176,20 +184,17 @@ class Simulate():
 			elif part == 'load':
 				self.cmd_load(cmd)
 			elif part == 'send':
-				self.cmd_send(cmd)
+				self.cmd_send(cmd, lock)
 			elif part == 'poll':
-				self.cmd_poll(cmd)
+				self.cmd_poll(cmd, lock)
 			elif part == 'start':
 				self.cmd_start(cmd, lock)
 			elif part == 'stop':
 				self.cmd_stop(cmd, lock)
 			else:
 				print WARNING + "Command not found." + ENDC
-	def run(self, lock):
-		
-		print HEADER + "Team Neptune DECO3801 Buoy Simulator" + ENDC
-		print HEADER + "        Type 'help' for help" + ENDC
 
+	def run(self, lock):
 		while True:
 			try:
 				cmd = raw_input("> ")
@@ -201,22 +206,9 @@ class Simulate():
 			except KeyboardInterrupt:
 				if self.f != None:
 					self.f.close()
-				print OKGREEN + "^C Exit"
+				print OKGREEN + "^C Exit" + ENDC
 				sys.exit(11)
 			self.parse_command(cmd, lock)
-
-	
-	#TODO
-	def cmd_load(self, args):
-		try:
-			if (len(cvars) < 2):
-				raise InvalidArguments("Wrong number of arguments for load: " +
-					"new <file>")
-			else:
-				pass
-		except InvalidArguments as e:
-			print WARNING + e.value + ENDC
-
 
 	def cmd_ls_buoys(self):
 		for buoy in self.buoys:
@@ -224,17 +216,21 @@ class Simulate():
 
 	def cmd_help(self):
 		commands = [[" new <guid> <name> <ip>     ", "creates a new buoy"],
-					[" load <file>                ", "loads cmds from file"],
 					[" list                       ", "list all buoys"],
-					[" update <name> <interval>   ", "update a buoy's ping time"],
+					[" update <name> <interval>   ", 
+						"update a buoy's ping time"],
 					[" poll <name>                ", "get buoy to poll server"],
-					[" send [reading|auth] <buoy> ", "sends an auth/reading req"],
-					[" start <name>               ", "start a buoy"],
+					[" send <buoy> [reading.json] ", "sends a reading request"],
+					[" start <name> <iterations>\n   <timeout> [reading.json] ",
+						"start a buoy"],
 					[" stop <name>                ", "stop a buoy"]]
 		print OKGREEN + "Available tasks: " + ENDC
 		for name, desc in commands:
 			print OKGREEN + name + "... " + desc + ENDC
-		print OKGREEN + "For automation invoke: python simulator.py [file]"
+		print (OKGREEN + "\nFor automation invoke: \n" 
+				+ "      python simulator.py [file]" + ENDC)
+		print (OKGREEN + "For a buoy to send a reading per day you would do: \n" 
+				+ "      start buoy numDays 86400" + ENDC)
 
 	def cmd_new(self, args, lock):
 		cvars = args.split()
@@ -251,9 +247,9 @@ class Simulate():
 				ip = cvars[3]
 		except InvalidArguments as e:
 			print WARNING + e.value + ENDC
+			return
 		try:
 			if (guid == "") or (self.guid_in_use(guid)):
-				print "Guid: " + guid
 				raise InvalidBuoy("GUID in use.")
 				return
 			elif (name == "" or (self.name_in_use(name))):
@@ -268,24 +264,38 @@ class Simulate():
 		except InvalidBuoy as e:
 			print "Could not create buoy. " + e.value
 
-	def cmd_start(self, args, lock):
+	def cmd_send(self, args, lock):
 		cvars = args.split()
 		name = ""
+		readingsf = "reading.json"
 		try:
-			if (len(cvars) != 2):
-				raise InvalidArguments("Wrong number of arguments for start: start <name>")
+			if len(cvars) < 2 or len(cvars) > 3:
+				raise InvalidArguments("Wrong number of arguments for send: " +
+					"send <buoy> [reading.json]")
 			else:
 				name = cvars[1]
+				if len(cvars) == 3:
+					readingsf = cvars[2]
 		except InvalidArguments as e:
 			print WARNING + e.value + ENDC
+			return
 		try:
 			if (name == ""):
 				raise InvalidBuoy("Invalid buoy name.")
 			else:
+				for bthread in self.threads:
+					print bthread.name
+					if (bthread.name == name):
+						for buoy in self.buoys:
+							if buoy.name == name:
+								buoy.send_reading(readingsf)
+				print WARNING + "No thread exists. Creating one." + ENDC
 				for buoy in self.buoys:
 					if (buoy.name == name):
-						print "Starting buoy in new thread."
-						buoythread = BuoyThread(buoy, 5)
+						print (OKBLUE + "Buoy {0}: Thread created.".format(name) 
+								+ ENDC)
+						# buoy, timeout, iterations, file
+						buoythread = BuoyThread(buoy, 1, 1, readingsf)
 						thread = threading.Thread(target=buoythread.run, 
 							args=(lock,))
 						thread.daemon = True
@@ -293,7 +303,38 @@ class Simulate():
 						self.threads.append(thread)
 						thread.start()
 		except InvalidBuoy as e:
-			print "Could not start buoy. " + e.value
+			print WARNING + "Could not start buoy. " + e.value + ENDC
+
+	def cmd_start(self, args, lock):
+		cvars = args.split()
+		name = ""
+		try:
+			if (len(cvars) != 2):
+				raise InvalidArguments("Wrong number of arguments for start: "
+					"start <name>")
+
+			else:
+				name = cvars[1]
+		except InvalidArguments as e:
+			print WARNING + e.value + ENDC
+			return
+		try:
+			if (name == ""):
+				raise InvalidBuoy("Invalid buoy name.")
+			else:
+				for buoy in self.buoys:
+					if (buoy.name == name):
+						print OKBLUE + "Buoy {0}: Thread created.".format(name) 
+						# buoy, timeout, iterations, file
+						buoythread = BuoyThread(buoy, 5, 10)
+						thread = threading.Thread(target=buoythread.run, 
+							args=(lock,))
+						thread.daemon = True
+						thread.name = buoy.name
+						self.threads.append(thread)
+						thread.start()
+		except InvalidBuoy as e:
+			print WARNING + "Could not start buoy. " + e.value + ENDC
 
 	def cmd_stop(self, args, lock):
 		cvars = args.split()
@@ -310,12 +351,17 @@ class Simulate():
 			if (name == ""):
 				raise InvalidBuoy("Invalid buoy name.")
 			else:
-				for th in self.threads:
-					if (th.name == name):
+				for bthread in self.threads:
+					print bthread.name
+					if (bthread.name == name):
 						for buoy in self.buoys:
 							if buoy.name == name:
 								buoy.running = False
+								self.threads.remove(bthread)
+								print (OKBLUE + "Buoy {0}: Thread is kill." 
+									+ ENDC)
+
 		except InvalidBuoy as e:
-			print "Could not start buoy. " + e.value
+			print WARNING + "Could not stop buoy. " + e.value + ENDC
 
 s = Simulate()

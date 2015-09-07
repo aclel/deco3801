@@ -7,11 +7,11 @@
 			"sensorReadings": [
 				{
 			    "sensorName": "Turbidity",
-			    "value": 40
+			    "value": 1337
 			}, 
 			{
 			    "sensorName": "Temperature",
-			    "value": 20.3
+			    "value": 1337
 			}
 			],
 			"timestamp": "2015-09-04T03:36:17+00:00",
@@ -23,11 +23,11 @@
 			"sensorReadings": [
 				{
 			    "sensorName": "Turbidity",
-			    "value": 40
+			    "value": 420
 			}, 
 			{
 			    "sensorName": "Temperature",
-			    "value": 20.3
+			    "value": 420
 			}
 			],
 			"timestamp": "2015-010-04T03:36:17+00:00",

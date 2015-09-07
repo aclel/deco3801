@@ -1,11 +1,37 @@
 {
-	"reading": {
-		"ReadingTimestamp": 10000, 
-		"Guid": "e14e37db-159b-49af-91e0-000dcced97c3",
-		"JSONWebToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWV9.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ",
-		"Latitude": -27.425676, 
-		"Longitude": 153.147055,
-		"Sensor": 1,
-		"Reading": 14
-	}
+	"guid": "974614e0-929a-42d5-8d18-db95ba9da803",
+	"readings": [
+		{
+			"latitude": -27.425676,
+			"longitude": 153.147055,
+			"sensorReadings": [
+				{
+			    "sensorName": "Turbidity",
+			    "value": 40
+			}, 
+			{
+			    "sensorName": "Temperature",
+			    "value": 20.3
+			}
+			],
+			"timestamp": "2015-09-04T03:36:17+00:00",
+			"messageNumber": 25 
+		},
+		{
+			"latitude": -29.537880,
+			"longitude": 155.258650,
+			"sensorReadings": [
+				{
+			    "sensorName": "Turbidity",
+			    "value": 40
+			}, 
+			{
+			    "sensorName": "Temperature",
+			    "value": 20.3
+			}
+			],
+			"timestamp": "2015-010-04T03:36:17+00:00",
+			"messageNumber": 26 
+		}
+	]
 }

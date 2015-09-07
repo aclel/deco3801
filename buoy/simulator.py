@@ -1,8 +1,8 @@
 import socket, sys, threading, json, httplib
 from time import sleep
 
-HOSTNAME = "localhost"
-PORT = 1337
+HOSTNAME = "teamneptune.co"
+PORT = 8080
 
 HEADER = '\033[95m'
 OKBLUE = '\033[94m'
@@ -45,18 +45,44 @@ class Buoy():
 	def send_command(self):
 		pass
 
+	def get_auth_token(self):
+		data = json.load(open('creds.json'))
+		headers = {"Content-type": "application/json"}
+		conn = httplib.HTTPConnection(HOSTNAME, PORT)
+		conn.request("POST", "/api/login", json.dumps(data), headers)
+		res = conn.getresponse()
+		if res.status != 200:
+			print WARNING + "Server NOT OK. returned " + res.status + ENDC
+			return None
+		try:
+			jstr = json.loads(res.read())
+		except ValueError:
+			print WARNING + "JSON could not be decoded." + ENDC
+			return None
+		return jstr['token']
+
 	def send_reading(self, jstr):
-		data = json.load(open('reading.json'))
-		headers = {"Content-type": "application/json", "Accept": "text/plain"}
-		conn = httplib.HTTPConnection("localhost", 1337)
+		try:
+			data = json.load(open('reading.json'))
+		except ValueError:
+			print WARNING + "Could not parse reading.json" + ENDC
+		token = self.get_auth_token()
+		if token == None:
+			print WARNING + "Could not open reading.json" + ENDC
+			return None
+		headers = {"Content-type": "application/json", 
+					"Accept": "text/plain", 
+					"Authorization": "Bearer " + token}
+		conn = httplib.HTTPConnection(HOSTNAME, PORT)
 		conn.request("POST", "/", json.dumps(data), headers)
+		return 1
 
 	def update_running(self, running):
 		self.running = running
 
 class BuoyThread():
 
-	timeout = 60
+	timeout = 10
 	kill = 0
 	buoy = None
 	def __init__(self, buoy, timeout):
@@ -65,18 +91,32 @@ class BuoyThread():
 
 	def run(self, lock):
 		i = 0
+		## GET READING ##
 		jstr = json.load(open('reading.json'))
+
+		# Parent process might be accessing/changing the buoy.running flag, 
+		# so lets not deadlock.
 		lock.acquire()
 		running = self.buoy.running
 		lock.release()
-		while i < self.timeout and running:
+		# i is hard coded at the moment
+		while i < 10 and running:
+			# Potentially unnecessary, I don't think the parent process will
+			# be able to access 'buoy' at this time
 			lock.acquire()
-			print "\nBuoy {0}: POSTing example".format(self.buoy_name)
-			self.buoy.send_reading(jstr)
-			lock.release()
-			print "\nBuoy {0}: Sleeping".format(self.buoy.name)
+			if (self.buoy.send_reading(jstr) == None):
+				print OKBLUE + ("Buoy {0}: Could not connect to server. " 
+						"Trying again in {1}.").format(self.buoy.name, 
+						self.timeout) + ENDC
+				lock.release()
+			else:
+				print OKBLUE + "Buoy {0}: POSTing example".format(self.buoy.name) + ENDC
+				#sleep(10)
+				#ontinue
+			print OKBLUE + "Buoy {0}: Sleeping for {1}".format(self.buoy.name, self.timeout) + ENDC
 			sleep(self.timeout)
 			i += 1
+		print OKBLUE + "Buoy {0}: Thread ending." + ENDC
 
 class Simulate():
 
@@ -84,9 +124,22 @@ class Simulate():
 	port = PORT
 	buoys = []
 	threads = []
+	fname = None
+	f = None
 
 	def __init__(self):
-		self.run()
+		lock = threading.Lock()
+
+		if (len(sys.argv) > 1):
+			try:
+				self.f = open(sys.argv[1])
+			except IOError:
+				print FAIL + "Could not open commands file. Continuing." + ENDC
+				self.run(lock)
+			for line in f:
+				parse_command(line, lock)
+
+		self.run(lock)
 
 	def guid_in_use(self, guid):
 		for buoy in self.buoys:
@@ -106,58 +159,82 @@ class Simulate():
 				return True
 		return False
 
-	def run(self):
-		lock = threading.Lock()
-		print ""
+	def parse_command(self, cmd, lock):
+		if (cmd in ("q", "quit", "exit")):
+			print OKGREEN + "User quit" + ENDC
+			sys.exit(0)
+		elif (cmd in ("help", "?")):
+			self.cmd_help()
+		elif (cmd in ("ls", "list")):
+			self.cmd_ls_buoys()
+		elif (cmd == ""):
+			pass
+		else:
+			part = cmd.split()[0]
+			if part == 'new':
+				self.cmd_new(cmd, lock)
+			elif part == 'load':
+				self.cmd_load(cmd)
+			elif part == 'send':
+				self.cmd_send(cmd)
+			elif part == 'poll':
+				self.cmd_poll(cmd)
+			elif part == 'start':
+				self.cmd_start(cmd, lock)
+			elif part == 'stop':
+				self.cmd_stop(cmd, lock)
+			else:
+				print WARNING + "Command not found." + ENDC
+	def run(self, lock):
+		
 		print HEADER + "Team Neptune DECO3801 Buoy Simulator" + ENDC
 		print HEADER + "        Type 'help' for help" + ENDC
+
 		while True:
 			try:
 				cmd = raw_input("> ")
 			except EOFError:
+				if self.f != None:
+					self.f.close()
 				print OKGREEN + "User EOF" + ENDC
 				sys.exit(10)
 			except KeyboardInterrupt:
+				if self.f != None:
+					self.f.close()
 				print OKGREEN + "^C Exit"
 				sys.exit(11)
-			if (cmd in ("q", "quit", "exit")):
-				print OKGREEN + "User quit" + ENDC
-				sys.exit(0)
-			elif (cmd in ("help", "?")):
-				self.cmd_help()
-			elif (cmd in ("ls", "list")):
-				self.cmd_ls_buoys()
-			elif (cmd == ""):
-				pass
+			self.parse_command(cmd, lock)
+
+	
+	#TODO
+	def cmd_load(self, args):
+		try:
+			if (len(cvars) < 2):
+				raise InvalidArguments("Wrong number of arguments for load: " +
+					"new <file>")
 			else:
-				part = cmd.split()[0]
-				if part == 'new':
-					self.cmd_new(cmd, lock)
-				elif part == 'update':
-					self.cmd_update(cmd)
-				elif part == 'use':
-					self.cmd_use(cmd)
-				elif part == 'start':
-					self.cmd_start(cmd, lock)
-				elif part == 'stop':
-					self.cmd_stop(cmd, lock)
-				else:
-					print WARNING + "Command not found." + ENDC
+				pass
+		except InvalidArguments as e:
+			print WARNING + e.value + ENDC
+
 
 	def cmd_ls_buoys(self):
 		for buoy in self.buoys:
 			print buoy.name
 
 	def cmd_help(self):
-		commands = [["  new <guid> <name> <ip>   ", "creates a new buoy"],
-					["  list                     ", "list all buoys"],
-					["  update <name> <interval> ", "update a buoy's ping time"],
-					["  use <name> <cvar>        ", "do something on a buoy"],
-					["  start <name>             ", "start a buoy"],
-					["  stop <name>              ", "stop a buoy"]]
+		commands = [[" new <guid> <name> <ip>     ", "creates a new buoy"],
+					[" load <file>                ", "loads cmds from file"],
+					[" list                       ", "list all buoys"],
+					[" update <name> <interval>   ", "update a buoy's ping time"],
+					[" poll <name>                ", "get buoy to poll server"],
+					[" send [reading|auth] <buoy> ", "sends an auth/reading req"],
+					[" start <name>               ", "start a buoy"],
+					[" stop <name>                ", "stop a buoy"]]
 		print OKGREEN + "Available tasks: " + ENDC
 		for name, desc in commands:
 			print OKGREEN + name + "... " + desc + ENDC
+		print OKGREEN + "For automation invoke: python simulator.py [file]"
 
 	def cmd_new(self, args, lock):
 		cvars = args.split()
@@ -178,21 +255,18 @@ class Simulate():
 			if (guid == "") or (self.guid_in_use(guid)):
 				print "Guid: " + guid
 				raise InvalidBuoy("GUID in use.")
+				return
 			elif (name == "" or (self.name_in_use(name))):
 				raise InvalidBuoy("Name in use.")
+				return
 			elif (ip == "" or (self.ip_in_use(ip))):
 				raise InvalidBuoy("IP/Hostname in use.")
+				return
 			else:
 				self.buoys.append(Buoy(guid, name, ip, True))
 				print "Buoy " + name + " successfully created."
 		except InvalidBuoy as e:
 			print "Could not create buoy. " + e.value
-
-	def cmd_update(self, args):
-		pass
-
-	def cmd_use(self, args):
-		pass
 
 	def cmd_start(self, args, lock):
 		cvars = args.split()
@@ -243,33 +317,5 @@ class Simulate():
 								buoy.running = False
 		except InvalidBuoy as e:
 			print "Could not start buoy. " + e.value
-
-
-class Connection():
-
-	sock = None
-
-	def __init__(self, hostname, port):
-
-		# Get adrrinfo of host
-		serv = socket.getaddrinfo(hostname, port, socket.AF_UNSPEC, 
-			socket.SOCK_STREAM)
-		# Unpack tuple
-		for x in serv:
-			print x
-		family, socktype, proto, cannonname, servaddr = serv[1]
-		# Attempt to create a socket
-		try:
-			self.sock = socket.socket(family, socktype, proto)
-		except socket.error as err:
-			print "Could not open socket: " + err.strerror
-			sys.exit(3)
-		# Attempt to connect to server
-		try:
-			self.sock.connect(servaddr)
-		except socket.error as err:
-			self.sock.close()
-			print "Could not connect to server: " + err.strerror
-			sys.exit(4)
 
 s = Simulate()

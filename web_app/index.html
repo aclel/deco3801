@@ -21,24 +21,28 @@
             <header>
             	<h1 class='title'>FMS</h1>
             	<div class="menu">
-            		<ul ng-show="authVm.authed" ng-cloak
+            		<ul ng-show="authVm.checkShowNav('dashboard')" ng-cloak
                         ng-class="{ active: $state.includes('dashboard') }">
             			<a ui-sref="dashboard">Dashboard</a>
             		</ul>
-            		<ul ng-show="authVm.authed" ng-cloak
+            		<ul ng-show="authVm.checkShowNav('config')" ng-cloak
                         ng-class="{ active: $state.includes('config') }">
             			<a ui-sref="config">Config</a>
             		</ul>
-            		<ul ng-show="authVm.authed" ng-cloak
+            		<ul ng-show="authVm.checkShowNav('warnings')" ng-cloak
                         ng-class="{ active: $state.includes('warnings') }">
             			<a ui-sref="warnings">Warnings</a>
             		</ul>
-                    <!--<ul ng-hide="authVm.authed" ng-cloak
+                    <ul ng-show="authVm.checkShowNav('admin')" ng-cloak
+                        ng-class="{ active: $state.includes('admin') }">
+            			<a ui-sref="admin">Admin</a>
+            		</ul>
+                    <!--<ul ng-hide="authVm.checkShowNav('')" ng-cloak
                         class="login"
                         ng-class="{ active: $state.includes('login') }">
                         <a ui-sref="login">Login</a>
                     </ul>-->
-                    <ul ng-show="authVm.authed" ng-cloak
+                    <ul ng-show="authVm.checkShowNav('logout')" ng-cloak
                         class="login">
                         <a href="" ng-click="authVm.logout()">Logout</a>
                     </ul>

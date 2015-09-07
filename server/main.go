@@ -11,15 +11,17 @@ import (
 
 // Stores environment variables
 type EnvVars struct {
-	DbHost       string `envconfig:"db_host"`
-	DbPort       string `envconfig:"db_port"`
-	DbUsername   string `envconfig:"db_username"`
-	DbPassword   string `envconfig:"db_password"`
-	DbName       string `envconfig:"db_name"`
-	SmtpUsername string `envconfig:"smtp_username"`
-	SmtpPassword string `envconfig:"smtp_password"`
-	SmtpServer   string `envconfig:"smtp_server"`
-	SmtpPort     int    `envconfig:"smtp_port"`
+	DbHost       string `envconfig:"db_host" required:"true"`
+	DbPort       string `envconfig:"db_port" required:"true"`
+	DbUsername   string `envconfig:"db_username" required:"true"`
+	DbPassword   string `envconfig:"db_password" required:"true"`
+	DbName       string `envconfig:"db_name" required:"true"`
+	SmtpUsername string `envconfig:"smtp_username" required:"true"`
+	SmtpPassword string `envconfig:"smtp_password" required:"true"`
+	SmtpServer   string `envconfig:"smtp_server" required:"true"`
+	SmtpPort     int    `envconfig:"smtp_port" required:"true"`
+	PrivateKey   string `envconfig:"private_key" required:"true"`
+	PublicKey    string `envconfig:"public_key" required:"true"`
 }
 
 func main() {
@@ -34,7 +36,7 @@ func main() {
 		conf.DbPassword + "@tcp(" +
 		conf.DbHost + ":" +
 		conf.DbPort + ")/" +
-		conf.DbName
+		conf.DbName + "?parseTime=True"
 
 	db, err := models.NewDB(dataSourceName)
 

@@ -1,17 +1,17 @@
 package models
 
-import "time"
-
+// Represents a reading for one sensor from a particular buoy instance.
 type Reading struct {
-	Id             int       `json:"id" db:"id"`
-	Latitude       float32   `json:"latitude" db:"latitude"`
-	Longitude      float32   `json:"longitude" db:"longitude"`
-	Value          float32   `json:"value" db:"value"`
-	Timestamp      time.Time `json:"timestamp" db:"timestamp"`
-	BuoyGuid       string    `json:"guid"`
-	SensorTypeId   int       `json:"sensorTypeId" db:"sensor_type_id"`
+	Id             int
+	Latitude       float64
+	Longitude      float64
+	Value          float64
+	Timestamp      string
+	BuoyGuid       string
+	SensorTypeId   int
 	BuoyInstanceId int
 	SensorTypeName string
+	MessageNumber  int
 }
 
 type ReadingRepository interface {

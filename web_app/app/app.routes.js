@@ -19,6 +19,12 @@
 					// controllerAs: 'vm',
 					templateUrl: '/app/auth/login.html'
 				})
+				.state('changepassword', {
+					url: '/changepassword',
+					// controller: 'AuthController', now uses parent controller
+					// controllerAs: 'vm',
+					templateUrl: '/app/auth/changepassword.html'
+				})
 				.state('dashboard', {
 					url: '/dashboard',
 					controller: 'DashboardController',

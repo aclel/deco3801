@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/aclel/deco3801/server/models"
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 	"github.com/rs/cors"
@@ -29,28 +29,58 @@ func NewRouter(env *models.Env) *mux.Router {
 	// Setup the default middleware chain
 	defaultChain := alice.New(c.Handler)
 
+	//TODO: Update roles in routes
+
 	// Authenticated routes
-	r.Handle("/api/buoys", defaultChain.Then(AuthHandler{env, BuoysIndex})).Methods("GET")
-	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsIndex})).Methods("GET")
-	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsCreate})).Methods("POST")
+	r.Handle("/api/buoys", defaultChain.Then(AuthHandler{env, BuoysIndex, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/buoys", defaultChain.Then(AuthHandler{env, BuoysCreate, "researcher"})).Methods("POST", "OPTIONS")
+	r.Handle("/api/buoys/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoysUpdate, "researcher"})).Methods("PUT", "OPTIONS")
+	r.Handle("/api/buoys/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoysShow, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/buoys/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoysDelete, "researcher"})).Methods("DELETE", "OPTIONS")
+
+	r.Handle("/api/buoy_groups", defaultChain.Then(AuthHandler{env, BuoyGroupsIndex, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/buoy_groups", defaultChain.Then(AuthHandler{env, BuoyGroupsCreate, "researcher"})).Methods("POST", "OPTIONS")
+	r.Handle("/api/buoy_groups/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoyGroupsUpdate, "researcher"})).Methods("PUT", "OPTIONS")
+	r.Handle("/api/buoy_groups/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoyGroupsShow, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/buoy_groups/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoyGroupsDelete, "researcher"})).Methods("DELETE", "OPTIONS")
+	r.Handle("/api/buoy_groups/{id:[0-9]+}/buoys", defaultChain.Then(AuthHandler{env, BuoyGroupsBuoysIndex, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/buoy_groups/{id:[0-9]+}/buoy_instances", defaultChain.Then(AuthHandler{env, BuoyGroupsBuoyInstancesIndex, "researcher"})).Methods("GET", "OPTIONS")
+
+	r.Handle("/api/buoy_instances", defaultChain.Then(AuthHandler{env, BuoyInstancesCreate, "researcher"})).Methods("POST", "OPTIONS")
+	r.Handle("/api/buoy_instances/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoyInstancesDelete, "researcher"})).Methods("DELETE", "OPTIONS")
+
+	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsIndex, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsCreate, "researcher"})).Methods("POST", "OPTIONS")
 
 	// Unauthenticated routes
-	r.Handle("/api/users", defaultChain.Then(AppHandler{env, UsersCreate})).Methods("POST")
-	r.Handle("/api/login", defaultChain.Then(AppHandler{env, LoginHandler})).Methods("POST")
+	r.Handle("/api/users", defaultChain.Then(AppHandler{env, UsersCreate})).Methods("POST", "OPTIONS")
+	r.Handle("/api/login", defaultChain.Then(AppHandler{env, LoginHandler})).Methods("POST", "OPTIONS")
 
 	return r
+}
+
+// Custom error type. The message field can be used to store
+// an error string which is returned to the client.
+type AppError struct {
+	Error   error
+	Message string
+	Code    int
 }
 
 // HandlerFunc which wraps handlers which require authentication
 type AuthHandler struct {
 	*models.Env
-	handle func(*models.Env, http.ResponseWriter, *http.Request) (int, error)
+	handle func(*models.Env, http.ResponseWriter, *http.Request) *AppError
+	role   string
 }
 
 // Checks the presence and validity of JWT tokens in authenticated routes
 // Responds with HTTP 401 Unauthorized if the token is not valid
 func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	jwtAuth := models.InitJWTAuth()
+	jwtAuth, err := models.InitJWTAuth()
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+	}
 
 	// Could do some logging here as well
 	token, err := jwt.ParseFromRequest(r, func(token *jwt.Token) (interface{}, error) {
@@ -65,27 +95,29 @@ func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		log.Println("Token is valid")
 	} else {
 		fmt.Println(err)
-		http.Error(w, http.StatusText(http.StatusUnauthorized), 401)
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
 
-	if status, err := authHandler.handle(authHandler.Env, w, r); err != nil {
-		switch status {
-		case http.StatusNotFound:
-			http.Error(w, http.StatusText(http.StatusNotFound), status)
-		case http.StatusInternalServerError:
-			http.Error(w, http.StatusText(http.StatusInternalServerError), status)
-		default:
-			http.Error(w, http.StatusText(http.StatusInternalServerError), status)
-		}
+	// Check if the user has the permissions to access the resource
+	if !models.UserHasPermissions(authHandler.role, token.Claims["role"].(string)) {
+		log.Println("User does not have the permissions to access this resource")
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
+	log.Println("User has sufficient privileges")
+
+	if e := authHandler.handle(authHandler.Env, w, r); e != nil {
+		log.Println(e.Message + ": " + e.Error.Error())
+		http.Error(w, e.Message, e.Code)
 	}
 }
 
 // HandlerFunc which wraps handlers which do not require authentication
-// Adds (int, error) return type to handler
 type AppHandler struct {
 	*models.Env
-	handle func(*models.Env, http.ResponseWriter, *http.Request) (int, error)
+	handle func(*models.Env, http.ResponseWriter, *http.Request) *AppError
 }
 
 // Executes handler and responds with a HTTP error if the handler returned an error
@@ -94,8 +126,8 @@ type AppHandler struct {
 // and it will be hard to debug what's going on. The handler can now just return an error
 // code and this function will server the http.Error.
 func (appHandler AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if status, err := appHandler.handle(appHandler.Env, w, r); err != nil {
-		log.Println(err)
-		http.Error(w, http.StatusText(status), status)
+	if e := appHandler.handle(appHandler.Env, w, r); e != nil {
+		log.Println(e.Message + ": " + e.Error.Error())
+		http.Error(w, e.Message, e.Code)
 	}
 }

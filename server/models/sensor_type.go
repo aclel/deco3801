@@ -1,10 +1,10 @@
 package models
 
 type SensorType struct {
-	Id          int `json:"id" db:"id"`
+	Id          int    `json:"id" db:"id"`
 	Description string `json:"description" db:"description"`
 	Unit        string `json:"unit" db:"unit"`
-	Name string `json:"name" db:"name"`
+	Name        string `json:"name" db:"name"`
 }
 
 type SensorTypeRepository interface {

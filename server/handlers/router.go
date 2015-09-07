@@ -48,6 +48,8 @@ func NewRouter(env *models.Env) *mux.Router {
 
 	r.Handle("/api/buoy_instances", defaultChain.Then(AuthHandler{env, BuoyInstancesCreate, "researcher"})).Methods("POST", "OPTIONS")
 	r.Handle("/api/buoy_instances/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoyInstancesDelete, "researcher"})).Methods("DELETE", "OPTIONS")
+	r.Handle("/api/buoy_instances/{id:[0-9]+}/sensors", defaultChain.Then(AuthHandler{env, BuoyInstancesSensorsCreate, "researcher"})).Methods("POST", "OPTIONS")
+	r.Handle("/api/buoy_instances/{id:[0-9]+}/sensors/{sensor_type_id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoyInstancesSensorsDelete, "researcher"})).Methods("DELETE", "OPTIONS")
 
 	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsIndex, "researcher"})).Methods("GET", "OPTIONS")
 	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsCreate, "researcher"})).Methods("POST", "OPTIONS")

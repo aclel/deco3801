@@ -1,11 +1,10 @@
-/* global moment */
 (function() {
 	'use strict';
 	
 	angular.module('app.auth')
 		.factory('auth', auth);
 	
-	function auth($window) {
+	function auth($window, moment) {
 		
 		
 		return {
@@ -25,7 +24,7 @@
 			var token = getToken();
 			if(token) {
 				var params = parseJwt(token);
-				return (moment().unix() <= params.exp);
+				return (moment.call().unix() <= params.exp);
 			} else {
 				return false;
 			}

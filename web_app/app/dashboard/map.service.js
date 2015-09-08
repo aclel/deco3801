@@ -1,4 +1,3 @@
-/* global moment */
 /* global google */
 (function() {
 	'use strict';
@@ -6,7 +5,7 @@
 	angular.module('app.dashboard')
 		.factory('map', map);
 		
-	function map(dashboard) {
+	function map(dashboard, moment) {
 				
 		var map;
 		var mapOptions = {

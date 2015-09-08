@@ -4,7 +4,7 @@
 	angular.module('app.dashboard')
 		.controller('DashboardController', DashboardController);
 		
-	function DashboardController($document, dashboard, map) {
+	function DashboardController($document, dashboard, map, moment) {
 		var vm = this;
 			
 		vm.buoys = dashboard.buoys();
@@ -44,12 +44,12 @@
 			if (timesInputsValid()) {
 				var momentFormat = dateFormat + " " + timeFormat;
 				if (vm.times.type == 'range') {
-					vm.times.range.from = moment(vm.times.inputs.range.from.date
+					vm.times.range.from = moment.call(vm.times.inputs.range.from.date
 						+ " " + vm.times.inputs.range.from.time, momentFormat);
-					vm.times.range.to = moment(vm.times.inputs.range.to.date
+					vm.times.range.to = moment.call(vm.times.inputs.range.to.date
 						+ " " + vm.times.inputs.range.to.time, momentFormat);
 				} else if (vm.times.type == 'point') {
-					vm.times.point = moment(vm.times.inputs.point.date
+					vm.times.point = moment.call(vm.times.inputs.point.date
 						+ " " + vm.times.inputs.point.time, momentFormat);
 				}
 				

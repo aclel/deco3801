@@ -1,11 +1,10 @@
-/* global google */
 (function() {
 	'use strict';
 	
 	angular.module('app.dashboard')
 		.factory('map', map);
 		
-	function map(dashboard, moment) {
+	function map(dashboard, moment, google) {
 				
 		var map;
 		var mapOptions = {

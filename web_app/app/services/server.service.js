@@ -111,7 +111,8 @@
 			getSensors: getSensors,
 			login: login,
 			logout: logout,
-			changePassword: changePassword
+			changePassword: changePassword,
+			forgotPassword: forgotPassword
 		};
 		
 		function getReadings() {
@@ -150,6 +151,13 @@
 			};
 			console.log(auth.currentUser());
 			return $http.post(SERVER_ADDRESS + '/api/changepassword', JSON.stringify(data));
+		}
+		
+		function forgotPassword(email) {
+			var data = {
+				email: email
+			};
+			return $http.post(SERVER_ADDRESS + '/api/forgotpassword', JSON.stringify(data));
 		}
 	}
 })();

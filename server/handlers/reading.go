@@ -4,13 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	//"fmt"
 
 	"github.com/aclel/deco3801/server/models"
 )
 
-// GET /api/readings
-// encodes the readings returned from GetAllReadings() as JSON
 func ReadingsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	readings, err := env.DB.GetAllReadings()
 	if err != nil {
@@ -19,8 +16,7 @@ func ReadingsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	encoder := json.NewEncoder(w)
-	encoder.Encode(readings)
+	w.Write(readings)
 
 	return nil
 }

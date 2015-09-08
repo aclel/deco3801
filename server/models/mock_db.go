@@ -81,9 +81,8 @@ func (mdb *MockDB) DeleteBuoyGroupWithId(id int) error {
 }
 
 // READINGS
-
-func (db *MockDB) GetAllReadings() (*BuoyGroupsWrapper, error) {
-	return &BuoyGroupsWrapper{}, nil
+func (mdb *MockDB) GetAllReadings() ([]byte, error) {
+	return []byte(""), nil
 }
 
 func (mdb *MockDB) CreateReading(reading *Reading) error {

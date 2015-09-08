@@ -1,5 +1,7 @@
 package models
 
+import "time"
+
 type MockDB struct {
 	users []User
 	buoys []Buoy
@@ -82,8 +84,8 @@ func (mdb *MockDB) DeleteBuoyGroupWithId(id int) error {
 
 // READINGS
 
-func (db *MockDB) GetAllReadings() (*BuoyGroupsWrapper, error) {
-	return &BuoyGroupsWrapper{}, nil
+func (db *MockDB) GetAllReadings(start time.Time, end time.Time) (*MapReadingBuoyGroupsWrapper, error) {
+	return &MapReadingBuoyGroupsWrapper{}, nil
 }
 
 func (mdb *MockDB) CreateReading(reading *Reading) error {

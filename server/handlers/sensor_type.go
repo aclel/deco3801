@@ -19,6 +19,10 @@ import (
 	"github.com/aclel/deco3801/server/models"
 )
 
+type SensorTypesWrapper struct {
+	SensorTypes []models.SensorType `json:"sensorTypes"`
+}
+
 // GET /api/sensor_types
 // Get all Sensor Types.
 // Responds with HTTP 200. All Sensor Types are returned as JSON in the response body.

@@ -10,7 +10,6 @@
  * @copyright  Team Neptune (2015)
  * @link       https://github.com/aclel/deco3801
  */
- */
 package models
 
 import "time"

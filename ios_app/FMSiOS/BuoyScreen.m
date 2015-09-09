@@ -6,8 +6,8 @@
 //  Copyright (c) 2015 Team Neptune. All rights reserved.
 //
 
-// TODO: back/logout button
-// TODO: change between map and satellite
+// TODO: add options like map/satellite to popover
+
 
 #import "BuoyScreen.h"
 
@@ -15,6 +15,8 @@
 
 @property (strong, nonatomic) MKMapView *map;
 @property (strong, nonatomic) CLLocationManager *l;
+@property (strong, nonatomic) UIBarButtonItem *pButton;
+@property (strong, nonatomic) UIPopoverController *p;
 
 @end
 
@@ -39,6 +41,20 @@
     self.map.rotateEnabled = NO;
     self.map.delegate = self;
     
+    // Navigation bar settings
+    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Logout" style:UIBarButtonItemStylePlain target:nil action:nil];
+    UIBarButtonItem *posIcon = [[MKUserTrackingBarButtonItem alloc] initWithMapView:self.map];
+    UIButton *tempInfoB = [UIButton buttonWithType:UIButtonTypeInfoLight];
+    UIBarButtonItem *infoIcon = [[UIBarButtonItem alloc] initWithImage:tempInfoB.currentImage style:UIBarButtonItemStylePlain target:self action:@selector(infoButtonPressed)];
+    
+    self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:infoIcon, posIcon, nil];
+    
+    // Popover for options
+    UIViewController *pContents = [[UIViewController alloc] init];
+    pContents.view.backgroundColor = [UIColor blackColor];
+    self.p = [[UIPopoverController alloc] initWithContentViewController:pContents];
+    self.pButton = infoIcon;
+    
     // Fin
     [self.view addSubview:self.map];
 }
@@ -59,6 +75,10 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+    if ([self.view window] == nil) {
+        self.map = nil;
+        self.view = nil;
+    }
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
@@ -71,6 +91,11 @@
         self.map.showsUserLocation = YES;
         self.map.userTrackingMode = MKUserTrackingModeFollow;
     }
+}
+
+#pragma mark - UI changes
+- (void)infoButtonPressed {
+    [self.p presentPopoverFromBarButtonItem:self.pButton permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
 }
 
 @end

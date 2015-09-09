@@ -18,6 +18,7 @@
 
 @protocol DataModelDataDelegate <NSObject>
 
+- (void)didGetBuoyListFromServer:(NSArray *)buoys;
 
 @end
 
@@ -30,5 +31,6 @@
 @property NSUInteger serverPort;
 
 - (void)connectToServerWithEmail:(NSString *)email andPass:(NSString *)password;
+- (void)updateBuoyListingFromServer;
 
 @end

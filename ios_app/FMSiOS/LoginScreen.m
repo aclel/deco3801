@@ -166,6 +166,10 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+    if ([self.view window] == nil) {
+        self.bg = nil;
+        self.view = nil;
+    }
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {

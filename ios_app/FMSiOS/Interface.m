@@ -12,6 +12,7 @@
 
 + (void)setupThemes {
     // Set up all UIAppearance theme information here
+    [[UIActivityIndicatorView appearance] setTintColor:[UIColor whiteColor]];
 }
 
 + (BOOL)NSStringIsValidEmail:(NSString *)s {

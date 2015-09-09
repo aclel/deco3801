@@ -1,7 +1,7 @@
 (function() {
 	'use strict';
 	
-	angular.module('app')
+	angular.module('app.gui')
 		.config(function($datepickerProvider, $timepickerProvider, $httpProvider) {
 			
 			$httpProvider.interceptors.push('authInterceptor');

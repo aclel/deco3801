@@ -3,7 +3,7 @@ package models
 import (
 	"log"
 
-	gomail "gopkg.in/gomail.v2-unstable"
+	gomail "gopkg.in/gomail.v2"
 )
 
 type EmailCredentials struct {

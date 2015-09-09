@@ -18,7 +18,10 @@
 					url: '/dashboard',
 					controller: 'DashboardController',
 					controllerAs: 'vm',
-					templateUrl: '/app/dashboard/dashboard.html'
+					templateUrl: '/app/dashboard/dashboard.html',
+					data: {
+						access: 'authed'
+					}
 				}
 			}
 		];

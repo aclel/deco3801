@@ -13,7 +13,8 @@
 			getToken: getToken,
 			saveToken: saveToken,
 			currentUser: currentUser,
-			currentUserRole: currentUserRole
+			currentUserRole: currentUserRole,
+			checkUser: checkUser
 		};
 		
 		function logout() {
@@ -43,7 +44,27 @@
 		}
 		
 		function currentUserRole() {
-			return parseJwt(getToken()).role;
+			var token = getToken();
+			if (token == null) {
+				return 'unauthed';
+			}
+			return parseJwt(token).role;
+		}
+		
+		function checkUser(role) {
+			var roles = {
+				'unauthed': 0,
+				'authed': 1,
+				'user': 1,
+				'power_user': 2,
+				'system_admin': 3,
+				'sick cunt': 99999
+			};
+			
+			if (role == 'unauthed' && authed()) {
+				return false;
+			}
+			return (roles[currentUserRole()] >= roles[role]);
 		}
 		
 		function parseJwt(token) {

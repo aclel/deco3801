@@ -16,7 +16,10 @@
 					url: '/login',
 					// controller: 'AuthController', now uses parent controller
 					// controllerAs: 'vm',
-					templateUrl: '/app/auth/login.html'
+					templateUrl: '/app/auth/login.html',
+					data: {
+						access: 'unauthed'
+					}
 				}
 			},
 			{
@@ -25,7 +28,10 @@
 					url: '/changepassword',
 					// controller: 'AuthController', now uses parent controller
 					// controllerAs: 'vm',
-					templateUrl: '/app/auth/changepassword.html'
+					templateUrl: '/app/auth/changepassword.html',
+					data: {
+						access: 'authed'
+					}
 				}
 			},
 			{
@@ -34,7 +40,10 @@
 					url: '/forgotpassword',
 					// controller: 'AuthController', now uses parent controller
 					// controllerAs: 'vm',
-					templateUrl: '/app/auth/forgotpassword.html'
+					templateUrl: '/app/auth/forgotpassword.html',
+					data: {
+						access: 'unauthed'
+					}
 				}
 			}
 		];

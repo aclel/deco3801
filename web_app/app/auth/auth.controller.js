@@ -21,32 +21,7 @@
 		function activate() {
 			resetForm();
 		}
-		
-		// Redirect to login page if not logged in, otherwise redirect from login page
-		$rootScope.$on('$stateChangeStart', function(event, toState) {
-			if (auth.authed()) {
-				if (toState.name == 'login' || toState.name == 'forgotpassword') {
-					event.preventDefault();
-					if ($state.is('login')) {
-						$state.go('dashboard');
-					}
-				}
-				
-				// user role restrictions
-				if (toState.name == 'config' && !configAllowed()) {
-					event.preventDefault();
-				}
-				if (toState.name == 'admin' && !adminAllowed()) {
-					event.preventDefault();
-				}
-			} else {
-				if (toState.name != 'login' && toState.name != 'forgotpassword') {
-					event.preventDefault();
-					// $state.go('login');
-				}
-			}
-		});
-		
+			
 		function stateActive(name) {
 			return routerHelper.stateActive(name);
 		}
@@ -117,21 +92,11 @@
 		}
 		
 		function configAllowed() {
-			if (!vm.authed) return false;
-			
-			var role = auth.currentUserRole();
-			if (role != "power_user" && role != "system_admin") return false;
-			
-			return true;
+			return auth.checkUser("power_user");
 		}
 		
 		function adminAllowed() {
-			if (!vm.authed) return false;
-			
-			var role = auth.currentUserRole();
-			if (role != "system_admin") return false;
-			
-			return true;
+			return auth.checkUser("system_admin");
 		}
 	}
 })();

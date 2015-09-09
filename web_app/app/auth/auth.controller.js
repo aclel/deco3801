@@ -13,13 +13,14 @@
 		vm.logout = logout;
 		vm.changePassword = changePassword;
 		vm.checkShowNav = checkShowNav;
+		vm.forgotPassword = forgotPassword;
 		
 		resetForm();
 		
 		// Redirect to login page if not logged in, otherwise redirect from login page
 		$rootScope.$on('$stateChangeStart', function(event, toState) {
 			if (auth.authed()) {
-				if (toState.name == 'login') {
+				if (toState.name == 'login' || toState.name == 'forgotpassword') {
 					event.preventDefault();
 					if ($state.is('login')) {
 						$state.go('dashboard');
@@ -34,9 +35,9 @@
 					event.preventDefault();
 				}
 			} else {
-				if (toState.name != 'login') {
+				if (toState.name != 'login' && toState.name != 'forgotpassword') {
 					event.preventDefault();
-					$state.go('login');
+					// $state.go('login');
 				}
 			}
 		});
@@ -95,6 +96,10 @@
 				default:
 					return false;
 			}
+		}
+		
+		function forgotPassword() {
+			server.forgotPassword(vm.email);
 		}
 		
 		function resetForm() {

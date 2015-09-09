@@ -1,11 +1,11 @@
 #!/usr/bin/python
 from datetime import date
 import os,sys
-version = raw_input("Version: ")
-codename = raw_input("Codename: ")
+version = raw_input("Version (e.g. 0.0.1): ")
+codename = raw_input("Codename (e.g. Duyung): ")
 year = date.today().year
-name = raw_input("Full name: ")
-email = raw_input("Email: ")
+name = raw_input("Full name (e.g. Henry Chladil): ")
+email = raw_input("Email (e.g. henry.ponco@gmail.com): ")
 app = raw_input("Server (s) or webapp (w)?: ")
 server = None
 

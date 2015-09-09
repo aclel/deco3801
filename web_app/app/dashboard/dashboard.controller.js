@@ -14,17 +14,21 @@
 		vm.updateTimesFilter = updateTimesFilter;
 		vm.updateSensorsFilter = updateSensorsFilter;
 		
-		dashboard.initialise().then(function() {
-			vm.buoys = dashboard.buoys();
-			vm.times = dashboard.times();
-			vm.sensors = dashboard.sensors();
-			
-			dashboard.updateFilters();
-			map.updateReadings();
-		});
-		
 		var dateFormat = "D/M/YY";
 		var timeFormat = "h:mm A";
+		
+		activate();
+		
+		function activate() {
+				dashboard.initialise().then(function() {
+				vm.buoys = dashboard.buoys();
+				vm.times = dashboard.times();
+				vm.sensors = dashboard.sensors();
+				
+				dashboard.updateFilters();
+				map.updateReadings();
+			});
+		}
 			
 		$document.ready(function() {
 			map.initialiseMap();

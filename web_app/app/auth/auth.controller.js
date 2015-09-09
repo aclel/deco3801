@@ -15,7 +15,11 @@
 		vm.checkShowNav = checkShowNav;
 		vm.forgotPassword = forgotPassword;
 		
-		resetForm();
+		activate();
+		
+		function activate() {
+			resetForm();
+		}
 		
 		// Redirect to login page if not logged in, otherwise redirect from login page
 		$rootScope.$on('$stateChangeStart', function(event, toState) {

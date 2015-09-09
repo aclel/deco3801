@@ -11,6 +11,7 @@
 		D45892C91B98500100EB8DCC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D45892C81B98500100EB8DCC /* AppDelegate.m */; };
 		D45892CC1B98500100EB8DCC /* LoginScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = D45892CB1B98500100EB8DCC /* LoginScreen.m */; };
 		D45892D11B98500100EB8DCC /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D45892D01B98500100EB8DCC /* Images.xcassets */; };
+		D45AEF411BA00F740075185C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D45AEF401BA00F740075185C /* MapKit.framework */; };
 		D4ECE1D31B986054006D5142 /* BuoyScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = D4ECE1D21B986054006D5142 /* BuoyScreen.m */; };
 		D4ECE1D61B988B02006D5142 /* Interface.m in Sources */ = {isa = PBXBuildFile; fileRef = D4ECE1D51B988B02006D5142 /* Interface.m */; };
 		D4ECE1D91B988B84006D5142 /* DataModel.m in Sources */ = {isa = PBXBuildFile; fileRef = D4ECE1D81B988B84006D5142 /* DataModel.m */; };
@@ -37,6 +38,7 @@
 		D45892CB1B98500100EB8DCC /* LoginScreen.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LoginScreen.m; sourceTree = "<group>"; };
 		D45892D01B98500100EB8DCC /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		D45892D91B98500100EB8DCC /* FMSiOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FMSiOSTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D45AEF401BA00F740075185C /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		D4ECE1D11B986054006D5142 /* BuoyScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BuoyScreen.h; sourceTree = "<group>"; };
 		D4ECE1D21B986054006D5142 /* BuoyScreen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BuoyScreen.m; sourceTree = "<group>"; };
 		D4ECE1D41B988B02006D5142 /* Interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Interface.h; sourceTree = "<group>"; };
@@ -51,6 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D45AEF411BA00F740075185C /* MapKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -67,6 +70,7 @@
 		D45892B71B98500100EB8DCC = {
 			isa = PBXGroup;
 			children = (
+				D45AEF401BA00F740075185C /* MapKit.framework */,
 				D45892C11B98500100EB8DCC /* Products */,
 				D45892C21B98500100EB8DCC /* FMSiOS */,
 			);

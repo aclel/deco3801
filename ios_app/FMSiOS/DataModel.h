@@ -8,6 +8,27 @@
 
 #import <Foundation/Foundation.h>
 
+@protocol DataModelInitDelegate <NSObject>
+
+- (void)didConnectToServer;
+- (void)didFailToConnectBadDetails;
+- (void)didFailToConnectServerLoss;
+
+@end
+
+@protocol DataModelDataDelegate <NSObject>
+
+
+@end
+
 @interface DataModel : NSObject
+
+@property (nonatomic, weak) id<DataModelInitDelegate> delegate;
+@property (nonatomic, weak) id<DataModelDataDelegate> dataDelegate;
+
+@property (nonatomic, strong) NSString *serverAddr;
+@property NSUInteger serverPort;
+
+- (void)connectToServerWithEmail:(NSString *)email andPass:(NSString *)password;
 
 @end

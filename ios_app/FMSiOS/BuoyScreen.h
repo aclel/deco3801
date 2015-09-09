@@ -7,7 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <MapKit/MapKit.h>
+#import "DataModel.h"
+#import "Interface.h"
 
-@interface BuoyScreen : UIViewController
+@interface BuoyScreen : UIViewController <DataModelDataDelegate, MKMapViewDelegate>
+
+@property (nonatomic, weak) DataModel *d;
 
 @end

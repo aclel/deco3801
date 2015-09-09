@@ -24,6 +24,32 @@ import (
 	"github.com/aclel/deco3801/server/models"
 )
 
+type UserWrapper struct {
+	Users []models.User `json:"users"`
+}
+
+// GET /api/users
+// Get all Users.
+// Responds with HTTP 200. All Users are returned as JSON in the response body.
+func UsersIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	var usersWrapper UserWrapper
+	var err error
+
+	usersWrapper.Users, err = env.DB.GetAllUsers()
+	if err != nil {
+		return &AppError{err, "Error retrieving buoys", http.StatusInternalServerError}
+	}
+
+	// Set return status and write to response body.
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response, _ := json.Marshal(usersWrapper)
+	w.Write(response)
+
+	return nil
+}
+
 // POST /api/users
 // Create a User, hash the password and store the User in the database, send email to user.
 // Responds with HTTP 201 if successful

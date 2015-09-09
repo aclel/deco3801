@@ -32,6 +32,7 @@ type User struct {
 type UserRepository interface {
 	CreateUser(*User) error
 	GetUserWithEmail(string) (*User, error)
+	GetAllUsers() ([]User, error)
 }
 
 // All possible roles that a user can have. A user can only have one role at a time.
@@ -55,6 +56,16 @@ func (db *DB) CreateUser(user *User) error {
 	}
 
 	return nil
+}
+
+func (db *DB) GetAllUsers() ([]User, error) {
+	users := []User{}
+	err := db.Select(&users, "SELECT * FROM user;")
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
 
 // Gets a user from the database with the given email address

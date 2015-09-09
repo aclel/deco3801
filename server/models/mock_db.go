@@ -118,6 +118,10 @@ func (mdb *MockDB) CreateUser(user *User) error {
 	return nil
 }
 
+func (mdb *MockDB) GetAllUsers() ([]User, error) {
+	return nil, nil
+}
+
 // AUTH
 func (mdb *MockDB) Login(user *User) ([]byte, error) {
 	//shortened token, only checking for non-empty

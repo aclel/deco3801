@@ -61,8 +61,14 @@ for root, dirs, files in os.walk("."):
 					f = open(fpath, "r")
 					f.seek(0, 0)
 					lines = []
+					i = 0
 					for line in f:
-						lines.append(line)
+						if (i < 11):
+							pass
+						else:
+							lines.append(line)
+						i += 1
+
 					f.close()
 
 					f = open(fpath, "w")

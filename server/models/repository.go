@@ -30,6 +30,7 @@ type Repository interface {
 	ReadingRepository
 	SensorTypeRepository
 	CommandTypeRepository
+	CommandRepository
 	UserRepository
 	AuthRepository
 	SmtpManager

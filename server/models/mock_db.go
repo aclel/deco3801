@@ -118,6 +118,11 @@ func (mdb *MockDB) GetAllCommandTypes() ([]CommandType, error) {
 	return nil, nil
 }
 
+// COMMANDS
+func (mdb *MockDB) DeleteCommandWithId(id int) error {
+	return nil
+}
+
 // USERS
 func (mdb *MockDB) GetUserWithEmail(email string) (*User, error) {
 	return nil, nil

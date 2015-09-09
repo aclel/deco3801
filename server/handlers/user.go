@@ -1,3 +1,15 @@
+/**
+ * Flood Monitoring System
+ * Version 0.0.1 (Duyung)
+ *
+ * Copyright (C) Team Neptune
+ * All rights reserved.
+ *
+ * @author     Andrew Cleland <andrew.cleland3@gmail.com>
+ * @version    0.0.1
+ * @copyright  Team Neptune (2015)
+ * @link       https://github.com/aclel/deco3801
+ */
 package handlers
 
 import (
@@ -13,7 +25,7 @@ import (
 )
 
 // POST /api/users
-// Create a User, hash the password and store the User in the database, send email to user
+// Create a User, hash the password and store the User in the database, send email to user.
 // Responds with HTTP 201 if successful
 func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	user := new(models.User)

@@ -1,3 +1,15 @@
+/**
+ * Flood Monitoring System
+ * Version 0.0.1 (Duyung)
+ *
+ * Copyright (C) Team Neptune
+ * All rights reserved.
+ *
+ * @author     Andrew Dyer <andrew@dyergroup.com.au>
+ * @version    0.0.1
+ * @copyright  Team Neptune (2015)
+ * @link       https://github.com/aclel/deco3801
+ */
 (function() {
 	'use strict';
 	
@@ -18,6 +30,18 @@
 					// controller: 'AuthController', now uses parent controller
 					// controllerAs: 'vm',
 					templateUrl: '/app/auth/login.html'
+				})
+				.state('changepassword', {
+					url: '/changepassword',
+					// controller: 'AuthController', now uses parent controller
+					// controllerAs: 'vm',
+					templateUrl: '/app/auth/changepassword.html'
+				})
+				.state('forgotpassword', {
+					url: '/forgotpassword',
+					// controller: 'AuthController', now uses parent controller
+					// controllerAs: 'vm',
+					templateUrl: '/app/auth/forgotpassword.html'
 				})
 				.state('dashboard', {
 					url: '/dashboard',

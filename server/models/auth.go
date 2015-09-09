@@ -1,3 +1,15 @@
+/**
+ * Flood Monitoring System
+ * Version 0.0.1 (Duyung)
+ *
+ * Copyright (C) Team Neptune
+ * All rights reserved.
+ *
+ * @author     Andrew Cleland <andrew.cleland3@gmail.com>
+ * @version    0.0.1
+ * @copyright  Team Neptune (2015)
+ * @link       https://github.com/aclel/deco3801
+ */
 package models
 
 import (
@@ -28,24 +40,24 @@ func (db *DB) Login(user *User) ([]byte, error) {
 
 	// Check email and password are the same
 	if jwtAuth.Authenticate(dbUser, user) {
-
 		// Generate JWT and respond with User object
-		token, err := jwtAuth.GenerateToken(user.Email)
+		token, err := jwtAuth.GenerateToken(dbUser)
 		if err != nil {
 			return []byte(""), err
 		} else {
-			user.Token = token
-			user.Password = "" // don't want to send the password back to the client
-			// Update last login time
-			user.LastLogin = Now()
+			dbUser.Token = token
+			dbUser.Password = "" // don't want to send the password back to the client
 
-			response, _ := json.Marshal(user)
-			err = db.UpdateUserExcludePassword(user.Email, user)
+			response, _ := json.Marshal(dbUser)
+
+			// Update last login time
+			dbUser.LastLogin = Now()
+			err = db.UpdateUserExcludePassword(dbUser.Email, dbUser)
 			if err != nil {
 				return []byte(""), err
 			}
 
-			log.Println("Authenticated " + user.Email)
+			log.Println("Authenticated " + dbUser.Email)
 			return response, nil
 		}
 	}
@@ -61,7 +73,7 @@ func (db *DB) RefreshToken(user *User) ([]byte, error) {
 		return []byte(""), err
 	}
 
-	token, err := jwtAuth.GenerateToken(user.Email)
+	token, err := jwtAuth.GenerateToken(user)
 	if err != nil {
 		return []byte(""), err
 	}

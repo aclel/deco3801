@@ -1,10 +1,22 @@
+/**
+ * Flood Monitoring System
+ * Version 0.0.1 (Duyung)
+ *
+ * Copyright (C) Team Neptune
+ * All rights reserved.
+ *
+ * @author     Andrew Cleland <andrew.cleland3@gmail.com>
+ * @version    0.0.1
+ * @copyright  Team Neptune (2015)
+ * @link       https://github.com/aclel/deco3801
+ */
 package models
 
 import (
 	"os"
 	"testing"
 
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 )
 
 func TestMain(m *testing.M) {
@@ -23,7 +35,8 @@ func TestInitJWTAuth(t *testing.T) {
 }
 
 func TestGenerateToken(t *testing.T) {
-	tokenString, err := jwtAuth.GenerateToken("test@email.com")
+	testUser := &User{Email: "test@email.com", Role: "system_admin"}
+	tokenString, err := jwtAuth.GenerateToken(testUser)
 
 	if err != nil {
 		t.Errorf("Error generating token: %v", err)

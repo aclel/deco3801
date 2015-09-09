@@ -1,113 +1,180 @@
+/**
+ * Flood Monitoring System
+ * Version 0.0.1 (Duyung)
+ *
+ * Copyright (C) Team Neptune
+ * All rights reserved.
+ *
+ * @author     Andrew Cleland <andrew.cleland3@gmail.com>
+ * @version    0.0.1
+ * @copyright  Team Neptune (2015)
+ * @link       https://github.com/aclel/deco3801
+ */
 package handlers
 
 import (
 	//"fmt"
-	"net/http"
 	"encoding/json"
+	"net/http"
+	"strconv"
+
 	"github.com/aclel/deco3801/server/models"
+	"github.com/gorilla/mux"
 )
 
-// A scruct for wrapping our Array in. 
-// This way the decoder will make a JSON object for us.
-type wrapping struct {
-	Buoys []models.Buoy
+type BuoysWrapper struct {
+	Buoys []models.Buoy `json:"buoys"`
 }
 
-// For storing a "buoy by id" request in.
-type buoyId struct {
-	Id int
-}
-
-
-// GET /buoys
+// GET /api/buoys
 // Responds with HTTP 200. All buoys are sent in the response body.
-func BuoysIndex(env *models.Env, w http.ResponseWriter, r *http.Request) (int, error) {
-	
-	if r.Method != "GET" {
-		return 405, nil
-	}
-
-
-	newWrapping := new(wrapping)
+func BuoysIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	var buoysWrapper BuoysWrapper
 	var err error
-	newWrapping.Buoys, err = env.DB.GetAllBuoys()
+
+	buoysWrapper.Buoys, err = env.DB.GetAllBuoys()
 	if err != nil {
-		return 405, err
+		return &AppError{err, "Error retrieving buoys", http.StatusInternalServerError}
 	}
 
 	// Set return status and write to response body.
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	encoder := json.NewEncoder(w)
-	encoder.Encode(newWrapping)
 
-	return 200, nil
+	response, _ := json.Marshal(buoysWrapper)
+	w.Write(response)
+
+	return nil
 }
 
-
-// GET /buoys/id/
+// GET /api/buoys/id/
 // Responds with HTTP 200. Specified buoy sent in response body.
-/*
-Example request:
-{
-    "Id": 429
-}
-*/
-func BuoyShow(env *models.Env, w http.ResponseWriter, r *http.Request) (int, error) {
-	
-	if r.Method != "POST" {
-		return 405, nil
-	}
-
-	newBuoyId := new(buoyId)
-	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&newBuoyId)
+func BuoysShow(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		return 405, err
+		return &AppError{err, "Error parsing buoy id", http.StatusInternalServerError}
 	}
 
-	ourBuoy := new(models.Buoy)
-	ourBuoy, err = env.DB.GetById(newBuoyId.Id)          
+	buoy, err := env.DB.GetBuoyById(id)
 	if err != nil {
-		return 405, err
+		return &AppError{err, "Error retrieving buoy", http.StatusInternalServerError}
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	encoder := json.NewEncoder(w)
-	encoder.Encode(ourBuoy)
+	response, _ := json.Marshal(buoy)
+	w.Write(response)
 
-	return 200, nil
+	return nil
 }
 
-// POST /buoys
+// POST /api/buoys
 // Request body contains JSON object of buoy to be added to database.
-// Responds with HTTP 200. Response body empty.
-/*
-Example request:
-{
-    "Id": 123,
-    "Guid": "123abc"
-}
-*/
-func BuoysCreate(env *models.Env, w http.ResponseWriter, r *http.Request) (int, error) {
-	
-	if r.Method != "POST" {
-		return 405, nil
-	}
-
-	newBuoy := new(models.Buoy)
+// Responds with HTTP 201. Response body empty.
+// Example request body:
+//
+// {
+//    	"guid": "e9528b5e-1d8f-4960-91ae-8b21ecc0bcab",
+//		"name": "BUOY-1"
+// }
+func BuoysCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	buoy := new(models.Buoy)
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&newBuoy)
-	if err != nil {
-		return 405, err
-	}
-	
-	err = env.DB.AddBuoy(newBuoy)
-	if err != nil {
-		return 405, err
-	}
-	
-	// Set return status.
-	w.WriteHeader(http.StatusOK)
+	err := decoder.Decode(&buoy)
 
-	return 200, nil
+	// Check if Buoy JSON is valid
+	if err != nil {
+		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+	}
+
+	// Insert the Buoy into the database
+	err = env.DB.CreateBuoy(buoy)
+	if err != nil {
+		return &AppError{err, "Error inserting buoy into the database", http.StatusInternalServerError}
+	}
+
+	// Set return status.
+	w.WriteHeader(http.StatusCreated)
+	return nil
+}
+
+// PUT /api/buoys/id
+// Request body contains JSON object of the buoy which is being replaced.
+// Response with HTTP 200. Response body empty.
+// Example request body:
+//
+// {
+//    	"guid": "e9528b5e-1d8f-4960-91ae-8b21ecc0bcab",
+//		"name": "BUOY-1"
+// }
+func BuoysUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing buoy id", http.StatusInternalServerError}
+	}
+
+	buoy := new(models.Buoy)
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&buoy)
+	// Check if Buoy JSON is valid
+	if err != nil {
+		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+	}
+	buoy.Id = id
+
+	// Replace Buoy in the database
+	err = env.DB.UpdateBuoy(buoy)
+	if err != nil {
+		return &AppError{err, "Error updating buoy into the database", http.StatusInternalServerError}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	return nil
+}
+
+// DELETE /api/buoys/id
+// Responds with HTTP 200 if successful. Response body empty.
+func BuoysDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing buoy id", http.StatusInternalServerError}
+	}
+
+	err = env.DB.DeleteBuoyWithId(id)
+	if err != nil {
+		return &AppError{err, "Error deleting buoy", http.StatusInternalServerError}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	return nil
+}
+
+// POST /api/buoys/id/commands
+// Responds with HTTP 200 if successful. Response body empty.
+func BuoyCommandsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	buoyId, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing buoy id", http.StatusInternalServerError}
+	}
+
+	command := new(models.Command)
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&command)
+	// Check if Command JSON is valid
+	if err != nil {
+		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+	}
+	command.BuoyId = buoyId
+
+	err = env.DB.AddCommandToBuoy(command)
+	if err != nil {
+		return &AppError{err, "Error adding command to buoy", http.StatusInternalServerError}
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	return nil
 }

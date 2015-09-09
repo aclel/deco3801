@@ -1,3 +1,15 @@
+/**
+ * Flood Monitoring System
+ * Version 0.0.1 (Duyung)
+ *
+ * Copyright (C) Team Neptune
+ * All rights reserved.
+ *
+ * @author     Andrew Cleland <andrew.cleland3@gmail.com>
+ * @version    0.0.1
+ * @copyright  Team Neptune (2015)
+ * @link       https://github.com/aclel/deco3801
+ */
 package handlers
 
 import (
@@ -6,7 +18,7 @@ import (
 	"net/http"
 
 	"github.com/aclel/deco3801/server/models"
-	"github.com/dgrijalva/jwt-go"
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 	"github.com/rs/cors"
@@ -29,10 +41,31 @@ func NewRouter(env *models.Env) *mux.Router {
 	// Setup the default middleware chain
 	defaultChain := alice.New(c.Handler)
 
+	//TODO: Update roles in routes
+
 	// Authenticated routes
-	r.Handle("/api/buoys", defaultChain.Then(AuthHandler{env, BuoysIndex})).Methods("GET", "OPTIONS")
-	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsIndex})).Methods("GET", "OPTIONS")
-	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsCreate})).Methods("POST", "OPTIONS")
+	r.Handle("/api/buoys", defaultChain.Then(AuthHandler{env, BuoysIndex, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/buoys", defaultChain.Then(AuthHandler{env, BuoysCreate, "researcher"})).Methods("POST", "OPTIONS")
+	r.Handle("/api/buoys/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoysUpdate, "researcher"})).Methods("PUT", "OPTIONS")
+	r.Handle("/api/buoys/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoysShow, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/buoys/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoysDelete, "researcher"})).Methods("DELETE", "OPTIONS")
+	r.Handle("/api/buoys/{id:[0-9]+}/commands", defaultChain.Then(AuthHandler{env, BuoyCommandsCreate, "researcher"})).Methods("POST", "OPTIONS")
+
+	r.Handle("/api/buoy_groups", defaultChain.Then(AuthHandler{env, BuoyGroupsIndex, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/buoy_groups", defaultChain.Then(AuthHandler{env, BuoyGroupsCreate, "researcher"})).Methods("POST", "OPTIONS")
+	r.Handle("/api/buoy_groups/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoyGroupsUpdate, "researcher"})).Methods("PUT", "OPTIONS")
+	r.Handle("/api/buoy_groups/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoyGroupsShow, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/buoy_groups/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoyGroupsDelete, "researcher"})).Methods("DELETE", "OPTIONS")
+	r.Handle("/api/buoy_groups/{id:[0-9]+}/buoys", defaultChain.Then(AuthHandler{env, BuoyGroupsBuoysIndex, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/buoy_groups/{id:[0-9]+}/buoy_instances", defaultChain.Then(AuthHandler{env, BuoyGroupsBuoyInstancesIndex, "researcher"})).Methods("GET", "OPTIONS")
+
+	r.Handle("/api/buoy_instances", defaultChain.Then(AuthHandler{env, BuoyInstancesCreate, "researcher"})).Methods("POST", "OPTIONS")
+	r.Handle("/api/buoy_instances/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoyInstancesDelete, "researcher"})).Methods("DELETE", "OPTIONS")
+	r.Handle("/api/buoy_instances/{id:[0-9]+}/sensors", defaultChain.Then(AuthHandler{env, BuoyInstancesSensorsCreate, "researcher"})).Methods("POST", "OPTIONS")
+	r.Handle("/api/buoy_instances/{id:[0-9]+}/sensors/{sensor_type_id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoyInstancesSensorsDelete, "researcher"})).Methods("DELETE", "OPTIONS")
+
+	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsIndex, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsCreate, "researcher"})).Methods("POST", "OPTIONS")
 
 	// Unauthenticated routes
 	r.Handle("/api/users", defaultChain.Then(AppHandler{env, UsersCreate})).Methods("POST", "OPTIONS")
@@ -53,6 +86,7 @@ type AppError struct {
 type AuthHandler struct {
 	*models.Env
 	handle func(*models.Env, http.ResponseWriter, *http.Request) *AppError
+	role   string
 }
 
 // Checks the presence and validity of JWT tokens in authenticated routes
@@ -80,6 +114,15 @@ func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	// Check if the user has the permissions to access the resource
+	if !models.UserHasPermissions(authHandler.role, token.Claims["role"].(string)) {
+		log.Println("User does not have the permissions to access this resource")
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
+	log.Println("User has sufficient privileges")
+
 	if e := authHandler.handle(authHandler.Env, w, r); e != nil {
 		log.Println(e.Message + ": " + e.Error.Error())
 		http.Error(w, e.Message, e.Code)
@@ -87,7 +130,6 @@ func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 }
 
 // HandlerFunc which wraps handlers which do not require authentication
-// Adds (int, error) return type to handler
 type AppHandler struct {
 	*models.Env
 	handle func(*models.Env, http.ResponseWriter, *http.Request) *AppError

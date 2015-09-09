@@ -35,4 +35,4 @@ web_app/app/app.constants.js
 *.sublime-workspace
 
 # Built files
-assets/js/app.js
+web_app/assets/js/app.js

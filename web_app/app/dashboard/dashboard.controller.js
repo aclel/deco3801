@@ -6,6 +6,9 @@
 		
 	function DashboardController($document, dashboard, map, moment) {
 		var vm = this;
+		
+		var dateFormat = "D/M/YY";
+		var timeFormat = "h:mm A";
 			
 		vm.buoys = dashboard.buoys();
 		vm.times = dashboard.times();
@@ -13,9 +16,6 @@
 		vm.updateBuoysFilter = updateBuoysFilter;
 		vm.updateTimesFilter = updateTimesFilter;
 		vm.updateSensorsFilter = updateSensorsFilter;
-		
-		var dateFormat = "D/M/YY";
-		var timeFormat = "h:mm A";
 		
 		activate();
 		

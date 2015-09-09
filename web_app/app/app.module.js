@@ -5,9 +5,10 @@
         // Shared modules
         'app.core',
         'app.gui',
+        'app.auth',
+        'app.nav',
         
         // Feature modules        
-        'app.auth',
         'app.dashboard',
         'app.config',
         'app.warnings'

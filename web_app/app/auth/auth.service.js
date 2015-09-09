@@ -9,11 +9,10 @@
 		
 		return {
 			logout: logout,
-			authed: authed,
+			loggedIn: loggedIn,
 			getToken: getToken,
 			saveToken: saveToken,
 			currentUser: currentUser,
-			currentUserRole: currentUserRole,
 			checkUser: checkUser
 		};
 		
@@ -21,7 +20,7 @@
 			$window.localStorage.removeItem('token');
 		}
 		
-		function authed() {
+		function loggedIn() {
 			var token = getToken();
 			if(token) {
 				var params = parseJwt(token);
@@ -58,10 +57,10 @@
 				'user': 1,
 				'power_user': 2,
 				'system_admin': 3,
-				'sick cunt': 99999
+				'andrew': 99999
 			};
 			
-			if (role == 'unauthed' && authed()) {
+			if (role == 'unauthed' && loggedIn()) {
 				return false;
 			}
 			return (roles[currentUserRole()] >= roles[role]);

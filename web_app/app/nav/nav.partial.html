@@ -1,0 +1,34 @@
+<div ng-controller="NavController as vm"
+	 class="grid-content shrink" style="padding: 0;">
+	<header>
+		<h1 class='title'>FMS</h1>
+		<div class="menu">
+			<ul ng-show="vm.checkShowNav('dashboard')" ng-cloak
+				ng-class="{ active: vm.stateActive('dashboard') }">
+				<a ui-sref="dashboard">Dashboard</a>
+			</ul>
+			<ul ng-show="vm.checkShowNav('config')" ng-cloak
+				ng-class="{ active: vm.stateActive('config') }">
+				<a ui-sref="config">Config</a>
+			</ul>
+			<ul ng-show="vm.checkShowNav('warnings')" ng-cloak
+				ng-class="{ active: vm.stateActive('warnings') }">
+				<a ui-sref="warnings">Warnings</a>
+			</ul>
+			<ul ng-show="vm.checkShowNav('admin')" ng-cloak
+				ng-class="{ active: vm.stateActive('admin') }">
+				<a ui-sref="admin">Admin</a>
+			</ul>
+			<!--<ul ng-hide="vm.checkShowNav('')" ng-cloak
+				class="login"
+				ng-class="{ active: vm.stateActive('login') }">
+				<a ui-sref="login">Login</a>
+			</ul>-->
+			<ul ng-show="vm.checkShowNav('logout')" ng-cloak
+				class="login">
+				<a href="" ng-click="vm.logout()">Logout</a>
+			</ul>
+		</div>
+		<img id="dugong" src="/assets/img/dugong.gif" alt="dugong">
+	</header>
+</div>

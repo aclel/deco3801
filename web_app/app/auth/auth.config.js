@@ -15,7 +15,7 @@
 				
 				// only redirect if page was just loaded
 				if (fromState.url === '^') {
-					if (auth.authed()) {
+					if (auth.loggedIn()) {
 						$state.go('dashboard');
 					} else {
 						$state.go('login');

@@ -16,3 +16,17 @@ type CommandType struct {
 	Id   int    `json:"id" db:"id"`
 	Name string `json:"name" db:"name"`
 }
+
+type CommandTypeRepository interface {
+	GetAllCommandTypes() ([]CommandType, error)
+}
+
+func (db *DB) GetAllCommandTypes() ([]CommandType, error) {
+	commandTypes := []CommandType{}
+	err := db.Select(&commandTypes, "SELECT * FROM command_type;")
+	if err != nil {
+		return nil, err
+	}
+
+	return commandTypes, nil
+}

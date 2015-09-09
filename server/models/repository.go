@@ -29,6 +29,7 @@ type Repository interface {
 	BuoyGroupRepository
 	ReadingRepository
 	SensorTypeRepository
+	CommandTypeRepository
 	UserRepository
 	AuthRepository
 	SmtpManager

@@ -113,6 +113,11 @@ func (mdb *MockDB) GetAllSensorTypes() ([]SensorType, error) {
 	return nil, nil
 }
 
+// COMMAND TYPES
+func (mdb *MockDB) GetAllCommandTypes() ([]CommandType, error) {
+	return nil, nil
+}
+
 // USERS
 func (mdb *MockDB) GetUserWithEmail(email string) (*User, error) {
 	return nil, nil

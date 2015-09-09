@@ -4,7 +4,7 @@
 	angular.module('app.auth')
 		.controller('AuthController', AuthController);
 	
-	function AuthController($rootScope, $state, auth, server) {
+	function AuthController($rootScope, $state, auth, server, routerHelper) {
 		var vm = this;
 		
 		vm.authed = auth.authed();
@@ -14,6 +14,7 @@
 		vm.changePassword = changePassword;
 		vm.checkShowNav = checkShowNav;
 		vm.forgotPassword = forgotPassword;
+		vm.stateActive = stateActive;
 		
 		activate();
 		
@@ -45,6 +46,10 @@
 				}
 			}
 		});
+		
+		function stateActive(name) {
+			return routerHelper.stateActive(name);
+		}
 		
 		function login() {
 			server.login(vm.email, vm.password).then(

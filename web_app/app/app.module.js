@@ -9,6 +9,7 @@
         // Feature modules        
         'app.auth',
         'app.dashboard',
-        'app.config'
+        'app.config',
+        'app.warnings'
     ]);
 })();

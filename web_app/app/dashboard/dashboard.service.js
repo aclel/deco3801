@@ -16,7 +16,7 @@
 	angular.module('app.dashboard')
 		.factory('dashboard', dashboard);
 		
-	function dashboard($filter, server) {
+	function dashboard($filter, server, moment) {
 		var readings = [];
 		var filteredReadings = [];
 		
@@ -256,7 +256,7 @@
 			
 			if (times.type == 'all') {
 				// range: from 2 weeks ago until now
-				var max = moment();
+				var max = moment.call();
 				var min = max.clone().subtract(2, 'weeks');
 				return calculateAgeInRange(time, min, max);
 			

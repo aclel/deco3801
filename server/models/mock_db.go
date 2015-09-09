@@ -10,6 +10,7 @@
  * @copyright  Team Neptune (2015)
  * @link       https://github.com/aclel/deco3801
  */
+ */
 package models
 
 import "time"
@@ -107,6 +108,10 @@ func (mdb *MockDB) CreateReading(reading *Reading) error {
 // SENSOR TYPES
 func (mdb *MockDB) GetSensorTypeWithName(name string) (*SensorType, error) {
 	return &SensorType{}, nil
+}
+
+func (mdb *MockDB) GetAllSensorTypes() ([]SensorType, error) {
+	return nil, nil
 }
 
 // USERS

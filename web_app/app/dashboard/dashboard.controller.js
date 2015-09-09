@@ -16,8 +16,11 @@
 	angular.module('app.dashboard')
 		.controller('DashboardController', DashboardController);
 		
-	function DashboardController($document, dashboard, map) {
+	function DashboardController($document, dashboard, map, moment) {
 		var vm = this;
+		
+		var dateFormat = "D/M/YY";
+		var timeFormat = "h:mm A";
 			
 		vm.buoys = dashboard.buoys();
 		vm.times = dashboard.times();
@@ -26,17 +29,18 @@
 		vm.updateTimesFilter = updateTimesFilter;
 		vm.updateSensorsFilter = updateSensorsFilter;
 		
-		dashboard.initialise().then(function() {
-			vm.buoys = dashboard.buoys();
-			vm.times = dashboard.times();
-			vm.sensors = dashboard.sensors();
-			
-			dashboard.updateFilters();
-			map.updateReadings();
-		});
+		activate();
 		
-		var dateFormat = "D/M/YY";
-		var timeFormat = "h:mm A";
+		function activate() {
+				dashboard.initialise().then(function() {
+				vm.buoys = dashboard.buoys();
+				vm.times = dashboard.times();
+				vm.sensors = dashboard.sensors();
+				
+				dashboard.updateFilters();
+				map.updateReadings();
+			});
+		}
 			
 		$document.ready(function() {
 			map.initialiseMap();
@@ -56,12 +60,12 @@
 			if (timesInputsValid()) {
 				var momentFormat = dateFormat + " " + timeFormat;
 				if (vm.times.type == 'range') {
-					vm.times.range.from = moment(vm.times.inputs.range.from.date
+					vm.times.range.from = moment.call(vm.times.inputs.range.from.date
 						+ " " + vm.times.inputs.range.from.time, momentFormat);
-					vm.times.range.to = moment(vm.times.inputs.range.to.date
+					vm.times.range.to = moment.call(vm.times.inputs.range.to.date
 						+ " " + vm.times.inputs.range.to.time, momentFormat);
 				} else if (vm.times.type == 'point') {
-					vm.times.point = moment(vm.times.inputs.point.date
+					vm.times.point = moment.call(vm.times.inputs.point.date
 						+ " " + vm.times.inputs.point.time, momentFormat);
 				}
 				

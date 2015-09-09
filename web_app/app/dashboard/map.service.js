@@ -10,15 +10,13 @@
  * @copyright  Team Neptune (2015)
  * @link       https://github.com/aclel/deco3801
  */
-/* global moment */
-/* global google */
 (function() {
 	'use strict';
 	
 	angular.module('app.dashboard')
 		.factory('map', map);
 		
-	function map(dashboard) {
+	function map(dashboard, moment, google) {
 				
 		var map;
 		var mapOptions = {

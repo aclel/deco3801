@@ -122,6 +122,10 @@ func (mdb *MockDB) GetAllUsers() ([]User, error) {
 	return nil, nil
 }
 
+func (mdb *MockDB) DeleteUserWithId(id int) error {
+	return nil
+}
+
 // AUTH
 func (mdb *MockDB) Login(user *User) ([]byte, error) {
 	//shortened token, only checking for non-empty

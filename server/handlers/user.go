@@ -17,7 +17,9 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
+	"strconv"
 
+	"github.com/gorilla/mux"
 	"golang.org/x/crypto/bcrypt"
 	"stablelib.com/v1/uniuri"
 
@@ -101,6 +103,24 @@ func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	return nil
+}
+
+// DELETE /api/users/id
+// Responds with HTTP 200 if successful. Response body empty.
+func UsersDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing user id", http.StatusInternalServerError}
+	}
+
+	err = env.DB.DeleteUserWithId(id)
+	if err != nil {
+		return &AppError{err, "Error deleting user", http.StatusInternalServerError}
+	}
+
+	w.WriteHeader(http.StatusOK)
 	return nil
 }
 

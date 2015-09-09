@@ -68,6 +68,7 @@ func NewRouter(env *models.Env) *mux.Router {
 	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsCreate, "researcher"})).Methods("POST", "OPTIONS")
 
 	r.Handle("/api/users", defaultChain.Then(AuthHandler{env, UsersIndex, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/users/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, UsersDelete, "researcher"})).Methods("DELETE", "OPTIONS")
 
 	// Unauthenticated routes
 	r.Handle("/api/users", defaultChain.Then(AppHandler{env, UsersCreate})).Methods("POST", "OPTIONS")

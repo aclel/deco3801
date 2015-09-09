@@ -33,6 +33,7 @@ type UserRepository interface {
 	CreateUser(*User) error
 	GetUserWithEmail(string) (*User, error)
 	GetAllUsers() ([]User, error)
+	DeleteUserWithId(int) error
 }
 
 // All possible roles that a user can have. A user can only have one role at a time.
@@ -81,6 +82,21 @@ func (db *DB) GetUserWithEmail(email string) (*User, error) {
 	}
 
 	return &dbUser, nil
+}
+
+// Delete User from the database with the given id.
+func (db *DB) DeleteUserWithId(id int) error {
+	stmt, err := db.Preparex("DELETE FROM user WHERE id=?")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Updates the old user record with the new one

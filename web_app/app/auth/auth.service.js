@@ -72,6 +72,8 @@
 				'andrew': 99999
 			};
 			
+			if (role == 'any') return true;
+			
 			if (role == 'unauthed' && loggedIn()) {
 				return false;
 			}

@@ -123,6 +123,14 @@ func (mdb *MockDB) GetAllCommandTypes() ([]CommandType, error) {
 }
 
 // COMMANDS
+func (mdb *MockDB) GetAllCommands() ([]Command, error) {
+	return nil, nil
+}
+
+func (mdb *MockDB) GetAllCommandsWithSent() ([]Command, error) {
+	return nil, nil
+}
+
 func (mdb *MockDB) DeleteCommandWithId(id int) error {
 	return nil
 }

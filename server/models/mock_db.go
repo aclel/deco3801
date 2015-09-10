@@ -109,12 +109,34 @@ func (mdb *MockDB) GetSensorTypeWithName(name string) (*SensorType, error) {
 	return &SensorType{}, nil
 }
 
+func (mdb *MockDB) GetAllSensorTypes() ([]SensorType, error) {
+	return nil, nil
+}
+
+// COMMAND TYPES
+func (mdb *MockDB) GetAllCommandTypes() ([]CommandType, error) {
+	return nil, nil
+}
+
+// COMMANDS
+func (mdb *MockDB) DeleteCommandWithId(id int) error {
+	return nil
+}
+
 // USERS
 func (mdb *MockDB) GetUserWithEmail(email string) (*User, error) {
 	return nil, nil
 }
 
 func (mdb *MockDB) CreateUser(user *User) error {
+	return nil
+}
+
+func (mdb *MockDB) GetAllUsers() ([]User, error) {
+	return nil, nil
+}
+
+func (mdb *MockDB) DeleteUserWithId(id int) error {
 	return nil
 }
 

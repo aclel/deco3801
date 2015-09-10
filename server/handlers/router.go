@@ -1,15 +1,13 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package handlers
 
 import (
@@ -66,6 +64,15 @@ func NewRouter(env *models.Env) *mux.Router {
 
 	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsIndex, "researcher"})).Methods("GET", "OPTIONS")
 	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsCreate, "researcher"})).Methods("POST", "OPTIONS")
+
+	r.Handle("/api/sensor_types", defaultChain.Then(AuthHandler{env, SensorTypesIndex, "researcher"})).Methods("GET", "OPTIONS")
+
+	r.Handle("/api/command_types", defaultChain.Then(AuthHandler{env, CommandTypesIndex, "researcher"})).Methods("GET", "OPTIONS")
+
+	r.Handle("/api/commands/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, CommandsDelete, "researcher"})).Methods("DELETE", "OPTIONS")
+
+	r.Handle("/api/users", defaultChain.Then(AuthHandler{env, UsersIndex, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/users/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, UsersDelete, "researcher"})).Methods("DELETE", "OPTIONS")
 
 	// Unauthenticated routes
 	r.Handle("/api/users", defaultChain.Then(AppHandler{env, UsersCreate})).Methods("POST", "OPTIONS")

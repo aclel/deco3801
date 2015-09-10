@@ -32,6 +32,8 @@ type User struct {
 type UserRepository interface {
 	CreateUser(*User) error
 	GetUserWithEmail(string) (*User, error)
+	GetAllUsers() ([]User, error)
+	DeleteUserWithId(int) error
 }
 
 // All possible roles that a user can have. A user can only have one role at a time.
@@ -57,6 +59,16 @@ func (db *DB) CreateUser(user *User) error {
 	return nil
 }
 
+func (db *DB) GetAllUsers() ([]User, error) {
+	users := []User{}
+	err := db.Select(&users, "SELECT * FROM user;")
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
+}
+
 // Gets a user from the database with the given email address
 func (db *DB) GetUserWithEmail(email string) (*User, error) {
 	dbUser := User{}
@@ -70,6 +82,21 @@ func (db *DB) GetUserWithEmail(email string) (*User, error) {
 	}
 
 	return &dbUser, nil
+}
+
+// Delete User from the database with the given id.
+func (db *DB) DeleteUserWithId(id int) error {
+	stmt, err := db.Preparex("DELETE FROM user WHERE id=?")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Updates the old user record with the new one

@@ -10,34 +10,33 @@
  * @copyright  Team Neptune (2015)
  * @link       https://github.com/aclel/deco3801
  */
-/* global moment */
 (function() {
 	'use strict';
 	
 	angular.module('app.auth')
 		.factory('auth', auth);
 	
-	function auth($window) {
+	function auth($window, moment) {
 		
 		
 		return {
 			logout: logout,
-			authed: authed,
+			loggedIn: loggedIn,
 			getToken: getToken,
 			saveToken: saveToken,
 			currentUser: currentUser,
-			currentUserRole: currentUserRole
+			checkUser: checkUser
 		};
 		
 		function logout() {
 			$window.localStorage.removeItem('token');
 		}
 		
-		function authed() {
+		function loggedIn() {
 			var token = getToken();
 			if(token) {
 				var params = parseJwt(token);
-				return (moment().unix() <= params.exp);
+				return (moment.call().unix() <= params.exp);
 			} else {
 				return false;
 			}
@@ -56,7 +55,29 @@
 		}
 		
 		function currentUserRole() {
-			return parseJwt(getToken()).role;
+			var token = getToken();
+			if (token == null) {
+				return 'unauthed';
+			}
+			return parseJwt(token).role;
+		}
+		
+		function checkUser(role) {
+			var roles = {
+				'unauthed': 0,
+				'authed': 1,
+				'user': 1,
+				'power_user': 2,
+				'system_admin': 3,
+				'andrew': 99999
+			};
+			
+			if (role == 'any') return true;
+			
+			if (role == 'unauthed' && loggedIn()) {
+				return false;
+			}
+			return (roles[currentUserRole()] >= roles[role]);
 		}
 		
 		function parseJwt(token) {

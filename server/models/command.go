@@ -19,3 +19,22 @@ type Command struct {
 	Value         float64 `json:"value" db:"value"`
 	Sent          bool    `json:"sent" db:"sent"`
 }
+
+type CommandRepository interface {
+	DeleteCommandWithId(int) error
+}
+
+// Delete Command from the database with the given id.
+func (db *DB) DeleteCommandWithId(id int) error {
+	stmt, err := db.Preparex("DELETE FROM buoy_command WHERE id=?")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

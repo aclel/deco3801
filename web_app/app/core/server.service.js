@@ -137,7 +137,9 @@
 				}
 			};
 			
-			return $http.get(SERVER_ADDRESS + '/api/readings', config);
+			var params = "?start_time=2006-01-02T15:04:00.999999-07:00&end_time=2016-01-02T15:05:05.999999-07:00";
+			
+			return $http.get(SERVER_ADDRESS + '/api/readings' + params, config);
 		}
 		
 		function getSensors() {

@@ -6,15 +6,20 @@
 //  Copyright (c) 2015 Team Neptune. All rights reserved.
 //
 
+// TODO: good buoy icon
+// TODO: spin refresh icon when loading
+
 
 #import "BuoyScreen.h"
 
-@interface BuoyScreen () <CLLocationManagerDelegate>
+@interface BuoyScreen () <CLLocationManagerDelegate, MKMapViewDelegate>
 
 @property (strong, nonatomic) MKMapView *map;
 @property (strong, nonatomic) CLLocationManager *l;
 @property (strong, nonatomic) UIBarButtonItem *pButton;
 @property (strong, nonatomic) UIPopoverController *p;
+
+@property (strong, nonatomic) NSArray *buoys; // List of all buoys to display
 
 - (void)mapTypeButtonPressed:(UIControl *)c;
 
@@ -99,8 +104,9 @@
     UIBarButtonItem *posIcon = [[MKUserTrackingBarButtonItem alloc] initWithMapView:self.map];
     UIButton *tempInfoB = [UIButton buttonWithType:UIButtonTypeInfoLight];
     UIBarButtonItem *infoIcon = [[UIBarButtonItem alloc] initWithImage:tempInfoB.currentImage style:UIBarButtonItemStylePlain target:self action:@selector(infoButtonPressed)];
+    UIBarButtonItem *refreshIcon = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(refreshButtonPressed)];
     
-    self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:infoIcon, posIcon, nil];
+    self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:infoIcon, posIcon, refreshIcon, nil];
     
     // Popover for options
     BuoySettingsPopup *pContents = [[BuoySettingsPopup alloc] init];
@@ -151,13 +157,56 @@
     }
 }
 
-- (void)didGetBuoyListFromServer:(NSArray *)buoys {
+- (void)mapViewDidFailLoadingMap:(MKMapView *)mapView withError:(NSError *)error {
+    //TODO
+    // Failed - popup network message
+}
+
+- (void)mapView:(MKMapView *)mapView didFailToLocateUserWithError:(NSError *)error {
+    //TODO
+    // Failed - do something about it?
+}
+
+- (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation {
+    if ([annotation isKindOfClass:[MKUserLocation class]]) {
+        return nil;
+    }
+
+    MKPinAnnotationView *v = (MKPinAnnotationView *)[self.map dequeueReusableAnnotationViewWithIdentifier:@"BuoyIcon"];
+    if (v == nil) {
+        v = [[MKPinAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:@"BuoyIcon"];
+        v.pinColor = MKPinAnnotationColorPurple;
+        v.animatesDrop = YES;
+        v.canShowCallout = YES;
+    } else {
+        v.annotation = annotation;
+    }
     
+    return v;
+}
+
+- (void)didGetBuoyListFromServer:(NSArray *)buoys {
+    // Remove all map annotations
+    if (self.buoys != nil) {
+        [self.map removeAnnotations:self.buoys];
+    }
+    
+    for (Buoy *b in buoys) {
+        NSLog(@"Buoy %f, %f", b.coordinate.latitude, b.coordinate.longitude);
+    }
+    
+    // Add annotations for these buoys
+    [self.map addAnnotations:buoys];
+    self.buoys = buoys;
 }
 
 #pragma mark - UI changes
 - (void)infoButtonPressed {
     [self.p presentPopoverFromBarButtonItem:self.pButton permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
+}
+
+- (void)refreshButtonPressed {
+    [self.d updateBuoyListingFromServer];
 }
 
 - (void)mapTypeButtonPressed:(UIControl *)c {

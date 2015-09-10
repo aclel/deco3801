@@ -11,7 +11,7 @@
 #import "DataModel.h"
 #import "Interface.h"
 
-@interface BuoyScreen : UIViewController <DataModelDataDelegate, MKMapViewDelegate>
+@interface BuoyScreen : UIViewController <DataModelDataDelegate>
 
 @property (nonatomic, weak) DataModel *d;
 

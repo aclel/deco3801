@@ -58,12 +58,10 @@ func ReadingsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	/*
 	response, err := json.Marshal(readings)
 	if err != nil {
 		return &AppError{err, "Error marshalling readings json", http.StatusInternalServerError}
 	}
-	*/
 
 	w.Write(readings)
 

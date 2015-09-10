@@ -53,8 +53,12 @@ func (mdb *MockDB) AddCommandToBuoy(command *Command) error {
 }
 
 // BUOY INSTANCES
-func (mdb *MockDB) GetMostRecentBuoyInstance(guid string) (*BuoyInstance, error) {
+func (mdb *MockDB) GetActiveBuoyInstance(guid string) (*BuoyInstance, error) {
 	return &BuoyInstance{}, nil
+}
+
+func (mdb *MockDB) GetAllActiveBuoyInstances() ([]BuoyInstance, error) {
+	return nil, nil
 }
 
 func (mdb *MockDB) CreateBuoyInstance(buoyInstance *BuoyInstance) error {

@@ -15,11 +15,58 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/aclel/deco3801/server/models"
 	"github.com/gorilla/mux"
 )
+
+type BuoyInstancesWrapper struct {
+	BuoyInstances []models.BuoyInstance `json:"buoyInstances"`
+}
+
+// GET /api/buoy_instances
+// Gets all Buoy Instances - or a filtered set if the "active" query parameter is present in the
+// request URL. Returns a HTTP 200. The response body has all Buoy Instances in JSON.
+func BuoyInstancesIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	u, err := url.Parse(r.URL.String())
+	params, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return &AppError{err, "Error parsing query parameters", http.StatusInternalServerError}
+	}
+
+	active := false
+	if params["active"] != nil {
+		active, err = strconv.ParseBool(params["active"][0])
+		if err != nil {
+			return &AppError{err, "Error parsing active parameter", http.StatusInternalServerError}
+		}
+	}
+
+	// Get only the active Buoy Instances - the instance that was most recently created for each buoy
+	var buoyInstanceWrapper BuoyInstancesWrapper
+	if active {
+		buoyInstanceWrapper.BuoyInstances, err = env.DB.GetAllActiveBuoyInstances()
+	} else {
+		buoyInstanceWrapper.BuoyInstances, err = env.DB.GetAllBuoyInstances()
+	}
+
+	if err != nil {
+		return &AppError{err, "Error retrieving buoy instances", http.StatusInternalServerError}
+	}
+
+	response, err := json.Marshal(buoyInstanceWrapper)
+	if err != nil {
+		return &AppError{err, "Error marshalling buoy instances json", http.StatusInternalServerError}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(response)
+
+	return nil
+}
 
 // POST /api/buoy_instances
 // Request body contains JSON object of Buoy Instance to be added to database.

@@ -94,7 +94,7 @@ type MapReading struct {
 	Value      float64    `json:"name"`
 	Latitude   float64    `json:"latitude"`
 	Longitude  float64    `json:"longitude"`
-	Timestamp  time.Time  `json:"timestamp"`
+	Timestamp  int64      `json:"timestamp"`
 	SensorType SensorType `json:"sensorType"`
 }
 
@@ -182,7 +182,7 @@ func buildReadingsIndexData(mapReadings []DbMapReading) (*MapReadingBuoyGroupsWr
 			Value:     reading.Value,
 			Latitude:  reading.Latitude,
 			Longitude: reading.Longitude,
-			Timestamp: reading.Timestamp,
+			Timestamp: reading.Timestamp.Unix(),
 			SensorType: SensorType{
 				Id:          reading.SensorTypeId,
 				Name:        reading.SensorTypeName,

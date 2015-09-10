@@ -36,4 +36,8 @@
     [self.delegate didFailToConnectBadDetails];
 }
 
+- (void)updateBuoyListingFromServer {
+    
+}
+
 @end

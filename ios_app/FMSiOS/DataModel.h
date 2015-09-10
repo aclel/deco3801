@@ -8,6 +8,14 @@
 
 #import <Foundation/Foundation.h>
 
+// Data model for a buoy - really simple for the moment
+@protocol Buoy <NSObject>
+
+//Coords
+
+@end
+
+// Delegates for communication with the data model and VCs
 @protocol DataModelInitDelegate <NSObject>
 
 - (void)didConnectToServer;
@@ -22,6 +30,7 @@
 
 @end
 
+// Core server communication data model
 @interface DataModel : NSObject
 
 @property (nonatomic, weak) id<DataModelInitDelegate> delegate;

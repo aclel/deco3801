@@ -49,8 +49,7 @@ func ReadingsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 		}
 	*/
 
-	//readings, err := env.DB.GetAllReadings(startTime, endTime)
-	readings, err := env.DB.GetAllReadings()
+	readings, err := env.DB.GetAllReadings(startTime, endTime)
 	if err != nil {
 		return &AppError{err, "Error retrieving readings", http.StatusInternalServerError}
 	}

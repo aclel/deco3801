@@ -97,11 +97,12 @@ func (mdb *MockDB) DeleteBuoyGroupWithId(id int) error {
 func (db *MockDB) GetAllReadings(start time.Time, end time.Time) (*MapReadingBuoyGroupsWrapper, error) {
 	return &MapReadingBuoyGroupsWrapper{}, nil
 }
+*/
 
 func (db *MockDB) GetAllReadings() ([]byte, error) {
 	return []byte(""), nil
 }
-*/
+
 
 func (mdb *MockDB) CreateReading(reading *Reading) error {
 	return nil

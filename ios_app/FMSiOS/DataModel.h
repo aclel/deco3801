@@ -7,11 +7,16 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <MapKit/MapKit.h>
 
 // Data model for a buoy - really simple for the moment
-@protocol Buoy <NSObject>
+@interface Buoy : NSObject <MKAnnotation>
 
-//Coords
+@property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
+@property (nonatomic, copy) NSString *title;
+@property (nonatomic, copy) NSString *subtitle;
+
+- (instancetype)initWithCoord:(CLLocationCoordinate2D)coord;
 
 @end
 

@@ -63,7 +63,7 @@ func ReadingsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 		return &AppError{err, "Error marshalling readings json", http.StatusInternalServerError}
 	}
 
-	w.Write(readings)
+	w.Write(response)
 
 	return nil
 }

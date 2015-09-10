@@ -26,6 +26,10 @@ type BuoyInstancesWrapper struct {
 	BuoyInstances []models.BuoyInstance `json:"buoyInstances"`
 }
 
+type BuoyInstancesSensorWrapper struct {
+	Sensors []models.BuoyInstanceSensor `json:"sensors"`
+}
+
 // GET /api/buoy_instances
 // Gets all Buoy Instances - or a filtered set if the "active" query parameter is present in the
 // request URL. Returns a HTTP 200. The response body has all Buoy Instances in JSON.
@@ -151,6 +155,31 @@ func BuoyInstancesDelete(env *models.Env, w http.ResponseWriter, r *http.Request
 	}
 
 	w.WriteHeader(http.StatusOK)
+	return nil
+}
+
+// GET /api/buoy_instances/id/sensors
+// Responds with HTTP 200. All sensor types for the specified buoy instance are sent in the response body.
+func BuoyInstancesSensorsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing buoy instance id", http.StatusInternalServerError}
+	}
+
+	var sensorsWrapper BuoyInstancesSensorWrapper
+	sensorsWrapper.Sensors, err = env.DB.GetSensorsForBuoyInstance(id)
+	if err != nil {
+		return &AppError{err, "Error retrieving buoy instance sensors", http.StatusInternalServerError}
+	}
+
+	// Set return status and write to response body.
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response, _ := json.Marshal(sensorsWrapper)
+	w.Write(response)
+
 	return nil
 }
 

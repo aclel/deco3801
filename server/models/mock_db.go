@@ -73,6 +73,10 @@ func (mdb *MockDB) DeleteBuoyInstanceWithId(id int) error {
 	return nil
 }
 
+func (mdb *MockDB) GetSensorsForBuoyInstance(id int) ([]BuoyInstanceSensor, error) {
+	return nil, nil
+}
+
 func (db *MockDB) AddSensorToBuoyInstance(buoyId int, sensorTypeId int) error {
 	return nil
 }

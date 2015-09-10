@@ -32,6 +32,7 @@ type BuoyInstanceRepository interface {
 	CreateBuoyInstance(*BuoyInstance) error
 	UpdateBuoyInstance(*BuoyInstance) error
 	DeleteBuoyInstanceWithId(int) error
+	GetSensorsForBuoyInstance(int) ([]BuoyInstanceSensor, error)
 	AddSensorToBuoyInstance(int, int) error
 	DeleteBuoyInstanceSensor(int, int) error
 }
@@ -124,6 +125,20 @@ func (db *DB) UpdateBuoyInstance(updatedBuoyInstance *BuoyInstance) error {
 	}
 
 	return nil
+}
+
+// Get all Sensors for the Buoy Instance with the given Id
+func (db *DB) GetSensorsForBuoyInstance(id int) ([]BuoyInstanceSensor, error) {
+	sensors := []BuoyInstanceSensor{}
+	err := db.Select(&sensors, `SELECT buoy_instance_sensor.id, sensor_type.id AS sensor_type_id
+							   FROM buoy_instance_sensor 
+							   INNER JOIN sensor_type ON buoy_instance_sensor.sensor_type_id=sensor_type.id 
+							   WHERE buoy_instance_sensor.buoy_instance_id=?`, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return sensors, nil
 }
 
 // Add a Sensor Type to a Buoy Instance

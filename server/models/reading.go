@@ -71,7 +71,7 @@ func (db *DB) CreateReading(reading *Reading) error {
 // Returns all the readings from the database
 func (db *DB) GetAllReadings() (*BuoyGroupsWrapper, error) {
 
-	/*
+
 	newWrapper := new(BuoyGroupsWrapper)
 	err := db.Select(&newWrapper.BuoyGroups, "SELECT * FROM buoy_group;");
 	if err != nil {
@@ -113,9 +113,9 @@ func (db *DB) GetAllReadings() (*BuoyGroupsWrapper, error) {
 	}
 
 	return newWrapper, nil
-	*/
 
-	
+
+	/*
 	readings := []byte(`
 			[{
 				"id": 1,
@@ -240,4 +240,5 @@ func (db *DB) GetAllReadings() (*BuoyGroupsWrapper, error) {
 			}]`)
 
 	return readings, nil
+	*/
 }

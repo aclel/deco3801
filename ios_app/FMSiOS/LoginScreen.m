@@ -7,7 +7,6 @@
 //  Copyright (c) 2015 Team Neptune. All rights reserved.
 //
 
-// TODO: remove rotation on iphone mode
 // TODO: save login details
 
 #import "LoginScreen.h"
@@ -28,6 +27,9 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    
+    // Title for next page back button
+    self.title = @"Logout";
 
     // Load background
     self.bg = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"Background" inBundle:nil compatibleWithTraitCollection:nil]];
@@ -128,7 +130,7 @@
     loginButton.clipsToBounds = YES;
     loginButton.layer.masksToBounds = NO;
     
-    // End
+    // End UI
     [self.loginDialog addSubview:topLabel];
     [self.loginDialog addSubview:errorLabel];
     [self.loginDialog addSubview:emailField];

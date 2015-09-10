@@ -65,6 +65,10 @@ func (mdb *MockDB) CreateBuoyInstance(buoyInstance *BuoyInstance) error {
 	return nil
 }
 
+func (mdb *MockDB) UpdateBuoyInstance(updatedBuoyInstance *BuoyInstance) error {
+	return nil
+}
+
 func (mdb *MockDB) DeleteBuoyInstanceWithId(id int) error {
 	return nil
 }

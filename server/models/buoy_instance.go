@@ -30,6 +30,7 @@ type BuoyInstanceRepository interface {
 	GetAllActiveBuoyInstances() ([]BuoyInstance, error)
 	GetActiveBuoyInstance(string) (*BuoyInstance, error)
 	CreateBuoyInstance(*BuoyInstance) error
+	UpdateBuoyInstance(*BuoyInstance) error
 	DeleteBuoyInstanceWithId(int) error
 	AddSensorToBuoyInstance(int, int) error
 	DeleteBuoyInstanceSensor(int, int) error
@@ -101,6 +102,23 @@ func (db *DB) DeleteBuoyInstanceWithId(id int) error {
 	}
 
 	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Replace a Buoy Instance with the given updated Buoy Instance.
+// Only its name and buoy group can be changed.
+// When a Buoy Instance is updated, the active_buoy_instance_id for the parent buoy is updated
+func (db *DB) UpdateBuoyInstance(updatedBuoyInstance *BuoyInstance) error {
+	stmt, err := db.Preparex(`UPDATE buoy_instance SET name=?, buoy_group_id=? WHERE id=?;`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(updatedBuoyInstance.Name, updatedBuoyInstance.BuoyGroupId, updatedBuoyInstance.Id)
 	if err != nil {
 		return err
 	}

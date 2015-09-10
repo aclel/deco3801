@@ -60,6 +60,7 @@ func (db *DB) CreateReading(reading *Reading) error {
 type DbMapReading struct {
 	Id                    int       `db:"id"`
 	BuoyInstanceId        int       `db:"buoy_instance_id"`
+	BuoyInstanceName      string    `db:"buoy_instance_name"`
 	Value                 float64   `db:"value"`
 	Latitude              float64   `db:"latitude"`
 	Longitude             float64   `db:"longitude"`
@@ -86,12 +87,13 @@ type MapReadingBuoyGroup struct {
 
 type MapReadingBuoyInstance struct {
 	Id       int          `json:"id"`
+	Name     string       `json:"name"`
 	Readings []MapReading `json:"readings"`
 }
 
 type MapReading struct {
 	Id         int        `json:"id"`
-	Value      float64    `json:"name"`
+	Value      float64    `json:"value"`
 	Latitude   float64    `json:"latitude"`
 	Longitude  float64    `json:"longitude"`
 	Timestamp  int64      `json:"timestamp"`
@@ -113,6 +115,7 @@ func (db *DB) GetAllReadings(startTime time.Time, endTime time.Time) (*MapReadin
 		sensor_type.unit AS sensor_type_unit, 
 		sensor_type.description AS sensor_type_description, 
 		buoy_instance.buoy_id AS buoy_id, 
+		buoy_instance.name AS buoy_instance_name,
 		buoy_group.id AS buoy_group_id, 
 		buoy_group.name AS buoy_group_name 
 		FROM 
@@ -172,7 +175,7 @@ func buildReadingsIndexData(mapReadings []DbMapReading) (*MapReadingBuoyGroupsWr
 		var buoyInstance *MapReadingBuoyInstance
 		// If the Buoy Instance doesn't exist within the Buoy Group, add it
 		if buoyInstance, exists = group.BuoyInstanceMap[reading.BuoyInstanceId]; !exists {
-			buoyInstance = &MapReadingBuoyInstance{Id: reading.BuoyInstanceId}
+			buoyInstance = &MapReadingBuoyInstance{Id: reading.BuoyInstanceId, Name: reading.BuoyInstanceName}
 			group.BuoyInstanceMap[reading.BuoyInstanceId] = buoyInstance
 		}
 

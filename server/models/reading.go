@@ -34,7 +34,8 @@ type BuoyGroupsWrapper struct {
 
 type ReadingRepository interface {
 	CreateReading(*Reading) error
-	GetAllReadings(time.Time, time.Time) (*MapReadingBuoyGroupsWrapper, error)
+	//GetAllReadings(time.Time, time.Time) (*MapReadingBuoyGroupsWrapper, error)
+	GetAllReadings() ([]byte, error)
 }
 
 // Insert a new Reading into the database

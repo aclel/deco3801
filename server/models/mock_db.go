@@ -53,16 +53,32 @@ func (mdb *MockDB) AddCommandToBuoy(command *Command) error {
 }
 
 // BUOY INSTANCES
-func (mdb *MockDB) GetMostRecentBuoyInstance(guid string) (*BuoyInstance, error) {
+func (mdb *MockDB) GetActiveBuoyInstance(guid string) (*BuoyInstance, error) {
 	return &BuoyInstance{}, nil
+}
+
+func (mdb *MockDB) GetAllBuoyInstances() ([]BuoyInstance, error) {
+	return nil, nil
+}
+
+func (mdb *MockDB) GetAllActiveBuoyInstances() ([]BuoyInstance, error) {
+	return nil, nil
 }
 
 func (mdb *MockDB) CreateBuoyInstance(buoyInstance *BuoyInstance) error {
 	return nil
 }
 
+func (mdb *MockDB) UpdateBuoyInstance(updatedBuoyInstance *BuoyInstance) error {
+	return nil
+}
+
 func (mdb *MockDB) DeleteBuoyInstanceWithId(id int) error {
 	return nil
+}
+
+func (mdb *MockDB) GetSensorsForBuoyInstance(id int) ([]BuoyInstanceSensor, error) {
+	return nil, nil
 }
 
 func (db *MockDB) AddSensorToBuoyInstance(buoyId int, sensorTypeId int) error {
@@ -119,6 +135,14 @@ func (mdb *MockDB) GetAllCommandTypes() ([]CommandType, error) {
 }
 
 // COMMANDS
+func (mdb *MockDB) GetAllCommands() ([]Command, error) {
+	return nil, nil
+}
+
+func (mdb *MockDB) GetAllCommandsWithSent(sent bool) ([]Command, error) {
+	return nil, nil
+}
+
 func (mdb *MockDB) DeleteCommandWithId(id int) error {
 	return nil
 }

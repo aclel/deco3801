@@ -103,7 +103,7 @@ func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 // Constructs Readings from the JSON which was in the request body of a /api/readings POST request.
 func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContainer) ([]models.Reading, *AppError) {
 	// Get most recent buoy instance for buoy with guid
-	buoyInstance, err := env.DB.GetMostRecentBuoyInstance(readingsContainer.BuoyGuid)
+	buoyInstance, err := env.DB.GetActiveBuoyInstance(readingsContainer.BuoyGuid)
 	fmt.Println(buoyInstance.Id)
 	if err != nil {
 		return nil, &AppError{err, "Could not get the most recent buoy instance for a buoy with the specified guid", http.StatusBadRequest}

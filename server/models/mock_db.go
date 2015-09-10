@@ -12,6 +12,8 @@
  */
 package models
 
+import "time"
+
 type MockDB struct {
 	users []User
 	buoys []Buoy

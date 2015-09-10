@@ -1,4 +1,18 @@
+/**
+ * Flood Monitoring System
+ * Version 0.0.1 (Duyung)
+ *
+ * Copyright (C) Team Neptune
+ * All rights reserved.
+ *
+ * @author     Andrew Cleland <andrew.cleland3@gmail.com>
+ * @version    0.0.1
+ * @copyright  Team Neptune (2015)
+ * @link       https://github.com/aclel/deco3801
+ */
 package models
+
+import "time"
 
 type MockDB struct {
 	users []User
@@ -82,8 +96,8 @@ func (mdb *MockDB) DeleteBuoyGroupWithId(id int) error {
 
 // READINGS
 
-func (db *MockDB) GetAllReadings() (*BuoyGroupsWrapper, error) {
-	return &BuoyGroupsWrapper{}, nil
+func (db *MockDB) GetAllReadings(start time.Time, end time.Time) (*MapReadingBuoyGroupsWrapper, error) {
+	return &MapReadingBuoyGroupsWrapper{}, nil
 }
 
 func (mdb *MockDB) CreateReading(reading *Reading) error {
@@ -95,12 +109,34 @@ func (mdb *MockDB) GetSensorTypeWithName(name string) (*SensorType, error) {
 	return &SensorType{}, nil
 }
 
+func (mdb *MockDB) GetAllSensorTypes() ([]SensorType, error) {
+	return nil, nil
+}
+
+// COMMAND TYPES
+func (mdb *MockDB) GetAllCommandTypes() ([]CommandType, error) {
+	return nil, nil
+}
+
+// COMMANDS
+func (mdb *MockDB) DeleteCommandWithId(id int) error {
+	return nil
+}
+
 // USERS
 func (mdb *MockDB) GetUserWithEmail(email string) (*User, error) {
 	return nil, nil
 }
 
 func (mdb *MockDB) CreateUser(user *User) error {
+	return nil
+}
+
+func (mdb *MockDB) GetAllUsers() ([]User, error) {
+	return nil, nil
+}
+
+func (mdb *MockDB) DeleteUserWithId(id int) error {
 	return nil
 }
 

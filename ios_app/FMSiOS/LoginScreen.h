@@ -9,10 +9,12 @@
 #import <UIKit/UIKit.h>
 #import "DataModel.h"
 #import "Interface.h"
+#import "BuoyScreen.h"
 
-@interface LoginScreen : UIViewController
+@interface LoginScreen : UIViewController <DataModelInitDelegate>
 
 @property (nonatomic, weak) DataModel *d;
+@property (strong, nonatomic) BuoyScreen *b;
 
 @end
 

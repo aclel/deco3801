@@ -1,3 +1,15 @@
+/**
+ * Flood Monitoring System
+ * Version 0.0.1 (Duyung)
+ *
+ * Copyright (C) Team Neptune
+ * All rights reserved.
+ *
+ * @author     Andrew Cleland <andrew.cleland3@gmail.com>
+ * @version    0.0.1
+ * @copyright  Team Neptune (2015)
+ * @link       https://github.com/aclel/deco3801
+ */
 package handlers
 
 import (
@@ -5,12 +17,40 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
+	"strconv"
 
+	"github.com/gorilla/mux"
 	"golang.org/x/crypto/bcrypt"
 	"stablelib.com/v1/uniuri"
 
 	"github.com/aclel/deco3801/server/models"
 )
+
+type UserWrapper struct {
+	Users []models.User `json:"users"`
+}
+
+// GET /api/users
+// Get all Users.
+// Responds with HTTP 200. All Users are returned as JSON in the response body.
+func UsersIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	var usersWrapper UserWrapper
+	var err error
+
+	usersWrapper.Users, err = env.DB.GetAllUsers()
+	if err != nil {
+		return &AppError{err, "Error retrieving buoys", http.StatusInternalServerError}
+	}
+
+	// Set return status and write to response body.
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response, _ := json.Marshal(usersWrapper)
+	w.Write(response)
+
+	return nil
+}
 
 // POST /api/users
 // Create a User, hash the password and store the User in the database, send email to user.
@@ -63,6 +103,24 @@ func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	return nil
+}
+
+// DELETE /api/users/id
+// Responds with HTTP 200 if successful. Response body empty.
+func UsersDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing user id", http.StatusInternalServerError}
+	}
+
+	err = env.DB.DeleteUserWithId(id)
+	if err != nil {
+		return &AppError{err, "Error deleting user", http.StatusInternalServerError}
+	}
+
+	w.WriteHeader(http.StatusOK)
 	return nil
 }
 

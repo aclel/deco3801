@@ -1,3 +1,13 @@
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package models
 
 type SensorType struct {
@@ -9,6 +19,7 @@ type SensorType struct {
 
 type SensorTypeRepository interface {
 	GetSensorTypeWithName(string) (*SensorType, error)
+	GetAllSensorTypes() ([]SensorType, error)
 }
 
 // Get the sensor type from the database with the given unique name
@@ -21,4 +32,14 @@ func (db *DB) GetSensorTypeWithName(name string) (*SensorType, error) {
 	}
 
 	return &dbSensorType, nil
+}
+
+func (db *DB) GetAllSensorTypes() ([]SensorType, error) {
+	sensorTypes := []SensorType{}
+	err := db.Select(&sensorTypes, "SELECT * FROM sensor_type;")
+	if err != nil {
+		return nil, err
+	}
+
+	return sensorTypes, nil
 }

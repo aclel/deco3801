@@ -1,10 +1,24 @@
+/**
+ * Flood Monitoring System
+ * Version 0.0.1 (Duyung)
+ *
+ * Copyright (C) Team Neptune
+ * All rights reserved.
+ *
+ * @author     Andrew Cleland <andrew.cleland3@gmail.com>
+ * @version    0.0.1
+ * @copyright  Team Neptune (2015)
+ * @link       https://github.com/aclel/deco3801
+ */
 package handlers
 
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
-	//"fmt"
+	"net/url"
+	"time"
 
 	"github.com/aclel/deco3801/server/models"
 )
@@ -12,15 +26,43 @@ import (
 // GET /api/readings
 // encodes the readings returned from GetAllReadings() as JSON
 func ReadingsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
-	readings, err := env.DB.GetAllReadings()
+	u, err := url.Parse(r.URL.String())
+	params, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return &AppError{err, "Error parsing query parameters", http.StatusInternalServerError}
+	}
+
+	startTime, err := time.Parse(time.RFC3339, params["start_time"][0])
+	if err != nil {
+		return &AppError{err, "Error parsing start time", http.StatusInternalServerError}
+	}
+	endTime, err := time.Parse(time.RFC3339, params["end_time"][0])
+	if err != nil {
+		return &AppError{err, "Error parsing end time", http.StatusInternalServerError}
+	}
+
+	fmt.Println(startTime)
+	fmt.Println(endTime)
+	/*
+		if endTime < startTime {
+			return &AppError{errors.New("End time before start time"), "End time before start time", http.StatusInternalServerError}
+		}
+	*/
+
+	readings, err := env.DB.GetAllReadings(startTime, endTime)
 	if err != nil {
 		return &AppError{err, "Error retrieving readings", http.StatusInternalServerError}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	encoder := json.NewEncoder(w)
-	encoder.Encode(readings)
+
+	response, err := json.Marshal(readings)
+	if err != nil {
+		return &AppError{err, "Error marshalling readings json", http.StatusInternalServerError}
+	}
+
+	w.Write(response)
 
 	return nil
 }
@@ -62,6 +104,7 @@ func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContainer) ([]models.Reading, *AppError) {
 	// Get most recent buoy instance for buoy with guid
 	buoyInstance, err := env.DB.GetMostRecentBuoyInstance(readingsContainer.BuoyGuid)
+	fmt.Println(buoyInstance.Id)
 	if err != nil {
 		return nil, &AppError{err, "Could not get the most recent buoy instance for a buoy with the specified guid", http.StatusBadRequest}
 	}

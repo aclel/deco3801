@@ -10,4 +10,30 @@
 
 @implementation DataModel
 
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _serverAddr = @"google.com";
+        _serverPort = 80;
+    }
+    return self;
+}
+
+- (void)connectToServerWithEmail:(NSString *)email andPass:(NSString *)password {
+    // For now, just test if valid values
+    if ([email isEqualToString:@"e@mail.com"] && [password isEqualToString:@"pass"]) {
+        [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(dummyConnect) userInfo:nil repeats:NO];
+    } else {
+        [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(dummyNoConnect) userInfo:nil repeats:NO];
+    }
+}
+
+- (void)dummyConnect {
+    [self.delegate didConnectToServer];
+}
+
+- (void)dummyNoConnect {
+    [self.delegate didFailToConnectBadDetails];
+}
+
 @end

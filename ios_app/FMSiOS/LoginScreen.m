@@ -7,8 +7,8 @@
 //  Copyright (c) 2015 Team Neptune. All rights reserved.
 //
 
-// TODO: UI buttons/login
 // TODO: remove rotation on iphone mode
+// TODO: save login details
 
 #import "LoginScreen.h"
 
@@ -16,8 +16,11 @@
 
 @property UIImageView *bg;
 @property UIView *loginDialog;
+@property UILabel *errorLabel;
 @property UITextField *emailField;
 @property UITextField *passField;
+@property ShadowButton *loginButton;
+@property UIActivityIndicatorView *loginInd;
 
 @end
 
@@ -55,6 +58,17 @@
     topLabel.text = @"UQ FMS";
     topLabel.center = CGPointMake(150, 40);
     
+    // Error message
+    UILabel *errorLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 50)];
+    errorLabel.textAlignment = NSTextAlignmentCenter;
+    errorLabel.font = [UIFont systemFontOfSize:18];
+    errorLabel.textColor = [UIColor colorWithRed:1 green:0.35 blue:0.35 alpha:1];;
+    errorLabel.text = @"The error text for the current error message goes here";
+    errorLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    errorLabel.numberOfLines = 1;
+    errorLabel.center = CGPointMake(150, 100);
+    [errorLabel setHidden:YES];
+    
     // Text dialogs
     SpacedTextField *emailField = [[SpacedTextField alloc] initWithFrame:CGRectMake(0, 0, 280, 50)];
     emailField.edgeInsets = UIEdgeInsetsMake(0, 10, 0, 10);
@@ -62,7 +76,7 @@
     emailField.keyboardType = UIKeyboardTypeEmailAddress;
     emailField.returnKeyType = UIReturnKeyNext;
     emailField.placeholder = @"E-mail";
-    emailField.center = CGPointMake(150, 120);
+    emailField.center = CGPointMake(150, 150);
     emailField.delegate = self;
     SpacedTextField *passField = [[SpacedTextField alloc] initWithFrame:CGRectMake(0, 0, 280, 50)];
     passField.edgeInsets = UIEdgeInsetsMake(0, 10, 0, 10);
@@ -72,7 +86,7 @@
     passField.autocorrectionType = UITextAutocorrectionTypeNo;
     passField.secureTextEntry = YES;
     passField.placeholder = @"Password";
-    passField.center = CGPointMake(150, 172);
+    passField.center = CGPointMake(150, 202);
     passField.delegate = self;
     
     // Handle tapping outside
@@ -87,9 +101,17 @@
     loginButton.selectedColour = [UIColor purpleColor];
     [loginButton setTitle:@"Login" forState:UIControlStateNormal];
     [loginButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [loginButton setTitle:@"" forState:UIControlStateDisabled];
     loginButton.titleLabel.font = [UIFont systemFontOfSize:20];
     loginButton.frame = CGRectMake(0, 0, 170, 45);
-    loginButton.center = CGPointMake(150, 250);
+    loginButton.center = CGPointMake(150, 275);
+    
+    // Login button indicator
+    self.loginInd = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    self.loginInd.hidesWhenStopped = YES;
+    [self.loginInd stopAnimating];
+    self.loginInd.frame = loginButton.bounds;
+    self.loginInd.center = CGPointMake(150, 275);
     
     // Round corners
     UIBezierPath *topMaskPath = [UIBezierPath bezierPathWithRoundedRect:emailField.bounds byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight cornerRadii:CGSizeMake(10.0, 10.0)];
@@ -108,15 +130,30 @@
     
     // End
     [self.loginDialog addSubview:topLabel];
+    [self.loginDialog addSubview:errorLabel];
     [self.loginDialog addSubview:emailField];
     [self.loginDialog addSubview:passField];
     [self.loginDialog addSubview:loginButton];
+    [self.loginDialog addSubview:self.loginInd];
     [self.view addSubview:self.loginDialog];
+    self.errorLabel = errorLabel;
     self.emailField = emailField;
     self.passField = passField;
+    self.loginButton = loginButton;
     
     // Events
     [loginButton addTarget:self action:@selector(loginButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    
+    self.d.delegate = self;
+    [self.navigationController setNavigationBarHidden:YES animated:YES];
+    
+    // Fill dialogs with text
+    self.emailField.text = @"e@mail.com";
+    self.passField.text = @"pass";
 }
 
 - (void)viewWillLayoutSubviews {
@@ -129,10 +166,46 @@
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+    if ([self.view window] == nil) {
+        self.bg = nil;
+        self.view = nil;
+    }
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
     return UIStatusBarStyleLightContent;
+}
+
+#pragma mark - UI changes
+- (void)clearError {
+    [self.errorLabel setHidden:YES];
+}
+
+- (void)errorInvalid {
+    self.errorLabel.text = @"Please enter a valid email/password";
+    [self.errorLabel setHidden:NO];
+}
+
+- (void)errorIncorrect {
+    self.errorLabel.text = @"Incorrect email/password";
+    [self.errorLabel setHidden:NO];
+}
+
+- (void)errorServerNotFound {
+    self.errorLabel.text = @"Could not connect to server";
+    [self.errorLabel setHidden:NO];
+}
+
+
+
+- (void)disableLoginButton {
+    self.loginButton.enabled = NO;
+    [self.loginInd startAnimating];
+}
+
+- (void)enableLoginButton {
+    [self.loginInd stopAnimating];
+    self.loginButton.enabled = YES;
 }
 
 #pragma mark - text field selection
@@ -156,11 +229,49 @@
 
 #pragma mark - button pressed
 - (void)loginButtonPressed:(UIControl *)button {
+    [self clearError];
+    
     // Check for valid email/password
+    if ([self.emailField.text isEqualToString:@""] || [self.passField.text isEqualToString:@""] || ![Interface NSStringIsValidEmail:self.emailField.text]) {
+        [self errorInvalid];
+        return;
+    }
     
     // Prepare UI for server connection
+    [self disableLoginButton];
     
     // Start connection process
+    [self.d connectToServerWithEmail:self.emailField.text andPass:self.passField.text];
 }
+
+#pragma mark - navigation
+- (void)openBuoyPage {
+    // Create page to load
+    self.b = [[BuoyScreen alloc] init];
+    self.b.d = self.d;
+    
+    // Navigate to page
+    [self.navigationController pushViewController:self.b animated:YES];
+}
+
+#pragma mark - server conn delegate
+- (void)didConnectToServer {
+    [self enableLoginButton];
+    
+    // Go to buoy page
+    [self openBuoyPage];
+}
+
+- (void)didFailToConnectBadDetails {
+    [self errorIncorrect];
+    [self enableLoginButton];
+}
+
+- (void)didFailToConnectServerLoss {
+    [self errorServerNotFound];
+    [self enableLoginButton];
+}
+
+
 
 @end

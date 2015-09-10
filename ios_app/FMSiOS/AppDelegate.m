@@ -8,6 +8,8 @@
 
 #import "AppDelegate.h"
 
+// TODO: leaving and returning to app
+
 @interface AppDelegate ()
 
 @end
@@ -22,11 +24,20 @@
     // Build model
     self.d = [[DataModel alloc] init];
     
-    // Setup initial screen
-    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    // Setup navigation controller
+    UINavigationController *n = [[UINavigationController alloc] init];
+    n.navigationBar.barStyle = UIBarStyleBlackTranslucent;
+    n.navigationBar.tintColor = [UIColor whiteColor];
+    [n setNavigationBarHidden:YES];
+    
+    // Setup first screen
     LoginScreen *l = [[LoginScreen alloc] init];
     l.d = self.d;
-    self.window.rootViewController = l;
+    [n pushViewController:l animated:NO];
+    
+    // Setup window
+    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    self.window.rootViewController = n;
     [self.window makeKeyAndVisible];
     
     // Do other things

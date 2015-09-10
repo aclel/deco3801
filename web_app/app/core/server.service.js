@@ -1,3 +1,15 @@
+/**
+ * Flood Monitoring System
+ * Version 0.0.1 (Duyung)
+ *
+ * Copyright (C) Team Neptune
+ * All rights reserved.
+ *
+ * @author     Andrew Dyer <andrew@dyergroup.com.au>
+ * @version    0.0.1
+ * @copyright  Team Neptune (2015)
+ * @link       https://github.com/aclel/deco3801
+ */
 (function() {
 	'use strict';
 	
@@ -111,7 +123,8 @@
 			getSensors: getSensors,
 			login: login,
 			logout: logout,
-			changePassword: changePassword
+			changePassword: changePassword,
+			forgotPassword: forgotPassword
 		};
 		
 		function getReadings() {
@@ -124,7 +137,9 @@
 				}
 			};
 			
-			return $http.get(SERVER_ADDRESS + '/api/readings', config);
+			var params = "?start_time=2006-01-02T15:04:00.999999-07:00&end_time=2016-01-02T15:05:05.999999-07:00";
+			
+			return $http.get(SERVER_ADDRESS + '/api/readings' + params, config);
 		}
 		
 		function getSensors() {
@@ -150,6 +165,13 @@
 			};
 			console.log(auth.currentUser());
 			return $http.post(SERVER_ADDRESS + '/api/changepassword', JSON.stringify(data));
+		}
+		
+		function forgotPassword(email) {
+			var data = {
+				email: email
+			};
+			return $http.post(SERVER_ADDRESS + '/api/forgotpassword', JSON.stringify(data));
 		}
 	}
 })();

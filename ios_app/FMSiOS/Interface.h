@@ -12,6 +12,7 @@
 @interface Interface : NSObject
 
 + (void)setupThemes;
++ (BOOL)NSStringIsValidEmail:(NSString *)s;
 
 @end
 

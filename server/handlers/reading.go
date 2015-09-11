@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	"github.com/aclel/deco3801/server/models"
@@ -32,22 +33,22 @@ func ReadingsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 		return &AppError{err, "Error parsing query parameters", http.StatusInternalServerError}
 	}
 
-	startTime, err := time.Parse(time.RFC3339, params["start_time"][0])
+	unixStart, err := strconv.ParseInt(params["start_time"][0], 10, 64)
 	if err != nil {
 		return &AppError{err, "Error parsing start time", http.StatusInternalServerError}
 	}
-	endTime, err := time.Parse(time.RFC3339, params["end_time"][0])
+
+	unixEnd, err := strconv.ParseInt(params["end_time"][0], 10, 64)
 	if err != nil {
 		return &AppError{err, "Error parsing end time", http.StatusInternalServerError}
 	}
 
-	fmt.Println(startTime)
-	fmt.Println(endTime)
-	/*
-		if endTime < startTime {
-			return &AppError{errors.New("End time before start time"), "End time before start time", http.StatusInternalServerError}
-		}
-	*/
+	startTime := time.Unix(unixStart, 0).UTC()
+	endTime := time.Unix(unixEnd, 0).UTC()
+
+	if unixEnd < unixStart {
+		return &AppError{errors.New("End time before start time"), "End time before start time", http.StatusInternalServerError}
+	}
 
 	readings, err := env.DB.GetAllReadings(startTime, endTime)
 	if err != nil {

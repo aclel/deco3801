@@ -31,6 +31,7 @@ type Repository interface {
 	SensorTypeRepository
 	CommandTypeRepository
 	CommandRepository
+	WarningTriggerRepository
 	UserRepository
 	AuthRepository
 	SmtpManager

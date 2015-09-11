@@ -164,6 +164,11 @@ func (mdb *MockDB) DeleteUserWithId(id int) error {
 	return nil
 }
 
+// WARNING TRIGGERS
+func (mdb *MockDB) CreateWarningTrigger(warningTrigger *WarningTrigger) error {
+	return nil
+}
+
 // AUTH
 func (mdb *MockDB) Login(user *User) (*User, error) {
 	//shortened token, only checking for non-empty

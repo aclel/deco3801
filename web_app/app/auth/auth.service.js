@@ -36,7 +36,7 @@
 			var token = getToken();
 			if(token) {
 				var params = parseJwt(token);
-				return (moment.call().unix() <= params.exp);
+				return (moment().unix() <= params.exp);
 			} else {
 				return false;
 			}

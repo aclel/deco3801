@@ -17,7 +17,7 @@
 		.factory('dashboard', dashboard);
 		
 	function dashboard($filter, server, moment) {
-		var readings = [];
+		var data = [];
 		var filteredReadings = [];
 		
 		var filters = {};
@@ -40,8 +40,8 @@
 		function initialise() {
 			var promise = server.getReadings();
 			promise.then(function(res) {
-				console.log(res);
-				readings = res.data;
+				// console.log(res);
+				data = res.data.buoyGroups;
 				repopulateFilters();
 			}, function(res) {
 				console.log('error');
@@ -51,7 +51,8 @@
 		}
 		
 		function initialiseFilters() {
-			filters.buoys = {}; // { buoyId: enabled }
+			// filters.buoys = {}; // { buoyId: enabled }
+			filters.buoys = [];
 			populateBuoys();
 			
 			filters.times = {
@@ -78,15 +79,39 @@
 			populateSensors();
 		}
 		
-		function populateBuoys() {
-			for (var i = 0; i < readings.length; i++) {
-				if (!filters.buoys.hasOwnProperty(readings[i].buoy)) {
-					filters.buoys[readings[i].buoy] = true;
-				}
-			}
+		function populateBuoys() {		
+			// data.forEach(function(buoyGroup) {
+			// 	buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+			// 		if (!filters.buoys.hasOwnProperty(buoyInstance.id)) {
+			// 			filters.buoys[buoyInstance.id] = true;
+			// 		}
+			// 	});
+			// });
+			
+			/*
+			
+			*/
+			data.forEach(function(buoyGroup) {
+				var group = {};
+				group.id = buoyGroup.id;
+				group.name = buoyGroup.name;
+				group.enabled = true;
+				group.collapsed = false;
+				group.indeterminate = false;
+				group.buoyInstances = [];
+				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+					var instance = {};
+					instance.id = buoyInstance.id;
+					instance.name = buoyInstance.name;
+					instance.enabled = true;
+					group.buoyInstances.push(instance);
+				});
+				filters.buoys.push(group);
+			});
 		}
 
 		function getReadings() {
+			// return data;
 			return filteredReadings;
 		}
 		
@@ -165,8 +190,8 @@
 		
 		function calculatePointReadings() {
 			var buoyReadings = {};
-			for (var i = 0; i < readings.length; i++) {
-				var reading = readings[i];
+			for (var i = 0; i < data.length; i++) {
+				var reading = data[i];
 				if (buoyReadings.hasOwnProperty(reading.buoy)) {
 					// determine which reading is closer to point
 					var oldReading = buoyReadings[reading.buoy].time;
@@ -192,17 +217,171 @@
 		}
 		
 		function updateFilters() {
-			filteredReadings = $filter('filter')(readings, function(reading) {
-				if (!filterBuoys(reading)) return false;
-				if (!filterTimes(reading)) return false;
-				for (var key in filters.sensorInputs) {
-					if (filters.sensorInputs.hasOwnProperty(key)) {
-						if (!filterSensor(key, filters.sensorInputs[key], reading)) 
-							return false;
+			// var fdata = [];
+			
+			// Filter buoy groups first
+			// filteredReadings = $filter('filter')(fdata, function(buoyGroup) {
+			// 	if (!showBuoyGroup(buoyGroup)) return false;
+				
+			// 	return true;
+			// });
+			
+			// Filter buoy groups
+			// var enabledBuoyGroups = [];
+			// data.forEach(function(buoyGroup) {
+			// 	if (showBuoyGroup(buoyGroup)) {
+			// 		// fdata.push({
+			// 		// 	id: buoyGroup.id,
+			// 		// 	name: buoyGroup.name
+			// 		// });
+			// 		enabledBuoyGroups.push(buoyGroup.id);
+			// 	}				
+			// });
+			
+			// data.forEach(function(buoyGroup) {
+			// 	if (enabledBuoyGroups.indexOf(buoyGroup.id) != -1) {
+			// 		buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+						
+			// 		});
+			// 	}
+			// });
+			
+			// var fdata = [];
+			
+			// // Filter buoy groups
+			// var enabledBuoyGroups = [];
+			// for (var i = 0; i < filters.buoys.length; i++) {
+			// 	var buoyGroup = filters.buoys[i];
+			// 	if (buoyGroup.enabled) {
+			// 		enabledBuoyGroups.push(buoyGroup.id);
+					
+			// 		var group = {};
+			// 		group.id = buoyGroup.id;
+			// 		group.name = buoyGroup.name;
+					
+			// 		// for (var j = 0; j < buoyGroup.)
+			// 	}
+			// }
+			
+			// for (var i = 0; i < data.length; i++) {
+			// 	var buoyGroup = data[i];
+			// 	if (enabledBuoyGroups.indexOf(buoyGroup.id) != -1) {
+			// 		var group = {};
+			// 		group.id = buoyGroup.id;
+			// 		group.name = buoyGroup.name;
+			// 		group.
+					
+			// 		for (var j = 0; j < buoyGroup.buoyInstances.length; j++) {
+			// 			var buoyInstance = buoyGroup.buoyInstances[i];
+			// 			if (buoyInstance.enabled) {
+							
+			// 			}
+			// 		}
+			// 	}
+			// }
+			
+			var fdata = [];
+			
+			// Get enabled buoy groups
+			var enabledBuoyGroups = [];
+			filters.buoys.forEach(function(buoyGroup) {
+				if (buoyGroup.enabled) {
+					enabledBuoyGroups.push(buoyGroup.id);
+				}
+			});
+			
+			// Get enabled buoy instances
+			var enabledBuoyInstances = [];
+			filters.buoys.forEach(function(buoyGroup) {
+				if (buoyGroup.enabled) {
+					buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+						if (buoyInstance.enabled) {
+							enabledBuoyInstances.push(buoyInstance.id);
+						}
+					});
+				}
+			});
+			
+			// Get readings to display based on other filters
+			var enabledReadings = [];
+			for (var i = 0; i < data.length; i++) {
+				var buoyGroup = data[i];
+				if (enabledBuoyGroups.indexOf(buoyGroup.id) != -1) {
+					for (var j = 0; j < buoyGroup.buoyInstances.length; j++) {
+						var buoyInstance = buoyGroup.buoyInstances[j];
+						if (enabledBuoyInstances.indexOf(buoyInstance.id) != -1) {
+							for (var k = 0; k < buoyInstance.readings.length; k++) {
+								var reading = buoyInstance.readings[k];
+								if (filterTimes(reading)) { 
+								
+									enabledReadings.push(reading.id);
+								}
+							}		
+						}
 					}
 				}
-				return true;
+			}
+			
+			console.log('groups: ' + enabledBuoyGroups);
+			console.log('instances: ' + enabledBuoyInstances);
+			console.log('readings: ' + enabledReadings);
+			
+			// Add enabled buoy groups and instances (without readings)
+			data.forEach(function(buoyGroup) {
+				if (enabledBuoyGroups.indexOf(buoyGroup.id) != -1) {
+					var group = {};
+					group.id = buoyGroup.id;
+					group.name = buoyGroup.name;
+					group.buoyInstances = [];
+					buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+						if (enabledBuoyInstances.indexOf(buoyInstance.id) != -1) {
+							var instance = {};
+							instance.id = buoyInstance.id;
+							instance.name = buoyInstance.name;
+							instance.readings = [];
+							buoyInstance.readings.forEach(function(reading) {
+								if (enabledReadings.indexOf(reading.id) != -1) {
+									instance.readings.push(reading);
+								}
+							});
+							group.buoyInstances.push(instance);
+						}
+					});
+					fdata.push(group);
+				}
 			});
+			
+			
+			
+			// console.log(fdata);
+
+			
+			filteredReadings = fdata;
+			// console.log(filteredReadings);
+			
+			// filteredReadings = $filter('filter')(data, function(reading) {
+			// 	if (!filterBuoys(reading)) return false;
+			// 	if (!filterTimes(reading)) return false;
+			// 	for (var key in filters.sensorInputs) {
+			// 		if (filters.sensorInputs.hasOwnProperty(key)) {
+			// 			if (!filterSensor(key, filters.sensorInputs[key], reading)) 
+			// 				return false;
+			// 		}
+			// 	}
+			// 	return true;
+			// });
+		}
+		
+		function showBuoyGroup(buoyGroup) {
+			for (var i = 0; i < filters.buoys.length; i++) {
+				var group = filters.buoys[i];
+				if (buoyGroup.id == group.id) {
+					if (!group.enabled) {
+						return false;
+					}
+				}
+			}		
+			return true;
 		}
 		
 		function filterBuoys(reading) {
@@ -216,6 +395,9 @@
 			if (filters.times.type == 'range') {
 				var time = moment.unix(reading.timestamp);
 				if (!time.isBetween(filters.times.range.from, filters.times.range.to)) {
+					console.log('from: ' + filters.times.range.from);
+					console.log('to: ' + filters.times.range.to);
+					console.log('reading: ' + time);
 					return false;
 				}
 			} else if (filters.times.type == 'point') {
@@ -256,7 +438,7 @@
 			
 			if (times.type == 'all') {
 				// range: from 2 weeks ago until now
-				var max = moment.call();
+				var max = moment();
 				var min = max.clone().subtract(2, 'weeks');
 				return calculateAgeInRange(time, min, max);
 			

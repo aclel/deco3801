@@ -1,13 +1,5 @@
 <div class="medium-3 grid-block vertical">
 	<div class="grid-content shadow-bottom">
-		<h3>Buoys</h3>
-
-		<div ng-repeat="(id, enabled) in vm.buoys">
-			<input type="checkbox" ng-model="enabled" ng-change="vm.updateBuoysFilter(id, enabled)">
-			Buoy {{ id }}
-		</div>
-	</div>
-	<div class="grid-content shadow-bottom">
 		<h3>Times</h3>
 		
 		<div class="btn-group" ng-model="vm.times.type" bs-radio-group>
@@ -52,6 +44,29 @@
 				    <input type="text" size="8" ng-model="vm.times.inputs.point.time" ng-change="vm.updateTimesFilter()" name="time" placeholder="hh:mm" bs-timepicker>
 				  <!--</div>-->
 				</div>	  
+			</div>
+		</div>
+	</div>
+	<div class="grid-content shadow-bottom">
+		<h3>Buoys</h3>
+
+		<!--<div ng-repeat="(id, enabled) in vm.buoys">
+			<input type="checkbox" ng-model="enabled" ng-change="vm.updateBuoysFilter(id, enabled)">
+			Buoy {{ id }}
+		</div>-->
+		
+		<div ng-repeat="buoyGroup in vm.buoys" class="buoyGroup">
+			<a class="btn btn-success btn-xs" ng-if="buoyGroup.buoyInstances && buoyGroup.buoyInstances.length > 0" ng-click="vm.toggleBuoyGroup(buoyGroup)"><span
+					class="glyphicon"
+					ng-class="{
+					'glyphicon-chevron-right': buoyGroup.collapsed,
+					'glyphicon-chevron-down': !buoyGroup.collapsed
+					}"></span></a>
+			<input type="checkbox" ng-model="buoyGroup.enabled" ui-indeterminate="buoyGroup.indeterminate" ng-change="vm.selectBuoyGroup(buoyGroup)">
+			{{ buoyGroup.name }}
+			<div ng-if="!buoyGroup.collapsed" ng-repeat="buoyInstance in buoyGroup.buoyInstances" class="buoyInstance">
+				<input type="checkbox" ng-model="buoyInstance.enabled" ng-change="vm.selectBuoyInstance(buoyGroup)">
+				{{ buoyInstance.name }}
 			</div>
 		</div>
 	</div>

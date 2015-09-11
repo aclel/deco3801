@@ -28,11 +28,14 @@
 		vm.updateBuoysFilter = updateBuoysFilter;
 		vm.updateTimesFilter = updateTimesFilter;
 		vm.updateSensorsFilter = updateSensorsFilter;
+		vm.toggleBuoyGroup = toggleBuoyGroup;
+		vm.selectBuoyGroup = selectBuoyGroup;
+		vm.selectBuoyInstance = selectBuoyInstance;
 		
 		activate();
 		
 		function activate() {
-				dashboard.initialise().then(function() {
+			dashboard.initialise().then(function() {
 				vm.buoys = dashboard.buoys();
 				vm.times = dashboard.times();
 				vm.sensors = dashboard.sensors();
@@ -48,11 +51,54 @@
 			// map.updateReadings();
 		});
 		
-		function updateBuoysFilter(id, enabled) {
-			vm.buoys[id] = enabled;
+		function toggleBuoyGroup(buoyGroup) {
+			buoyGroup.collapsed = !buoyGroup.collapsed;
+		}
+		
+		function selectBuoyGroup(buoyGroup) {
+			buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+				buoyInstance.enabled = buoyGroup.enabled;
+			});
+			
+			updateBuoysFilter();
+		}
+		
+		function selectBuoyInstance(buoyGroup, buoyInstance) {
+			var allTrue = true;
+			var allFalse = true;
+			
+			buoyGroup.buoyInstances.forEach(function(instance) {
+				if (instance.enabled) {
+					allFalse = false;
+				} else {
+					allTrue = false;
+				}
+			});
+			
+			if (allFalse) {
+				buoyGroup.enabled = false;
+			} else {
+				buoyGroup.enabled = true;
+			}
+			
+			if (allFalse || allTrue) {
+				buoyGroup.indeterminate = false;
+			} else {
+				buoyGroup.indeterminate = true;
+			}
+			
+			updateBuoysFilter();
+		}
+		
+		function updateBuoysFilter() {
 			dashboard.updateBuoys();
 			map.updateReadings();
 		}
+		// function updateBuoysFilter(id, enabled) {
+		// 	vm.buoys[id] = enabled;
+		// 	dashboard.updateBuoys();
+		// 	map.updateReadings();
+		// }
 		
 		function updateTimesFilter() {
 			// convert input strings to moments 
@@ -60,12 +106,12 @@
 			if (timesInputsValid()) {
 				var momentFormat = dateFormat + " " + timeFormat;
 				if (vm.times.type == 'range') {
-					vm.times.range.from = moment.call(vm.times.inputs.range.from.date
+					vm.times.range.from = moment(vm.times.inputs.range.from.date
 						+ " " + vm.times.inputs.range.from.time, momentFormat);
-					vm.times.range.to = moment.call(vm.times.inputs.range.to.date
+					vm.times.range.to = moment(vm.times.inputs.range.to.date
 						+ " " + vm.times.inputs.range.to.time, momentFormat);
 				} else if (vm.times.type == 'point') {
-					vm.times.point = moment.call(vm.times.inputs.point.date
+					vm.times.point = moment(vm.times.inputs.point.date
 						+ " " + vm.times.inputs.point.time, momentFormat);
 				}
 				

@@ -128,8 +128,6 @@
 		};
 		
 		function getReadings() {
-			console.log('querying server');
-			
 			var token = auth.getToken();
 			var config = {
 				headers: {
@@ -137,7 +135,7 @@
 				}
 			};
 			
-			var params = "?start_time=2006-01-02T15:04:00.999999-07:00&end_time=2016-01-02T15:05:05.999999-07:00";
+			var params = "?start_time=1378384444&end_time=1504614844";
 			
 			return $http.get(SERVER_ADDRESS + '/api/readings' + params, config);
 		}

@@ -117,8 +117,9 @@
 						+ " " + vm.times.inputs.point.time, momentFormat);
 				}
 				
-				dashboard.updateTimes();
-				map.updateReadings();
+				dashboard.updateTimes().then(function() {
+					map.updateReadings();
+				});
 			}
 		}
 		

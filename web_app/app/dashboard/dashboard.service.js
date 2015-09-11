@@ -39,8 +39,13 @@
 			getRelativeAge: getRelativeAge
 		};
 		
-		function queryReadings() {
-			var promise = server.getReadings();
+		function queryReadings(from, to) {
+			if (!from) {
+				from = moment().subtract(filters.times.inputs.since.value,
+					 filters.times.inputs.since.quantifier).unix();
+				to = moment().unix();
+			}
+			var promise = server.getReadings(from, to);
 			promise.then(function(res) {
 				data = res.data.buoyGroups;
 				populateBuoys();
@@ -147,10 +152,32 @@
 		}
 		
 		function updateTimes() {
-			if (filters.times.type == 'point') {
-				calculatePointReadings();
+			// query server for new times
+			var from, to;
+			
+			if (filters.times.type == 'since') {
+				from = moment().subtract(filters.times.inputs.since.value,
+					 filters.times.inputs.since.quantifier).unix();
+				to = moment().unix();
+			} else if (filters.times.type == 'all') {
+				from = 0;
+				to = moment().unix();
+			} else if (filters.times.type == 'range') {
+				from = filters.times.range.from.unix();
+				to = filters.times.range.to.unix();
+			} else if (filters.times.type == 'point') {
+				from = filters.times.point.clone().subtract(2, 'weeks').unix();
+				to = filters.times.point.clone().add(2, 'weeks').unix();
 			}
-			updateFilters();
+			
+			var promise = queryReadings(from, to);
+			promise.then(function() {
+				if (filters.times.type == 'point') {
+					calculatePointReadings();
+				}
+				updateFilters();
+			});
+			return promise;
 		}
 		
 		function updateSensors() {

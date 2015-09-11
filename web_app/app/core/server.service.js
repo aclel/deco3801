@@ -127,7 +127,7 @@
 			forgotPassword: forgotPassword
 		};
 		
-		function getReadings() {
+		function getReadings(from, to) {
 			var token = auth.getToken();
 			var config = {
 				headers: {
@@ -135,7 +135,7 @@
 				}
 			};
 			
-			var params = "?start_time=1378384444&end_time=1504614844";
+			var params = "?start_time=" + from + "&end_time=" + to;
 			
 			return $http.get(SERVER_ADDRESS + '/api/readings' + params, config);
 		}

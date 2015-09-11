@@ -104,9 +104,8 @@
 			// 	});
 			// });
 			
-			/*
+			if (filters.buoys.length !== 0) return;
 			
-			*/
 			data.forEach(function(buoyGroup) {
 				var group = {};
 				group.id = buoyGroup.id;

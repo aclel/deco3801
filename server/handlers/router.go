@@ -57,8 +57,11 @@ func NewRouter(env *models.Env) *mux.Router {
 	r.Handle("/api/buoy_groups/{id:[0-9]+}/buoys", defaultChain.Then(AuthHandler{env, BuoyGroupsBuoysIndex, "researcher"})).Methods("GET", "OPTIONS")
 	r.Handle("/api/buoy_groups/{id:[0-9]+}/buoy_instances", defaultChain.Then(AuthHandler{env, BuoyGroupsBuoyInstancesIndex, "researcher"})).Methods("GET", "OPTIONS")
 
+	r.Handle("/api/buoy_instances", defaultChain.Then(AuthHandler{env, BuoyInstancesIndex, "researcher"})).Methods("GET", "OPTIONS")
 	r.Handle("/api/buoy_instances", defaultChain.Then(AuthHandler{env, BuoyInstancesCreate, "researcher"})).Methods("POST", "OPTIONS")
+	r.Handle("/api/buoy_instances/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoyInstancesUpdate, "researcher"})).Methods("PUT", "OPTIONS")
 	r.Handle("/api/buoy_instances/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoyInstancesDelete, "researcher"})).Methods("DELETE", "OPTIONS")
+	r.Handle("/api/buoy_instances/{id:[0-9]+}/sensors", defaultChain.Then(AuthHandler{env, BuoyInstancesSensorsIndex, "researcher"})).Methods("GET", "OPTIONS")
 	r.Handle("/api/buoy_instances/{id:[0-9]+}/sensors", defaultChain.Then(AuthHandler{env, BuoyInstancesSensorsCreate, "researcher"})).Methods("POST", "OPTIONS")
 	r.Handle("/api/buoy_instances/{id:[0-9]+}/sensors/{sensor_type_id:[0-9]+}", defaultChain.Then(AuthHandler{env, BuoyInstancesSensorsDelete, "researcher"})).Methods("DELETE", "OPTIONS")
 
@@ -69,6 +72,7 @@ func NewRouter(env *models.Env) *mux.Router {
 
 	r.Handle("/api/command_types", defaultChain.Then(AuthHandler{env, CommandTypesIndex, "researcher"})).Methods("GET", "OPTIONS")
 
+	r.Handle("/api/commands", defaultChain.Then(AuthHandler{env, CommandsIndex, "researcher"})).Methods("GET", "OPTIONS")
 	r.Handle("/api/commands/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, CommandsDelete, "researcher"})).Methods("DELETE", "OPTIONS")
 
 	r.Handle("/api/users", defaultChain.Then(AuthHandler{env, UsersIndex, "researcher"})).Methods("GET", "OPTIONS")

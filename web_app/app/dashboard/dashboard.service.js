@@ -30,6 +30,7 @@
 			buoys: getBuoys,
 			times: getTimes,
 			sensors: getSensors,
+			sensorMetadata: getSensorMetadata,
 			updateBuoys: updateBuoys,
 			updateTimes: updateTimes,
 			updateFilters: updateFilters,
@@ -135,6 +136,10 @@
 				}
 			}
 			return sensors;
+		}
+		
+		function getSensorMetadata() {
+			return filters.sensors;
 		}
 		
 		function updateBuoys() {

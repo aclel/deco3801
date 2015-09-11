@@ -75,44 +75,15 @@
 					closeInfoBox();
 				}
 		    });
-			
-			// mark readings
-			// var readings = dashboard.readings();
-			// // for (var i = 0; i < readings.length; i++) {
-			// 	// addMarker(readings[i]);
-			// // }
-			
-			// readings.forEach(function(buoyGroup) {
-			// 	buoyGroup.buoyInstances.forEach(function(buoyInstance) {
-			// 		buoyInstance.readings.forEach(function(reading) {
-			// 			console.log(reading);
-			// 		})
-			// 	});
-			// });
-			
 		}
 		
 		function updateReadings() {
 			var readings = dashboard.readings();
-			
-			// readings.forEach(function(buoyGroup) {
-			// 	buoyGroup.buoyInstances.forEach(function(buoyInstance) {
-			// 		buoyInstance.readings.forEach(function(reading) {
-			// 			console.log(reading);
-			// 		})
-			// 	});
-			// });
-			
+		
 			// create an array of readings which should be enabled
 			var enabledBuoyInstances = [];
-			// for (var i = 0; i < readings.length; i++) {
-			// 	enabledReadings.push(readings[i].id);
-			// }
 			readings.forEach(function(buoyGroup) {
 				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
-					// buoyInstance.readings.forEach(function(reading) {
-					// 	enabledReadings.push(readings.id);
-					// })
 					enabledBuoyInstances.push(buoyInstance.id);
 				});
 			});
@@ -126,22 +97,7 @@
 					}
 				}
 			}
-			
-			// add and re-enable markers
-			// for (var i = 0; i < readings.length; i++) {
-			// 	var id = readings[i].id;
-			// 	if (!markers.hasOwnProperty(id)) {
-			// 		addMarker(readings[i]);
-			// 	} else {
-			// 		// update opacity
-			// 		markers[id].setOpacity(calculateOpacity(readings[i]));
-					
-			// 		// re-enable disabled markers
-			// 		if (disabledMarkers.indexOf(id) != -1) {
-			// 			enableMarker(id);
-			// 		}
-			// 	}
-			// }
+
 			readings.forEach(function(buoyGroup) {
 				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
 					buoyInstance.readings.forEach(function(reading) {
@@ -237,6 +193,8 @@
 		}
 		
 		function popupContent(reading, buoyInstance) {
+			var sensors = dashboard.sensorMetadata();
+			console.log(sensors);
 			var formattedTime = moment.unix(reading.timestamp)
 										.format('D MMMM h:mm A');
 										
@@ -246,8 +204,10 @@
 				"<br>---";
 			
 			reading.sensorReadings.forEach(function(sensorReading) {
-				content += "<br>" + sensorReading.sensorTypeId +
-							": " + sensorReading.value;
+				content += "<br>" + 
+					sensors[sensorReading.sensorTypeId].name +
+					": " + sensorReading.value + " " +
+					sensors[sensorReading.sensorTypeId].unit;
 			});			
 				
 			content += "</div>";

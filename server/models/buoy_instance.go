@@ -35,6 +35,7 @@ type BuoyInstanceRepository interface {
 	GetSensorsForBuoyInstance(int) ([]BuoyInstanceSensor, error)
 	AddSensorToBuoyInstance(int, int) error
 	DeleteBuoyInstanceSensor(int, int) error
+	GetWarningTriggersForBuoyInstance(int) ([]WarningTrigger, error)
 }
 
 // Get all Buoy Instances (both active and inactive)
@@ -169,4 +170,17 @@ func (db *DB) DeleteBuoyInstanceSensor(buoyInstanceId int, sensorTypeId int) err
 	}
 
 	return nil
+}
+
+// Get all Warning Triggers for the Buoy Instance with the given Id
+func (db *DB) GetWarningTriggersForBuoyInstance(id int) ([]WarningTrigger, error) {
+	warningTriggers := []WarningTrigger{}
+	err := db.Select(&warningTriggers, `SELECT *
+							   FROM warning_trigger
+							   WHERE buoy_instance_id=?`, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return warningTriggers, nil
 }

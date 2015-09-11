@@ -89,6 +89,10 @@ func (db *MockDB) DeleteBuoyInstanceSensor(buoyInstanceId int, sensorTypeId int)
 	return nil
 }
 
+func (mdb *MockDB) GetWarningTriggersForBuoyInstance(id int) ([]WarningTrigger, error) {
+	return nil, nil
+}
+
 // BUOY GROUPS
 func (mdb *MockDB) GetAllBuoyGroups() ([]BuoyGroup, error) {
 	return nil, nil

@@ -11,6 +11,7 @@ type WarningTrigger struct {
 
 type WarningTriggerRepository interface {
 	CreateWarningTrigger(*WarningTrigger) error
+	DeleteWarningTriggerWithId(int) error
 }
 
 // Insert a new WarningTrigger into the database
@@ -23,6 +24,21 @@ func (db *DB) CreateWarningTrigger(warningTrigger *WarningTrigger) error {
 
 	_, err = stmt.Exec(warningTrigger.Value, warningTrigger.Operator,
 		warningTrigger.Message, warningTrigger.BuoyInstanceId, warningTrigger.SensorTypeId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Delete Warning Trigger from the database with the given id.
+func (db *DB) DeleteWarningTriggerWithId(id int) error {
+	stmt, err := db.Preparex("DELETE FROM warning_trigger WHERE id=?")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(id)
 	if err != nil {
 		return err
 	}

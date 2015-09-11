@@ -12,12 +12,12 @@
 
 #import "BuoyScreen.h"
 
-@interface BuoyScreen () <CLLocationManagerDelegate, MKMapViewDelegate>
+@interface BuoyScreen () <UIPopoverPresentationControllerDelegate, CLLocationManagerDelegate, MKMapViewDelegate>
 
 @property (strong, nonatomic) MKMapView *map;
 @property (strong, nonatomic) CLLocationManager *l;
 @property (strong, nonatomic) UIBarButtonItem *pButton;
-@property (strong, nonatomic) UIPopoverController *p;
+@property (strong, nonatomic) UIViewController *popup;
 
 @property (strong, nonatomic) NSArray *buoys; // List of all buoys to display
 
@@ -111,8 +111,8 @@
     // Popover for options
     BuoySettingsPopup *pContents = [[BuoySettingsPopup alloc] init];
     pContents.delegate = self;
-    self.p = [[UIPopoverController alloc] initWithContentViewController:pContents];
     self.pButton = infoIcon;
+    self.popup = pContents;
     
     // Fin
     [self.view addSubview:self.map];
@@ -201,8 +201,16 @@
 }
 
 #pragma mark - UI changes
+- (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller {
+    return UIModalPresentationNone;
+}
+
 - (void)infoButtonPressed {
-    [self.p presentPopoverFromBarButtonItem:self.pButton permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
+    self.popup.modalPresentationStyle = UIModalPresentationPopover;
+    self.popup.popoverPresentationController.delegate = self;
+    self.popup.popoverPresentationController.barButtonItem = self.pButton;
+    self.popup.popoverPresentationController.sourceView = self.popup.view;
+    [self presentViewController:self.popup animated:YES completion:nil];
 }
 
 - (void)refreshButtonPressed {

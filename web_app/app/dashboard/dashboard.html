@@ -3,11 +3,23 @@
 		<h3>Times</h3>
 		
 		<div class="btn-group" ng-model="vm.times.type" bs-radio-group>
-			<label class="btn btn-default"><input type="radio" class="btn btn-default" value="all" ng-change="vm.updateTimesFilter()">All</label>
+			<label class="btn btn-default"><input type="radio" class="btn btn-default" value="since" ng-change="vm.updateTimesFilter()">Since</label>
 			<label class="btn btn-default"><input type="radio" class="btn btn-default" value="range" ng-change="vm.updateTimesFilter()">Range</label>
-			<label class="btn btn-default"><input type="radio" class="btn btn-default" value="point" ng-change="vm.updateTimesFilter()">Slice</label>
+			<label class="btn btn-default"><input type="radio" class="btn btn-default" value="point" ng-change="vm.updateTimesFilter()">Point</label>
 		</div>
 		<div class="timefilters">
+			<div ng-show="vm.times.type=='since'">
+				<label><i class="fa fa-calendar"></i>Since</label>
+				<input type="text" ng-model="vm.times.inputs.since.value" ng-change="vm.updateTimesFilter()" name="value">
+				
+				<button type="button" class="btn btn-default" 
+							ng-model="vm.times.inputs.since.quantifier" 
+							bs-options="opt for opt in vm.times.inputs.since.options"
+							ng-change="vm.updateSensorsFilter()" bs-select>
+				</button>
+			</div>
+			
+			
 			<div ng-show="vm.times.type == 'range'">
 				<!--<div class="form-group" ng-class="{'has-error': datepickerForm.date.$invalid}">-->
 				<div>

@@ -56,11 +56,14 @@
 			populateBuoys();
 			
 			filters.times = {
-				type: "all",
+				type: "since",
 				range: { from: null, to: null }, // from and to contain moments
 				point: null,
 				pointReadings: {}, // contains list of closest readings to point
 				inputs: {
+					since: { value: 2, quantifier: "weeks", options: [
+						"hours", "days", "weeks", "months"
+					] },
 					range: {
 						from: { date: "", time: "" },
 						to: { date: "", time: "" },
@@ -313,7 +316,6 @@
 							for (var k = 0; k < buoyInstance.readings.length; k++) {
 								var reading = buoyInstance.readings[k];
 								if (filterTimes(reading)) { 
-								
 									enabledReadings.push(reading.id);
 								}
 							}		
@@ -392,12 +394,16 @@
 		}
 		
 		function filterTimes(reading) {
-			if (filters.times.type == 'range') {
+			if (filters.times.type == 'since') {
+				var since = moment().subtract(filters.times.inputs.since.value,
+					 filters.times.inputs.since.quantifier);
+				var time = moment.unix(reading.timestamp);
+				if (!time.isAfter(since)) {
+					return false;
+				}
+			} else if (filters.times.type == 'range') {
 				var time = moment.unix(reading.timestamp);
 				if (!time.isBetween(filters.times.range.from, filters.times.range.to)) {
-					console.log('from: ' + filters.times.range.from);
-					console.log('to: ' + filters.times.range.to);
-					console.log('reading: ' + time);
 					return false;
 				}
 			} else if (filters.times.type == 'point') {
@@ -442,6 +448,12 @@
 				var min = max.clone().subtract(2, 'weeks');
 				return calculateAgeInRange(time, min, max);
 			
+			} else if (times.type == 'since') {
+				var max = moment();
+				var min = moment().subtract(times.inputs.since.value,
+					 times.inputs.since.quantifier);
+				return calculateAgeInRange(time, min, max);	 
+					
 			} else if (times.type == 'range') {
 				// range: range of time filters
 				var max = times.range.to;

@@ -12,7 +12,10 @@
  */
 package models
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 // Represents a reading for one sensor from a particular buoy instance.
 type Reading struct {
@@ -86,18 +89,23 @@ type MapReadingBuoyGroup struct {
 }
 
 type MapReadingBuoyInstance struct {
-	Id       int          `json:"id"`
-	Name     string       `json:"name"`
-	Readings []MapReading `json:"readings"`
+	Id         int                    `json:"id"`
+	Name       string                 `json:"name"`
+	Readings   []MapReading           `json:"readings"`
+	ReadingMap map[string]*MapReading `json:"-"`
 }
 
 type MapReading struct {
-	Id         int        `json:"id"`
-	Value      float64    `json:"value"`
-	Latitude   float64    `json:"latitude"`
-	Longitude  float64    `json:"longitude"`
-	Timestamp  int64      `json:"timestamp"`
-	SensorType SensorType `json:"sensorType"`
+	Id             int                `json:"id"`
+	Latitude       float64            `json:"latitude"`
+	Longitude      float64            `json:"longitude"`
+	Timestamp      int64              `json:"timestamp"`
+	SensorReadings []MapSensorReading `json:"sensorReadings"`
+}
+
+type MapSensorReading struct {
+	Value        float64 `json:"value"`
+	SensorTypeId int     `json:"sensorTypeId"`
 }
 
 // Returns all the readings from the database
@@ -140,7 +148,7 @@ func (db *DB) GetAllReadings(startTime time.Time, endTime time.Time) (*MapReadin
 					buoy_instance.buoy_group_id = buoy_group.id
 				)
 			)
-		) WHERE (reading.timestamp > ? AND reading.timestamp < ?) ORDER BY buoy_group.id, buoy_instance_id;`, startTime, endTime)
+		) WHERE (reading.timestamp > ? AND reading.timestamp < ?) ORDER BY buoy_group.id, buoy_instance_id, timestamp;`, startTime, endTime)
 	if err != nil {
 		return nil, err
 	}
@@ -156,13 +164,14 @@ func (db *DB) GetAllReadings(startTime time.Time, endTime time.Time) (*MapReadin
 // Buoy Groups
 //		Buoy Instances
 //			Readings
-//				SensorType
+//				SensorReadings
 func buildReadingsIndexData(mapReadings []DbMapReading) (*MapReadingBuoyGroupsWrapper, error) {
 	// Ensure a buoy group is not duplicated
 	buoyGroups := make(map[int]*MapReadingBuoyGroup)
 
 	// For each row in the SQL result
 	for _, reading := range mapReadings {
+		//fmt.Println(reading)
 		var group *MapReadingBuoyGroup
 		var exists bool
 		// If the Buoy Group doesn't exist, add it
@@ -176,30 +185,38 @@ func buildReadingsIndexData(mapReadings []DbMapReading) (*MapReadingBuoyGroupsWr
 		// If the Buoy Instance doesn't exist within the Buoy Group, add it
 		if buoyInstance, exists = group.BuoyInstanceMap[reading.BuoyInstanceId]; !exists {
 			buoyInstance = &MapReadingBuoyInstance{Id: reading.BuoyInstanceId, Name: reading.BuoyInstanceName}
+			buoyInstance.ReadingMap = make(map[string]*MapReading)
 			group.BuoyInstanceMap[reading.BuoyInstanceId] = buoyInstance
 		}
 
-		// Construct Reading for Buoy Instance
-		reading := MapReading{
-			Id:        reading.Id,
-			Value:     reading.Value,
-			Latitude:  reading.Latitude,
-			Longitude: reading.Longitude,
-			Timestamp: reading.Timestamp.Unix(),
-			SensorType: SensorType{
-				Id:          reading.SensorTypeId,
-				Name:        reading.SensorTypeName,
-				Description: reading.SensorTypeDescription,
-				Unit:        reading.SensorTypeUnit,
-			},
+		// The unique value for a reading is generated from the buoy instance id and timestamp
+		readingHash := fmt.Sprintf("%d-%d", reading.BuoyInstanceId, reading.Timestamp.Unix())
+
+		var mapReading *MapReading
+		// If a Map Reading for the given buoy instance with the given timestamp doesn't already exist, add it
+		if mapReading, exists = buoyInstance.ReadingMap[readingHash]; !exists {
+			// Construct Reading for Buoy Instance
+			mapReading = &MapReading{
+				Id:        reading.Id,
+				Latitude:  reading.Latitude,
+				Longitude: reading.Longitude,
+				Timestamp: reading.Timestamp.Unix(),
+			}
+			// Store the reading in the map
+			buoyInstance.ReadingMap[readingHash] = mapReading
 		}
-		buoyInstance.Readings = append(buoyInstance.Readings, reading)
+
+		sensorReading := MapSensorReading{Value: reading.Value, SensorTypeId: reading.SensorTypeId}
+		mapReading.SensorReadings = append(mapReading.SensorReadings, sensorReading)
 	}
 
 	// All Buoy Groups which will be returned to the client
 	buoyGroupsWrapper := &MapReadingBuoyGroupsWrapper{}
 	for _, buoyGroup := range buoyGroups {
 		for _, buoyInstance := range buoyGroup.BuoyInstanceMap {
+			for _, reading := range buoyInstance.ReadingMap {
+				buoyInstance.Readings = append(buoyInstance.Readings, *reading)
+			}
 			buoyGroup.BuoyInstances = append(buoyGroup.BuoyInstances, *buoyInstance)
 		}
 		buoyGroupsWrapper.BuoyGroups = append(buoyGroupsWrapper.BuoyGroups, *buoyGroup)

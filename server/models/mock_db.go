@@ -89,6 +89,10 @@ func (db *MockDB) DeleteBuoyInstanceSensor(buoyInstanceId int, sensorTypeId int)
 	return nil
 }
 
+func (mdb *MockDB) GetWarningTriggersForBuoyInstance(id int) ([]WarningTrigger, error) {
+	return nil, nil
+}
+
 // BUOY GROUPS
 func (mdb *MockDB) GetAllBuoyGroups() ([]BuoyGroup, error) {
 	return nil, nil
@@ -164,10 +168,23 @@ func (mdb *MockDB) DeleteUserWithId(id int) error {
 	return nil
 }
 
+// WARNING TRIGGERS
+func (mdb *MockDB) CreateWarningTrigger(warningTrigger *WarningTrigger) error {
+	return nil
+}
+
+func (mdb *MockDB) UpdateWarningTrigger(updatedWarningTrigger *WarningTrigger) error {
+	return nil
+}
+
+func (mdb *MockDB) DeleteWarningTriggerWithId(id int) error {
+	return nil
+}
+
 // AUTH
-func (mdb *MockDB) Login(user *User) ([]byte, error) {
+func (mdb *MockDB) Login(user *User) (*User, error) {
 	//shortened token, only checking for non-empty
-	return []byte(`{"token": "eyJhbGciOiJSUzI..."}`), nil
+	return &User{Token: "eyJhbGciOiJSUzI..."}, nil
 }
 
 func (mdb *MockDB) RefreshToken(user *User) ([]byte, error) {

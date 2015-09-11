@@ -18,7 +18,7 @@ import (
 )
 
 type AuthRepository interface {
-	Login(*User) ([]byte, error)
+	Login(*User) (*User, error)
 	RefreshToken(*User) ([]byte, error)
 }
 
@@ -26,16 +26,16 @@ type AuthRepository interface {
 // response if the authentication was successful.
 //
 // Returns 401 Unauthorized if authentication was unsuccessful
-func (db *DB) Login(user *User) ([]byte, error) {
+func (db *DB) Login(user *User) (*User, error) {
 	jwtAuth, err := InitJWTAuth()
 	if err != nil {
-		return []byte(""), err
+		return nil, err
 	}
 
 	// Get user with given email from the database
 	dbUser, err := db.GetUserWithEmail(user.Email)
 	if err != nil {
-		return []byte(""), err
+		return nil, err
 	}
 
 	// Check email and password are the same
@@ -43,27 +43,25 @@ func (db *DB) Login(user *User) ([]byte, error) {
 		// Generate JWT and respond with User object
 		token, err := jwtAuth.GenerateToken(dbUser)
 		if err != nil {
-			return []byte(""), err
+			return nil, err
 		} else {
 			dbUser.Token = token
 			dbUser.Password = "" // don't want to send the password back to the client
-
-			response, _ := json.Marshal(dbUser)
 
 			// Update last login time
 			dbUser.LastLogin = Now()
 			err = db.UpdateUserExcludePassword(dbUser.Email, dbUser)
 			if err != nil {
-				return []byte(""), err
+				return nil, err
 			}
 
 			log.Println("Authenticated " + dbUser.Email)
-			return response, nil
+			return dbUser, nil
 		}
 	}
 
 	log.Printf("Unauthorized: " + user.Email)
-	return []byte(""), err
+	return nil, err
 }
 
 // Reissues a token to an authenticated user

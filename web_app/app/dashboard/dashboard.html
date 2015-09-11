@@ -62,11 +62,6 @@
 	<div class="grid-content shadow-bottom">
 		<h3>Buoys</h3>
 
-		<!--<div ng-repeat="(id, enabled) in vm.buoys">
-			<input type="checkbox" ng-model="enabled" ng-change="vm.updateBuoysFilter(id, enabled)">
-			Buoy {{ id }}
-		</div>-->
-		
 		<div ng-repeat="buoyGroup in vm.buoys" class="buoyGroup">
 			<a class="btn btn-xs" ng-if="buoyGroup.buoyInstances && buoyGroup.buoyInstances.length > 0" ng-click="vm.toggleBuoyGroup(buoyGroup)"><span
 					class="glyphicon"

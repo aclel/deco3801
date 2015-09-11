@@ -38,7 +38,6 @@
 			dashboard.queryReadings().then(function() {
 				vm.buoys = dashboard.buoys();
 				vm.times = dashboard.times();
-				// vm.sensors = dashboard.sensors();
 				
 				dashboard.updateFilters();
 				map.updateReadings();
@@ -54,8 +53,6 @@
 			
 		$document.ready(function() {
 			map.initialiseMap();
-			// dashboard.updateFilters();
-			// map.updateReadings();
 		});
 		
 		function toggleBuoyGroup(buoyGroup) {
@@ -101,11 +98,6 @@
 			dashboard.updateBuoys();
 			map.updateReadings();
 		}
-		// function updateBuoysFilter(id, enabled) {
-		// 	vm.buoys[id] = enabled;
-		// 	dashboard.updateBuoys();
-		// 	map.updateReadings();
-		// }
 		
 		function updateTimesFilter() {
 			// convert input strings to moments 

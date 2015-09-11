@@ -165,9 +165,9 @@ func (mdb *MockDB) DeleteUserWithId(id int) error {
 }
 
 // AUTH
-func (mdb *MockDB) Login(user *User) ([]byte, error) {
+func (mdb *MockDB) Login(user *User) (*User, error) {
 	//shortened token, only checking for non-empty
-	return []byte(`{"token": "eyJhbGciOiJSUzI..."}`), nil
+	return &User{Token: "eyJhbGciOiJSUzI..."}, nil
 }
 
 func (mdb *MockDB) RefreshToken(user *User) ([]byte, error) {

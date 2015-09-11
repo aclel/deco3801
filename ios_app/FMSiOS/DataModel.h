@@ -38,11 +38,10 @@
 // Core server communication data model
 @interface DataModel : NSObject
 
-@property (nonatomic, weak) id<DataModelInitDelegate> delegate;
-@property (nonatomic, weak) id<DataModelDataDelegate> dataDelegate;
+@property (nonatomic, weak) NSObject<DataModelInitDelegate> *delegate;
+@property (nonatomic, weak) NSObject<DataModelDataDelegate> *dataDelegate;
 
-@property (nonatomic, strong) NSString *serverAddr;
-@property NSUInteger serverPort;
+@property (nonatomic, strong) NSURL *serverAddr;
 
 - (void)connectToServerWithEmail:(NSString *)email andPass:(NSString *)password;
 - (void)updateBuoyListingFromServer;

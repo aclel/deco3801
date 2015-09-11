@@ -76,6 +76,8 @@
     emailField.edgeInsets = UIEdgeInsetsMake(0, 10, 0, 10);
     emailField.backgroundColor = [UIColor whiteColor];
     emailField.keyboardType = UIKeyboardTypeEmailAddress;
+    emailField.autocapitalizationType = UITextAutocapitalizationTypeNone;
+    emailField.autocorrectionType = UITextAutocorrectionTypeNo;
     emailField.returnKeyType = UIReturnKeyNext;
     emailField.placeholder = @"E-mail";
     emailField.center = CGPointMake(150, 150);
@@ -154,8 +156,8 @@
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     
     // Fill dialogs with text
-    self.emailField.text = @"e@mail.com";
-    self.passField.text = @"pass";
+    self.emailField.text = @"sean_manson@iprimus.com.au";
+    self.passField.text = @"eB7WIenG";
 }
 
 - (void)viewWillLayoutSubviews {

@@ -59,7 +59,7 @@
 				type: "since",
 				range: { from: null, to: null }, // from and to contain moments
 				point: null,
-				pointReadings: {}, // contains list of closest readings to point
+				pointReadings: [], // contains list of closest readings to point
 				inputs: {
 					since: { value: 2, quantifier: "weeks", options: [
 						"hours", "days", "weeks", "months"
@@ -192,31 +192,51 @@
 		}
 		
 		function calculatePointReadings() {
-			var buoyReadings = {};
-			for (var i = 0; i < data.length; i++) {
-				var reading = data[i];
-				if (buoyReadings.hasOwnProperty(reading.buoy)) {
-					// determine which reading is closer to point
-					var oldReading = buoyReadings[reading.buoy].time;
-					var newReading = reading.timestamp;
+			// var buoyReadings = {};
+			// for (var i = 0; i < data.length; i++) {
+			// 	var reading = data[i];
+			// 	if (buoyReadings.hasOwnProperty(reading.buoy)) {
+			// 		// determine which reading is closer to point
+			// 		var oldReading = buoyReadings[reading.buoy].time;
+			// 		var newReading = reading.timestamp;
 							 
-					var diffOld = moment.unix(oldReading).diff(filters.times.point);
-					var diffNew = moment.unix(newReading).diff(filters.times.point);
+			// 		var diffOld = moment.unix(oldReading).diff(filters.times.point);
+			// 		var diffNew = moment.unix(newReading).diff(filters.times.point);
 					
-					if (Math.abs(diffNew) < Math.abs(diffOld)) {
-						buoyReadings[reading.buoy] = {
-							id: reading.id,
-							time: reading.timestamp
-						};
-					} 
-				} else {
-					buoyReadings[reading.buoy] = {
-						id: reading.id,
-						time: reading.timestamp
+			// 		if (Math.abs(diffNew) < Math.abs(diffOld)) {
+			// 			buoyReadings[reading.buoy] = {
+			// 				id: reading.id,
+			// 				time: reading.timestamp
+			// 			};
+			// 		} 
+			// 	} else {
+			// 		buoyReadings[reading.buoy] = {
+			// 			id: reading.id,
+			// 			time: reading.timestamp
+			// 		};
+			// 	}
+			// }
+			// filters.times.pointReadings = buoyReadings;
+			
+			var pointReadings = [];
+			data.forEach(function(buoyGroup) {
+				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+					var closest = {
+						id: buoyInstance.readings[0].id,
+						timestamp: buoyInstance.readings[0].timestamp
 					};
-				}
-			}
-			filters.times.pointReadings = buoyReadings;
+					buoyInstance.readings.forEach(function(reading) {
+						var diffOld = moment.unix(closest.timestamp).diff(filters.times.point);
+						var diffNew = moment.unix(reading.timestamp).diff(filters.times.point);
+						if (Math.abs(diffNew) < Math.abs(diffOld)) {
+							closest.id = reading.id;
+							closest.timestamp = reading.timestamp;
+						}
+					});
+					pointReadings.push(closest.id);
+				});
+			});
+			filters.times.pointReadings = pointReadings;
 		}
 		
 		function updateFilters() {
@@ -407,10 +427,13 @@
 					return false;
 				}
 			} else if (filters.times.type == 'point') {
-				if (filters.times.pointReadings.hasOwnProperty(reading.buoy)) {
-					if (filters.times.pointReadings[reading.buoy].id != reading.id) {
-						return false;
-					}
+				// if (filters.times.pointReadings.hasOwnProperty(reading.buoy)) {
+				// 	if (filters.times.pointReadings[reading.buoy].id != reading.id) {
+				// 		return false;
+				// 	}
+				// }
+				if (filters.times.pointReadings.indexOf(reading.id) == -1) {
+					return false;
 				}
 			}
 			return true;

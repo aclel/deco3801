@@ -173,6 +173,10 @@ func (mdb *MockDB) CreateWarningTrigger(warningTrigger *WarningTrigger) error {
 	return nil
 }
 
+func (mdb *MockDB) UpdateWarningTrigger(updatedWarningTrigger *WarningTrigger) error {
+	return nil
+}
+
 func (mdb *MockDB) DeleteWarningTriggerWithId(id int) error {
 	return nil
 }

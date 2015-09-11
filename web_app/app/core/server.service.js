@@ -141,7 +141,14 @@
 		}
 		
 		function getSensors() {
-			return dummySensors;
+			var token = auth.getToken();
+			var config = {
+				headers: {
+					'Authorization': 'Bearer ' + token
+				}
+			};
+			
+			return $http.get(SERVER_ADDRESS + '/api/sensor_types', config);
 		}
 		
 		function login(email, password) {

@@ -68,7 +68,7 @@
 		</div>-->
 		
 		<div ng-repeat="buoyGroup in vm.buoys" class="buoyGroup">
-			<a class="btn btn-success btn-xs" ng-if="buoyGroup.buoyInstances && buoyGroup.buoyInstances.length > 0" ng-click="vm.toggleBuoyGroup(buoyGroup)"><span
+			<a class="btn btn-xs" ng-if="buoyGroup.buoyInstances && buoyGroup.buoyInstances.length > 0" ng-click="vm.toggleBuoyGroup(buoyGroup)"><span
 					class="glyphicon"
 					ng-class="{
 					'glyphicon-chevron-right': buoyGroup.collapsed,

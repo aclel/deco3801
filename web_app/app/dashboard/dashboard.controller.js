@@ -35,13 +35,20 @@
 		activate();
 		
 		function activate() {
-			dashboard.initialise().then(function() {
+			dashboard.queryReadings().then(function() {
 				vm.buoys = dashboard.buoys();
 				vm.times = dashboard.times();
-				vm.sensors = dashboard.sensors();
+				// vm.sensors = dashboard.sensors();
 				
 				dashboard.updateFilters();
 				map.updateReadings();
+			});
+			
+			dashboard.querySensors().then(function() {
+				vm.sensors = dashboard.sensors();
+				
+				// dashboard.updateFilters();
+				// map.updateReadings();
 			});
 		}
 			

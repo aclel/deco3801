@@ -24,7 +24,8 @@
 		initialiseFilters();
 		
 		return {
-			initialise: initialise,
+			queryReadings: queryReadings,
+			querySensors: querySensors,
 			readings: getReadings,
 			buoys: getBuoys,
 			times: getTimes,
@@ -37,12 +38,24 @@
 			getRelativeAge: getRelativeAge
 		};
 		
-		function initialise() {
+		function queryReadings() {
 			var promise = server.getReadings();
 			promise.then(function(res) {
 				// console.log(res);
 				data = res.data.buoyGroups;
 				repopulateFilters();
+			}, function(res) {
+				console.log('error');
+				console.log(res);
+			});
+			return promise;
+		}
+		
+		function querySensors() {
+			var promise = server.getSensors();
+			promise.then(function(res) {
+				// console.log(res);
+				populateSensors(res.data.sensorTypes);
 			}, function(res) {
 				console.log('error');
 				console.log(res);
@@ -74,12 +87,12 @@
 			
 			filters.sensors = {};
 			filters.sensorInputs = {};
-			populateSensors();
+			// populateSensors();
 		}
 		
 		function repopulateFilters() {
 			populateBuoys();
-			populateSensors();
+			// populateSensors();
 		}
 		
 		function populateBuoys() {		
@@ -127,7 +140,7 @@
 		}
 		
 		function getSensors() {
-			populateSensors();
+			// populateSensors();
 			for (var key in filters.sensorInputs) {
 				if (filters.sensorInputs.hasOwnProperty(key)) {
 					filters.sensors[key].inputs = filters.sensorInputs[key];
@@ -136,9 +149,9 @@
 			var sensors = []; 
 			for (var key in filters.sensors) {
 				if (filters.sensors.hasOwnProperty(key)) {
-					if (filters.sensors[key].display) {
+					// if (filters.sensors[key].display) {
 						sensors.push(filters.sensors[key]);
-					}
+					// }
 				}
 			}
 			return sensors;
@@ -159,8 +172,8 @@
 			updateFilters();
 		}
 		
-		function populateSensors() {
-			var sensors = server.getSensors();
+		function populateSensors(sensors) {
+			// var sensors = server.getSensors();
 			for (var i = 0; i < sensors.length; i++) {
 				filters.sensors[sensors[i].id] = sensors[i];
 				
@@ -174,10 +187,11 @@
 				}
 				
 				// disable inputs which aren't set to display
-				if (!sensors[i].display) {
-					filters.sensorInputs[sensors[i].id].enabled = false;
-				}				
+				// if (!sensors[i].display) {
+				// 	filters.sensorInputs[sensors[i].id].enabled = false;
+				// }				
 			}
+			// console.log(filters.sensors);
 		}
 		
 		function getOldestReading() {
@@ -335,7 +349,7 @@
 						if (enabledBuoyInstances.indexOf(buoyInstance.id) != -1) {
 							for (var k = 0; k < buoyInstance.readings.length; k++) {
 								var reading = buoyInstance.readings[k];
-								if (filterTimes(reading)) { 
+								if (filterTimes(reading) && filterSensors(reading)) { 
 									enabledReadings.push(reading.id);
 								}
 							}		
@@ -344,9 +358,9 @@
 				}
 			}
 			
-			console.log('groups: ' + enabledBuoyGroups);
-			console.log('instances: ' + enabledBuoyInstances);
-			console.log('readings: ' + enabledReadings);
+			// console.log('groups: ' + enabledBuoyGroups);
+			// console.log('instances: ' + enabledBuoyInstances);
+			// console.log('readings: ' + enabledReadings);
 			
 			// Add enabled buoy groups and instances (without readings)
 			data.forEach(function(buoyGroup) {
@@ -377,7 +391,7 @@
 			
 			// console.log(fdata);
 
-			
+			// console.log(filters.sensorInputs);
 			filteredReadings = fdata;
 			// console.log(filteredReadings);
 			
@@ -439,26 +453,69 @@
 			return true;
 		}
 		
-		function filterSensor(id, sensor, reading) {
+		function filterSensors(reading) {
+			if (Object.keys(filters.sensorInputs).length === 0) {
+				return true;
+			}
+			
+			for (var i = 0; i < reading.sensorReadings.length; i++) {
+				var sReading = reading.sensorReadings[i];
+				if (!filterSensor(sReading)) {
+					return false;
+				}
+				
+				// for (var key in filters.sensorInputs) {
+				// 	if (filters.sensorInputs.hasOwnProperty(key)) {
+				// 		if (!filterSensor(reading, filters.sensorInputs[key], sReading)) 
+				// 			return false;
+				// 	}
+				// }
+			}
+			return true;
+		}
+		
+		function filterSensor(sReading) {
+			var sensor = filters.sensorInputs[sReading.sensorTypeId];
+			
 			if (!sensor.enabled) {
 				return true;
 			}
 			var value = parseInt(sensor.value, 10);
 			if (sensor.selected == ">") {
-				if (reading.readings[id] <= value) {
+				if (sReading.value <= value) {
 					return false;
 				}
 			} else if (sensor.selected == "<") {
-				if (reading.readings[id] >= value) {
+				if (sReading.value >= value) {
 					return false;
 				}
 			} else if (sensor.selected == "=") {
-				if (reading.readings[id] != value) {
+				if (sReading.value != value) {
 					return false;
 				}
 			}
 			return true;
 		}
+		// function filterSensor(id, sensor, reading) {
+		// 	if (!sensor.enabled) {
+		// 		return true;
+		// 	}
+		// 	var value = parseInt(sensor.value, 10);
+		// 	if (sensor.selected == ">") {
+		// 		if (reading.readings[id] <= value) {
+		// 			return false;
+		// 		}
+		// 	} else if (sensor.selected == "<") {
+		// 		if (reading.readings[id] >= value) {
+		// 			return false;
+		// 		}
+		// 	} else if (sensor.selected == "=") {
+		// 		if (reading.readings[id] != value) {
+		// 			return false;
+		// 		}
+		// 	}
+		// 	return true;
+		// }
 		
 		function getRelativeAge(reading) {
 			// returns age between 0 and 1, based on a range determined as seen below

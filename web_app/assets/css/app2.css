@@ -131,3 +131,13 @@ table {
 [ng\:cloak], [ng-cloak], .ng-cloak {
   display: none !important;
 }
+
+
+.buoyGroup {
+  padding: 10px 0;
+  margin-bottom: 3px;
+}
+
+.buoyInstance {
+  padding-left: 20px;
+}

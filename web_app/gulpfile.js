@@ -17,9 +17,11 @@ var uglify = require('gulp-uglify');
 var ngAnnotate = require('gulp-ng-annotate');
 var livereload = require('gulp-livereload');
 var cache = require('gulp-cached');
+var plumber = require('gulp-plumber');
 
 gulp.task('js', function () {
   gulp.src(['app/**/*.module.js', 'app/**/*.js', '!app/**/*.spec.js'])
+    .pipe(plumber())
     .pipe(sourcemaps.init())
       .pipe(concat('app.js'))
       .pipe(ngAnnotate())

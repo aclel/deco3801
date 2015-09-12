@@ -16,6 +16,7 @@ import "time"
 
 type BuoyInstance struct {
 	Id            int       `json:"id" db:"id"`
+	Name          string    `json:"name" db:"name"`
 	BuoyId        int       `json:"buoyId" db:"buoy_id"`
 	BuoyName      string    `json:"buoyName" db:"buoy_name"`
 	BuoyGuid      string    `json:"buoyGuid" db:"buoy_guid"`
@@ -25,15 +26,47 @@ type BuoyInstance struct {
 }
 
 type BuoyInstanceRepository interface {
-	GetMostRecentBuoyInstance(string) (*BuoyInstance, error)
+	GetAllBuoyInstances() ([]BuoyInstance, error)
+	GetAllActiveBuoyInstances() ([]BuoyInstance, error)
+	GetActiveBuoyInstance(string) (*BuoyInstance, error)
 	CreateBuoyInstance(*BuoyInstance) error
+	UpdateBuoyInstance(*BuoyInstance) error
 	DeleteBuoyInstanceWithId(int) error
+	GetSensorsForBuoyInstance(int) ([]BuoyInstanceSensor, error)
 	AddSensorToBuoyInstance(int, int) error
 	DeleteBuoyInstanceSensor(int, int) error
+	GetWarningTriggersForBuoyInstance(int) ([]WarningTrigger, error)
+}
+
+// Get all Buoy Instances (both active and inactive)
+func (db *DB) GetAllBuoyInstances() ([]BuoyInstance, error) {
+	buoyInstances := []BuoyInstance{}
+	err := db.Select(&buoyInstances, "SELECT * FROM buoy_instance;")
+	if err != nil {
+		return nil, err
+	}
+
+	return buoyInstances, nil
+}
+
+// Get all active Buoy Instances. A Buoy can only have one
+// active Buoy Instance at any one time.
+func (db *DB) GetAllActiveBuoyInstances() ([]BuoyInstance, error) {
+	buoyInstances := []BuoyInstance{}
+	err := db.Select(&buoyInstances, `SELECT buoy_instance.id, buoy_instance.name, buoy_id, buoy_group_id, date_created
+		from buoy_instance 
+		INNER JOIN buoy on buoy_instance.buoy_id = buoy.id 
+		WHERE buoy_instance.id=buoy.active_buoy_instance_id;`)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return buoyInstances, nil
 }
 
 // Get the most recent buoy instance for the buoy with the given guid
-func (db *DB) GetMostRecentBuoyInstance(buoyGuid string) (*BuoyInstance, error) {
+func (db *DB) GetActiveBuoyInstance(buoyGuid string) (*BuoyInstance, error) {
 	dbBuoyInstance := BuoyInstance{}
 	err := db.Get(&dbBuoyInstance, `SELECT buoy_instance.id, buoy_id, buoy_group_id, date_created 
 		from buoy_instance 
@@ -78,6 +111,37 @@ func (db *DB) DeleteBuoyInstanceWithId(id int) error {
 	return nil
 }
 
+// Replace a Buoy Instance with the given updated Buoy Instance.
+// Only its name and buoy group can be changed.
+// When a Buoy Instance is updated, the active_buoy_instance_id for the parent buoy is updated
+func (db *DB) UpdateBuoyInstance(updatedBuoyInstance *BuoyInstance) error {
+	stmt, err := db.Preparex(`UPDATE buoy_instance SET name=?, buoy_group_id=? WHERE id=?;`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(updatedBuoyInstance.Name, updatedBuoyInstance.BuoyGroupId, updatedBuoyInstance.Id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Get all Sensors for the Buoy Instance with the given Id
+func (db *DB) GetSensorsForBuoyInstance(id int) ([]BuoyInstanceSensor, error) {
+	sensors := []BuoyInstanceSensor{}
+	err := db.Select(&sensors, `SELECT buoy_instance_sensor.id, sensor_type.id AS sensor_type_id
+							   FROM buoy_instance_sensor 
+							   INNER JOIN sensor_type ON buoy_instance_sensor.sensor_type_id=sensor_type.id 
+							   WHERE buoy_instance_sensor.buoy_instance_id=?`, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return sensors, nil
+}
+
 // Add a Sensor Type to a Buoy Instance
 func (db *DB) AddSensorToBuoyInstance(buoyInstanceId int, sensorTypeId int) error {
 	stmt, err := db.Preparex("INSERT INTO buoy_instance_sensor (buoy_instance_id, sensor_type_id) VALUES (?,?);")
@@ -106,4 +170,17 @@ func (db *DB) DeleteBuoyInstanceSensor(buoyInstanceId int, sensorTypeId int) err
 	}
 
 	return nil
+}
+
+// Get all Warning Triggers for the Buoy Instance with the given Id
+func (db *DB) GetWarningTriggersForBuoyInstance(id int) ([]WarningTrigger, error) {
+	warningTriggers := []WarningTrigger{}
+	err := db.Select(&warningTriggers, `SELECT *
+							   FROM warning_trigger
+							   WHERE buoy_instance_id=?`, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return warningTriggers, nil
 }

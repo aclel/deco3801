@@ -127,9 +127,7 @@
 			forgotPassword: forgotPassword
 		};
 		
-		function getReadings() {
-			console.log('querying server');
-			
+		function getReadings(from, to) {
 			var token = auth.getToken();
 			var config = {
 				headers: {
@@ -137,13 +135,20 @@
 				}
 			};
 			
-			var params = "?start_time=2006-01-02T15:04:00.999999-07:00&end_time=2016-01-02T15:05:05.999999-07:00";
+			var params = "?start_time=" + from + "&end_time=" + to;
 			
 			return $http.get(SERVER_ADDRESS + '/api/readings' + params, config);
 		}
 		
 		function getSensors() {
-			return dummySensors;
+			var token = auth.getToken();
+			var config = {
+				headers: {
+					'Authorization': 'Bearer ' + token
+				}
+			};
+			
+			return $http.get(SERVER_ADDRESS + '/api/sensor_types', config);
 		}
 		
 		function login(email, password) {

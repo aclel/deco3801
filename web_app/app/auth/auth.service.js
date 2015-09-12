@@ -36,7 +36,7 @@
 			var token = getToken();
 			if(token) {
 				var params = parseJwt(token);
-				return (moment.call().unix() <= params.exp);
+				return (moment().unix() <= params.exp);
 			} else {
 				return false;
 			}
@@ -71,6 +71,8 @@
 				'system_admin': 3,
 				'andrew': 99999
 			};
+			
+			if (role == 'any') return true;
 			
 			if (role == 'unauthed' && loggedIn()) {
 				return false;

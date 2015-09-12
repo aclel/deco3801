@@ -16,6 +16,7 @@ type Buoy struct {
 	Id   int    `json:"id" db:"id"`
 	Guid string `json:"guid" db:"guid"`
 	Name string `json:"name" db:"name"`
+	ActiveBuoyInstanceId int `json:"activeBuoyInstanceId" db:"active_buoy_instance_id"`
 }
 
 type BuoyRepository interface {

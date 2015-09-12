@@ -53,16 +53,32 @@ func (mdb *MockDB) AddCommandToBuoy(command *Command) error {
 }
 
 // BUOY INSTANCES
-func (mdb *MockDB) GetMostRecentBuoyInstance(guid string) (*BuoyInstance, error) {
+func (mdb *MockDB) GetActiveBuoyInstance(guid string) (*BuoyInstance, error) {
 	return &BuoyInstance{}, nil
+}
+
+func (mdb *MockDB) GetAllBuoyInstances() ([]BuoyInstance, error) {
+	return nil, nil
+}
+
+func (mdb *MockDB) GetAllActiveBuoyInstances() ([]BuoyInstance, error) {
+	return nil, nil
 }
 
 func (mdb *MockDB) CreateBuoyInstance(buoyInstance *BuoyInstance) error {
 	return nil
 }
 
+func (mdb *MockDB) UpdateBuoyInstance(updatedBuoyInstance *BuoyInstance) error {
+	return nil
+}
+
 func (mdb *MockDB) DeleteBuoyInstanceWithId(id int) error {
 	return nil
+}
+
+func (mdb *MockDB) GetSensorsForBuoyInstance(id int) ([]BuoyInstanceSensor, error) {
+	return nil, nil
 }
 
 func (db *MockDB) AddSensorToBuoyInstance(buoyId int, sensorTypeId int) error {
@@ -71,6 +87,10 @@ func (db *MockDB) AddSensorToBuoyInstance(buoyId int, sensorTypeId int) error {
 
 func (db *MockDB) DeleteBuoyInstanceSensor(buoyInstanceId int, sensorTypeId int) error {
 	return nil
+}
+
+func (mdb *MockDB) GetWarningTriggersForBuoyInstance(id int) ([]WarningTrigger, error) {
+	return nil, nil
 }
 
 // BUOY GROUPS
@@ -119,6 +139,14 @@ func (mdb *MockDB) GetAllCommandTypes() ([]CommandType, error) {
 }
 
 // COMMANDS
+func (mdb *MockDB) GetAllCommands() ([]Command, error) {
+	return nil, nil
+}
+
+func (mdb *MockDB) GetAllCommandsWithSent(sent bool) ([]Command, error) {
+	return nil, nil
+}
+
 func (mdb *MockDB) DeleteCommandWithId(id int) error {
 	return nil
 }
@@ -140,10 +168,23 @@ func (mdb *MockDB) DeleteUserWithId(id int) error {
 	return nil
 }
 
+// WARNING TRIGGERS
+func (mdb *MockDB) CreateWarningTrigger(warningTrigger *WarningTrigger) error {
+	return nil
+}
+
+func (mdb *MockDB) UpdateWarningTrigger(updatedWarningTrigger *WarningTrigger) error {
+	return nil
+}
+
+func (mdb *MockDB) DeleteWarningTriggerWithId(id int) error {
+	return nil
+}
+
 // AUTH
-func (mdb *MockDB) Login(user *User) ([]byte, error) {
+func (mdb *MockDB) Login(user *User) (*User, error) {
 	//shortened token, only checking for non-empty
-	return []byte(`{"token": "eyJhbGciOiJSUzI..."}`), nil
+	return &User{Token: "eyJhbGciOiJSUzI..."}, nil
 }
 
 func (mdb *MockDB) RefreshToken(user *User) ([]byte, error) {

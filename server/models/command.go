@@ -22,6 +22,8 @@ type Command struct {
 
 type CommandRepository interface {
 	DeleteCommandWithId(int) error
+	GetAllCommands() ([]Command, error)
+	GetAllCommandsWithSent(bool) ([]Command, error)
 }
 
 // Delete Command from the database with the given id.
@@ -37,4 +39,26 @@ func (db *DB) DeleteCommandWithId(id int) error {
 	}
 
 	return nil
+}
+
+// Get all Commands (both sent and unsent)
+func (db *DB) GetAllCommands() ([]Command, error) {
+	commands := []Command{}
+	err := db.Select(&commands, "SELECT * FROM buoy_command;")
+	if err != nil {
+		return nil, err
+	}
+
+	return commands, nil
+}
+
+// Get all Commands that have or have not been sent to buoys
+func (db *DB) GetAllCommandsWithSent(sent bool) ([]Command, error) {
+	commands := []Command{}
+	err := db.Select(&commands, "SELECT * FROM buoy_command WHERE sent=?;", sent)
+	if err != nil {
+		return nil, err
+	}
+
+	return commands, nil
 }

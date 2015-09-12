@@ -13,10 +13,10 @@
 (function() {
 	'use strict';
 	
-	angular.module('app.config')
-		.controller('ConfigController', ConfigController);
+	angular.module('app.admin')
+		.controller('AdminController', AdminController);
 	
-	function ConfigController(server) {
+	function AdminController(server) {
 		var vm = this;
 		
 		vm.sensors = server.getSensors();

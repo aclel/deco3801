@@ -13,14 +13,14 @@
 (function() {
 	'use strict';
 	
-	describe('Controller: ConfigController', function() {
+	describe('Controller: AdminController', function() {
 		var $controller, ctrl;
 		
-		beforeEach(module('app.config'));
+		beforeEach(module('app.admin'));
 		beforeEach(module('mock.server'));
 		
 		beforeEach(inject(function($controller, _server_) {
-			ctrl = $controller('ConfigController', {
+			ctrl = $controller('AdminController', {
 				server: _server_
 			});
 		}));

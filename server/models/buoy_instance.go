@@ -36,6 +36,8 @@ type BuoyInstanceRepository interface {
 	AddSensorToBuoyInstance(int, int) error
 	DeleteBuoyInstanceSensor(int, int) error
 	GetWarningTriggersForBuoyInstance(int) ([]WarningTrigger, error)
+	GetMostRecentReadingsForActiveBuoyInstances() ([]Reading, error)
+	GetWarningTriggersForActiveBuoyInstances() ([]WarningTrigger, error)
 }
 
 // Get all Buoy Instances (both active and inactive)
@@ -83,12 +85,12 @@ func (db *DB) GetActiveBuoyInstance(buoyGuid string) (*BuoyInstance, error) {
 
 // Create a new Buoy Instance - ie. Add a Buoy to a Buoy Group
 func (db *DB) CreateBuoyInstance(buoyInstance *BuoyInstance) error {
-	stmt, err := db.Preparex("INSERT INTO buoy_instance (buoy_id, buoy_group_id) VALUES (?, ?);")
+	stmt, err := db.Preparex("INSERT INTO buoy_instance (name, buoy_id, buoy_group_id) VALUES (?, ?, ?);")
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(buoyInstance.BuoyId, buoyInstance.BuoyGroupId)
+	_, err = stmt.Exec(buoyInstance.Name, buoyInstance.BuoyId, buoyInstance.BuoyGroupId)
 	if err != nil {
 		return err
 	}
@@ -178,6 +180,34 @@ func (db *DB) GetWarningTriggersForBuoyInstance(id int) ([]WarningTrigger, error
 	err := db.Select(&warningTriggers, `SELECT *
 							   FROM warning_trigger
 							   WHERE buoy_instance_id=?`, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return warningTriggers, nil
+}
+
+// Get the most recent Readings for all active Buoy Instances
+func (db *DB) GetMostRecentReadingsForActiveBuoyInstances() ([]Reading, error) {
+	readings := []Reading{}
+	err := db.Select(&readings, `SELECT * FROM (SELECT * FROM reading WHERE buoy_instance_id IN (
+									SELECT buoy_instance.id AS buoy_instance_id FROM buoy_instance
+									INNER JOIN buoy ON buoy_instance.id=buoy.active_buoy_instance_id 
+								) ORDER BY timestamp DESC) AS active_readings GROUP BY buoy_instance_id`)
+	if err != nil {
+		return nil, err
+	}
+
+	return readings, nil
+}
+
+// Get Warning Triggers for all active Buoy Instances
+func (db *DB) GetWarningTriggersForActiveBuoyInstances() ([]WarningTrigger, error) {
+	warningTriggers := []WarningTrigger{}
+	err := db.Select(&warningTriggers, `SELECT warning_trigger.id, warning_trigger.value, warning_trigger.operator, warning_trigger.message,
+									   warning_trigger.buoy_instance_id, warning_trigger.sensor_type_id
+									   FROM warning_trigger INNER JOIN buoy 
+									   ON warning_trigger.buoy_instance_id=buoy.active_buoy_instance_id`)
 	if err != nil {
 		return nil, err
 	}

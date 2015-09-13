@@ -1,6 +1,28 @@
 #!/usr/bin/python
+# Author: Henry Chladil 
+# Date Modififed: 12th Sep 2015
 from datetime import date
 import os,sys
+
+# To invoke: python doc.py 
+# Follow instructions as you go. 
+
+# User defined files to ignore
+ignore = [".DS_Store", "requests.postman_dump", ".html", ".json", ".log"]
+# User defined, add a new path as necessary
+serverpaths = ['./server', 
+               './server/handlers', 
+               './server/models'
+# User defined, add a new path as necessary
+webapppaths = ['./web_app', 
+			   './web_app/app', 
+			   './web_app/app/auth',
+			   './web_app/app/config', 
+			   './web_app/app/dashboard',
+		       './web_app/app/services', 
+		       './web_app/app/warnings']
+
+# Please do not try and update the code without testing first.       
 version = raw_input("Version (e.g. 0.0.1): ")
 codename = raw_input("Codename (e.g. Duyung): ")
 year = date.today().year
@@ -31,21 +53,7 @@ docstr = ("/**\n"
 		  " * @link       https://github.com/aclel/deco3801\n"
 		  " */\n").format(version, codename, year, name, email)
 
-ignore = [".DS_Store", "requests.postman_dump", ".html", ".json", ".log"]
 
-# User defined, add a new path as necessary
-serverpaths = ['./server', 
-               './server/handlers', 
-               './server/models']
-
-# User defined, add a new path as necessary
-webapppaths = ['./web_app', 
-			   './web_app/app', 
-			   './web_app/app/auth',
-			   './web_app/app/config', 
-			   './web_app/app/dashboard',
-		       './web_app/app/services', 
-		       './web_app/app/warnings']
 
 for root, dirs, files in os.walk("."):
 		if root in (serverpaths if server else webapppaths):

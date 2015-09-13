@@ -19,16 +19,16 @@ import (
 
 // Represents a reading for one sensor from a particular buoy instance.
 type Reading struct {
-	Id             int
-	Latitude       float64
-	Longitude      float64
-	Value          float64
-	Timestamp      string
-	BuoyGuid       string
-	SensorTypeId   int
-	BuoyInstanceId int
-	SensorTypeName string
-	MessageNumber  int
+	Id             int       `db:"id"`
+	Latitude       float64   `db:"latitude"`
+	Longitude      float64   `db:"longitude"`
+	Value          float64   `db:"value"`
+	Timestamp      time.Time `db:"timestamp"`
+	BuoyGuid       string    `db:"guid"`
+	SensorTypeId   int       `db:"sensor_type_id"`
+	BuoyInstanceId int       `db:"buoy_instance_id"`
+	SensorTypeName string    `db:"sensor_type_name"`
+	MessageNumber  int       `db:"message_number"`
 }
 
 type BuoyGroupsWrapper struct {

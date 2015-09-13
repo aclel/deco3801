@@ -93,6 +93,14 @@ func (mdb *MockDB) GetWarningTriggersForBuoyInstance(id int) ([]WarningTrigger, 
 	return nil, nil
 }
 
+func (mdb *MockDB) GetMostRecentReadingsForActiveBuoyInstances() ([]Reading, error) {
+	return nil, nil
+}
+
+func (mdb *MockDB) GetWarningTriggersForActiveBuoyInstances() ([]WarningTrigger, error) {
+	return nil, nil
+}
+
 // BUOY GROUPS
 func (mdb *MockDB) GetAllBuoyGroups() ([]BuoyGroup, error) {
 	return nil, nil

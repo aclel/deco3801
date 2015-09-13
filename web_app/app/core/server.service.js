@@ -10,13 +10,14 @@
  * @copyright  Team Neptune (2015)
  * @link       https://github.com/aclel/deco3801
  */
+/* global saveAs */
 (function() {
 	'use strict';
 	
 	angular.module('app')
 		.factory('server', server);
 	
-	function server($http, SERVER_ADDRESS, auth) {
+	function server($http, SERVER_ADDRESS, auth, moment) {
 		
 		return {
 			login: login,
@@ -30,7 +31,10 @@
 			updateBuoyGroupName: updateBuoyGroupName,
 			updateBuoyInstanceName: updateBuoyInstanceName,
 			newBuoyGroup: newBuoyGroup,
-			updateBuoyInstanceGroup: updateBuoyInstanceGroup
+			updateBuoyInstanceGroup: updateBuoyInstanceGroup,
+			getCommandTypes: getCommandTypes,
+			getBuoyCommands: getBuoyCommands,
+			exportData: exportData
 		};
 		
 		function headers() {
@@ -136,6 +140,40 @@
 			console.log(data);
 			return $http.post(SERVER_ADDRESS + '/api/buoy_instances',
 					JSON.stringify(data), config);
+		}
+		
+		function getCommandTypes() {
+			var config = addToken(headers());
+			return $http.get(SERVER_ADDRESS + '/api/command_types', config);
+		}
+		
+		function getBuoyCommands() {
+			var config = addToken(headers());
+			return $http.get(SERVER_ADDRESS + '/api/commands?sent=false', config);
+		}
+		
+		function exportData(readings) {
+			var config = addToken(headers());
+			config.responseType = 'arraybuffer';
+			config.headers['Accept'] = 'text/csv';
+			
+			var promise = $http.get(SERVER_ADDRESS + '/api/export?readings=' +
+				readings.join(), config);
+				
+			promise.then(function(res) {
+				var time = moment().format("DD-MM-YY-HHmm");
+				var filename = 'export-' + time + '.csv';
+				openSaveAsDialog(filename, res.data, 'text/csv');
+			}, function(res) {
+				console.error(res);
+			});
+			
+			return promise;
+		}
+		
+		function openSaveAsDialog(filename, content, mediaType) {
+			var blob = new Blob([content], {type: mediaType});
+			saveAs(blob, filename);
 		}
 	}
 })();

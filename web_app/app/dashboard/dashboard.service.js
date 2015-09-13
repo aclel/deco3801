@@ -36,7 +36,8 @@
 			updateFilters: updateFilters,
 			updateSensors: updateSensors,
 			getOldestReading: getOldestReading,
-			getRelativeAge: getRelativeAge
+			getRelativeAge: getRelativeAge,
+			exportData: exportData
 		};
 		
 		function queryReadings(from, to) {
@@ -424,6 +425,20 @@
 				return 1.0;
 			}
 			return (time.diff(min) / max.diff(min));
+		}
+		
+		function exportData() {
+			var readingIds = [];
+			filteredReadings.forEach(function(buoyGroup) {
+				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+					buoyInstance.readings.forEach(function(reading) {
+						readingIds.push(reading.id);
+					});
+				});
+			});
+			console.log(filteredReadings);
+			console.log(readingIds);
+			server.exportData(readingIds);
 		}
 	}
 })();

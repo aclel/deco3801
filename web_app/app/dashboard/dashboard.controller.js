@@ -31,6 +31,7 @@
 		vm.toggleBuoyGroup = toggleBuoyGroup;
 		vm.selectBuoyGroup = selectBuoyGroup;
 		vm.selectBuoyInstance = selectBuoyInstance;
+		vm.exportData = exportData;
 		
 		activate();
 		
@@ -153,6 +154,10 @@
 		function updateSensorsFilter() {
 			dashboard.updateSensors();
 			map.updateReadings();
+		}
+		
+		function exportData() {
+			dashboard.exportData();
 		}
 	}
 })();

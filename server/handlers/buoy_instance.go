@@ -226,3 +226,28 @@ func BuoyInstancesSensorsDelete(env *models.Env, w http.ResponseWriter, r *http.
 	w.WriteHeader(http.StatusOK)
 	return nil
 }
+
+// GET /api/buoy_instances/id/warning_triggers
+// Responds with HTTP 200. All warning triggers for the specified buoy instance are sent in the response body.
+func BuoyInstancesWarningTriggersIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing buoy instance id", http.StatusInternalServerError}
+	}
+
+	var warningTriggerWrapper WarningTriggerContainer
+	warningTriggerWrapper.WarningTriggers, err = env.DB.GetWarningTriggersForBuoyInstance(id)
+	if err != nil {
+		return &AppError{err, "Error retrieving warning triggers", http.StatusInternalServerError}
+	}
+
+	// Set return status and write to response body.
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	response, _ := json.Marshal(warningTriggerWrapper)
+	w.Write(response)
+
+	return nil
+}

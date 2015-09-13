@@ -72,7 +72,7 @@ var readingCreateTests = []struct {
 						"sensorName": "Turbidity",
 						"value": 40
 					}],
-					"timestamp": "2006-01-02T15:04:05Z07:00",
+					"timestamp": 1442115887,
 					"messageNumber": 1
 				}]
 			}`, http.StatusCreated},
@@ -87,7 +87,7 @@ var readingCreateTests = []struct {
 								"sensorName": "Turbidity",
 								"value": 40
 							}],
-							"timestamp": "2006-01-02T15:04:05Z07:00",
+							"timestamp": 1442115887,
 							"messageNumber": 1
 						}]
 					}`, http.StatusBadRequest},
@@ -101,7 +101,7 @@ var readingCreateTests = []struct {
 								"sensorName": "Turbidity",
 								"value": 40
 							}],
-							"timestamp": "2006-01-02T15:04:05Z07:00",
+							"timestamp": 1442115887,
 							"messageNumber": 1
 						}]
 					}`, http.StatusBadRequest},
@@ -115,7 +115,7 @@ var readingCreateTests = []struct {
 												"sensorName": "Turbidity",
 												"value": 40
 											}],
-											"timestamp": "2006-01-02T15:04:05Z07:00",
+											"timestamp": 1442115887,
 											"messageNumber": 1
 										}]
 									}`, http.StatusBadRequest},
@@ -129,7 +129,7 @@ var readingCreateTests = []struct {
 								"sensorName": "Turbidity",
 								"value": 40
 							}],
-							"timestamp": "2006-01-02T15:04:05Z07:00",
+							"timestamp": 1442115887,
 							"messageNumber": 1
 						}]
 					}`, http.StatusBadRequest},
@@ -143,7 +143,7 @@ var readingCreateTests = []struct {
 								"sensorName": "Turbidity",
 								"value": 40
 							}],
-							"timestamp": "2006-01-02T15:04:05Z07:00",
+							"timestamp": 1442115887,
 							"messageNumber": 1
 						}]
 					}`, http.StatusBadRequest},
@@ -157,7 +157,7 @@ var readingCreateTests = []struct {
 								"sensorName": "Turbidity",
 								"value": 40
 							}],
-							"timestamp": "2006-01-02T15:04:05Z07:00",
+							"timestamp": 1442115887,
 							"messageNumber": 1
 						}]
 					}`, http.StatusBadRequest},
@@ -171,7 +171,7 @@ var readingCreateTests = []struct {
 								"sensorName": "Turbidity",
 								"value": 40
 							}],
-							"timestamp": "2006-01-02T15:04:05Z07:00",
+							"timestamp": 1442115887,
 							"messageNumber": 1
 						}]
 					}`, http.StatusBadRequest},
@@ -183,7 +183,7 @@ var readingCreateTests = []struct {
 											"sensorName": "Turbidity",
 											"value": 40
 										}],
-										"timestamp": "2006-01-02T15:04:05Z07:00",
+										"timestamp": 1442115887,
 										"messageNumber": 1
 									}]
 								}`, http.StatusBadRequest},

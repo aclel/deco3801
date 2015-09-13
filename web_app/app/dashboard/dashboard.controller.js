@@ -28,28 +28,73 @@
 		vm.updateBuoysFilter = updateBuoysFilter;
 		vm.updateTimesFilter = updateTimesFilter;
 		vm.updateSensorsFilter = updateSensorsFilter;
+		vm.toggleBuoyGroup = toggleBuoyGroup;
+		vm.selectBuoyGroup = selectBuoyGroup;
+		vm.selectBuoyInstance = selectBuoyInstance;
 		
 		activate();
 		
 		function activate() {
-				dashboard.initialise().then(function() {
+			dashboard.queryReadings().then(function() {
 				vm.buoys = dashboard.buoys();
 				vm.times = dashboard.times();
-				vm.sensors = dashboard.sensors();
 				
 				dashboard.updateFilters();
 				map.updateReadings();
+			});
+			
+			dashboard.querySensors().then(function() {
+				vm.sensors = dashboard.sensors();
+				
+				// dashboard.updateFilters();
+				// map.updateReadings();
 			});
 		}
 			
 		$document.ready(function() {
 			map.initialiseMap();
-			// dashboard.updateFilters();
-			// map.updateReadings();
 		});
 		
-		function updateBuoysFilter(id, enabled) {
-			vm.buoys[id] = enabled;
+		function toggleBuoyGroup(buoyGroup) {
+			buoyGroup.collapsed = !buoyGroup.collapsed;
+		}
+		
+		function selectBuoyGroup(buoyGroup) {
+			buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+				buoyInstance.enabled = buoyGroup.enabled;
+			});
+			
+			updateBuoysFilter();
+		}
+		
+		function selectBuoyInstance(buoyGroup, buoyInstance) {
+			var allTrue = true;
+			var allFalse = true;
+			
+			buoyGroup.buoyInstances.forEach(function(instance) {
+				if (instance.enabled) {
+					allFalse = false;
+				} else {
+					allTrue = false;
+				}
+			});
+			
+			if (allFalse) {
+				buoyGroup.enabled = false;
+			} else {
+				buoyGroup.enabled = true;
+			}
+			
+			if (allFalse || allTrue) {
+				buoyGroup.indeterminate = false;
+			} else {
+				buoyGroup.indeterminate = true;
+			}
+			
+			updateBuoysFilter();
+		}
+		
+		function updateBuoysFilter() {
 			dashboard.updateBuoys();
 			map.updateReadings();
 		}
@@ -59,24 +104,30 @@
 			// and update vm.times, which updates reference in dashboard service
 			if (timesInputsValid()) {
 				var momentFormat = dateFormat + " " + timeFormat;
+				
 				if (vm.times.type == 'range') {
-					vm.times.range.from = moment.call(vm.times.inputs.range.from.date
+					vm.times.range.from = moment(vm.times.inputs.range.from.date
 						+ " " + vm.times.inputs.range.from.time, momentFormat);
-					vm.times.range.to = moment.call(vm.times.inputs.range.to.date
+					vm.times.range.to = moment(vm.times.inputs.range.to.date
 						+ " " + vm.times.inputs.range.to.time, momentFormat);
-				} else if (vm.times.type == 'point') {
-					vm.times.point = moment.call(vm.times.inputs.point.date
+				}
+				
+				else if (vm.times.type == 'point') {
+					vm.times.point = moment(vm.times.inputs.point.date
 						+ " " + vm.times.inputs.point.time, momentFormat);
 				}
 				
-				dashboard.updateTimes();
-				map.updateReadings();
+				dashboard.updateTimes().then(function() {
+					map.updateReadings();
+				});
 			}
 		}
 		
 		function timesInputsValid() {
-			if (vm.times.type == 'all') {
-				return true;
+			if (vm.times.type == 'since') {
+				if (vm.times.inputs.since.value) {
+					return true;
+				}
 			}
 			if (vm.times.type == 'range') {
 				// valid combinations: all filled, dates filled, times filled

@@ -75,51 +75,50 @@
 					closeInfoBox();
 				}
 		    });
-			
-			// mark readings
-			var readings = dashboard.readings();
-			for (var i = 0; i < readings.length; i++) {
-				addMarker(readings[i]);
-			}
 		}
 		
 		function updateReadings() {
 			var readings = dashboard.readings();
-			
+		
 			// create an array of readings which should be enabled
-			var enabledReadings = [];
-			for (var i = 0; i < readings.length; i++) {
-				enabledReadings.push(readings[i].id);
-			}
+			var enabledBuoyInstances = [];
+			readings.forEach(function(buoyGroup) {
+				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+					enabledBuoyInstances.push(buoyInstance.id);
+				});
+			});
 			
 			// disable markers which shouldn't be enabled
 			for (var key in markers) {
 				if (markers.hasOwnProperty(key)) {
 					key = parseInt(key, 10);
-					if (enabledReadings.indexOf(key) == -1) {
+					if (enabledBuoyInstances.indexOf(key) == -1) {
 						disableMarker(key);
 					}
 				}
 			}
-			
-			// add and re-enable markers
-			for (var i = 0; i < readings.length; i++) {
-				var id = readings[i].id;
-				if (!markers.hasOwnProperty(id)) {
-					addMarker(readings[i]);
-				} else {
-					// update opacity
-					markers[id].setOpacity(calculateOpacity(readings[i]));
-					
-					// re-enable disabled markers
-					if (disabledMarkers.indexOf(id) != -1) {
-						enableMarker(id);
-					}
-				}
-			}
+
+			readings.forEach(function(buoyGroup) {
+				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+					buoyInstance.readings.forEach(function(reading) {
+						var id = reading.id;
+						if (!markers.hasOwnProperty(id)) {
+							addMarker(reading, buoyInstance);
+						} else {
+							// update opacity
+							markers[id].setOpacity(calculateOpacity(reading));
+							
+							// re-enable disabled markers
+							if (disabledMarkers.indexOf(id) != -1) {
+								enableMarker(id);
+							}
+						}
+					})
+				});
+			});
 		}
 		
-		function addMarker(reading) {
+		function addMarker(reading, buoyInstance) {
 			var marker = new google.maps.Marker({
 				position: new google.maps.LatLng(reading.latitude, reading.longitude),
 				map: map,
@@ -128,7 +127,7 @@
 			});
 			
 			google.maps.event.addListener(marker, 'click', function() {
-				openInfoBox(reading, marker);
+				openInfoBox(reading, buoyInstance, marker);
 			});
 			
 			markers[reading.id] = marker;
@@ -162,7 +161,7 @@
 			infoBoxOpen = false;
 		}
 		
-		function openInfoBox(reading, marker) {
+		function openInfoBox(reading, buoyInstance, marker) {
 			if (infoBoxOpen) {
 				closeInfoBox();
 				
@@ -171,18 +170,7 @@
 				}
 			}
 			
-			var formattedTime = moment.unix(reading.timestamp)
-										.format('D MMMM h:mm A');
-			
-			var content = "<div>" +
-							"<h5 style='color: white'>Buoy " + reading.buoy + "</h5>" +
-							formattedTime + 
-							"<br>---" +
-							"<br>Battery: " + reading.readings.battery +
-							"<br>Pressure: " + reading.readings.pressure +
-							"<br>Sea level: " + reading.readings.sealevel +
-							"<br>Turbidity: " + reading.readings.turbidity +
-							"</div>";
+			var content = popupContent(reading, buoyInstance);
 							
 			infoBox = new InfoBox({
 				content: content,
@@ -192,7 +180,7 @@
 	                // "background": "url('http://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobox/examples/tipbox.gif') no-repeat",
 					"color": "white",
 					"background-color": "rgb(40, 40, 40)",
-					"width": "120px",
+					"width": "150px",
 					"padding": "10px",
 					"border-radius": "10px"
 	            },
@@ -202,6 +190,29 @@
 			infoBox.open(map, marker);			
 			infoBoxOpen = true;
 			currentMarkerId = reading.id;
+		}
+		
+		function popupContent(reading, buoyInstance) {
+			var sensors = dashboard.sensorMetadata();
+			console.log(sensors);
+			var formattedTime = moment.unix(reading.timestamp)
+										.format('D MMMM h:mm A');
+										
+			var content = "<div>" +
+				"<h5 style='color: white'>" + buoyInstance.name + "</h5>" +
+				formattedTime + 
+				"<br>---";
+			
+			reading.sensorReadings.forEach(function(sensorReading) {
+				content += "<br>" + 
+					sensors[sensorReading.sensorTypeId].name +
+					": " + sensorReading.value + " " +
+					sensors[sensorReading.sensorTypeId].unit;
+			});			
+				
+			content += "</div>";
+				
+			return content;
 		}
 	}
 })();

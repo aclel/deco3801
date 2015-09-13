@@ -27,20 +27,18 @@ func LoginHandler(env *models.Env, w http.ResponseWriter, r *http.Request) *AppE
 	decoder := json.NewDecoder(r.Body)
 	decoder.Decode(&requestUser)
 
-	response, err := env.DB.Login(requestUser)
+	user, err := env.DB.Login(requestUser)
 	if err != nil {
-		return &AppError{err, "Error while authenticating the user", http.StatusInternalServerError}
+		return &AppError{err, "Error while authenticating the user", http.StatusUnauthorized}
 	}
 
-	var responseStatus int
-	if len(response) == 0 {
-		responseStatus = http.StatusUnauthorized
-	} else {
-		responseStatus = http.StatusOK
+	response, err := json.Marshal(user)
+	if err != nil {
+		return &AppError{err, "Error marshalling user json", http.StatusUnauthorized}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(responseStatus)
+	w.WriteHeader(http.StatusOK)
 	w.Write(response)
 
 	return nil

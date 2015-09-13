@@ -74,9 +74,16 @@
 			
 			if (role == 'any') return true;
 			
-			if (role == 'unauthed' && loggedIn()) {
-				return false;
+			if (role == 'unauthed') {
+				if (loggedIn()) {
+					return false;
+				}
+			} else {
+				if (!loggedIn()) {
+					return false;
+				}
 			}
+			
 			return (roles[currentUserRole()] >= roles[role]);
 		}
 		

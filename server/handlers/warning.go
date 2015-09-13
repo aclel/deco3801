@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/aclel/deco3801/server/models"
@@ -28,7 +27,6 @@ func WarningsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 	if err != nil {
 		return &AppError{err, "Error retrieving warning triggers", http.StatusInternalServerError}
 	}
-	fmt.Println(warningTriggers)
 
 	// Get a warning for every Warning Trigger which is satisfied by the most recent Reading
 	// for each Buoy Instance Sensor
@@ -50,10 +48,9 @@ func getWarnings(recentReadings []models.Reading, warningTriggers []models.Warni
 	warnings := []models.Warning{}
 	for _, reading := range recentReadings {
 		for _, warningTrigger := range warningTriggers {
-			fmt.Println("hello")
 			if reading.BuoyInstanceId == warningTrigger.BuoyInstanceId && reading.SensorTypeId == warningTrigger.SensorTypeId {
 				if isWarningTriggerSatisfied(reading, warningTrigger) {
-					warnings = append(warnings, models.Warning{WarningLevel: reading.Value, WarningTrigger: warningTrigger})
+					warnings = append(warnings, models.Warning{ReadingValue: reading.Value, WarningTrigger: warningTrigger})
 				}
 			}
 		}
@@ -63,7 +60,6 @@ func getWarnings(recentReadings []models.Reading, warningTriggers []models.Warni
 
 func isWarningTriggerSatisfied(reading models.Reading, warningTrigger models.WarningTrigger) bool {
 	operator := warningTrigger.Operator
-	fmt.Println(operator)
 	switch operator {
 	case ">":
 		if reading.Value > warningTrigger.Value {

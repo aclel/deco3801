@@ -1,6 +1,6 @@
 package models
 
 type Warning struct {
-	WarningLevel   float64        `json:"warningLevel"`
+	ReadingValue   float64        `json:"readingValue"`
 	WarningTrigger WarningTrigger `json:"warningTrigger"`
 }

@@ -2,7 +2,7 @@ package models
 
 type WarningTrigger struct {
 	Id             int     `json:"id" db:"id"`
-	Value          float32 `json:"value" db:"value"`
+	Value          float64 `json:"value" db:"value"`
 	Operator       string  `json:"operator" db:"operator"`
 	Message        string  `json:"message" db:"message"`
 	BuoyInstanceId int     `json:"buoyInstanceId" db:"buoy_instance_id"`

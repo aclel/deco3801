@@ -82,6 +82,8 @@ func NewRouter(env *models.Env) *mux.Router {
 	r.Handle("/api/warning_triggers", defaultChain.Then(AuthHandler{env, WarningTriggersBatchDelete, "researcher"})).Methods("DELETE", "OPTIONS")
 	r.Handle("/api/warning_triggers/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, WarningTriggersDelete, "researcher"})).Methods("DELETE", "OPTIONS")
 
+	r.Handle("/api/warnings", defaultChain.Then(AuthHandler{env, WarningsIndex, "researcher"})).Methods("GET", "OPTIONS")
+
 	r.Handle("/api/users", defaultChain.Then(AuthHandler{env, UsersIndex, "researcher"})).Methods("GET", "OPTIONS")
 	r.Handle("/api/users/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, UsersDelete, "researcher"})).Methods("DELETE", "OPTIONS")
 

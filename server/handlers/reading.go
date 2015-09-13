@@ -15,7 +15,6 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -105,7 +104,6 @@ func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContainer) ([]models.Reading, *AppError) {
 	// Get most recent buoy instance for buoy with guid
 	buoyInstance, err := env.DB.GetActiveBuoyInstance(readingsContainer.BuoyGuid)
-	fmt.Println(buoyInstance.Id)
 	if err != nil {
 		return nil, &AppError{err, "Could not get the most recent buoy instance for a buoy with the specified guid", http.StatusBadRequest}
 	}

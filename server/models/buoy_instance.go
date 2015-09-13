@@ -85,12 +85,12 @@ func (db *DB) GetActiveBuoyInstance(buoyGuid string) (*BuoyInstance, error) {
 
 // Create a new Buoy Instance - ie. Add a Buoy to a Buoy Group
 func (db *DB) CreateBuoyInstance(buoyInstance *BuoyInstance) error {
-	stmt, err := db.Preparex("INSERT INTO buoy_instance (buoy_id, buoy_group_id) VALUES (?, ?);")
+	stmt, err := db.Preparex("INSERT INTO buoy_instance (name, buoy_id, buoy_group_id) VALUES (?, ?, ?);")
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(buoyInstance.BuoyId, buoyInstance.BuoyGroupId)
+	_, err = stmt.Exec(buoyInstance.Name, buoyInstance.BuoyId, buoyInstance.BuoyGroupId)
 	if err != nil {
 		return err
 	}

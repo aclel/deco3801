@@ -132,6 +132,10 @@ func (mdb *MockDB) CreateReading(reading *Reading) error {
 	return nil
 }
 
+func (mdb *MockDB) GetReadingsIn(readingsIds []int) ([][]string, error) {
+	return nil, nil
+}
+
 // SENSOR TYPES
 func (mdb *MockDB) GetSensorTypeWithName(name string) (*SensorType, error) {
 	return &SensorType{}, nil

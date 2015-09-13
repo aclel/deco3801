@@ -49,7 +49,7 @@ type BuoyReading struct {
 	Latitude       float64         `json:"latitude"`
 	Longitude      float64         `json:"longitude"`
 	SensorReadings []SensorReading `json:"sensorReadings"`
-	Timestamp      string          `json:"timestamp"`
+	Timestamp      int64           `json:"timestamp"`
 	MessageNumber  int             `json:"messageNumber"`
 }
 

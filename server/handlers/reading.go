@@ -129,7 +129,7 @@ func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContain
 			reading.SensorTypeId = sensorType.Id
 
 			reading.Value = s.Value
-			reading.Timestamp = r.Timestamp
+			reading.Timestamp = time.Unix(r.Timestamp, 0).UTC()
 			reading.MessageNumber = r.MessageNumber
 
 			if e := validateReading(reading); e != nil {

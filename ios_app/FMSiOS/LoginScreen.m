@@ -8,6 +8,7 @@
 //
 
 // TODO: save login details
+// TODO: server options
 
 #import "LoginScreen.h"
 

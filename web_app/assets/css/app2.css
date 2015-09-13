@@ -141,3 +141,12 @@ table {
 .buoyInstance {
   padding-left: 20px;
 }
+
+.red {
+  color: red;
+}
+
+.listButton {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}

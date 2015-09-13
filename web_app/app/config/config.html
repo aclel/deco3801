@@ -1,61 +1,105 @@
-<div class="grid-content">
-	<div>
-		<h3>Configure Sensors</h3>
-		<table>
-			<thead>
-				<tr>
-					<th>ID</th>
-					<th>Name</th>
-					<th>Description</th>
-					<th>Colour</th>
-					<th>Units</th>
-					<th>Lower Bound</th>
-					<th>Upper Bound</th>
-					<th>Display</th>
-					<th></th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr ng-repeat="sensor in vm.sensors" 
-						ng-class="{ unconfiguredSensor: sensor.unconfigured,
-									invalidSensor: !vm.sensorValid(sensor) }">
-					<td>
-						{{ sensor.id }}
-					</td>
-					<td>
-						<span ng-show="!vm.sensorsEdit[$index]">{{ sensor.name }}</span>
-						<input ng-show="vm.sensorsEdit[$index]" type="text" ng-model="sensor.name">
-					</td>
-					<td>
-						<span ng-show="!vm.sensorsEdit[$index]">{{ sensor.description }}</span>
-						<input ng-show="vm.sensorsEdit[$index]" type="text" ng-model="sensor.description">
-					</td>
-					<td>
-						<span ng-show="!vm.sensorsEdit[$index]">{{ sensor.colour }}</span>
-						<input ng-show="vm.sensorsEdit[$index]" type="text" ng-model="sensor.colour">
-					</td>
-					<td>
-						<span ng-show="!vm.sensorsEdit[$index]">{{ sensor.units }}</span>
-						<input ng-show="vm.sensorsEdit[$index]" type="text" ng-model="sensor.units">
-					</td>
-					<td>
-						<span ng-show="!vm.sensorsEdit[$index]">{{ sensor.lowerBound }}</span>
-						<input ng-show="vm.sensorsEdit[$index]" type="text" ng-model="sensor.lowerBound">
-					</td>
-					<td>
-						<span ng-show="!vm.sensorsEdit[$index]">{{ sensor.upperBound }}</span>
-						<input ng-show="vm.sensorsEdit[$index]" type="text" ng-model="sensor.upperBound">
-					</td>
-					<td>
-						<input type="checkbox" ng-model="sensor.display">
-					</td>
-					<td>
-						<button ng-click="vm.toggleEdit($index)">
-							{{ vm.sensorsEdit[$index] ? 'Save' : 'Edit' }}
-						</button>
-					</td>
-				</tr>
-			</tbody>
-		</table>
+<div class="medium-4 grid-block vertical shadow-glow">
+	<div class="grid-content shadow-bottom shrink">
+		<h3>Select Buoys</h3>
+		<ul>
+			<li class="expand info button listButton"
+				ng-click="vm.selectAll()">
+				All Buoys
+			</li>
+		</ul>
+	</div>
+	<div class="grid-content shadow-bottom">
+		<h4>Buoy Groups</h4>
+		<ul>
+			<li class="expand button listButton"
+				ng-click="vm.selectNewBuoyGroup()">
+				New Buoy Group
+			</li>
+			<li class="expand info button listButton"
+				ng-repeat="buoyGroup in vm.buoyGroups | filter:vm.buoyGroupFilter"
+				ng-click="vm.selectBuoyGroup(buoyGroup)">
+					{{ buoyGroup.name }}
+			</li>
+		</ul>
+	</div>
+	<div class="grid-content shadow-bottom">
+		<h4>Buoy Instances</h4>
+		<ul>
+			<li class="expand info button listButton"
+				ng-repeat="buoyInstance in vm.buoyInstances"
+				ng-click="vm.selectBuoyInstance(buoyInstance)">
+					<span ng-if="buoyInstance.name != ''">{{ buoyInstance.name }}</span>
+					<span ng-if="buoyInstance.name == ''" class="red">(no name)</span>
+					({{ buoyInstance.buoyGroupName }})
+			</li>
+		</ul>
+	</div>
+</div>
+<div class="medium-8 grid-content">
+	<div ng-if="vm.selected.type == 'group'">
+		<div>
+			<h3>{{ vm.selected.obj.name }}</h3>
+			<!--<span ng-if="vm.selected.obj.buoyGroupName != ''">
+				({{ vm.selected.obj.buoyGroupName }})
+			</span>-->
+		</div>
+		<div>
+			<div ng-if="!vm.editName.on">
+				<button class="small button" ng-click="vm.startEditingName()">Edit name</button>
+			</div>
+			<form ng-if="vm.editName.on">
+				<input type="text" ng-model="vm.selected.obj.name">
+				<input type="submit" ng-click="vm.finishEditingName()"
+					value="Save" class="small button">
+			</form>
+		</div>
+	</div>
+	<div ng-if="vm.selected.type == 'newGroup'">
+		<label>Name</label>
+		<form>
+			<input type="text" ng-model="vm.editName.value">
+			<input type="submit" ng-click="vm.saveNewBuoyGroup()" 
+				value="Save" class="small button">
+		</form>
+	</div>
+	<div ng-if="vm.selected.type == 'instance'">
+		<div>
+			<h3 ng-if="vm.selected.obj.name != ''">{{ vm.selected.obj.name }}</h3>
+			<h3 ng-if="vm.selected.obj.name == ''" class="red">(no name)</h3>
+			<!--<span ng-if="vm.selected.obj.buoyGroupName != ''">
+				({{ vm.selected.obj.buoyGroupName }})
+			</span>-->
+		</div>
+		<div>
+			<div ng-if="!vm.editName.on && !vm.editGroup.on">
+				<button class="small button" ng-click="vm.startEditingName()">Edit name</button>
+			</div>
+			<form ng-if="vm.editName.on">
+				<input type="text" ng-model="vm.selected.obj.name">
+				<input type="submit" ng-click="vm.finishEditingName()"
+					value="Save" class="small button">
+			</form>
+		</div>
+		<div>
+			<div ng-if="!vm.editGroup.on">
+				<span>{{ vm.selected.obj.buoyGroupName }} 
+					<button class="small button" ng-click="vm.startEditingBuoyGroup()"
+						ng-if="!vm.editName.on">Edit group</button>
+				</span>
+			</div>
+			<form ng-if="vm.editGroup.on">
+				<label>New name</label>
+				<input type="text" ng-model="vm.editGroup.name">
+				<label>New group</label>
+				<select type="button" class="btn btn-default" 
+						ng-model="vm.editGroup.buoyGroupId" 
+						bs-options="opt.id as opt.name for opt in vm.buoyGroups"
+						bs-select>
+				</select>
+				<br>
+				<input type="submit" ng-click="vm.finishEditingBuoyGroup()"
+					value="Save" class="small button">
+			</form>
+		</div>
 	</div>
 </div>

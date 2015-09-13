@@ -23,6 +23,7 @@
         // Feature modules        
         'app.dashboard',
         'app.config',
-        'app.warnings'
+        'app.warnings',
+        'app.admin'
     ]);
 })();

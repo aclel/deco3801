@@ -14,7 +14,10 @@ package models
 
 import (
 	"fmt"
+	"strconv"
 	"time"
+
+	"github.com/jmoiron/sqlx"
 )
 
 // Represents a reading for one sensor from a particular buoy instance.
@@ -38,6 +41,7 @@ type BuoyGroupsWrapper struct {
 type ReadingRepository interface {
 	CreateReading(*Reading) error
 	GetAllReadings(time.Time, time.Time) (*MapReadingBuoyGroupsWrapper, error)
+	GetReadingsIn([]int) ([][]string, error)
 }
 
 // Insert a new Reading into the database
@@ -223,4 +227,39 @@ func buildReadingsIndexData(mapReadings []DbMapReading) (*MapReadingBuoyGroupsWr
 	}
 
 	return buoyGroupsWrapper, nil
+}
+
+func (db *DB) GetReadingsIn(readingsIds []int) ([][]string, error) {
+	query, args, err := sqlx.In("SELECT value, latitude, longitude, timestamp FROM reading WHERE id IN (?)", readingsIds)
+	if err != nil {
+		return nil, err
+	}
+	query = db.Rebind(query)
+
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+
+	var readings [][]string
+	var value float64
+	var latitude float64
+	var longitude float64
+	var timestamp time.Time
+
+	for rows.Next() {
+		err = rows.Scan(&value, &latitude, &longitude, &timestamp)
+		if err != nil {
+			return nil, err
+		}
+
+		val := strconv.FormatFloat(value, 'f', -1, 64)
+		lat := strconv.FormatFloat(latitude, 'f', -1, 64)
+		long := strconv.FormatFloat(longitude, 'f', -1, 64)
+		result := []string{val, lat, long, timestamp.UTC().String()}
+
+		readings = append(readings, result)
+	}
+
+	return readings, nil
 }

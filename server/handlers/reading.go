@@ -13,11 +13,14 @@
 package handlers
 
 import (
+	"bytes"
+	"encoding/csv"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/aclel/deco3801/server/models"
@@ -159,6 +162,42 @@ func validateReading(reading *models.Reading) *AppError {
 	if reading.Longitude < -180.0 || reading.Longitude > 180 {
 		return &AppError{errors.New("Reading: "), "Invalid longitude", http.StatusBadRequest}
 	}
+
+	return nil
+}
+
+// GET /api/export?readings=1,2,3,4
+func ReadingsExport(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	u, err := url.Parse(r.URL.String())
+	params, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return &AppError{err, "Error parsing query parameters", http.StatusInternalServerError}
+	}
+
+	readingsParam := strings.Split(params["readings"][0], ",")
+
+	var readingsIds []int
+	for _, id := range readingsParam {
+		i, err := strconv.Atoi(id)
+		if err != nil {
+			return &AppError{err, "Error parsing query parameters into ints", http.StatusInternalServerError}
+		}
+		readingsIds = append(readingsIds, i)
+	}
+
+	readings, err := env.DB.GetReadingsIn(readingsIds)
+	if err != nil {
+		return &AppError{err, "Error retrieving readings", http.StatusInternalServerError}
+	}
+
+	b := &bytes.Buffer{}
+	wr := csv.NewWriter(b)
+	wr.WriteAll(readings)
+
+	w.Header().Set("Content-Type", "text/csv")
+	w.Header().Set("Content-Disposition", "attachment;filename=export.csv")
+	w.WriteHeader(http.StatusOK)
+	w.Write(b.Bytes())
 
 	return nil
 }

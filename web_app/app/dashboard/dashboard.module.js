@@ -20,5 +20,6 @@
 		
 		// 3rd-party modules
 		'chart.js',
+		'ui.indeterminate'
 	]);
 })();

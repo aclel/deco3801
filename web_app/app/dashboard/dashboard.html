@@ -1,21 +1,25 @@
 <div class="medium-3 grid-block vertical">
 	<div class="grid-content shadow-bottom">
-		<h3>Buoys</h3>
-
-		<div ng-repeat="(id, enabled) in vm.buoys">
-			<input type="checkbox" ng-model="enabled" ng-change="vm.updateBuoysFilter(id, enabled)">
-			Buoy {{ id }}
-		</div>
-	</div>
-	<div class="grid-content shadow-bottom">
 		<h3>Times</h3>
 		
 		<div class="btn-group" ng-model="vm.times.type" bs-radio-group>
-			<label class="btn btn-default"><input type="radio" class="btn btn-default" value="all" ng-change="vm.updateTimesFilter()">All</label>
+			<label class="btn btn-default"><input type="radio" class="btn btn-default" value="since" ng-change="vm.updateTimesFilter()">Since</label>
 			<label class="btn btn-default"><input type="radio" class="btn btn-default" value="range" ng-change="vm.updateTimesFilter()">Range</label>
-			<label class="btn btn-default"><input type="radio" class="btn btn-default" value="point" ng-change="vm.updateTimesFilter()">Slice</label>
+			<label class="btn btn-default"><input type="radio" class="btn btn-default" value="point" ng-change="vm.updateTimesFilter()">Point</label>
 		</div>
 		<div class="timefilters">
+			<div ng-show="vm.times.type=='since'">
+				<label><i class="fa fa-calendar"></i>Since</label>
+				<input type="text" ng-model="vm.times.inputs.since.value" ng-change="vm.updateTimesFilter()" name="value">
+				
+				<button type="button" class="btn btn-default" 
+							ng-model="vm.times.inputs.since.quantifier" 
+							bs-options="opt for opt in vm.times.inputs.since.options"
+							ng-change="vm.updateSensorsFilter()" bs-select>
+				</button>
+			</div>
+			
+			
 			<div ng-show="vm.times.type == 'range'">
 				<!--<div class="form-group" ng-class="{'has-error': datepickerForm.date.$invalid}">-->
 				<div>
@@ -52,6 +56,24 @@
 				    <input type="text" size="8" ng-model="vm.times.inputs.point.time" ng-change="vm.updateTimesFilter()" name="time" placeholder="hh:mm" bs-timepicker>
 				  <!--</div>-->
 				</div>	  
+			</div>
+		</div>
+	</div>
+	<div class="grid-content shadow-bottom">
+		<h3>Buoys</h3>
+
+		<div ng-repeat="buoyGroup in vm.buoys" class="buoyGroup">
+			<a class="btn btn-xs" ng-if="buoyGroup.buoyInstances && buoyGroup.buoyInstances.length > 0" ng-click="vm.toggleBuoyGroup(buoyGroup)"><span
+					class="glyphicon"
+					ng-class="{
+					'glyphicon-chevron-right': buoyGroup.collapsed,
+					'glyphicon-chevron-down': !buoyGroup.collapsed
+					}"></span></a>
+			<input type="checkbox" ng-model="buoyGroup.enabled" ui-indeterminate="buoyGroup.indeterminate" ng-change="vm.selectBuoyGroup(buoyGroup)">
+			{{ buoyGroup.name }}
+			<div ng-if="!buoyGroup.collapsed" ng-repeat="buoyInstance in buoyGroup.buoyInstances" class="buoyInstance">
+				<input type="checkbox" ng-model="buoyInstance.enabled" ng-change="vm.selectBuoyInstance(buoyGroup)">
+				{{ buoyInstance.name }}
 			</div>
 		</div>
 	</div>

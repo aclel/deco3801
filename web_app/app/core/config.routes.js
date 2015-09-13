@@ -16,7 +16,7 @@
 				state: 'hello',
 				config: {
 					url: '/hello',
-					template: '<h3>Welcome to Dugong Territory</h3>',
+					controller: 'HelloController',
 					data: {
 						access: 'any'
 					}

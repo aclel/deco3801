@@ -7,7 +7,9 @@
 //
 
 // TODO: good buoy icon
-// TODO: spin refresh icon when loading
+// TODO: show name/email at top
+// TODO: buoy groupings
+// TODO: buoy distance from self
 
 
 #import "BuoyScreen.h"
@@ -16,7 +18,10 @@
 
 @property (strong, nonatomic) MKMapView *map;
 @property (strong, nonatomic) CLLocationManager *l;
-@property (strong, nonatomic) UIBarButtonItem *pButton;
+@property (strong, nonatomic) UIBarButtonItem *pButton; //info popup
+@property (strong, nonatomic) UIBarButtonItem *rButton; //refresh button
+@property (strong, nonatomic) UIActivityIndicatorView *rInd;
+@property (strong, nonatomic) UIBarButtonItem *rIndButton;
 @property (strong, nonatomic) UIViewController *popup;
 
 @property (strong, nonatomic) NSArray *buoys; // List of all buoys to display
@@ -105,6 +110,11 @@
     UIButton *tempInfoB = [UIButton buttonWithType:UIButtonTypeInfoLight];
     UIBarButtonItem *infoIcon = [[UIBarButtonItem alloc] initWithImage:tempInfoB.currentImage style:UIBarButtonItemStylePlain target:self action:@selector(infoButtonPressed)];
     UIBarButtonItem *refreshIcon = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(refreshButtonPressed)];
+    UIActivityIndicatorView *refreshInd = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    [refreshInd sizeToFit];
+    [refreshInd startAnimating];
+    refreshInd.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
+    UIBarButtonItem *refreshIndIcon = [[UIBarButtonItem alloc] initWithCustomView:refreshInd];
     
     self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:infoIcon, posIcon, refreshIcon, nil];
     
@@ -113,6 +123,11 @@
     pContents.delegate = self;
     self.pButton = infoIcon;
     self.popup = pContents;
+    
+    // Refresh settings
+    self.rButton = refreshIcon;
+    self.rInd = refreshInd;
+    self.rIndButton = refreshIndIcon;
     
     // Fin
     [self.view addSubview:self.map];
@@ -142,6 +157,33 @@
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
     return UIStatusBarStyleLightContent;
+}
+
+#pragma mark - UI changes
+- (void)setRefreshIconLoading {
+    NSMutableArray *a = [[NSMutableArray alloc] init];
+    for (UIBarButtonItem *b in self.navigationItem.rightBarButtonItems) {
+        if (b == self.rButton) {
+            [a addObject:self.rIndButton];
+        } else {
+            [a addObject:b];
+        }
+    }
+    
+    self.navigationItem.rightBarButtonItems = a;
+}
+
+- (void)setRefreshIconRefresh {
+    NSMutableArray *a = [[NSMutableArray alloc] init];
+    for (UIBarButtonItem *b in self.navigationItem.rightBarButtonItems) {
+        if (b == self.rIndButton) {
+            [a addObject:self.rButton];
+        } else {
+            [a addObject:b];
+        }
+    }
+    
+    self.navigationItem.rightBarButtonItems = a;
 }
 
 #pragma mark - Orientation
@@ -186,7 +228,10 @@
 }
 
 - (void)didGetBuoyListFromServer:(NSArray *)buoys {
-    // Remove all map annotations
+    // Stop loading icon
+    [self setRefreshIconRefresh];
+    
+    // Remove all current map annotations
     if (self.buoys != nil) {
         [self.map removeAnnotations:self.buoys];
     }
@@ -200,7 +245,7 @@
     self.buoys = buoys;
 }
 
-#pragma mark - UI changes
+#pragma mark - UI events
 - (UIModalPresentationStyle)adaptivePresentationStyleForPresentationController:(UIPresentationController *)controller {
     return UIModalPresentationNone;
 }
@@ -214,6 +259,7 @@
 }
 
 - (void)refreshButtonPressed {
+    [self setRefreshIconLoading];
     [self.d updateBuoyListingFromServer];
 }
 

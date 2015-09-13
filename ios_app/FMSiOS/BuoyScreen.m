@@ -18,9 +18,10 @@
 
 @property (strong, nonatomic) MKMapView *map;
 @property (strong, nonatomic) CLLocationManager *l;
-@property (strong, nonatomic) UIBarButtonItem *pButton;
-@property (strong, nonatomic) UIActivityIndicatorView *pInd;
-@property (strong, nonatomic) UIBarButtonItem *pIndButton;
+@property (strong, nonatomic) UIBarButtonItem *pButton; //info popup
+@property (strong, nonatomic) UIBarButtonItem *rButton; //refresh button
+@property (strong, nonatomic) UIActivityIndicatorView *rInd;
+@property (strong, nonatomic) UIBarButtonItem *rIndButton;
 @property (strong, nonatomic) UIViewController *popup;
 
 @property (strong, nonatomic) NSArray *buoys; // List of all buoys to display
@@ -121,9 +122,12 @@
     BuoySettingsPopup *pContents = [[BuoySettingsPopup alloc] init];
     pContents.delegate = self;
     self.pButton = infoIcon;
-    self.pInd = refreshInd;
-    self.pIndButton = refreshIndIcon;
     self.popup = pContents;
+    
+    // Refresh settings
+    self.rButton = refreshIcon;
+    self.rInd = refreshInd;
+    self.rIndButton = refreshIndIcon;
     
     // Fin
     [self.view addSubview:self.map];
@@ -158,9 +162,9 @@
 #pragma mark - UI changes
 - (void)setRefreshIconLoading {
     NSMutableArray *a = [[NSMutableArray alloc] init];
-    for (UIBarButtonItem *b in self.navigationItem.rightBarButtonItems.reverseObjectEnumerator) {
-        if (b == self.pButton) {
-            [a addObject:self.pIndButton];
+    for (UIBarButtonItem *b in self.navigationItem.rightBarButtonItems) {
+        if (b == self.rButton) {
+            [a addObject:self.rIndButton];
         } else {
             [a addObject:b];
         }
@@ -171,9 +175,9 @@
 
 - (void)setRefreshIconRefresh {
     NSMutableArray *a = [[NSMutableArray alloc] init];
-    for (UIBarButtonItem *b in self.navigationItem.rightBarButtonItems.reverseObjectEnumerator) {
-        if (b == self.pIndButton) {
-            [a addObject:self.pButton];
+    for (UIBarButtonItem *b in self.navigationItem.rightBarButtonItems) {
+        if (b == self.rIndButton) {
+            [a addObject:self.rButton];
         } else {
             [a addObject:b];
         }

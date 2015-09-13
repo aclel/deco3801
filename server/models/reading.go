@@ -260,6 +260,6 @@ func (db *DB) GetReadingsIn(readingsIds []int) ([][]string, error) {
 
 		readings = append(readings, result)
 	}
-	fmt.Println(readings)
+
 	return readings, nil
 }

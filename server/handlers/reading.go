@@ -17,7 +17,6 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -176,7 +175,7 @@ func ReadingsExport(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 	}
 
 	readingsParam := strings.Split(params["readings"][0], ",")
-	fmt.Println(readingsParam)
+
 	var readingsIds []int
 	for _, id := range readingsParam {
 		i, err := strconv.Atoi(id)

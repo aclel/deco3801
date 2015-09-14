@@ -35,7 +35,7 @@
 			function(res) {
 				if (auth.loggedIn()) {
 					if (!res.data.lastLogin.Valid) {
-						$state.go('changepassword');
+						// $state.go('changepassword');
 						vm.firstLogin = true;
 					} else {
 						$state.go('dashboard');

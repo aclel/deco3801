@@ -21,31 +21,31 @@
 						access: 'unauthed'
 					}
 				}
-			},
-			{
-				state: 'changepassword',
-				config: {
-					url: '/changepassword',
-					// controller: 'AuthController', now uses parent controller
-					// controllerAs: 'vm',
-					templateUrl: '/app/auth/changepassword.html',
-					data: {
-						access: 'authed'
-					}
-				}
-			},
-			{
-				state: 'forgotpassword',
-				config: {
-					url: '/forgotpassword',
-					// controller: 'AuthController', now uses parent controller
-					// controllerAs: 'vm',
-					templateUrl: '/app/auth/forgotpassword.html',
-					data: {
-						access: 'unauthed'
-					}
-				}
 			}
+			// {
+			// 	state: 'changepassword',
+			// 	config: {
+			// 		url: '/changepassword',
+			// 		// controller: 'AuthController', now uses parent controller
+			// 		// controllerAs: 'vm',
+			// 		templateUrl: '/app/auth/changepassword.html',
+			// 		data: {
+			// 			access: 'authed'
+			// 		}
+			// 	}
+			// },
+			// {
+			// 	state: 'forgotpassword',
+			// 	config: {
+			// 		url: '/forgotpassword',
+			// 		// controller: 'AuthController', now uses parent controller
+			// 		// controllerAs: 'vm',
+			// 		templateUrl: '/app/auth/forgotpassword.html',
+			// 		data: {
+			// 			access: 'unauthed'
+			// 		}
+			// 	}
+			// }
 		];
 	}
 })();

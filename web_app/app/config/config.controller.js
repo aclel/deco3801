@@ -25,8 +25,7 @@
 		vm.selectNewBuoyGroup = selectNewBuoyGroup;
 		vm.saveNewBuoyGroup = saveNewBuoyGroup;
 		vm.buoyGroupFilter = buoyGroupFilter;
-		vm.buoyInstanceCommandFilter = buoyInstanceCommandFilter;
-		vm.buoyGroupCommandFilter = buoyGroupCommandFilter;
+		vm.commandFilter = commandFilter;
 		
 		activate();
 		
@@ -158,6 +157,17 @@
 		
 		function buoyGroupFilter(buoyGroup) {
 			if (buoyGroup.id != 0) return true;
+			return false;
+		}
+		
+		function commandFilter(command) {
+			if (vm.selected.type == 'all') {
+				return true;
+			} else if (vm.selected.type == 'instance') {
+				return buoyInstanceCommandFilter(command);
+			} else if (vm.selected.type == 'group') {
+				return buoyGroupCommandFilter(command);
+			}
 			return false;
 		}
 		

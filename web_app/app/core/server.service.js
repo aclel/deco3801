@@ -34,7 +34,14 @@
 			updateBuoyInstanceGroup: updateBuoyInstanceGroup,
 			getCommandTypes: getCommandTypes,
 			getBuoyCommands: getBuoyCommands,
-			exportData: exportData
+			exportData: exportData,
+			sendBuoyCommand: sendBuoyCommand,
+			getWarningTriggers: getWarningTriggers,
+			getWarnings: getWarnings,
+			getUsers: getUsers,
+			addUser: addUser,
+			updateUser: updateUser,
+			deleteUser: deleteUser
 		};
 		
 		function headers() {
@@ -161,7 +168,7 @@
 				readings.join(), config);
 				
 			promise.then(function(res) {
-				var time = moment().format("DD-MM-YY-HHmm");
+				var time = moment().format("DD-MM-YY-HHmmss");
 				var filename = 'export-' + time + '.csv';
 				openSaveAsDialog(filename, res.data, 'text/csv');
 			}, function(res) {
@@ -174,6 +181,51 @@
 		function openSaveAsDialog(filename, content, mediaType) {
 			var blob = new Blob([content], {type: mediaType});
 			saveAs(blob, filename);
+		}
+		
+		function sendBuoyCommand() {
+			
+		}
+		
+		function getWarningTriggers() {
+			
+		}
+		
+		function getWarnings() {
+			
+		}
+		
+		function getUsers() {
+			var config = addToken(headers());
+			return $http.get(SERVER_ADDRESS + '/api/users', config);
+		}
+		
+		function addUser(user) {
+			var config = setJson(addToken(headers()));
+			var data = {
+				email: user.email,
+				firstName: user.firstName,
+				lastName: user.lastName,
+				role: user.role
+			};
+			return $http.post(SERVER_ADDRESS + '/api/users', 
+				JSON.stringify(data), config);
+		}
+		
+		function updateUser(user) {
+			var config = setJson(addToken(headers()));
+			var data = {
+				firstName: user.firstName,
+				lastName: user.lastName,
+				role: user.role
+			};
+			return $http.put(SERVER_ADDRESS + '/api/users/' + user.id, 
+				JSON.stringify(data), config);
+		}
+		
+		function deleteUser(id) {
+			var config = addToken(headers());
+			return $http.delete(SERVER_ADDRESS + '/api/users/' + id, config);
 		}
 	}
 })();

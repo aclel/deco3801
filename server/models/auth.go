@@ -53,7 +53,7 @@ func (db *DB) Login(user *User) (*User, error) {
 
 			// Update last login time
 			dbUser.LastLogin = Now()
-			err = db.UpdateUserExcludePassword(dbUser.Email, dbUser)
+			err = db.UpdateUserExcludePassword(dbUser)
 			if err != nil {
 				return nil, err
 			}

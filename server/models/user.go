@@ -37,6 +37,7 @@ type UserRepository interface {
 	GetUserWithEmail(string) (*User, error)
 	GetAllUsers() ([]User, error)
 	DeleteUserWithId(int) error
+	UpdateUserExcludePassword(*User) error
 }
 
 // All possible roles that a user can have. A user can only have one role at a time.
@@ -122,15 +123,15 @@ func (db *DB) UpdateUser(email string, updatedUser *User) error {
 
 // Update the old user record with the new one, excluding the password.
 // This avoids the password being rehashed each time.
-func (db *DB) UpdateUserExcludePassword(email string, updatedUser *User) error {
+func (db *DB) UpdateUserExcludePassword(updatedUser *User) error {
 	stmt, err := db.Preparex(`UPDATE user SET first_name=?,
-		last_name=?, role=?, last_login=? WHERE email=?;`)
+		last_name=?, role=?, last_login=? WHERE id=?;`)
 	if err != nil {
 		return err
 	}
 
 	_, err = stmt.Exec(updatedUser.FirstName,
-		updatedUser.LastName, updatedUser.Role, updatedUser.LastLogin, email)
+		updatedUser.LastName, updatedUser.Role, updatedUser.LastLogin, updatedUser.Id)
 	if err != nil {
 		return err
 	}

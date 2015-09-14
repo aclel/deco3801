@@ -113,6 +113,45 @@ func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 	return nil
 }
 
+// PUT /api/users/id
+// Request body contains JSON object of the user which is being updated.
+// Response with HTTP 200. Response body empty.
+// Example request body:
+//
+// {
+//    	"firstName": "bobby",
+//		"lastName": "tables",
+//		"role": "system_admin"
+// }
+func UsersUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing user id", http.StatusInternalServerError}
+	}
+
+	user := new(models.User)
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&user)
+
+	// Check if User JSON is valid
+	if err != nil {
+		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+	}
+	user.Id = id
+	// TODO: Create another model method which does not update last login time
+	user.LastLogin = models.Now()
+
+	// Update User in the database
+	err = env.DB.UpdateUserExcludePassword(user)
+	if err != nil {
+		return &AppError{err, "Error updating user into the database", http.StatusInternalServerError}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	return nil
+}
+
 // DELETE /api/users/id
 // Responds with HTTP 200 if successful. Response body empty.
 func UsersDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {

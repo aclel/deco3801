@@ -25,6 +25,47 @@ type CommandsWrapper struct {
 	Commands []models.Command `json:"commands"`
 }
 
+// POST /api/warning_triggers
+// Accepts an array of warning triggers which are to be created.
+// Example request body:
+// {
+//		"commands":[
+//			{
+//				"buoyId": 1,
+//				"commandTypeId": 1,
+//				"value": 20
+//			},
+//			{
+//				"buoyId": 1,
+//				"commandTypeId": 2,
+//				"value": 30
+//			}
+//		]
+// }
+func CommandsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	commandsWrapper := new(CommandsWrapper)
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&commandsWrapper)
+
+	// Check if the request body is valid
+	if err != nil {
+		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
+	}
+
+	// Insert each command into db
+	for _, command := range commandsWrapper.Commands {
+		err = env.DB.AddCommandToBuoy(&command)
+		if err != nil {
+			return &AppError{err, "Error inserting command into the database", http.StatusInternalServerError}
+		}
+	}
+
+	// Respond with 201 Created if successful
+	w.WriteHeader(http.StatusCreated)
+
+	return nil
+}
+
 // GET /api/commands
 // Gets all Commands - or a filtered set if the "active" query parameter is present in the
 // request URL. Returns a HTTP 200. The response body has all Commands in JSON.

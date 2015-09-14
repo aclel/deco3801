@@ -183,8 +183,20 @@
 			saveAs(blob, filename);
 		}
 		
-		function sendBuoyCommand() {
-			
+		function sendBuoyCommand(command, buoysIds) {
+			var config = setJson(addToken(headers()));
+			var data = {
+				commands: []
+			};
+			buoysIds.forEach(function(buoyId) {
+				data.commands.push({
+					commandTypeId: command.id,
+					value: parseInt(command.value, 10),
+					buoyId: buoyId
+				});
+			})
+			return $http.post(SERVER_ADDRESS + '/api/commands', 
+				JSON.stringify(data), config);
 		}
 		
 		function getWarningTriggers() {

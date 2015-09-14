@@ -1,5 +1,12 @@
 # Flood Monitoring System
 
+The Flood Monitoring System is a data management solution which is used to manage buoys that have been deployed to waterways.
+
+#####It has 3 main components:
+- Server
+- Web App
+- iOS App
+
 ## Server
 
 The server is a RESTful web service written in [Go](https://golang.org/)
@@ -18,22 +25,22 @@ The web server is written in Go, meaning that the entire project needs to be clo
 #### Configuring the database
 
 1. Setup a MySQL server
-2. Create a database called deco3801 and import fms.sql
-3. Create a user called deco3801 with password deco3801 and give them access to the database
+2. Create a database and import fms.sql
+3. Create a user and give them access to the database
 
 ### Create Environment Variables
 Several environment variables need to be configured for the server to run:
 - `FMS_DB_HOST` - The hostname of the database, for example "localhost"
 - `FMS_DB_PORT` - The port of the database at the hostname, for example "3306"
-- `FMS_DB_USERNAME` - The username of the database
-- `FMS_DB_PASSWORD` - The password of the database
+- `FMS_DB_USERNAME` - The username of the user that has access to the database
+- `FMS_DB_PASSWORD` - The password of the user that has access to the database
 - `FMS_DB_NAME` - The name of the database
 - `FMS_SMTP_USERNAME` - Ask Andrew C for this
 - `FMS_SMTP_PASSWORD` - Ask Andrew C for this
 - `FMS_SMTP_SERVER` - smtp.gmail.com
 - `FMS_SMTP_PORT` - 587
 - `FMS_PRIVATE_KEY` - This is used to sign Json Web Tokens
-- `FMS_PUBLIC_KEY` - This is used to decodee Json Web Tokens
+- `FMS_PUBLIC_KEY` - This is used to decode Json Web Tokens
 
 A private key can be generated with: `openssl genrsa -out mykey.pem 1024`  
 A public key can be generated with: `openssl rsa -in mykey.pem -pubout > mykey.pub`
@@ -55,33 +62,33 @@ On Mac OSX you can set environment variables in `~/.bash_profile`.
 
 #### Creating a User
 
-1. Click on the POST /users route in the users folder in Postman
+1. Click on the POST /api/users route in the users folder in Postman
 2. Click on the Body tab and modify the email to whatever you like
 3. Click the blue Send button
 
-You should get a response with Status 200 OK.
+You should get a response with Status 200 OK. An email will be sent the chosen email.
 
 #### Login
 
 Now that you have a User account you are able to login
 
-1. Click on the POST /login route in the auth folder
+1. Click on the POST /api/login route in the auth folder
 2. Click on the Body tab and change the email to your own
 3. Click the blue Send button
-4. You should get a response with Status 200 OK. The request body contains a [JSON Web Token](http://jwt.io/).
-4. Copy the token 
+4. You should get a response with Status 200 OK. The request body contains a [JSON Web Token](http://jwt.io/) in the "token" field.
+5. Copy the token 
 
 #### Get all readings
 
 Now that you are logged in you are able to access the readings. If you try to do so without logging in you will get a 401 Unauthorized.
 
-1. Click on the GET /readings route in the buoys folder
-2. Click on the Headers tab and replace the token in the value of the Authorization field with the one that you copied. Note that "Bearer" must remain at the beginning of the field. The value field should look like: `Bearer eyJhbGciOiJSUzI1NiIsInR5...`
+1. Click on the GET /api/readings route in the buoys folder
+2. Click on the Headers tab and replace "{{token}}"" in the value of the Authorization field with the one that you copied. Note that "Bearer" must remain at the beginning of the field. The value field should look like: `Bearer eyJhbGciOiJSUzI1NiIsInR5...`
 3. Click the blue Send button
 
-## Web Interface
+## Web App
 
-The web interface is a single-page application built with [AngularJS](https://angularjs.org/).
+The web app is a single-page application built with [AngularJS](https://angularjs.org/).
 
 ### Quickstart
 
@@ -96,3 +103,5 @@ The web app needs to be served through a web server with the server root directo
  3. `cd` into `deco3801/web_app`
  4. Run `http-server`. You should get a message saying which port the server is using.
  5. Browse to http://localhost:8080 or whichever port the server is using.
+
+ ## iOS App

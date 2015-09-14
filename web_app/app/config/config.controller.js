@@ -75,15 +75,25 @@
 		}
 		
 		function selectAll() {
+			stopEditing();
 			vm.selected.type = 'all';
 		}
 		
+		function stopEditing() {
+			vm.editName.on = false;
+			vm.editGroup.on = false;
+			vm.newCommand = false;
+			vm.newTrigger = false;
+		}
+		
 		function selectBuoyGroup(buoyGroup) {
+			stopEditing();
 			vm.selected.type = 'group';
 			vm.selected.obj = buoyGroup;
 		}
 		
 		function selectBuoyInstance(buoyInstance) {
+			stopEditing();
 			vm.selected.type = 'instance';
 			vm.selected.obj = buoyInstance;
 		}

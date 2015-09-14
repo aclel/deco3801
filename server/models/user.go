@@ -1,15 +1,13 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package models
 
 import (
@@ -18,6 +16,10 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
+// Represents a User of the system. The last login field
+// is updated each time a user logs in. If the user has not logged in
+// before then the last login is null. A user has a role which controls
+// their level of permissions.
 type User struct {
 	Id        int            `json:"id" db:"id"`
 	Email     string         `json:"email" db:"email"`
@@ -29,6 +31,7 @@ type User struct {
 	Token     string         `json:"token"`
 }
 
+// Wraps the User methods to allow for testing with dependency injection.
 type UserRepository interface {
 	CreateUser(*User) error
 	GetUserWithEmail(string) (*User, error)
@@ -59,6 +62,7 @@ func (db *DB) CreateUser(user *User) error {
 	return nil
 }
 
+// Gets all Users.
 func (db *DB) GetAllUsers() ([]User, error) {
 	users := []User{}
 	err := db.Select(&users, "SELECT * FROM user;")

@@ -1,15 +1,13 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package handlers
 
 import (
@@ -22,17 +20,19 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Wraps Buoy Instance array for json response
 type BuoyInstancesWrapper struct {
 	BuoyInstances []models.BuoyInstance `json:"buoyInstances"`
 }
 
+// Wraps Buoy Instance Sensor array for json response
 type BuoyInstancesSensorWrapper struct {
 	Sensors []models.BuoyInstanceSensor `json:"sensors"`
 }
 
 // GET /api/buoy_instances
-// Gets all Buoy Instances - or a filtered set if the "active" query parameter is present in the
-// request URL. Returns a HTTP 200. The response body has all Buoy Instances in JSON.
+// Gets all Buoy Instances, or a filtered set if the "active" query parameter is present in the
+// request URL. Responds with HTTP 200. The response body has all Buoy Instances in JSON.
 func BuoyInstancesIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	u, err := url.Parse(r.URL.String())
 	params, err := url.ParseQuery(u.RawQuery)
@@ -44,11 +44,12 @@ func BuoyInstancesIndex(env *models.Env, w http.ResponseWriter, r *http.Request)
 	if params["active"] != nil {
 		active, err = strconv.ParseBool(params["active"][0])
 		if err != nil {
-			return &AppError{err, "Error parsing active parameter", http.StatusInternalServerError}
+			return &AppError{err, "Error parsing 'active' query parameter", http.StatusInternalServerError}
 		}
 	}
 
-	// Get only the active Buoy Instances - the instance that was most recently created for each buoy
+	// If the active query param is present then just get the active Buoy Instances.
+	// The active buoy instance is the instance that was most recently created for each buoy.
 	var buoyInstanceWrapper BuoyInstancesWrapper
 	if active {
 		buoyInstanceWrapper.BuoyInstances, err = env.DB.GetAllActiveBuoyInstances()
@@ -78,6 +79,7 @@ func BuoyInstancesIndex(env *models.Env, w http.ResponseWriter, r *http.Request)
 // Example request body:
 //
 // {
+//		"name": "buoy-instance"
 //		"buoyId": 1,
 //		"buoyGroupId": 1
 // }
@@ -97,7 +99,6 @@ func BuoyInstancesCreate(env *models.Env, w http.ResponseWriter, r *http.Request
 		return &AppError{err, "Error inserting buoy instance into the database", http.StatusInternalServerError}
 	}
 
-	// Set return status.
 	w.WriteHeader(http.StatusCreated)
 	return nil
 }
@@ -109,7 +110,7 @@ func BuoyInstancesCreate(env *models.Env, w http.ResponseWriter, r *http.Request
 //
 // {
 //    	"name": "instance-1",
-//		"buoy_group_id": 1
+//		"buoyGroupId": 1
 // }
 func BuoyInstancesUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	vars := mux.Vars(r)
@@ -173,11 +174,13 @@ func BuoyInstancesSensorsIndex(env *models.Env, w http.ResponseWriter, r *http.R
 		return &AppError{err, "Error retrieving buoy instance sensors", http.StatusInternalServerError}
 	}
 
-	// Set return status and write to response body.
+	response, err := json.Marshal(sensorsWrapper)
+	if err != nil {
+		return &AppError{err, "Error marshalling buoy instance sensors json", http.StatusInternalServerError}
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-
-	response, _ := json.Marshal(sensorsWrapper)
 	w.Write(response)
 
 	return nil
@@ -213,9 +216,10 @@ func BuoyInstancesSensorsDelete(env *models.Env, w http.ResponseWriter, r *http.
 	if err != nil {
 		return &AppError{err, "Error parsing buoy instance id", http.StatusInternalServerError}
 	}
+
 	sensorTypeId, err := strconv.Atoi(vars["sensor_type_id"])
 	if err != nil {
-		return &AppError{err, "Error parsing buoy id", http.StatusInternalServerError}
+		return &AppError{err, "Error parsing sensor type id", http.StatusInternalServerError}
 	}
 
 	err = env.DB.DeleteBuoyInstanceSensor(buoyInstanceId, sensorTypeId)
@@ -236,17 +240,19 @@ func BuoyInstancesWarningTriggersIndex(env *models.Env, w http.ResponseWriter, r
 		return &AppError{err, "Error parsing buoy instance id", http.StatusInternalServerError}
 	}
 
-	var warningTriggerWrapper WarningTriggerContainer
+	var warningTriggerWrapper WarningTriggerWrapper
 	warningTriggerWrapper.WarningTriggers, err = env.DB.GetWarningTriggersForBuoyInstance(id)
 	if err != nil {
 		return &AppError{err, "Error retrieving warning triggers", http.StatusInternalServerError}
 	}
 
-	// Set return status and write to response body.
+	response, err := json.Marshal(warningTriggerWrapper)
+	if err != nil {
+		return &AppError{err, "Error marshalling warning triggers json", http.StatusInternalServerError}
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-
-	response, _ := json.Marshal(warningTriggerWrapper)
 	w.Write(response)
 
 	return nil

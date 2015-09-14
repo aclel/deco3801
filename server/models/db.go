@@ -1,15 +1,13 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package models
 
 import (
@@ -19,7 +17,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// Custom type which embeds db connection pool.
+// Custom type which wraps the db connection pool.
 // This makes it possible to mock the database for unit testing.
 type DB struct {
 	*sqlx.DB
@@ -49,6 +47,7 @@ func NewDB(dataSourceName string) (*DB, error) {
 	return &DB{db}, nil
 }
 
+// Get the current time as mysql.NullTime
 func Now() mysql.NullTime {
 	return mysql.NullTime{Time: time.Now().In(time.UTC), Valid: true}
 }

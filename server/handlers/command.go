@@ -1,15 +1,13 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package handlers
 
 import (
@@ -22,6 +20,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Wraps Commands array for json response
 type CommandsWrapper struct {
 	Commands []models.Command `json:"commands"`
 }
@@ -36,6 +35,7 @@ func CommandsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 		return &AppError{err, "Error parsing query parameters", http.StatusInternalServerError}
 	}
 
+	// Get "sent" query parameter
 	var sent bool
 	if params["sent"] != nil {
 		sent, err = strconv.ParseBool(params["sent"][0])

@@ -1,3 +1,13 @@
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package handlers
 
 import (
@@ -9,7 +19,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type WarningTriggerContainer struct {
+// Wraps WarningTriggers array for json response
+type WarningTriggerWrapper struct {
 	WarningTriggers []models.WarningTrigger `json:"warningTriggers"`
 }
 
@@ -35,9 +46,9 @@ type WarningTriggerContainer struct {
 //		]
 // }
 func WarningTriggersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
-	warningTriggerContainer := new(WarningTriggerContainer)
+	warningTriggerWrapper := new(WarningTriggerWrapper)
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&warningTriggerContainer)
+	err := decoder.Decode(&warningTriggerWrapper)
 
 	// Check if the request body is valid
 	if err != nil {
@@ -45,7 +56,7 @@ func WarningTriggersCreate(env *models.Env, w http.ResponseWriter, r *http.Reque
 	}
 
 	// Insert each warning trigger into db
-	for _, warningTrigger := range warningTriggerContainer.WarningTriggers {
+	for _, warningTrigger := range warningTriggerWrapper.WarningTriggers {
 		err = env.DB.CreateWarningTrigger(&warningTrigger)
 		if err != nil {
 			return &AppError{err, "Error inserting the warning trigger into the database", http.StatusInternalServerError}
@@ -60,6 +71,14 @@ func WarningTriggersCreate(env *models.Env, w http.ResponseWriter, r *http.Reque
 
 // PUT /api/warning_triggers/id
 // Responds with HTTP 200 if successful. Response body empty.
+// Example request body:
+// {
+//     "value": 90.10,
+//     "operator": "<",
+//     "message": "The battery level has dropped below 20.50%",
+//     "buoyInstanceId": 7,
+//     "sensorTypeId": 2
+// }
 func WarningTriggersUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -108,9 +127,9 @@ func WarningTriggersUpdate(env *models.Env, w http.ResponseWriter, r *http.Reque
 //		]
 // }
 func WarningTriggersBatchUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
-	warningTriggerContainer := new(WarningTriggerContainer)
+	warningTriggerWrapper := new(WarningTriggerWrapper)
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&warningTriggerContainer)
+	err := decoder.Decode(&warningTriggerWrapper)
 
 	// Check if the request body is valid
 	if err != nil {
@@ -118,7 +137,7 @@ func WarningTriggersBatchUpdate(env *models.Env, w http.ResponseWriter, r *http.
 	}
 
 	// Insert each warning trigger into db
-	for _, warningTrigger := range warningTriggerContainer.WarningTriggers {
+	for _, warningTrigger := range warningTriggerWrapper.WarningTriggers {
 		err = env.DB.UpdateWarningTrigger(&warningTrigger)
 		if err != nil {
 			return &AppError{err, "Error updating the warning trigger in the database", http.StatusInternalServerError}
@@ -163,9 +182,9 @@ func WarningTriggersDelete(env *models.Env, w http.ResponseWriter, r *http.Reque
 //		]
 // }
 func WarningTriggersBatchDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
-	warningTriggerContainer := new(WarningTriggerContainer)
+	warningTriggerWrapper := new(WarningTriggerWrapper)
 	decoder := json.NewDecoder(r.Body)
-	err := decoder.Decode(&warningTriggerContainer)
+	err := decoder.Decode(&warningTriggerWrapper)
 
 	// Check if the request body is valid
 	if err != nil {
@@ -173,7 +192,7 @@ func WarningTriggersBatchDelete(env *models.Env, w http.ResponseWriter, r *http.
 	}
 
 	// Insert each warning trigger into db
-	for _, warningTrigger := range warningTriggerContainer.WarningTriggers {
+	for _, warningTrigger := range warningTriggerWrapper.WarningTriggers {
 		err = env.DB.DeleteWarningTriggerWithId(warningTrigger.Id)
 		if err != nil {
 			return &AppError{err, "Error deleting the warning trigger in the database", http.StatusInternalServerError}

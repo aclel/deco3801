@@ -1,15 +1,13 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package models
 
 import (
@@ -20,7 +18,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-// Represents a reading for one sensor from a particular buoy instance.
+// Represents a reading from one sensor for a particular buoy instance.
 type Reading struct {
 	Id             int       `db:"id"`
 	Latitude       float64   `db:"latitude"`
@@ -34,10 +32,12 @@ type Reading struct {
 	MessageNumber  int       `db:"message_number"`
 }
 
+// Wraps Buoy Groups array for json response
 type BuoyGroupsWrapper struct {
 	BuoyGroups []BuoyGroup `json:"buoyGroups"`
 }
 
+// Wraps Readings methods to allow for testing with dependency injection
 type ReadingRepository interface {
 	CreateReading(*Reading) error
 	GetAllReadings(time.Time, time.Time) (*MapReadingBuoyGroupsWrapper, error)
@@ -63,7 +63,8 @@ func (db *DB) CreateReading(reading *Reading) error {
 
 // Needed to store data from a complex SQL query which gets
 // all Buoy Groups, their Buoy Instances, the Readings for those
-// Buoy Instances and the Sensor Types for those Readings.
+// Buoy Instances and the Sensor Types for those Readings. This is
+// needed to populate the Dashboard in the web app.
 type DbMapReading struct {
 	Id                    int       `db:"id"`
 	BuoyInstanceId        int       `db:"buoy_instance_id"`
@@ -81,6 +82,7 @@ type DbMapReading struct {
 	BuoyId                int       `db:"buoy_id"`
 }
 
+// Top level wrapper for data which is used to populate the dashboard
 type MapReadingBuoyGroupsWrapper struct {
 	BuoyGroups []MapReadingBuoyGroup `json:"buoyGroups"`
 }
@@ -112,7 +114,7 @@ type MapSensorReading struct {
 	SensorTypeId int     `json:"sensorTypeId"`
 }
 
-// Returns all the readings from the database
+// Returns all the readings from the database between the start time and end time
 func (db *DB) GetAllReadings(startTime time.Time, endTime time.Time) (*MapReadingBuoyGroupsWrapper, error) {
 	readings := []DbMapReading{}
 	err := db.Select(&readings, `SELECT 
@@ -157,6 +159,7 @@ func (db *DB) GetAllReadings(startTime time.Time, endTime time.Time) (*MapReadin
 		return nil, err
 	}
 
+	// Build the json which will be returned to the web app to populate the dashboard
 	buoyGroupsWrapper, err := buildReadingsIndexData(readings)
 	if err != nil {
 		return nil, err
@@ -165,6 +168,9 @@ func (db *DB) GetAllReadings(startTime time.Time, endTime time.Time) (*MapReadin
 	return buoyGroupsWrapper, nil
 }
 
+// Builds the data which is returned to the web app to populate the dashboard. The data is structured
+// as follows:
+//
 // Buoy Groups
 //		Buoy Instances
 //			Readings
@@ -229,6 +235,9 @@ func buildReadingsIndexData(mapReadings []DbMapReading) (*MapReadingBuoyGroupsWr
 	return buoyGroupsWrapper, nil
 }
 
+// Get all Readings with ids that are in the given slice of integers.
+// Returns a 2D string array which can be passed to the CSV WriteAll
+// function.
 func (db *DB) GetReadingsIn(readingsIds []int) ([][]string, error) {
 	query, args, err := sqlx.In("SELECT value, latitude, longitude, timestamp FROM reading WHERE id IN (?)", readingsIds)
 	if err != nil {
@@ -247,6 +256,7 @@ func (db *DB) GetReadingsIn(readingsIds []int) ([][]string, error) {
 	var longitude float64
 	var timestamp time.Time
 
+	// Add readings to [][]string
 	for rows.Next() {
 		err = rows.Scan(&value, &latitude, &longitude, &timestamp)
 		if err != nil {

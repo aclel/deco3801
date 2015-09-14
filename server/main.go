@@ -1,15 +1,13 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package main
 
 import (
@@ -21,7 +19,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
-// Stores environment variables
+// Application environment variables
 type EnvVars struct {
 	DbHost       string `envconfig:"db_host" required:"true"`
 	DbPort       string `envconfig:"db_port" required:"true"`
@@ -37,6 +35,7 @@ type EnvVars struct {
 }
 
 func main() {
+	// Read environment variables
 	var conf EnvVars
 	err := envconfig.Process("fms", &conf)
 	if err != nil {
@@ -50,6 +49,7 @@ func main() {
 		conf.DbPort + ")/" +
 		conf.DbName + "?parseTime=True"
 
+	// Initialise database connection pool
 	db, err := models.NewDB(dataSourceName)
 
 	if err != nil {
@@ -57,6 +57,7 @@ func main() {
 		log.Panic(err)
 	}
 
+	// Initialise email settings
 	emailUser := models.EmailCredentials{
 		Username: conf.SmtpUsername,
 		Password: conf.SmtpPassword,
@@ -67,6 +68,7 @@ func main() {
 	env := &models.Env{db, emailUser}
 	router := handlers.NewRouter(env)
 
+	// Run HTTP server
 	log.Println("Database connection successful. Connected to " + dataSourceName)
 	log.Println("Web service listening on :8080")
 	log.Fatal(http.ListenAndServe(":8080", router))

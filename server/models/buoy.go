@@ -1,24 +1,24 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package models
 
+// Represents a physical buoy
 type Buoy struct {
-	Id   int    `json:"id" db:"id"`
-	Guid string `json:"guid" db:"guid"`
-	Name string `json:"name" db:"name"`
-	ActiveBuoyInstanceId int `json:"activeBuoyInstanceId" db:"active_buoy_instance_id"`
+	Id                   int    `json:"id" db:"id"`
+	Guid                 string `json:"guid" db:"guid"`
+	Name                 string `json:"name" db:"name"`
+	ActiveBuoyInstanceId int    `json:"activeBuoyInstanceId" db:"active_buoy_instance_id"`
 }
 
+// Wraps Buoy methods to allow for testing with dependency injection
 type BuoyRepository interface {
 	GetAllBuoys() ([]Buoy, error)
 	GetBuoyById(id int) (*Buoy, error)
@@ -28,8 +28,8 @@ type BuoyRepository interface {
 	AddCommandToBuoy(command *Command) error
 }
 
-// Gets all buoys from the database
-// Returns a slice of buoys
+// Gets all buoys from the database.
+// Returns a slice of buoys.
 func (db *DB) GetAllBuoys() ([]Buoy, error) {
 	buoys := []Buoy{}
 	err := db.Select(&buoys, "SELECT * FROM buoy;")

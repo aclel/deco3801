@@ -1,15 +1,13 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package models
 
 import (
@@ -18,6 +16,7 @@ import (
 	gomail "gopkg.in/gomail.v2"
 )
 
+// Stores all credentials which are used to dial and smtp server
 type EmailCredentials struct {
 	Username string
 	Password string
@@ -25,10 +24,13 @@ type EmailCredentials struct {
 	Port     int
 }
 
+// Wraps the Smtp methods to allow for testing with dependency injection.
 type SmtpManager interface {
 	SendNewUserEmail(*User, *EmailCredentials) error
 }
 
+// Send an email to a new User which contains a link to the login page, as well
+// as their randomly generated temporary password.
 func (db *DB) SendNewUserEmail(user *User, emailUser *EmailCredentials) error {
 	m := gomail.NewMessage()
 	m.SetHeader("From", emailUser.Username)

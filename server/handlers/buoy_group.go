@@ -1,15 +1,13 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package handlers
 
 import (
@@ -21,18 +19,20 @@ import (
 	"github.com/gorilla/mux"
 )
 
-type buoyGroupsWrapper struct {
+// Wraps Buoy Group array for json response
+type BuoyGroupsWrapper struct {
 	BuoyGroups []models.BuoyGroup `json:"buoyGroups"`
 }
 
-type buoyInstanceWrapper struct {
+// Wraps Buoy Instance array for json response
+type BuoyInstanceWrapper struct {
 	BuoyInstances []models.BuoyInstance `json:"buoyInstances"`
 }
 
 // GET /api/buoy_groups
 // Responds with HTTP 200. All buoy groups are sent in the response body
 func BuoyGroupsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
-	var buoyGroupsWrapper buoyGroupsWrapper
+	var buoyGroupsWrapper BuoyGroupsWrapper
 	var err error
 
 	buoyGroupsWrapper.BuoyGroups, err = env.DB.GetAllBuoyGroups()
@@ -40,17 +40,19 @@ func BuoyGroupsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *A
 		return &AppError{err, "Error retrieving buoys", http.StatusInternalServerError}
 	}
 
-	// Set return status and write to response body.
+	response, err := json.Marshal(buoyGroupsWrapper)
+	if err != nil {
+		return &AppError{err, "Error marshalling buoy json", http.StatusInternalServerError}
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-
-	response, _ := json.Marshal(buoyGroupsWrapper)
 	w.Write(response)
 
 	return nil
 }
 
-// GET /api/buoy_groups/id/
+// GET /api/buoy_groups/id
 // Responds with HTTP 200. Specified buoy sent in response body.
 func BuoyGroupsShow(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	vars := mux.Vars(r)
@@ -64,9 +66,13 @@ func BuoyGroupsShow(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 		return &AppError{err, "Error retrieving buoy", http.StatusInternalServerError}
 	}
 
+	response, err := json.Marshal(buoy)
+	if err != nil {
+		return &AppError{err, "Error marshalling buoy json", http.StatusInternalServerError}
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	response, _ := json.Marshal(buoy)
 	w.Write(response)
 
 	return nil
@@ -119,6 +125,7 @@ func BuoyGroupsUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *
 	buoyGroup := new(models.BuoyGroup)
 	decoder := json.NewDecoder(r.Body)
 	err = decoder.Decode(&buoyGroup)
+
 	// Check if Buoy JSON is valid
 	if err != nil {
 		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
@@ -168,11 +175,13 @@ func BuoyGroupsBuoysIndex(env *models.Env, w http.ResponseWriter, r *http.Reques
 		return &AppError{err, "Error retrieving buoys", http.StatusInternalServerError}
 	}
 
-	// Set return status and write to response body.
+	response, err := json.Marshal(buoysWrapper)
+	if err != nil {
+		return &AppError{err, "Error marshalling buoys json", http.StatusInternalServerError}
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-
-	response, _ := json.Marshal(buoysWrapper)
 	w.Write(response)
 
 	return nil
@@ -187,17 +196,19 @@ func BuoyGroupsBuoyInstancesIndex(env *models.Env, w http.ResponseWriter, r *htt
 		return &AppError{err, "Error parsing buoy group id", http.StatusInternalServerError}
 	}
 
-	var buoyInstanceWrapper buoyInstanceWrapper
+	var buoyInstanceWrapper BuoyInstanceWrapper
 	buoyInstanceWrapper.BuoyInstances, err = env.DB.GetBuoyInstancesForBuoyGroup(id)
 	if err != nil {
 		return &AppError{err, "Error retrieving buoy instances", http.StatusInternalServerError}
 	}
 
-	// Set return status and write to response body.
+	response, err := json.Marshal(buoyInstanceWrapper)
+	if err != nil {
+		return &AppError{err, "Error marshalling buoy instances json", http.StatusInternalServerError}
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-
-	response, _ := json.Marshal(buoyInstanceWrapper)
 	w.Write(response)
 
 	return nil

@@ -68,8 +68,7 @@ func (jwtAuth *JWTAuth) GenerateToken(user *User) (string, error) {
 	return tokenString, nil
 }
 
-// Authenticates the given user.
-// Pulls the user record from the database and checks that the emails and passwords are the same.
+// Authenticates the given user. Pulls the user record from the database and checks that the emails and passwords are the same.
 // Returns true if authenticated.
 func (jwtAuth *JWTAuth) Authenticate(dbUser *User, user *User) bool {
 

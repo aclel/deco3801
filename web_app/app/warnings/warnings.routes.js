@@ -14,9 +14,9 @@
 				state: 'warnings',
 				config: {
 					url: '/warnings',
-					// controller: 'WarningsController',
-					// controllerAs: 'vm',
-					// templateUrl: '/app/warnings/warnings.html',
+					controller: 'WarningsController',
+					controllerAs: 'vm',
+					templateUrl: '/app/warnings/warnings.html',
 					data: {
 						access: 'authed'
 					}

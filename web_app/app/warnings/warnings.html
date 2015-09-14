@@ -1,0 +1,27 @@
+<div class="grid-content">
+	<h3>Warnings</h3>
+	<table>
+		<thead>
+			<tr>
+				<th>Buoy</th>
+				<th>Sensor</th>
+				<th>Operator</th>
+				<th>Warn Value</th>
+				<th>Message</th>
+				<th>Current Value</th>
+				<th>First Spotted</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr ng-repeat="warning in vm.warnings">
+				<td>{{ warning.buoyName }}</td>
+				<td>{{ warning.sensorName }}</td>
+				<td>{{ warning.warningTrigger.operator }}</td>
+				<td>{{ warning.warningTrigger.value }}</td>
+				<td>{{ warning.warningTrigger.message }}</td>
+				<td>{{ warning.readingValue }}</td>				
+				<td></td>
+			</tr>
+		</tbody>
+	</table>	
+</div>

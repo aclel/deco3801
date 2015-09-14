@@ -14,7 +14,6 @@ package models
 
 import (
 	"database/sql"
-	"errors"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -75,7 +74,7 @@ func (db *DB) GetUserWithEmail(email string) (*User, error) {
 	dbUser := User{}
 	err := db.Get(&dbUser, "SELECT * FROM user WHERE email = ?;", email)
 	if err == sql.ErrNoRows {
-		return nil, errors.New("No user with that email exists")
+		return nil, nil
 	}
 
 	if err != nil {

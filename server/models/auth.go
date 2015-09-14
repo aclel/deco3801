@@ -15,6 +15,7 @@ package models
 import (
 	"encoding/json"
 	"log"
+	"errors"
 )
 
 type AuthRepository interface {
@@ -36,6 +37,10 @@ func (db *DB) Login(user *User) (*User, error) {
 	dbUser, err := db.GetUserWithEmail(user.Email)
 	if err != nil {
 		return nil, err
+	}
+
+	if dbUser == nil {
+		return nil, errors.New("User with that email does not exist")
 	}
 
 	// Check email and password are the same

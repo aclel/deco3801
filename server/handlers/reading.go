@@ -210,7 +210,7 @@ func ReadingsExport(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 		return &AppError{err, "Error retrieving readings", http.StatusInternalServerError}
 	}
 
-	csvHeader := []string{"value, latitude, longitude, timestamp"}
+	csvHeader := []string{"value", "latitude", "longitude", "timestamp"}
 
 	// Write the readings to a csv
 	b := &bytes.Buffer{}

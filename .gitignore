@@ -36,3 +36,6 @@ web_app/app/env.js
 
 # Built files
 web_app/assets/js/app.js
+
+# VS Code files
+web_app/typings

@@ -1,31 +1,30 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package models
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 )
 
+// Wraps Auth methods to allow testing with dependency injection
 type AuthRepository interface {
 	Login(*User) (*User, error)
 	RefreshToken(*User) ([]byte, error)
 }
 
-// Authenticates the given user and issues a token in a json
-// response if the authentication was successful.
-//
-// Returns 401 Unauthorized if authentication was unsuccessful
+// Authenticates the given user and issues a json web token
+// if authenticate is successful. Returns a User which includes
+// the token.
 func (db *DB) Login(user *User) (*User, error) {
 	jwtAuth, err := InitJWTAuth()
 	if err != nil {
@@ -36,6 +35,10 @@ func (db *DB) Login(user *User) (*User, error) {
 	dbUser, err := db.GetUserWithEmail(user.Email)
 	if err != nil {
 		return nil, err
+	}
+
+	if dbUser == nil {
+		return nil, errors.New("User with that email does not exist")
 	}
 
 	// Check email and password are the same
@@ -50,7 +53,7 @@ func (db *DB) Login(user *User) (*User, error) {
 
 			// Update last login time
 			dbUser.LastLogin = Now()
-			err = db.UpdateUserExcludePassword(dbUser.Email, dbUser)
+			err = db.UpdateUserExcludePassword(dbUser)
 			if err != nil {
 				return nil, err
 			}
@@ -60,8 +63,7 @@ func (db *DB) Login(user *User) (*User, error) {
 		}
 	}
 
-	log.Printf("Unauthorized: " + user.Email)
-	return nil, err
+	return nil, errors.New("Unauthorized: " + user.Email)
 }
 
 // Reissues a token to an authenticated user

@@ -1,25 +1,24 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package models
 
+// A buoy group has many buoy instances. buoy_instance is the join
+// table between buoy and buoy_group. A buoy group can only have one
+// buoy instance of a certain buoy at any time.
 type BuoyGroup struct {
 	Id   int    `json:"id" db:"id"`
 	Name string `json:"name" db:"name"`
 }
 
-type BuoyGroupReadings struct {
-}
-
+// Wraps Buoy Group methods to allow for testing with dependency injection.
 type BuoyGroupRepository interface {
 	GetAllBuoyGroups() ([]BuoyGroup, error)
 	GetBuoyGroupById(int) (*BuoyGroup, error)
@@ -30,7 +29,7 @@ type BuoyGroupRepository interface {
 	GetBuoyInstancesForBuoyGroup(int) ([]BuoyInstance, error)
 }
 
-// Get all of the buoy groups from the database
+// Get all of the buoy groups from the database.
 func (db *DB) GetAllBuoyGroups() ([]BuoyGroup, error) {
 	buoyGroups := []BuoyGroup{}
 	err := db.Select(&buoyGroups, "SELECT * FROM buoy_group")
@@ -129,8 +128,4 @@ func (db *DB) GetBuoyInstancesForBuoyGroup(id int) ([]BuoyInstance, error) {
 	}
 
 	return buoyInstances, nil
-}
-
-func (db *DB) GetAllBuoyGroupReadings() ([]BuoyGroup, error) {
-	return nil, nil
 }

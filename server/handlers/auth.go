@@ -1,15 +1,13 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package handlers
 
 import (
@@ -19,9 +17,14 @@ import (
 	"github.com/aclel/deco3801/server/models"
 )
 
-// POST /login
+// POST /api/login - Handles user login.
 // Responds with HTTP 200 if login is successful. Sends User in response body.
-// User contains auth token.
+// User contains jwt token.
+// Example request body:
+// {
+//     "email": "test@gmail.com",
+//     "password": "kjvLYdQY"
+// }
 func LoginHandler(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	requestUser := new(models.User)
 	decoder := json.NewDecoder(r.Body)
@@ -45,6 +48,7 @@ func LoginHandler(env *models.Env, w http.ResponseWriter, r *http.Request) *AppE
 }
 
 // Not currently implemented in API
+// Refreshes the JWT token without requiring the user to login again.
 func RefreshTokenHandler(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	requestUser := new(models.User)
 	decoder := json.NewDecoder(r.Body)

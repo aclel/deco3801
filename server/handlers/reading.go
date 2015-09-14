@@ -1,15 +1,13 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package handlers
 
 import (
@@ -27,19 +25,24 @@ import (
 )
 
 // GET /api/readings
-// encodes the readings returned from GetAllReadings() as JSON
+// Get all readings between the start time and end time that must be present in the
+// request url. Responds with HTTP 200. All readings between start time and end time
+// are present in the response body.
 func ReadingsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	// Parse query parameters
 	u, err := url.Parse(r.URL.String())
 	params, err := url.ParseQuery(u.RawQuery)
 	if err != nil {
 		return &AppError{err, "Error parsing query parameters", http.StatusInternalServerError}
 	}
 
+	// Get start time from query params
 	unixStart, err := strconv.ParseInt(params["start_time"][0], 10, 64)
 	if err != nil {
 		return &AppError{err, "Error parsing start time", http.StatusInternalServerError}
 	}
 
+	// Get end time from query params
 	unixEnd, err := strconv.ParseInt(params["end_time"][0], 10, 64)
 	if err != nil {
 		return &AppError{err, "Error parsing end time", http.StatusInternalServerError}
@@ -52,19 +55,19 @@ func ReadingsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 		return &AppError{errors.New("End time before start time"), "End time before start time", http.StatusInternalServerError}
 	}
 
+	// Get all readings from the database between the start time and the end time
 	readings, err := env.DB.GetAllReadings(startTime, endTime)
 	if err != nil {
 		return &AppError{err, "Error retrieving readings", http.StatusInternalServerError}
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 
 	response, err := json.Marshal(readings)
 	if err != nil {
 		return &AppError{err, "Error marshalling readings json", http.StatusInternalServerError}
 	}
 
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	w.Write(response)
 
 	return nil
@@ -73,6 +76,21 @@ func ReadingsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 // POST /api/readings
 // Accepts an array of readings from a particular buoy. See buoy_reading.go for an example
 // of the incoming JSON. Stores each sensor reading in the database.
+// Example request body:
+//
+// {
+// 	"guid":"test",
+// 	"readings": [{
+// 	    "latitude": -27.425676,
+// 	    "longitude": 153.147055,
+// 	    "sensorReadings": [{
+// 	        "sensorName": "Turbidity",
+// 	        "value": 100
+// 	    }],
+// 	    "timestamp": 1442115887,
+// 	    "messageNumber": 1
+// 	}]
+// }
 func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	readingsContainer := new(models.BuoyReadingContainer)
 	decoder := json.NewDecoder(r.Body)
@@ -167,6 +185,8 @@ func validateReading(reading *models.Reading) *AppError {
 }
 
 // GET /api/export?readings=1,2,3,4
+// Gets all Readings that have the ids specific in the "readings" query parameter.
+// The Readings are written to a CSV file and sent in the response.
 func ReadingsExport(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	u, err := url.Parse(r.URL.String())
 	params, err := url.ParseQuery(u.RawQuery)
@@ -190,8 +210,12 @@ func ReadingsExport(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 		return &AppError{err, "Error retrieving readings", http.StatusInternalServerError}
 	}
 
+	csvHeader := []string{"value", "latitude", "longitude", "timestamp"}
+
+	// Write the readings to a csv
 	b := &bytes.Buffer{}
 	wr := csv.NewWriter(b)
+	wr.Write(csvHeader)
 	wr.WriteAll(readings)
 
 	w.Header().Set("Content-Type", "text/csv")

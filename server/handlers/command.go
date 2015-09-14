@@ -1,15 +1,13 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package handlers
 
 import (
@@ -22,8 +20,50 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Wraps Commands array for json response
 type CommandsWrapper struct {
 	Commands []models.Command `json:"commands"`
+}
+
+// POST /api/warning_triggers
+// Accepts an array of warning triggers which are to be created.
+// Example request body:
+// {
+//		"commands":[
+//			{
+//				"buoyId": 1,
+//				"commandTypeId": 1,
+//				"value": 20
+//			},
+//			{
+//				"buoyId": 1,
+//				"commandTypeId": 2,
+//				"value": 30
+//			}
+//		]
+// }
+func CommandsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	commandsWrapper := new(CommandsWrapper)
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&commandsWrapper)
+
+	// Check if the request body is valid
+	if err != nil {
+		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
+	}
+
+	// Insert each command into db
+	for _, command := range commandsWrapper.Commands {
+		err = env.DB.AddCommandToBuoy(&command)
+		if err != nil {
+			return &AppError{err, "Error inserting command into the database", http.StatusInternalServerError}
+		}
+	}
+
+	// Respond with 201 Created if successful
+	w.WriteHeader(http.StatusCreated)
+
+	return nil
 }
 
 // GET /api/commands
@@ -36,6 +76,7 @@ func CommandsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 		return &AppError{err, "Error parsing query parameters", http.StatusInternalServerError}
 	}
 
+	// Get "sent" query parameter
 	var sent bool
 	if params["sent"] != nil {
 		sent, err = strconv.ParseBool(params["sent"][0])

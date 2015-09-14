@@ -1,19 +1,21 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package models
 
 import "time"
 
+// A buoy instance is an abstraction of a physical buoy which represents
+// the state of a buoy during a particular deployment. Each buoy instance
+// has its own set of sensors and readings. Only one buoy instance for a buoy
+// is active at one time.
 type BuoyInstance struct {
 	Id            int       `json:"id" db:"id"`
 	Name          string    `json:"name" db:"name"`
@@ -25,6 +27,7 @@ type BuoyInstance struct {
 	DateCreated   time.Time `json:"dateCreated" db:"date_created"`
 }
 
+// Wrap the Buoy Instance methods to allow for testing with dependency injection.
 type BuoyInstanceRepository interface {
 	GetAllBuoyInstances() ([]BuoyInstance, error)
 	GetAllActiveBuoyInstances() ([]BuoyInstance, error)

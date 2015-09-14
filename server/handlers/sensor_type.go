@@ -1,15 +1,13 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package handlers
 
 import (
@@ -19,13 +17,13 @@ import (
 	"github.com/aclel/deco3801/server/models"
 )
 
+// Wraps Sensor Types array in json response
 type SensorTypesWrapper struct {
 	SensorTypes []models.SensorType `json:"sensorTypes"`
 }
 
 // GET /api/sensor_types
-// Get all Sensor Types.
-// Responds with HTTP 200. All Sensor Types are returned as JSON in the response body.
+// Get all Sensor Types. Responds with HTTP 200. All Sensor Types are returned as JSON in the response body.
 func SensorTypesIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	var sensorTypesWrapper SensorTypesWrapper
 	var err error
@@ -35,11 +33,13 @@ func SensorTypesIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *
 		return &AppError{err, "Error retrieving sensor types", http.StatusInternalServerError}
 	}
 
-	// Set return status and write to response body.
+	response, err := json.Marshal(sensorTypesWrapper)
+	if err != nil {
+		return &AppError{err, "Error marshalling sensor types json", http.StatusInternalServerError}
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-
-	response, _ := json.Marshal(sensorTypesWrapper)
 	w.Write(response)
 
 	return nil

@@ -1,24 +1,25 @@
-/**
- * Flood Monitoring System
- * Version 0.0.1 (Duyung)
- *
- * Copyright (C) Team Neptune
- * All rights reserved.
- *
- * @author     Andrew Cleland <andrew.cleland3@gmail.com>
- * @version    0.0.1
- * @copyright  Team Neptune (2015)
- * @link       https://github.com/aclel/deco3801
- */
+// Flood Monitoring System
+// Version 0.0.1 (Duyung)
+//
+// Copyright (C) Team Neptune
+// All rights reserved.
+//
+// @author     Andrew Cleland <andrew.cleland3@gmail.com>
+// @version    0.0.1
+// @copyright  Team Neptune (2015)
+// @link       https://github.com/aclel/deco3801
 package models
 
 import (
 	"database/sql"
-	"errors"
 
 	"github.com/go-sql-driver/mysql"
 )
 
+// Represents a User of the system. The last login field
+// is updated each time a user logs in. If the user has not logged in
+// before then the last login is null. A user has a role which controls
+// their level of permissions.
 type User struct {
 	Id        int            `json:"id" db:"id"`
 	Email     string         `json:"email" db:"email"`
@@ -30,11 +31,13 @@ type User struct {
 	Token     string         `json:"token"`
 }
 
+// Wraps the User methods to allow for testing with dependency injection.
 type UserRepository interface {
 	CreateUser(*User) error
 	GetUserWithEmail(string) (*User, error)
 	GetAllUsers() ([]User, error)
 	DeleteUserWithId(int) error
+	UpdateUserExcludePassword(*User) error
 }
 
 // All possible roles that a user can have. A user can only have one role at a time.
@@ -60,6 +63,7 @@ func (db *DB) CreateUser(user *User) error {
 	return nil
 }
 
+// Gets all Users.
 func (db *DB) GetAllUsers() ([]User, error) {
 	users := []User{}
 	err := db.Select(&users, "SELECT * FROM user;")
@@ -75,7 +79,7 @@ func (db *DB) GetUserWithEmail(email string) (*User, error) {
 	dbUser := User{}
 	err := db.Get(&dbUser, "SELECT * FROM user WHERE email = ?;", email)
 	if err == sql.ErrNoRows {
-		return nil, errors.New("No user with that email exists")
+		return nil, nil
 	}
 
 	if err != nil {
@@ -119,15 +123,15 @@ func (db *DB) UpdateUser(email string, updatedUser *User) error {
 
 // Update the old user record with the new one, excluding the password.
 // This avoids the password being rehashed each time.
-func (db *DB) UpdateUserExcludePassword(email string, updatedUser *User) error {
+func (db *DB) UpdateUserExcludePassword(updatedUser *User) error {
 	stmt, err := db.Preparex(`UPDATE user SET first_name=?,
-		last_name=?, role=?, last_login=? WHERE email=?;`)
+		last_name=?, role=?, last_login=? WHERE id=?;`)
 	if err != nil {
 		return err
 	}
 
 	_, err = stmt.Exec(updatedUser.FirstName,
-		updatedUser.LastName, updatedUser.Role, updatedUser.LastLogin, email)
+		updatedUser.LastName, updatedUser.Role, updatedUser.LastLogin, updatedUser.Id)
 	if err != nil {
 		return err
 	}

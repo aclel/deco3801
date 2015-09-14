@@ -41,7 +41,9 @@
 			getUsers: getUsers,
 			addUser: addUser,
 			updateUser: updateUser,
-			deleteUser: deleteUser
+			deleteUser: deleteUser,
+			deleteBuoyCommand: deleteBuoyCommand,
+			addBuoy: addBuoy
 		};
 		
 		function headers() {
@@ -199,6 +201,10 @@
 				JSON.stringify(data), config);
 		}
 		
+		function deleteBuoyCommand(buoyId, command) {
+			
+		}
+		
 		function getWarningTriggers() {
 			
 		}
@@ -238,6 +244,16 @@
 		function deleteUser(id) {
 			var config = addToken(headers());
 			return $http.delete(SERVER_ADDRESS + '/api/users/' + id, config);
+		}
+		
+		function addBuoy(name, guid) {
+			var config = setJson(addToken(headers()));
+			var data = {
+				guid: guid,
+				name: name
+			};
+			return $http.post(SERVER_ADDRESS + '/api/buoys', 
+				JSON.stringify(data), config);
 		}
 	}
 })();

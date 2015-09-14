@@ -45,6 +45,12 @@
 		<button class="small button" ng-if="vm.editUserId == -1" ng-click="vm.startAddingUser()">Add User</button>
 	</div>
 	<div>
+		<h3>Add Buoy</h3>
+		<label>Name</label>
+		<input type="text" ng-model="vm.newBuoyName">
+		<button class="button" ng-click="vm.addBuoy()">Add</button>
+	</div>
+	<div>
 		<h3>Configure Sensors</h3>
 		<table>
 			<thead>

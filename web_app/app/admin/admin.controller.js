@@ -27,6 +27,7 @@
 		vm.cancelEditingUser = cancelEditingUser;
 		vm.startAddingUser = startAddingUser;
 		vm.showDeleteButton = showDeleteButton;
+		vm.addBuoy = addBuoy;
 		
 		vm.sensors = server.getSensors();
 		vm.sensorsEdit = [];
@@ -106,6 +107,24 @@
 			vm.users.push(tempUser);
 			startEditingUser(tempUser);
 		}
+		
+		function addBuoy() {
+			var guid = generateGuid();
+			server.addBuoy(vm.newBuoyName, guid).then(function(res) {
+				console.log(res);
+			}, function(res) {
+				console.error(res);
+			});
+			vm.newBuoyName = '';
+		}
+		
+		function generateGuid() {
+			return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+				var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+				return v.toString(16);
+			});
+		}
+		
 		
 		
 		for (var i = 0; i < vm.sensors.length; i++) {

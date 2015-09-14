@@ -104,6 +104,7 @@
 						<th>Buoy</th>
 						<th>Command</th>
 						<th>Value</th>
+						<th></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -111,6 +112,12 @@
 						<td>{{ command.buoyName }}</td>
 						<td>{{ command.commandName }}</td>
 						<td>{{ command.value }}</td>
+						<td>
+							<button class="small alert button"
+								ng-click="vm.deleteCommand(command)">
+								Delete
+							</button>
+						</td>
 					</tr>
 				</tbody>
 			</table>

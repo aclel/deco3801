@@ -32,6 +32,7 @@
 		vm.buoyGroupFilter = buoyGroupFilter;
 		vm.commandFilter = commandFilter;
 		vm.sendCommand = sendCommand;
+		vm.deleteCommand = deleteCommand;
 		vm.showBuoyConfig = showBuoyConfig;
 		
 		activate();
@@ -233,6 +234,10 @@
 			}, function(res) {
 				console.error(res);
 			});
+		}
+		
+		function deleteCommand(command) {
+			
 		}
 		
 		function buoyGroupFilter(buoyGroup) {

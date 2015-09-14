@@ -161,6 +161,7 @@ func BuoysDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 // Responds with HTTP 200 if successful. Response body empty.
 // Example request body:
 // {
+//
 //     "commandTypeId": 1,
 //     "value": 30
 // }
@@ -171,19 +172,21 @@ func BuoyCommandsCreate(env *models.Env, w http.ResponseWriter, r *http.Request)
 		return &AppError{err, "Error parsing buoy id", http.StatusInternalServerError}
 	}
 
-	command := new(models.Command)
+	commandsWrapper := new(CommandsWrapper)
 	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&command)
+	err = decoder.Decode(&commandsWrapper)
 
 	// Check if Command JSON is valid
 	if err != nil {
 		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
 	}
-	command.BuoyId = buoyId
 
-	err = env.DB.AddCommandToBuoy(command)
-	if err != nil {
-		return &AppError{err, "Error adding command to buoy", http.StatusInternalServerError}
+	for _, command := range commandsWrapper.Commands {
+		command.BuoyId = buoyId
+		err = env.DB.AddCommandToBuoy(&command)
+		if err != nil {
+			return &AppError{err, "Error adding command to buoy", http.StatusInternalServerError}
+		}
 	}
 
 	w.WriteHeader(http.StatusCreated)

@@ -65,8 +65,7 @@ func (db *DB) Login(user *User) (*User, error) {
 		}
 	}
 
-	log.Printf("Unauthorized: " + user.Email)
-	return nil, err
+	return nil, errors.New("Unauthorized: " + user.Email)
 }
 
 // Reissues a token to an authenticated user

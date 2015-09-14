@@ -13,6 +13,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/aclel/deco3801/server/models"
@@ -22,6 +23,49 @@ import (
 // Wraps WarningTriggers array for json response
 type WarningTriggerWrapper struct {
 	WarningTriggers []models.WarningTrigger `json:"warningTriggers"`
+}
+
+// GET /api/warning_triggers
+// Gets all Warning Triggers, or a filtered set if the "active_instances" query parameter is present in the
+// request URL. Responds with HTTP 200. The response body has all Buoy Instances in JSON.
+func WarningTriggersIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	u, err := url.Parse(r.URL.String())
+	params, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return &AppError{err, "Error parsing query parameters", http.StatusInternalServerError}
+	}
+
+	activeInstances := false
+	if params["active_instances"] != nil {
+		activeInstances, err = strconv.ParseBool(params["active_instances"][0])
+		if err != nil {
+			return &AppError{err, "Error parsing 'active_instances' query parameter", http.StatusInternalServerError}
+		}
+	}
+
+	// If the active query param is present then just get the warning triggers for the active Buoy Instances.
+	// The active buoy instance is the instance that was most recently created for each buoy.
+	var warningTriggersWrapper WarningTriggerWrapper
+	if activeInstances {
+		warningTriggersWrapper.WarningTriggers, err = env.DB.GetWarningTriggersForActiveBuoyInstances()
+	} else {
+		warningTriggersWrapper.WarningTriggers, err = env.DB.GetAllWarningTriggers()
+	}
+
+	if err != nil {
+		return &AppError{err, "Error retrieving warning triggers", http.StatusInternalServerError}
+	}
+
+	response, err := json.Marshal(warningTriggersWrapper)
+	if err != nil {
+		return &AppError{err, "Error marshalling warning triggers json", http.StatusInternalServerError}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(response)
+
+	return nil
 }
 
 // POST /api/warning_triggers

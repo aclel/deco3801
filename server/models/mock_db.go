@@ -180,6 +180,10 @@ func (mdb *MockDB) DeleteUserWithId(id int) error {
 }
 
 // WARNING TRIGGERS
+func (mdb *MockDB) GetAllWarningTriggers() ([]WarningTrigger, error) {
+	return nil, nil
+}
+
 func (mdb *MockDB) CreateWarningTrigger(warningTrigger *WarningTrigger) error {
 	return nil
 }

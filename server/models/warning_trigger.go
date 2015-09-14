@@ -24,9 +24,21 @@ type WarningTrigger struct {
 
 // Wraps Warning Trigger methods to allow for testing with dependency injection.
 type WarningTriggerRepository interface {
+	GetAllWarningTriggers() ([]WarningTrigger, error)
 	CreateWarningTrigger(*WarningTrigger) error
 	DeleteWarningTriggerWithId(int) error
 	UpdateWarningTrigger(*WarningTrigger) error
+}
+
+// Get all Warning Triggers
+func (db *DB) GetAllWarningTriggers() ([]WarningTrigger, error) {
+	warningTriggers := []WarningTrigger{}
+	err := db.Select(&warningTriggers, "SELECT * FROM warning_trigger;")
+	if err != nil {
+		return nil, err
+	}
+
+	return warningTriggers, nil
 }
 
 // Insert a new Warning Trigger into the database

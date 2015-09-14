@@ -161,7 +161,7 @@
 				readings.join(), config);
 				
 			promise.then(function(res) {
-				var time = moment().format("DD-MM-YY-HHmm");
+				var time = moment().format("DD-MM-YY-HHmmss");
 				var filename = 'export-' + time + '.csv';
 				openSaveAsDialog(filename, res.data, 'text/csv');
 			}, function(res) {

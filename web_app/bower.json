@@ -19,9 +19,7 @@
     "Chart.js": "~1.0.2",
     "angular-strap": "~2.3.1",
     "bootstrap": "~3.3.5",
-    "foundation": "~5.5.2",
     "moment": "~2.10.6",
-    "pickadate": "~3.5.6",
     "foundation-apps": "~1.1.0",
     "angular-ui-indeterminate": "~1.0.0",
     "file-saver.js": "~1.20150507.2"

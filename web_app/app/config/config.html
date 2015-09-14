@@ -45,99 +45,67 @@
 		</form>
 	</div>
 	<div ng-if="vm.selected.type == 'group'">
-		<div>
-			<h3>{{ vm.selected.obj.name }}</h3>
+		<h3>{{ vm.selected.obj.name }}</h3>
+		<div ng-if="!vm.editName.on">
+			<button class="small button" ng-click="vm.startEditingName()">Edit name</button>
 		</div>
-		<div>
-			<div ng-if="!vm.editName.on">
-				<button class="small button" ng-click="vm.startEditingName()">Edit name</button>
-			</div>
-			<form ng-if="vm.editName.on">
-				<input type="text" ng-model="vm.selected.obj.name">
-				<input type="submit" ng-click="vm.finishEditingName()"
-					value="Save" class="small button">
-			</form>
-		</div>
-		<div>
-			<h3>Commands</h3>
-			<h4>New Command</h4>
-			<h4>Pending Commands</h4>
-			<table>
-				<thead>
-					<th>
-						<td>Buoy</td>
-						<td>Command</td>
-						<td>Value</td>
-					</th>
-				</thead>
-				<tbody>
-					<tr ng-repeat="command in vm.commands | filter:vm.buoyGroupCommandFilter">
-						<td></td>
-						<td>{{ command.buoyName }}</td>
-						<td>{{ command.commandName }}</td>
-						<td>{{ command.value }}</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
+		<form ng-if="vm.editName.on">
+			<input type="text" ng-model="vm.selected.obj.name">
+			<input type="submit" ng-click="vm.finishEditingName()"
+				value="Save" class="small button">
+		</form>
 	</div>
 	<div ng-if="vm.selected.type == 'instance'">
-		<div>
-			<h3 ng-if="vm.selected.obj.name != ''">{{ vm.selected.obj.name }}</h3>
-			<h3 ng-if="vm.selected.obj.name == ''" class="red">(no name)</h3>
+		<h3 ng-if="vm.selected.obj.name != ''">{{ vm.selected.obj.name }}</h3>
+		<h3 ng-if="vm.selected.obj.name == ''" class="red">(no name)</h3>
+		<div ng-if="!vm.editName.on && !vm.editGroup.on">
+			<button class="small button" ng-click="vm.startEditingName()">Edit name</button>
 		</div>
-		<div>
-			<div ng-if="!vm.editName.on && !vm.editGroup.on">
-				<button class="small button" ng-click="vm.startEditingName()">Edit name</button>
-			</div>
-			<form ng-if="vm.editName.on">
-				<input type="text" ng-model="vm.selected.obj.name">
-				<input type="submit" ng-click="vm.finishEditingName()"
-					value="Save" class="small button">
-			</form>
+		<form ng-if="vm.editName.on">
+			<input type="text" ng-model="vm.selected.obj.name">
+			<input type="submit" ng-click="vm.finishEditingName()"
+				value="Save" class="small button">
+		</form>
+		<div ng-if="!vm.editGroup.on">
+			<span>{{ vm.selected.obj.buoyGroupName }} 
+				<button class="small button" ng-click="vm.startEditingBuoyGroup()"
+					ng-if="!vm.editName.on">Edit group</button>
+			</span>
 		</div>
-		<div>
-			<div ng-if="!vm.editGroup.on">
-				<span>{{ vm.selected.obj.buoyGroupName }} 
-					<button class="small button" ng-click="vm.startEditingBuoyGroup()"
-						ng-if="!vm.editName.on">Edit group</button>
-				</span>
-			</div>
-			<form ng-if="vm.editGroup.on">
-				<label>New name</label>
-				<input type="text" ng-model="vm.editGroup.name">
-				<label>New group</label>
-				<select type="button" class="btn btn-default" 
-						ng-model="vm.editGroup.buoyGroupId" 
-						bs-options="opt.id as opt.name for opt in vm.buoyGroups"
-						bs-select>
-				</select>
-				<br>
-				<input type="submit" ng-click="vm.finishEditingBuoyGroup()"
-					value="Save" class="small button">
-			</form>
-		</div>
-		<div>
-			<h3>Commands</h3>
-			<h4>New Command</h4>
-			<h4>Pending Commands</h4>
-			<table>
-				<thead>
-					<th>
-						<td>Buoy</td>
-						<td>Command</td>
-						<td>Value</td>
-					</th>
-				</thead>
-				<tbody>
-					<tr ng-repeat="command in vm.commands | filter:vm.buoyInstanceCommandFilter">
-						<td></td>
-						<td>{{ command.buoyName }}</td>
-						<td>{{ command.commandName }}</td>
-						<td>{{ command.value }}</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
+		<form ng-if="vm.editGroup.on">
+			<label>New name</label>
+			<input type="text" ng-model="vm.editGroup.name">
+			<label>New group</label>
+			<select type="button" class="btn btn-default" 
+					ng-model="vm.editGroup.buoyGroupId" 
+					bs-options="opt.id as opt.name for opt in vm.buoyGroups"
+					bs-select>
+			</select>
+			<br>
+			<input type="submit" ng-click="vm.finishEditingBuoyGroup()"
+				value="Save" class="small button">
+		</form>
+	</div>
+	<div ng-if="vm.selected.type != 'none' && vm.selected.type != 'newGroup'">
+		<h3>Commands</h3>
+		<h4>New Command</h4>
+		<h4>Pending Commands</h4>
+		<table>
+			<thead>
+				<th>
+					<td>Buoy</td>
+					<td>Command</td>
+					<td>Value</td>
+				</th>
+			</thead>
+			<tbody>
+				<tr ng-repeat="command in vm.commands | filter:vm.commandFilter">
+					<td></td>
+					<td>{{ command.buoyName }}</td>
+					<td>{{ command.commandName }}</td>
+					<td>{{ command.value }}</td>
+				</tr>
+			</tbody>
+		</table>
 	</div>
 </div>

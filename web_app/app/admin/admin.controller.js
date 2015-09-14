@@ -21,6 +21,7 @@
 		
 		vm.users = [];
 		vm.editUserId = -1;
+		vm.newBuoyName = '';
 		vm.startEditingUser = startEditingUser;
 		vm.finishEditingUser = finishEditingUser;
 		vm.deleteUser = deleteUser;
@@ -109,9 +110,11 @@
 		}
 		
 		function addBuoy() {
+			if (vm.newBuoyName == '') return;
 			var guid = generateGuid();
 			server.addBuoy(vm.newBuoyName, guid).then(function(res) {
 				console.log(res);
+				alert('Buoy created successfully');
 			}, function(res) {
 				console.error(res);
 			});

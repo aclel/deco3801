@@ -37,7 +37,9 @@
 			exportData: exportData,
 			sendBuoyCommand: sendBuoyCommand,
 			getWarningTriggers: getWarningTriggers,
+			addWarningTriggers: addWarningTriggers,
 			getWarnings: getWarnings,
+			getSensorTypes: getSensorTypes,
 			getUsers: getUsers,
 			addUser: addUser,
 			updateUser: updateUser,
@@ -185,18 +187,18 @@
 			saveAs(blob, filename);
 		}
 		
-		function sendBuoyCommand(command, buoysIds) {
+		function sendBuoyCommand(command, buoyIds) {
 			var config = setJson(addToken(headers()));
 			var data = {
 				commands: []
 			};
-			buoysIds.forEach(function(buoyId) {
+			buoyIds.forEach(function(buoyId) {
 				data.commands.push({
 					commandTypeId: command.id,
 					value: parseInt(command.value, 10),
 					buoyId: buoyId
 				});
-			})
+			});
 			return $http.post(SERVER_ADDRESS + '/api/commands', 
 				JSON.stringify(data), config);
 		}
@@ -206,11 +208,37 @@
 		}
 		
 		function getWarningTriggers() {
-			
+			var config = addToken(headers());
+			return $http.get(SERVER_ADDRESS + '/api/warning_triggers?active_instances=true', config);
+		}
+		
+		function addWarningTriggers(trigger, buoyInstanceIds) {
+			var config = setJson(addToken(headers()));
+			var data = {
+				warningTriggers: []
+			};
+			buoyInstanceIds.forEach(function(buoyInstanceId) {
+				data.warningTriggers.push({
+					buoyInstanceId: buoyInstanceId,
+					sensorTypeId: trigger.sensorTypeId,
+					operator: trigger.operator,
+					value: parseInt(trigger.value, 10),
+					message: trigger.message
+				});
+			});
+			console.log(data);
+			return $http.post(SERVER_ADDRESS + '/api/warning_triggers', 
+				JSON.stringify(data), config);
 		}
 		
 		function getWarnings() {
-			
+			var config = addToken(headers());
+			return $http.get(SERVER_ADDRESS + '/api/warnings', config);
+		}
+		
+		function getSensorTypes() {
+			var config = addToken(headers());
+			return $http.get(SERVER_ADDRESS + '/api/sensor_types', config);
 		}
 		
 		function getUsers() {

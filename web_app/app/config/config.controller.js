@@ -9,6 +9,7 @@
 		
 		vm.buoyGroups = [];
 		vm.buoyInstances = [];
+		vm.groupBuoys = [];
 		vm.commands = [];
 		vm.commandTypes = [];
 		vm.command = { id: -1, value: '' };
@@ -31,6 +32,7 @@
 		vm.buoyGroupFilter = buoyGroupFilter;
 		vm.commandFilter = commandFilter;
 		vm.sendCommand = sendCommand;
+		vm.showBuoyConfig = showBuoyConfig;
 		
 		activate();
 		
@@ -74,6 +76,22 @@
 			});
 		}
 		
+		function showBuoyConfig() {
+			if (vm.selected.type == 'instance') return true;
+			if (vm.selected.type == 'group' && vm.groupBuoys.length > 0) return true;
+			if (vm.selected.type == 'all' && vm.buoyInstances.length > 0) return true;
+			return false;
+		}
+		
+		function updateGroupBuoys() {
+			vm.groupBuoys = [];
+			vm.buoyInstances.forEach(function(buoyInstance) {
+				if (buoyInstance.buoyGroupId == vm.selected.obj.id) {
+					vm.groupBuoys.push(buoyInstance);
+				}
+			});
+		}
+		
 		function selectAll() {
 			stopEditing();
 			vm.selected.type = 'all';
@@ -90,12 +108,14 @@
 			stopEditing();
 			vm.selected.type = 'group';
 			vm.selected.obj = buoyGroup;
+			updateGroupBuoys();
 		}
 		
 		function selectBuoyInstance(buoyInstance) {
 			stopEditing();
 			vm.selected.type = 'instance';
 			vm.selected.obj = buoyInstance;
+			updateGroupBuoys();
 		}
 		
 		function setBuoyGroupName(buoyInstance) {

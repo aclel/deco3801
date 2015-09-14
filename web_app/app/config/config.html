@@ -69,7 +69,7 @@
 		<div ng-if="!vm.editGroup.on">
 			<span>{{ vm.selected.obj.buoyGroupName }} 
 				<button class="small button" ng-click="vm.startEditingBuoyGroup()"
-					ng-if="!vm.editName.on">Edit group</button>
+					ng-if="!vm.editName.on">Change group</button>
 			</span>
 		</div>
 		<form ng-if="vm.editGroup.on">
@@ -86,7 +86,16 @@
 				value="Save" class="small button">
 		</form>
 	</div>
-	<div ng-if="vm.selected.type != 'none' && vm.selected.type != 'newGroup'">
+	<div ng-if="vm.selected.type == 'group'">
+		<h3>Buoys</h3>
+		<span ng-if="vm.groupBuoys.length == 0">(none)</span>
+		<ul ng-if="vm.groupBuoys.length > 0">
+			<li ng-repeat="buoyInstance in vm.groupBuoys">
+				{{ buoyInstance.name }}
+			</li>
+		</ul>
+	</div>
+	<div ng-if="vm.showBuoyConfig()">
 		<div>
 			<h3>Commands</h3>
 			<table>

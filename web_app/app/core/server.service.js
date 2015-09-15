@@ -17,7 +17,7 @@
 	angular.module('app')
 		.factory('server', server);
 	
-	function server($http, SERVER_ADDRESS, auth, moment) {
+	function server($http, $log, SERVER_ADDRESS, auth, moment) {
 		
 		return {
 			login: login,
@@ -81,7 +81,6 @@
 				email: auth.currentUser(),
 				password: password
 			};
-			console.log(auth.currentUser());
 			return $http.post(SERVER_ADDRESS + '/api/changepassword', JSON.stringify(data));
 		}
 		
@@ -148,7 +147,6 @@
 				buoyId: buoyId,
 				buoyGroupId: groupId
 			};
-			console.log(data);
 			return $http.post(SERVER_ADDRESS + '/api/buoy_instances',
 					JSON.stringify(data), config);
 		}
@@ -176,7 +174,7 @@
 				var filename = 'export-' + time + '.csv';
 				openSaveAsDialog(filename, res.data, 'text/csv');
 			}, function(res) {
-				console.error(res);
+				$log.error(res);
 			});
 			
 			return promise;
@@ -226,7 +224,6 @@
 					message: trigger.message
 				});
 			});
-			console.log(data);
 			return $http.post(SERVER_ADDRESS + '/api/warning_triggers', 
 				JSON.stringify(data), config);
 		}

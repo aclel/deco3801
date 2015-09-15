@@ -16,7 +16,7 @@
 	angular.module('app.dashboard')
 		.factory('dashboard', dashboard);
 		
-	function dashboard($filter, server, moment) {
+	function dashboard($log, server, moment) {
 		var data = [];
 		var filteredReadings = [];
 		
@@ -51,8 +51,7 @@
 				data = res.data.buoyGroups;
 				populateBuoys();
 			}, function(res) {
-				console.log('error');
-				console.log(res);
+				$log.error(res);
 			});
 			return promise;
 		}
@@ -62,8 +61,7 @@
 			promise.then(function(res) {
 				populateSensors(res.data.sensorTypes);
 			}, function(res) {
-				console.log('error');
-				console.log(res);
+				$log.error(res);
 			});
 			return promise;
 		}
@@ -436,8 +434,6 @@
 					});
 				});
 			});
-			console.log(filteredReadings);
-			console.log(readingIds);
 			server.exportData(readingIds);
 		}
 	}

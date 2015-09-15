@@ -4,14 +4,21 @@
 	angular.module('app.core')
 		.controller('HelloController', HelloController);
 	
-	function HelloController($state) {
+	function HelloController($state, $log) {
 		var vm = this;
-		console.log('howdy');
 		
-		$state.go('dashboard');
+		activate();
 		
-		if ($state.includes('hello')) {
-			$state.go('login');
+		function activate() {
+			$log.debug('howdy');
+		
+			// go to dashboard
+			$state.go('dashboard');
+			
+			// if that didn't work, go to login
+			if ($state.includes('hello')) {
+				$state.go('login');
+			}
 		}
 	}
 })();

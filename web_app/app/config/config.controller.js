@@ -4,7 +4,7 @@
 	angular.module('app.config')
 		.controller('ConfigController', ConfigController);
 	
-	function ConfigController(config, server) {
+	function ConfigController($log, config, server) {
 		var vm = this;
 		
 		vm.buoyGroups = [];
@@ -60,7 +60,7 @@
 				vm.buoyGroups = config.getBuoyGroups();
 				parseGroupNames()
 			}, function(res) {
-				console.error(res);
+				$log.error(res);
 			});
 		}
 		
@@ -69,7 +69,7 @@
 				vm.buoyInstances = config.getBuoyInstances();
 				parseGroupNames()
 			}, function(res) {
-				console.error(res);
+				$log.error(res);
 			});
 		}
 		
@@ -78,7 +78,7 @@
 				vm.commandTypes = res.data.commandTypes;
 				queryCommands();
 			}, function(res) {
-				console.error(res);
+				$log.error(res);
 			});
 		}
 		
@@ -87,7 +87,7 @@
 				vm.commands = res.data.commands;
 				parseCommands();
 			}, function(res) {
-				console.error(res);
+				$log.error(res);
 			});
 		}
 		
@@ -96,7 +96,7 @@
 				vm.warningTriggers = res.data.warningTriggers;
 				querySensorTypes();
 			}, function(res) {
-				console.error(res);
+				$log.error(res);
 			});
 		}
 		
@@ -105,7 +105,7 @@
 				vm.sensorTypes = res.data.sensorTypes;
 				parseWarningSensors();
 			}, function(res) {
-				console.error(res);
+				$log.error(res);
 			});
 		}
 		
@@ -204,14 +204,14 @@
 					vm.selected.obj.name).then(function(res) {
 						queryBuoyGroups();
 					}, function(res) {
-						console.error(res);
+						$log.error(res);
 					});
 			} else if (vm.selected.type == 'instance') {
 				server.updateBuoyInstanceName(vm.selected.obj.id,
 					vm.selected.obj.name, vm.selected.obj.buoyGroupId).then(function(res) {
 						queryBuoyInstances();
 					}, function(res) {
-						console.error(res);
+						$log.error(res);
 					});;
 			}
 		}
@@ -236,7 +236,7 @@
 				vm.editGroup.name).then(function(res) {
 				queryBuoyInstances();
 			}, function(res) {
-				console.error(res);
+				$log.error(res);
 			});
 		}
 		
@@ -262,7 +262,7 @@
 				vm.selected.type = 'all';
 				queryBuoyGroups();
 			}, function(res) {
-				console.error(res);
+				$log.error(res);
 			});
 		}
 				
@@ -322,7 +322,7 @@
 			server.sendBuoyCommand(vm.command, buoyIds).then(function(res) {
 				queryCommands();
 			}, function(res) {
-				console.error(res);
+				$log.error(res);
 			});
 		}
 		
@@ -355,7 +355,7 @@
 			server.addWarningTriggers(vm.trigger, buoyIds).then(function(res) {
 				queryWarningTriggers();
 			}, function(res) {
-				console.error(res);
+				$log.error(res);
 			});
 		}
 		

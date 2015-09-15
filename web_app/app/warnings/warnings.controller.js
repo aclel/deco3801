@@ -4,7 +4,7 @@
 	angular.module('app.warnings')
 		.controller('WarningsController', WarningsController);
 	
-	function WarningsController(server, moment) {
+	function WarningsController($log, server, moment) {
 		var vm = this;
 		
 		vm.warnings = [];
@@ -22,7 +22,7 @@
 				vm.warnings = res.data.warnings;
 				queryBuoyInstances();
 			}, function(res) {
-				console.error(res);
+				$log.error(res);
 			});
 		}
 		
@@ -31,7 +31,7 @@
 				vm.buoyInstances = res.data.buoyInstances;
 				querySensorTypes();
 			}, function(res) {
-				console.error(res);
+				$log.error(res);
 			});
 		}
 		function querySensorTypes() {
@@ -39,7 +39,7 @@
 				vm.sensorTypes = res.data.sensorTypes;
 				parseWarnings();
 			}, function(res) {
-				console.error(res);
+				$log.error(res);
 			});
 		}
 		

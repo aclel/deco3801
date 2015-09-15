@@ -4,7 +4,7 @@
 	angular.module('app.config')
 		.factory('config', config);
 	
-	function config(server) {
+	function config($log, server) {
 		
 		var buoyGroups = [];
 		var buoyInstances = [];
@@ -21,8 +21,7 @@
 			promise.then(function(res) {
 				buoyGroups = res.data.buoyGroups;
 			}, function(res) {
-				console.log('error');
-				console.log(res);
+				$log.error(res);
 			});
 			return promise;
 		}
@@ -32,8 +31,7 @@
 			promise.then(function(res) {
 				buoyInstances = res.data.buoyInstances;
 			}, function(res) {
-				console.log('error');
-				console.log(res);
+				$log.error(res);
 			});
 			return promise;
 		}

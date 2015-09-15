@@ -16,7 +16,7 @@
 	angular.module('app.admin')
 		.controller('AdminController', AdminController);
 	
-	function AdminController(server) {
+	function AdminController($log, server) {
 		var vm = this;
 		
 		vm.users = [];
@@ -47,7 +47,7 @@
 				vm.users = res.data.users;
 				formatLastLogin();
 			}, function(res) {
-				console.error(res);
+				$log.error(res);
 			});
 		}
 		
@@ -71,13 +71,13 @@
 				server.updateUser(vm.editUser).then(function(res) {
 					queryUsers();
 				}, function(res) {
-					console.error(res);
+					$log.error(res);
 				});
 			} else {
 				server.addUser(vm.editUser).then(function(res) {
 					queryUsers();
 				}, function(res) {
-					console.error(res);
+					$log.error(res);
 				});
 				vm.users.splice(vm.users.length - 1, 1);
 			}
@@ -95,7 +95,7 @@
 			server.deleteUser(user.id).then(function(res) {
 				queryUsers();
 			}, function(res) {
-				console.error(res);
+				$log.error(res);
 			});
 		}
 		
@@ -114,10 +114,9 @@
 			if (vm.newBuoyName == '') return;
 			var guid = generateGuid();
 			server.addBuoy(vm.newBuoyName, guid).then(function(res) {
-				console.log(res);
 				alert('Buoy created successfully');
 			}, function(res) {
-				console.error(res);
+				$log.error(res);
 			});
 			vm.newBuoyName = '';
 		}

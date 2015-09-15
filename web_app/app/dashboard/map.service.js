@@ -275,7 +275,6 @@
 		
 		function popupContent(reading, buoyInstance) {
 			var sensors = dashboard.sensorMetadata();
-			console.log(sensors);
 			var formattedTime = moment.unix(reading.timestamp)
 										.format('D MMMM h:mm A');
 										

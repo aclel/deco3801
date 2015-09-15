@@ -39,6 +39,11 @@
 		vm.deleteCommand = deleteCommand;
 		vm.showBuoyConfig = showBuoyConfig;
 		vm.addTrigger = addTrigger;
+		vm.cancelNewCommand = cancelNewCommand;
+		vm.cancelNewTrigger = cancelNewTrigger;
+		vm.editing = editing;
+		vm.cancelEditName = cancelEditName;
+		vm.cancelEditGroup = cancelEditGroup;
 		
 		activate();
 		
@@ -211,6 +216,10 @@
 			}
 		}
 		
+		function cancelEditName() {
+			vm.editName.on = false;
+		}
+		
 		function startEditingBuoyGroup() {
 			vm.editGroup.on = true;
 			vm.editGroup.buoyGroupId = vm.selected.obj.buoyGroupId;
@@ -229,7 +238,18 @@
 			}, function(res) {
 				console.error(res);
 			});
-			 
+		}
+		
+		function cancelEditGroup() {
+			vm.editGroup.on = false;
+		}
+		
+		function editing() {
+			if (vm.editName.on) return true;
+			if (vm.editGroup.on) return true;
+			if (vm.newCommand) return true;
+			if (vm.newTrigger) return true;
+			return false;
 		}
 		
 		function selectNewBuoyGroup() {
@@ -269,7 +289,7 @@
 		
 		function sendCommand() {
 			if (vm.command.id == -1 || vm.command.value == '') return;
-			vm.newCommand = false;	
+			vm.newCommand = false;
 			var buoyIds = [];
 			if (vm.selected.type == 'instance') {
 				buoyIds.push(vm.selected.obj.buoyId);
@@ -285,8 +305,17 @@
 				});
 			}
 			sendCommands(buoyIds);			
+			resetNewCommand();
+		}
+		
+		function resetNewCommand() {
 			vm.command.id = -1;
 			vm.command.value = '';
+		}
+		
+		function cancelNewCommand() {
+			vm.newCommand = false;
+			resetNewCommand();
 		}
 		
 		function sendCommands(buoyIds) {
@@ -337,6 +366,11 @@
 				value: '',
 				message: ''
 			};
+		}
+		
+		function cancelNewTrigger() {
+			vm.newTrigger = false;
+			resetNewTrigger();
 		}
 		
 		function buoyGroupFilter(buoyGroup) {

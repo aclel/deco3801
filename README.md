@@ -28,12 +28,12 @@ The web server is written in Go, meaning that the entire project needs to be clo
 2. Create a database and import fms.sql
 3. Create a user and give them access to the database
 
-### Configuring SMTP Server
+#### Configuring SMTP Server
 
 1. Create a Gmail account or use an existing one. 
 2. Get the username and password (you will need them later) for that account.
 
-### Create Environment Variables
+#### Create Environment Variables
 
 Several environment variables need to be configured for the server to run.
 
@@ -127,7 +127,7 @@ The web app needs to be served through a web server with the server root directo
  2. Run `http-server` from the *web_app* directory. You should get a message saying which port the server is using.
  3. Browse to http://localhost:8080 or whichever port the server is using.
 
- ### iOS App
+## iOS App
 
 1. You will need a machine running OSX and Xcode 6.4 or greater. 
 2. Open Xcode and import the project. You should be able to compile and run it under the iPhone simulators straight away. Note that these simulators cannot use Core Location to find your current position. To log in, you must first create a user on the server at teamneptune.co, which is the server the app attempts to access.

@@ -28,8 +28,18 @@ The web server is written in Go, meaning that the entire project needs to be clo
 2. Create a database and import fms.sql
 3. Create a user and give them access to the database
 
+### Configuring SMTP Server
+
+1. Create a Gmail account or use an existing one. 
+2. Get the username and password (you will need them later) for that account.
+
 ### Create Environment Variables
-Several environment variables need to be configured for the server to run:
+
+Several environment variables need to be configured for the server to run.
+
+1. Open and edit `tools/env.sh` or `tools/env.bat` depending on your OS.
+2. Run the edited enviornment script.  
+3. Alternatively, you may manually add the following variables:
 - `FMS_DB_HOST` - The hostname of the database, for example "localhost"
 - `FMS_DB_PORT` - The port of the database at the hostname, for example "3306"
 - `FMS_DB_USERNAME` - The username of the user that has access to the database
@@ -45,7 +55,8 @@ Several environment variables need to be configured for the server to run:
 A private key can be generated with: `openssl genrsa -out mykey.pem 1024`  
 A public key can be generated with: `openssl rsa -in mykey.pem -pubout > mykey.pub`
 
-On Mac OSX you can set environment variables in `~/.bash_profile`.
+On Mac OSX/Unix you can set environment variables in `~/.bash_profile`.
+On Windows you can set environment variables through a GUI, just search for them in start menu.
 
 ### Running the server
 1. `cd` into `deco3801/server`
@@ -104,4 +115,7 @@ The web app needs to be served through a web server with the server root directo
  4. Run `http-server`. You should get a message saying which port the server is using.
  5. Browse to http://localhost:8080 or whichever port the server is using.
 
- ## iOS App
+ ### iOS App
+
+1. You will need a machine running OSX and Xcode. 
+2. Import the project and run it through Xcode.

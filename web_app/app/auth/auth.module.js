@@ -13,5 +13,10 @@
 (function() {
 	'use strict';
 	
+	/**
+        * @ngdoc overview
+        * @name app.module:auth
+        * @description Module for authentication across app
+    **/
 	angular.module('app.auth', []);
 })();

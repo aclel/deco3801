@@ -13,6 +13,7 @@
 (function() {
 	'use strict';
 	
+	/** Unit tests for admin controller */
 	describe('Controller: AdminController', function() {
 		var $controller, ctrl;
 		

@@ -16,24 +16,32 @@
 	angular.module('app.auth')
 		.factory('authInterceptor', authInterceptor);
 	
+	/**
+		* @ngdoc service
+		* @name module.authInterceptor
+		* @requires auth
+		* @description intercepts all requests and responses,
+		*              saves incoming authentication tokens
+	**/
 	function authInterceptor(auth) {
 		
-		
+		/** The service methods to expose */
 		return {
 			request: request,
 			response: response
 		};
 		
+		/** Requests are not modified */
 		function request(config) {
 			return config;
 		}
 		
+		/** If a response contains a token, save it */
 		function response(res) {
 			if (res.data.token) {
 				auth.saveToken(res.data.token);
 			}
 			return res;
 		}
-		
 	}
 })();

@@ -1,12 +1,33 @@
+/**
+ * Flood Monitoring System
+ * Version 0.0.1 (Duyung)
+ *
+ * Copyright (C) Team Neptune
+ * All rights reserved.
+ *
+ * @author     Andrew Dyer <andrew@dyergroup.com.au>
+ * @version    0.0.1
+ * @copyright  Team Neptune (2015)
+ * @link       https://github.com/aclel/deco3801
+ */
 (function() {
 	'use strict';
 	
 	angular.module('app.config')
 		.controller('ConfigController', ConfigController);
 	
+	/**
+		* @ngdoc object
+		* @name app.config.controller:ConfigController
+		* @description Provides viewmodel for config view
+		* @requires $log
+		* @requires config
+		* @requires server
+	**/
 	function ConfigController($log, config, server) {
 		var vm = this;
 		
+		/** Variables and methods bound to viewmodel */
 		vm.buoyGroups = [];
 		vm.buoyInstances = [];
 		vm.groupBuoys = [];
@@ -47,6 +68,7 @@
 		
 		activate();
 		
+		/** Called when controller is instantiated (config page is loaded) */
 		function activate() {
 			queryBuoyGroups();
 			queryBuoyInstances();
@@ -55,6 +77,7 @@
 			resetNewTrigger();
 		}
 		
+		/** Query buoy groups from the server */
 		function queryBuoyGroups() {
 			config.queryBuoyGroups().then(function(res) {
 				vm.buoyGroups = config.getBuoyGroups();
@@ -64,6 +87,7 @@
 			});
 		}
 		
+		/** Query buoy instances from the server */
 		function queryBuoyInstances() {
 			config.queryBuoyInstances().then(function(res) {
 				vm.buoyInstances = config.getBuoyInstances();
@@ -73,6 +97,7 @@
 			});
 		}
 		
+		/** Query command types from the server */
 		function queryCommandTypes() {
 			server.getCommandTypes().then(function(res) {
 				vm.commandTypes = res.data.commandTypes;
@@ -82,6 +107,7 @@
 			});
 		}
 		
+		/** Query buoy commands from the server */
 		function queryCommands() {
 			server.getBuoyCommands().then(function(res) {
 				vm.commands = res.data.commands;
@@ -91,6 +117,7 @@
 			});
 		}
 		
+		/** Query warning triggers from the server */
 		function queryWarningTriggers() {
 			server.getWarningTriggers().then(function(res) {
 				vm.warningTriggers = res.data.warningTriggers;
@@ -100,6 +127,7 @@
 			});
 		}
 		
+		/** Query sensor types from the server */
 		function querySensorTypes() {
 			server.getSensorTypes().then(function(res) {
 				vm.sensorTypes = res.data.sensorTypes;
@@ -109,12 +137,14 @@
 			});
 		}
 		
+		/** Set buoy group name for each buoy instance */
 		function parseGroupNames() {
 			vm.buoyInstances.forEach(function(buoyInstance) {
 				setBuoyGroupName(buoyInstance);
 			});
 		}
 		
+		/** Associate sensor and buoy info with warnings */
 		function parseWarningSensors() {
 			vm.warningTriggers.forEach(function(trigger) {
 				// get buoy name
@@ -136,6 +166,10 @@
 			});
 		}
 		
+		/**
+		 * Determine whether to show command and warning trigger config
+		 * @return {bool} show config
+		 */
 		function showBuoyConfig() {
 			if (vm.selected.type == 'instance') return true;
 			if (vm.selected.type == 'group' && vm.groupBuoys.length > 0) return true;
@@ -143,6 +177,7 @@
 			return false;
 		}
 		
+		/** Associate buoy instances with buoy groups */
 		function updateGroupBuoys() {
 			vm.groupBuoys = [];
 			vm.buoyInstances.forEach(function(buoyInstance) {
@@ -152,11 +187,13 @@
 			});
 		}
 		
+		/** Show config for all buoys */
 		function selectAll() {
 			stopEditing();
 			vm.selected.type = 'all';
 		}
 		
+		/** Close all edit fields */
 		function stopEditing() {
 			vm.editName.on = false;
 			vm.editGroup.on = false;
@@ -164,6 +201,7 @@
 			vm.newTrigger = false;
 		}
 		
+		/** Show config for selected buoy group */
 		function selectBuoyGroup(buoyGroup) {
 			stopEditing();
 			vm.selected.type = 'group';
@@ -171,6 +209,7 @@
 			updateGroupBuoys();
 		}
 		
+		/** Show config for selected buoy instance */
 		function selectBuoyInstance(buoyInstance) {
 			stopEditing();
 			vm.selected.type = 'instance';
@@ -178,6 +217,7 @@
 			updateGroupBuoys();
 		}
 		
+		/** Update buoy group name for all buoys */
 		function setBuoyGroupName(buoyInstance) {
 			vm.buoyGroups.forEach(function(buoyGroup) {
 				if (buoyGroup.id == buoyInstance.buoyGroupId) {
@@ -187,6 +227,7 @@
 			});
 		}	
 		
+		/** Start editing buoy group or instance name */
 		function startEditingName() {
 			/* is it better to bind edit value directly to main buoyInstance,
 			or wait until it's 'saved' before updating main buoyInstance?
@@ -195,6 +236,7 @@
 			vm.editName.on = true;
 		}
 		
+		/** Save buoy group or instance name to server and update page */
 		function finishEditingName() {
 			// vm.selected.obj.name = vm.editName.value;
 			vm.editName.on = false;
@@ -216,15 +258,18 @@
 			}
 		}
 		
+		/** Cancel buoy group or instance name editing */
 		function cancelEditName() {
 			vm.editName.on = false;
 		}
 		
+		/** Start editing the group is a buoy instance is in */
 		function startEditingBuoyGroup() {
 			vm.editGroup.on = true;
 			vm.editGroup.buoyGroupId = vm.selected.obj.buoyGroupId;
 		}
 		
+		/** Save buoy's new group and name to server and update page */
 		function finishEditingBuoyGroup() {
 			vm.editGroup.on = false;
 			vm.selected.obj.buoyGroupId = vm.editGroup.buoyGroupId;
@@ -240,10 +285,16 @@
 			});
 		}
 		
+		/** Cancel edit of a buoy's group */
 		function cancelEditGroup() {
 			vm.editGroup.on = false;
 		}
 		
+		/**
+		 * Determine whether an edit field is currently open. Used to
+		 * ensure that users can only edit one particular thing at once.
+		 * @return {bool} edit field is open
+		 */
 		function editing() {
 			if (vm.editName.on) return true;
 			if (vm.editGroup.on) return true;
@@ -252,11 +303,13 @@
 			return false;
 		}
 		
+		/** Show config for a new buoy group */
 		function selectNewBuoyGroup() {
 			vm.selected.type = 'newGroup';
 			vm.selected.obj = null;
 		}
 		
+		/** Save new buoy group to server and update page */
 		function saveNewBuoyGroup() {
 			server.newBuoyGroup(vm.editName.value).then(function(res) {
 				vm.selected.type = 'all';
@@ -266,8 +319,10 @@
 			});
 		}
 				
+		/** Associate each command with buoy and command info */
 		function parseCommands() {
 			vm.commands.forEach(function(command) {
+				// get buoy name
 				for (var i = 0; i < vm.buoyInstances.length; i++) {
 					var buoyInstance = vm.buoyInstances[i];
 					if (command.buoyId == buoyInstance.buoyId) {
@@ -278,6 +333,7 @@
 						break;
 					}
 				}
+				// get command name
 				for (var i = 0; i < vm.commandTypes.length; i++) {
 					if (command.commandTypeId == vm.commandTypes[i].id) {
 						command.commandName = vm.commandTypes[i].name;
@@ -287,19 +343,22 @@
 			});
 		}
 		
+		/** Prepare to send new command(s) to server */
 		function sendCommand() {
 			if (vm.command.id == -1 || vm.command.value == '') return;
 			vm.newCommand = false;
-			var buoyIds = [];
+			var buoyIds = []; // buoys to send command for
 			if (vm.selected.type == 'instance') {
 				buoyIds.push(vm.selected.obj.buoyId);
 			} else if (vm.selected.type == 'group') {
+				// send command to each buoy in selected group
 				vm.buoyInstances.forEach(function(buoyInstance) {
 					if (buoyInstance.buoyGroupId == vm.selected.obj.id) {
 						buoyIds.push(buoyInstance.buoyId);
 					}
 				});
 			} else if (vm.selected.type == 'all') {
+				// send command to all buoys
 				vm.buoyInstances.forEach(function(buoyInstance) {
 					buoyIds.push(buoyInstance.buoyId);
 				});
@@ -308,16 +367,19 @@
 			resetNewCommand();
 		}
 		
+		/** Clear command input fields */
 		function resetNewCommand() {
 			vm.command.id = -1;
 			vm.command.value = '';
 		}
 		
+		/** Cancel editing of new command */
 		function cancelNewCommand() {
 			vm.newCommand = false;
 			resetNewCommand();
 		}
 		
+		/** Send command(s) for buoy(s) to server and update page */
 		function sendCommands(buoyIds) {
 			server.sendBuoyCommand(vm.command, buoyIds).then(function(res) {
 				queryCommands();
@@ -326,6 +388,7 @@
 			});
 		}
 		
+		/** Delete command(s) for buoy(s) and update server */
 		function deleteCommand(command) {
 			
 		}

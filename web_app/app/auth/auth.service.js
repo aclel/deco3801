@@ -16,9 +16,15 @@
 	angular.module('app.auth')
 		.factory('auth', auth);
 	
+	/**
+		* @ngdoc service
+		* @name module.auth
+		* @requires $window
+		* @requires moment
+	**/
 	function auth($window, moment) {
 		
-		
+		/** The service methods to expose */
 		return {
 			logout: logout,
 			loggedIn: loggedIn,
@@ -28,10 +34,15 @@
 			checkUser: checkUser
 		};
 		
+		/** Logout by removing user token from localStorage */
 		function logout() {
 			$window.localStorage.removeItem('token');
 		}
 		
+		/**
+		 * Returns whether currently logged in or not
+		 * @return {bool} loggedIn
+		 */
 		function loggedIn() {
 			var token = getToken();
 			if(token) {
@@ -41,19 +52,37 @@
 				return false;
 			}
 		}
-			
+		
+		/**
+		 * Save JWT token to localStorage, to preserve session
+		 * @param  {string} token JWT token
+		 */
 		function saveToken(token) {
 			$window.localStorage['token'] = token;
 		}
 		
-		function getToken(token) {
+		/**
+		 * Get JWT Token from localStorage
+		 * @return {string}       JWT token
+		 */
+		function getToken() {
 			return $window.localStorage['token'];
 		}
 		
+		/**
+		 * Returns current user
+		 * User details are contained in JWT token
+		 * @return {string} email
+		 */
 		function currentUser() {
 			return parseJwt(getToken()).sub;
 		}
 		
+		/**
+		 * Returns current user role
+		 * User details are contained in JWT token
+		 * @return {string} role
+		 */
 		function currentUserRole() {
 			var token = getToken();
 			if (token == null) {
@@ -62,6 +91,11 @@
 			return parseJwt(token).role;
 		}
 		
+		/**
+		 * Returns whether a user is is authorised based on their role
+		 * @param  {string} role role
+		 * @return {bool}      authorised
+		 */
 		function checkUser(role) {
 			var roles = {
 				'unauthed': 0,
@@ -87,6 +121,11 @@
 			return (roles[currentUserRole()] >= roles[role]);
 		}
 		
+		/**
+		 * Parses a JWT token
+		 * @param  {string} token JWT token
+		 * @return {object}       parsed token
+		 */
 		function parseJwt(token) {
 			var base64Url = token.split('.')[1];
 			var base64 = base64Url.replace('-', '+').replace('_', '/');

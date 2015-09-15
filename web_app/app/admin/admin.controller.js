@@ -16,9 +16,17 @@
 	angular.module('app.admin')
 		.controller('AdminController', AdminController);
 	
+	/**
+		* @ngdoc object
+		* @name app.admin.controller:AdminController
+		* @description Provides viewmodel for admin view
+		* @requires $log
+		* @requires server
+	**/
 	function AdminController($log, server) {
 		var vm = this;
 		
+		/** Variables and methods bound to viewmodel */
 		vm.users = [];
 		vm.editUserId = -1;
 		vm.newBuoyName = '';
@@ -38,10 +46,14 @@
 		
 		activate();
 		
+		/** Called when controller is instantiated (admin page is loaded) */
 		function activate() {
 			queryUsers();
 		}
 		
+		/**
+		 * Query users from the server
+		 */
 		function queryUsers() {
 			server.getUsers().then(function(res) {
 				vm.users = res.data.users;
@@ -51,6 +63,9 @@
 			});
 		}
 		
+		/**
+		 * Format last login time and add it to users array
+		 */
 		function formatLastLogin() {
 			vm.users.forEach(function(user) {
 				if (!user.lastLogin.Valid) {
@@ -61,11 +76,19 @@
 			});
 		}
 		
+		/**
+		 * Start editing a user, called on Edit button click
+		 * @param  {object} user 
+		 */
 		function startEditingUser(user) {
 			vm.editUserId = user.id;
 			vm.editUser = user;
 		}
-		
+
+		/**
+		 * User edits are saved, and server is updated, 
+		 * called on Save button click
+		 */
 		function finishEditingUser() {
 			if (vm.editUserId != -2) {
 				server.updateUser(vm.editUser).then(function(res) {
@@ -84,6 +107,9 @@
 			vm.editUserId = -1;
 		}
 		
+		/**
+		 * User edits are discarded, called on Cancel button click
+		 */
 		function cancelEditingUser() {
 			if (vm.editUserId == -2) {
 				vm.users.splice(vm.users.length - 1, 1);
@@ -91,6 +117,10 @@
 			vm.editUserId = -1;
 		}
 		
+		/**
+		 * User is deleted, called on Delete button click
+		 * @param  {object} user
+		 */
 		function deleteUser(user) {
 			server.deleteUser(user.id).then(function(res) {
 				queryUsers();
@@ -99,17 +129,29 @@
 			});
 		}
 		
+		/**
+		 * Determines whether to show delete button for each user row
+		 * @param  {object} user
+		 * @return {bool}      whether to show delete button
+		 */
 		function showDeleteButton(user) {
 			return ((vm.editUserId == -1 || vm.editUserId == user.id) &&
 				user.id != -2);
 		}
 		
+		/**
+		 * Add new row to users table and start editing, 
+		 * called on Add User button click
+		 */
 		function startAddingUser() {
 			var tempUser = { id: -2 };
 			vm.users.push(tempUser);
 			startEditingUser(tempUser);
 		}
 		
+		/**
+		 * Add new Buoy, update server, called on Add button click
+		 */
 		function addBuoy() {
 			if (vm.newBuoyName == '') return;
 			var guid = generateGuid();
@@ -121,6 +163,7 @@
 			vm.newBuoyName = '';
 		}
 		
+		/** Returns a GUID */
 		function generateGuid() {
 			return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
 				var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);

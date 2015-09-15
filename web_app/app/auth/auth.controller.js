@@ -16,9 +16,20 @@
 	angular.module('app.auth')
 		.controller('AuthController', AuthController);
 	
+	/**
+		* @ngdoc object
+		* @name app.auth.controller:AuthController
+		* @description Controller for authentication across entire app
+		* @requires $rootScope
+		* @requires $state
+		* @requires auth
+		* @requires server
+		* @requires routeHelper
+	**/
 	function AuthController($rootScope, $state, auth, server, routerHelper) {
 		var vm = this;
 		
+		/** Variables and methods bound to viewmodel */
 		vm.firstLogin = false;
 		vm.login = login;
 		vm.changePassword = changePassword;
@@ -26,10 +37,12 @@
 		
 		activate();
 		
+		/** Called when controller is instantiated */
 		function activate() {
 			resetForm();
 		}
-			
+		
+		/** Send login request to server, called on Login button click */	
 		function login() {
 			server.login(vm.email, vm.password).then(
 			function(res) {
@@ -40,7 +53,6 @@
 					} else {
 						$state.go('dashboard');
 					}
-					
 					resetForm();
 				}
 				
@@ -50,6 +62,7 @@
 			});
 		}
 		
+		/** Send change password request to server */
 		function changePassword() {
 			// need to validate input
 			if (vm.newPassword != "" && vm.newPassword == vm.confirmPassword) {
@@ -61,10 +74,12 @@
 			}
 		}
 		
+		/** Send forgot password request to server */
 		function forgotPassword() {
 			server.forgotPassword(vm.email);
 		}
 		
+		/** Reset login form */
 		function resetForm() {
 			vm.email = "andrew@dyergroup.com.au"; // placeholder
 			vm.password = "D9mEpnvx";

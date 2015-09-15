@@ -23,8 +23,8 @@ func (mdb *MockDB) GetAllBuoys() ([]Buoy, error) {
 	return mdb.buoys, nil
 }
 
-func (mdb *MockDB) CreateBuoy(buoy *Buoy) error {
-	return nil
+func (mdb *MockDB) CreateBuoy(buoy *Buoy) (int64, error) {
+	return -1, nil
 }
 
 func (mdb *MockDB) GetBuoyById(id int) (*Buoy, error) {

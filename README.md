@@ -101,19 +101,31 @@ Now that you are logged in you are able to access the readings. If you try to do
 
 The web app is a single-page application built with [AngularJS](https://angularjs.org/).
 
+### Dependencies
+
+ - [Node.js](https://nodejs.org/)
+ - [Bower](http://bower.io/) (install globally)
+ - [Gulp](http://gulpjs.com/) (install globally)
+
 ### Quickstart
 
-Run `http-server -o` from `deco3801/web_app`.
+1. Copy `web_app/env.js` to `web_app/app/env.js`
+2. `cd` into``web_app` and run `npm install`, `bower install` and `gulp build`
+3. Serve *web_app* through a web server (eg. [http-server](https://www.npmjs.com/package/http-server))
 
 ### Getting Started
 
-The web app needs to be served through a web server with the server root directory configured as *deco3801/web_app*. One way to do this is by running a Node.js http-server from this directory.
+Before the web app can be run, it needs to be built. Make sure you have installed the dependencies, and the follow these instructions.
 
- 1. Install [Node.js](https://nodejs.org/)
- 2. Run `npm install -g http-server`. This will perform a global install of the node [http-server](https://www.npmjs.com/package/http-server) package.
- 3. `cd` into `deco3801/web_app`
- 4. Run `http-server`. You should get a message saying which port the server is using.
- 5. Browse to http://localhost:8080 or whichever port the server is using.
+ 1. Copy `web_app/env.js` to `web_app/app/env.js`. This file contains environment variables for the web app.
+ 2. Install dependencies by running `npm install` followed by `bower install` from the *web_app* directory.
+ 3. Build the javascript files by running `gulp build` from the *web_app* directory.
+
+The web app needs to be served through a web server with the server root directory configured as *web_app*. One way to do this is by running a Node.js http-server from this directory.
+
+ 1. Run `npm install -g http-server`. This will perform a global install of the node [http-server](https://www.npmjs.com/package/http-server) package.
+ 2. Run `http-server` from the *web_app* directory. You should get a message saying which port the server is using.
+ 3. Browse to http://localhost:8080 or whichever port the server is using.
 
  ### iOS App
 

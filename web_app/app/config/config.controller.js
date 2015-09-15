@@ -51,18 +51,20 @@
 		}
 		
 		function queryBuoyGroups() {
-			config.queryBuoyGroups().then(function() {
+			config.queryBuoyGroups().then(function(res) {
 				vm.buoyGroups = config.getBuoyGroups();
+				parseGroupNames()
+			}, function(res) {
+				console.error(res);
 			});
 		}
 		
 		function queryBuoyInstances() {
-			config.queryBuoyInstances().then(function() {
+			config.queryBuoyInstances().then(function(res) {
 				vm.buoyInstances = config.getBuoyInstances();
-				
-				vm.buoyInstances.forEach(function(buoyInstance) {
-					setBuoyGroupName(buoyInstance);
-				});
+				parseGroupNames()
+			}, function(res) {
+				console.error(res);
 			});
 		}
 		
@@ -99,6 +101,12 @@
 				parseWarningSensors();
 			}, function(res) {
 				console.error(res);
+			});
+		}
+		
+		function parseGroupNames() {
+			vm.buoyInstances.forEach(function(buoyInstance) {
+				setBuoyGroupName(buoyInstance);
 			});
 		}
 		
@@ -188,10 +196,18 @@
 			// update server
 			if (vm.selected.type == 'group') {
 				server.updateBuoyGroupName(vm.selected.obj.id,
-					vm.selected.obj.name);
+					vm.selected.obj.name).then(function(res) {
+						queryBuoyGroups();
+					}, function(res) {
+						console.error(res);
+					});
 			} else if (vm.selected.type == 'instance') {
 				server.updateBuoyInstanceName(vm.selected.obj.id,
-					vm.selected.obj.name, vm.selected.obj.buoyGroupId);
+					vm.selected.obj.name, vm.selected.obj.buoyGroupId).then(function(res) {
+						queryBuoyInstances();
+					}, function(res) {
+						console.error(res);
+					});;
 			}
 		}
 		
@@ -209,7 +225,7 @@
 				vm.selected.obj.buoyId,
 				vm.editGroup.buoyGroupId,
 				vm.editGroup.name).then(function(res) {
-				console.info(res);
+				queryBuoyInstances();
 			}, function(res) {
 				console.error(res);
 			});
@@ -224,8 +240,7 @@
 		function saveNewBuoyGroup() {
 			server.newBuoyGroup(vm.editName.value).then(function(res) {
 				vm.selected.type = 'all';
-				// vm.selected.obj = res.data.
-				console.info(res);
+				queryBuoyGroups();
 			}, function(res) {
 				console.error(res);
 			});

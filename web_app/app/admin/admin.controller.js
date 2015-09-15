@@ -31,10 +31,10 @@
 		vm.showDeleteButton = showDeleteButton;
 		vm.addBuoy = addBuoy;
 		
-		vm.sensors = server.getSensors();
-		vm.sensorsEdit = [];
-		vm.toggleEdit = toggleEdit;
-		vm.sensorValid = sensorValid;
+		// vm.sensors = server.getSensors();
+		// vm.sensorsEdit = [];
+		// vm.toggleEdit = toggleEdit;
+		// vm.sensorValid = sensorValid;
 		
 		activate();
 		
@@ -131,22 +131,22 @@
 		
 		
 		
-		for (var i = 0; i < vm.sensors.length; i++) {
-			vm.sensorsEdit.push(false);
-		}
+		// for (var i = 0; i < vm.sensors.length; i++) {
+		// 	vm.sensorsEdit.push(false);
+		// }
 		
-		function toggleEdit(index) {
-			if (vm.sensorsEdit[index]) {
-				vm.sensors[index].unconfigured = false;
-			}
-			vm.sensorsEdit[index] = !vm.sensorsEdit[index];
-		}
+		// function toggleEdit(index) {
+		// 	if (vm.sensorsEdit[index]) {
+		// 		vm.sensors[index].unconfigured = false;
+		// 	}
+		// 	vm.sensorsEdit[index] = !vm.sensorsEdit[index];
+		// }
 		
-		function sensorValid(sensor) {
-			if (!sensor.name || !sensor.units) {
-				return false;
-			}			
-			return true;
-		}
+		// function sensorValid(sensor) {
+		// 	if (!sensor.name || !sensor.units) {
+		// 		return false;
+		// 	}			
+		// 	return true;
+		// }
 	}
 })();

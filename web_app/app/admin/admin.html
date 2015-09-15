@@ -28,7 +28,12 @@
 					</td>
 					<td>
 						<span ng-if="vm.editUserId != user.id">{{ user.role }}</span>
-						<input ng-if="vm.editUserId == user.id" type="text" ng-model="vm.editUser.role">
+						<select ng-if="vm.editUserId == user.id"
+							type="button" class="btn btn-default" 
+							ng-model="vm.editUser.role" 
+							bs-options="opt for opt in vm.roles"
+							bs-select>
+						</select>
 					</td>
 					<td>
 						{{ user.lastLogin.text }}

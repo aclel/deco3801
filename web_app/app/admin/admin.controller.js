@@ -22,6 +22,7 @@
 		vm.users = [];
 		vm.editUserId = -1;
 		vm.newBuoyName = '';
+		vm.roles = ['user', 'power_user', 'system_admin'];
 		vm.startEditingUser = startEditingUser;
 		vm.finishEditingUser = finishEditingUser;
 		vm.deleteUser = deleteUser;

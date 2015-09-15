@@ -39,7 +39,7 @@
 		vm.showDeleteButton = showDeleteButton;
 		vm.addBuoy = addBuoy;
 		
-		// vm.sensors = server.getSensors();
+		// vm.sensors = server.getSensorTypes();
 		// vm.sensorsEdit = [];
 		// vm.toggleEdit = toggleEdit;
 		// vm.sensorValid = sensorValid;

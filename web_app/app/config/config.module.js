@@ -13,6 +13,11 @@
 (function() {
 	'use strict';
 	
+    /**
+        * @ngdoc overview
+        * @name app.module:config
+        * @description Module for config page
+    **/
 	angular.module('app.config', [
 		// Shared modules
 		'app.core',

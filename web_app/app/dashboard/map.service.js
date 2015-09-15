@@ -16,8 +16,16 @@
 	angular.module('app.dashboard')
 		.factory('map', map);
 		
+	/**
+		* @ngdoc service
+		* @name app.dashboard.map
+		* @requires dashboard
+		* @requires moment
+		* @requires google
+	**/
 	function map(dashboard, moment, google) {
-				
+			
+		/** Internal variables */
 		var map;
 		var mapOptions = {
 			zoom: 11,
@@ -30,11 +38,13 @@
 		var infoBoxOpen = false;
 		var currentMarkerId = -1;
 		
+		/** The service methods to expose */
 		return {
 			initialiseMap: initialiseMap,
 			updateReadings: updateReadings
 		};
 
+		/** Setup google map, set styles and listeners */
 		function initialiseMap() {
 			// disable points of interest
 			var noPoi = [
@@ -158,6 +168,7 @@
 		    });
 		}
 		
+		/** Update map markers based on filtered readings */
 		function updateReadings() {
 			var readings = dashboard.readings();
 		
@@ -179,6 +190,7 @@
 				}
 			}
 
+			// add or re-enable markers and set opacity
 			readings.forEach(function(buoyGroup) {
 				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
 					buoyInstance.readings.forEach(function(reading) {
@@ -199,6 +211,7 @@
 			});
 		}
 		
+		/** Add new marker to map */
 		function addMarker(reading, buoyInstance) {
 			var marker = new google.maps.Marker({
 				position: new google.maps.LatLng(reading.latitude, reading.longitude),
@@ -214,6 +227,7 @@
 			markers[reading.id] = marker;
 		}
 		
+		/** Disable marker (hide from map) without deleting it */
 		function disableMarker(id) {
 			markers[id].setMap(null);
 			disabledMarkers.push(id);
@@ -226,22 +240,26 @@
 			}
 		}
 		
+		/** Re-enable (show on map) disabled marker */
 		function enableMarker(id) {
 			markers[id].setMap(map);
 			disabledMarkers.splice(disabledMarkers.indexOf(id), 1);
 		}
 		
+		/** Get the value to set for marker opacity */
 		function calculateOpacity(reading) {
 			var age = dashboard.getRelativeAge(reading);
 			var minVisibleOpacity = 0.3;
 			return age * (1 - minVisibleOpacity) + minVisibleOpacity;
 		}
 		
+		/** Close the infobox (map marker popup) */
 		function closeInfoBox() {
 			infoBox.close();
 			infoBoxOpen = false;
 		}
 		
+		/** Open the infobox, set content based on marker reading details */
 		function openInfoBox(reading, buoyInstance, marker) {
 			if (infoBoxOpen) {
 				closeInfoBox();
@@ -273,6 +291,12 @@
 			currentMarkerId = reading.id;
 		}
 		
+		/** 
+		 * Determine content to set for marker popup
+		 * @param  {object} reading      reading
+		 * @param  {object} buoyInstance buoy instance
+		 * @return {string}              popup content
+		 */
 		function popupContent(reading, buoyInstance) {
 			var sensors = dashboard.sensorMetadata();
 			var formattedTime = moment.unix(reading.timestamp)

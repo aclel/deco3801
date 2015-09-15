@@ -16,19 +16,30 @@
 	angular.module('app.warnings')
 		.controller('WarningsController', WarningsController);
 	
+	/**
+		* @ngdoc object
+		* @name app.warnings.controller:WarningsController
+		* @description Provides viewmodel for warnings view
+		* @requires $log
+		* @requires server
+		* @requires moment
+	**/
 	function WarningsController($log, server, moment) {
 		var vm = this;
 		
+		/** Variables and methods bound to viewmodel */
 		vm.warnings = [];
 		vm.buoyInstances = [];
 		vm.sensorTypes = [];
 		
 		activate();
 		
+		/** Called when controller is instantiated (warnings page is loaded) */
 		function activate() {
 			queryWarnings();
 		}
 		
+		/** Query warnings from server and update viewmodel */
 		function queryWarnings() {
 			server.getWarnings().then(function(res) {
 				vm.warnings = res.data.warnings;
@@ -38,6 +49,7 @@
 			});
 		}
 		
+		/** Query buoy instances from server and update viewmodel */
 		function queryBuoyInstances() {
 			server.getBuoyInstances().then(function(res) {
 				vm.buoyInstances = res.data.buoyInstances;
@@ -46,6 +58,8 @@
 				$log.error(res);
 			});
 		}
+
+		/** Query sensor types from server and parse warnings */
 		function querySensorTypes() {
 			server.getSensorTypes().then(function(res) {
 				vm.sensorTypes = res.data.sensorTypes;
@@ -55,6 +69,7 @@
 			});
 		}
 		
+		/** Associate buoy, sensor and time info with warnings */
 		function parseWarnings() {
 			vm.warnings.forEach(function(warning) {
 				// parse time

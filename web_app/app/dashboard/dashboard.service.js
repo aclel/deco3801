@@ -16,13 +16,22 @@
 	angular.module('app.dashboard')
 		.factory('dashboard', dashboard);
 		
+	/**
+		* @ngdoc service
+		* @name app.dashboard.dashboard
+		* @requires $log
+		* @requires server
+		* @requires moment
+	**/
 	function dashboard($log, server, moment) {
+		/** Internal variables. These are preserved until page refresh. */
 		var data = [];
 		var filteredReadings = [];
-		
 		var filters = {};
+
 		initialiseFilters();
 		
+		/** The service methods to expose */
 		return {
 			queryReadings: queryReadings,
 			querySensors: querySensors,
@@ -40,6 +49,12 @@
 			exportData: exportData
 		};
 		
+		/**
+		 * Query readings from server and update internal data structures
+		 * @param  {int} from unix timestamp from time
+		 * @param  {int} to   unix timestamp to time
+		 * @return {promise}      request promise
+		 */
 		function queryReadings(from, to) {
 			if (!from) {
 				from = moment().subtract(filters.times.inputs.since.value,
@@ -56,8 +71,12 @@
 			return promise;
 		}
 		
+		/**
+		 * Query sensors from server and update internal data structures
+		 * @return {promis} request promise
+		 */
 		function querySensors() {
-			var promise = server.getSensors();
+			var promise = server.getSensorTypes();
 			promise.then(function(res) {
 				populateSensors(res.data.sensorTypes);
 			}, function(res) {
@@ -66,6 +85,7 @@
 			return promise;
 		}
 		
+		/** Initialise filters and inputs */
 		function initialiseFilters() {
 			filters.buoys = [];
 			populateBuoys();
@@ -91,6 +111,7 @@
 			filters.sensorInputs = {};
 		}
 		
+		/** Populate buoys filter */
 		function populateBuoys() {		
 			if (filters.buoys.length !== 0) return;
 			
@@ -113,24 +134,42 @@
 			});
 		}
 
+		/**
+		 * Return filtered readings
+		 * @return {object array} filtered readings
+		 */
 		function getReadings() {
 			return filteredReadings;
 		}
 		
+		/**
+		 * Return buoy input data structures
+		 * @return {object} buoys filters and inputs
+		 */
 		function getBuoys() {
 			return filters.buoys;
 		}
 		
+		/**
+		 * Return time input data structures
+		 * @return {object} time inputs
+		 */
 		function getTimes() {
 			return filters.times;
 		}
 		
+		/**
+		 * Return sensor input data structures
+		 * @return {object} sensor inputs and filters
+		 */
 		function getSensors() {
+			// include input data in return
 			for (var key in filters.sensorInputs) {
 				if (filters.sensorInputs.hasOwnProperty(key)) {
 					filters.sensors[key].inputs = filters.sensorInputs[key];
 				}
 			}
+			// filter out sensors which are disabled
 			var sensors = []; 
 			for (var key in filters.sensors) {
 				if (filters.sensors.hasOwnProperty(key)) {
@@ -142,14 +181,20 @@
 			return sensors;
 		}
 		
+		/** 
+		 * Return sensor type details
+		 * @return {object} sensor types
+		 */
 		function getSensorMetadata() {
 			return filters.sensors;
 		}
 		
+		/** Update internal filtered readings when buoy filters changed */
 		function updateBuoys() {
 			updateFilters();
 		}
 		
+		/** Update internal filtered readings when time filters changes */
 		function updateTimes() {
 			// query server for new times
 			var from, to;
@@ -179,10 +224,12 @@
 			return promise;
 		}
 		
+		/** Update internal filtered readings when sensor filters changed */
 		function updateSensors() {
 			updateFilters();
 		}
 		
+		/** Populate sensor input data */
 		function populateSensors(sensors) {
 			for (var i = 0; i < sensors.length; i++) {
 				filters.sensors[sensors[i].id] = sensors[i];
@@ -203,6 +250,10 @@
 			}
 		}
 		
+		/**
+		 * Return the oldest reading from filtered readings
+		 * @return {object} oldest reading
+		 */
 		function getOldestReading() {
 			var readings = filteredReadings;
 			var oldest = moment.unix(readings[0].timestamp);
@@ -214,6 +265,7 @@
 			return oldest;
 		}
 		
+		/** Calculate readings closest to specified time */
 		function calculatePointReadings() {
 			var pointReadings = [];
 			data.forEach(function(buoyGroup) {
@@ -236,6 +288,7 @@
 			filters.times.pointReadings = pointReadings;
 		}
 		
+		/** Re-filter readings based on updated filters */
 		function updateFilters() {
 			var fdata = [];
 			
@@ -306,18 +359,24 @@
 			filteredReadings = fdata;
 		}
 		
-		function showBuoyGroup(buoyGroup) {
-			for (var i = 0; i < filters.buoys.length; i++) {
-				var group = filters.buoys[i];
-				if (buoyGroup.id == group.id) {
-					if (!group.enabled) {
-						return false;
-					}
-				}
-			}		
-			return true;
-		}
+
+		// function showBuoyGroup(buoyGroup) {
+		// 	for (var i = 0; i < filters.buoys.length; i++) {
+		// 		var group = filters.buoys[i];
+		// 		if (buoyGroup.id == group.id) {
+		// 			if (!group.enabled) {
+		// 				return false;
+		// 			}
+		// 		}
+		// 	}		
+		// 	return true;
+		// }
 		
+		/**
+		 * Filter buoys from readings
+		 * @param  {object} reading reading
+		 * @return {bool}         include reading
+		 */
 		function filterBuoys(reading) {
 			if (!filters.buoys[reading.buoy]) {
 				return false;
@@ -325,6 +384,11 @@
 			return true;
 		}
 		
+		/**
+		 * Filter readings based on timestamp
+		 * @param  {object} reading reading
+		 * @return {bool}         include reading
+		 */
 		function filterTimes(reading) {
 			if (filters.times.type == 'since') {
 				var since = moment().subtract(filters.times.inputs.since.value,
@@ -346,6 +410,11 @@
 			return true;
 		}
 		
+		/**
+		 * Filter readings based on sensor filters
+		 * @param  {object} reading reading
+		 * @return {bool}         include reading
+		 */
 		function filterSensors(reading) {
 			if (Object.keys(filters.sensorInputs).length === 0) {
 				return true;
@@ -359,6 +428,11 @@
 			return true;
 		}
 		
+		/**
+		 * Filter reading based on specific sensor
+		 * @param  {object} sReading sensor reading
+		 * @return {bool}          include reading
+		 */
 		function filterSensor(sReading) {
 			var sensor = filters.sensorInputs[sReading.sensorTypeId];
 			
@@ -382,6 +456,11 @@
 			return true;
 		}
 		
+		/**
+		 * Return 0-1 depending where reading timestamp falls based on time filters
+		 * @param  {object} reading reading
+		 * @return {float}         age (0 is old, 1 is new)
+		 */
 		function getRelativeAge(reading) {
 			// returns age between 0 and 1, based on a range determined as seen below
 			var time = moment.unix(reading.timestamp);
@@ -416,6 +495,13 @@
 			}
 		}
 		
+		/** 
+		 * Calculate where number falls in range
+		 * @param  {int} time time
+		 * @param  {int} min  min time
+		 * @param  {int} max  max time
+		 * @return {float}      0-1, where time falls in range
+		 */
 		function calculateAgeInRange(time, min, max) {
 			if (time.isBefore(min)) {
 				return 0;
@@ -425,6 +511,7 @@
 			return (time.diff(min) / max.diff(min));
 		}
 		
+		/** Export filtered readings, query server for file */
 		function exportData() {
 			var readingIds = [];
 			filteredReadings.forEach(function(buoyGroup) {

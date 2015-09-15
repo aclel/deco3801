@@ -15,9 +15,15 @@
 	
 	angular.module('mock.server', [])
 		.factory('server', server);
-		
+	
+	/**
+		* @ngdoc service
+		* @name mock.server
+		* @description Mock of server service for testing
+	**/
 	function server() {
 		
+		/** The mock service methods to expose */
 		return {
 			getReadings: getReadings,
 			getSensors: getSensors,
@@ -25,6 +31,7 @@
 			logout: logout
 		};
 		
+		/** Dummy reading data */
 		function getReadings() {
 			return [
 				{
@@ -91,6 +98,7 @@
 			];
 		}
 		
+		/** Dummy sensor data */
 		function getSensors() {
 			return [
 				{
@@ -129,10 +137,12 @@
 			];
 		}
 		
+		/** Mocked login function */
 		function login() {
 			// return 0;
 		}
 		
+		/** Mocked logout function */
 		function logout() {
 			
 		}

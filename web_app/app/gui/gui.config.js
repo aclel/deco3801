@@ -13,6 +13,7 @@
 (function() {
 	'use strict';
 	
+	/** Set timepicker and datepicker defaults */
 	angular.module('app.gui')
 		.config(function($datepickerProvider, $timepickerProvider, $httpProvider) {
 			

@@ -15,13 +15,24 @@
 	
 	angular.module('app.dashboard')
 		.controller('DashboardController', DashboardController);
-		
+	
+	/**
+			* @ngdoc object
+			* @name app.dashboard.controller:DashboardController
+			* @description Provides viewmodel for dashboard view
+			* @requires $document
+			* @requires dashboard
+			* @requires map
+			* @requires moment
+		**/	
 	function DashboardController($document, dashboard, map, moment) {
 		var vm = this;
 		
+		/** Internal variables */
 		var dateFormat = "D/M/YY";
 		var timeFormat = "h:mm A";
 			
+		/** Variables and methods bound to viewmodel */
 		vm.buoys = dashboard.buoys();
 		vm.times = dashboard.times();
 		vm.sensors = dashboard.sensors();
@@ -35,6 +46,7 @@
 		
 		activate();
 		
+		/** Called when controller is instantiated (dashboard page is loaded) */
 		function activate() {
 			dashboard.queryReadings().then(function() {
 				vm.buoys = dashboard.buoys();
@@ -52,14 +64,17 @@
 			});
 		}
 			
+		/** Initialise google map when document is loaded */
 		$document.ready(function() {
 			map.initialiseMap();
 		});
 		
+		/** Toggle buoy group in list */
 		function toggleBuoyGroup(buoyGroup) {
 			buoyGroup.collapsed = !buoyGroup.collapsed;
 		}
 		
+		/** Update whether buoy group filter is enabled */
 		function selectBuoyGroup(buoyGroup) {
 			buoyGroup.buoyInstances.forEach(function(buoyInstance) {
 				buoyInstance.enabled = buoyGroup.enabled;
@@ -68,6 +83,9 @@
 			updateBuoysFilter();
 		}
 		
+		/** Update whether buoy instance filter is enabled,
+		 *  Also handle display of indeterminate checkbox for group	
+		 */
 		function selectBuoyInstance(buoyGroup, buoyInstance) {
 			var allTrue = true;
 			var allFalse = true;
@@ -95,11 +113,13 @@
 			updateBuoysFilter();
 		}
 		
+		/** Update filters and map when buoy filters are changed */
 		function updateBuoysFilter() {
 			dashboard.updateBuoys();
 			map.updateReadings();
 		}
 		
+		/** Update filters and map when time filters are changed */
 		function updateTimesFilter() {
 			// convert input strings to moments 
 			// and update vm.times, which updates reference in dashboard service
@@ -124,6 +144,7 @@
 			}
 		}
 		
+		/** Basic validation of times inputs */
 		function timesInputsValid() {
 			if (vm.times.type == 'since') {
 				if (vm.times.inputs.since.value) {
@@ -151,11 +172,13 @@
 			return false;
 		}
 		
+		/** Update filters and map when sensor filters are changed */
 		function updateSensorsFilter() {
 			dashboard.updateSensors();
 			map.updateReadings();
 		}
 		
+		/** Export data when button is clicked */
 		function exportData() {
 			dashboard.exportData();
 		}

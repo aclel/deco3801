@@ -13,6 +13,11 @@
 (function() {
 	'use strict';
 	
+	/**
+        * @ngdoc overview
+        * @name app.module:dashboard
+        * @description Module for dashboard page
+    **/
 	angular.module('app.dashboard', [
 		// Shared modules
 		'app.core',

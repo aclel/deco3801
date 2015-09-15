@@ -18,7 +18,7 @@
 	
 	/**
 		* @ngdoc service
-		* @name module.auth
+		* @name app.auth.auth
 		* @requires $window
 		* @requires moment
 	**/

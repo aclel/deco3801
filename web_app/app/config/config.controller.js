@@ -21,10 +21,9 @@
 		* @name app.config.controller:ConfigController
 		* @description Provides viewmodel for config view
 		* @requires $log
-		* @requires config
 		* @requires server
 	**/
-	function ConfigController($log, config, server) {
+	function ConfigController($log, server) {
 		var vm = this;
 		
 		/** Variables and methods bound to viewmodel */
@@ -79,8 +78,8 @@
 		
 		/** Query buoy groups from the server */
 		function queryBuoyGroups() {
-			config.queryBuoyGroups().then(function(res) {
-				vm.buoyGroups = config.getBuoyGroups();
+			server.getBuoyGroups().then(function(res) {
+				vm.buoyGroups = res.data.buoyGroups;
 				parseGroupNames()
 			}, function(res) {
 				$log.error(res);
@@ -89,8 +88,8 @@
 		
 		/** Query buoy instances from the server */
 		function queryBuoyInstances() {
-			config.queryBuoyInstances().then(function(res) {
-				vm.buoyInstances = config.getBuoyInstances();
+			server.getBuoyInstances().then(function(res) {
+				vm.buoyInstances = res.data.buoyInstances;
 				parseGroupNames()
 			}, function(res) {
 				$log.error(res);
@@ -393,19 +392,22 @@
 			
 		}
 		
+		/** Prepare to add new trigger warning for buoy or group */
 		function addTrigger() {
 			if (vm.trigger.sensorTypeId == -1 || vm.trigger.value == '') return;
 			vm.newTrigger = false;
-			var buoyInstanceIds = [];
+			var buoyInstanceIds = []; // buoys instances to add trigger for
 			if (vm.selected.type == 'instance') {
 				buoyInstanceIds.push(vm.selected.obj.id);
 			} else if (vm.selected.type == 'group') {
+				// add trigger for each buoy in group
 				vm.buoyInstances.forEach(function(buoyInstance) {
 					if (buoyInstance.buoyGroupId == vm.selected.obj.id) {
 						buoyInstanceIds.push(buoyInstance.id);
 					}
 				});
 			} else if (vm.selected.type == 'all') {
+				// add trigger for all buoys
 				vm.buoyInstances.forEach(function(buoyInstance) {
 					buoyInstanceIds.push(buoyInstance.id);
 				});
@@ -414,6 +416,7 @@
 			resetNewTrigger();
 		}
 		
+		/** Send new warning triggers to server and update page */
 		function sendTriggers(buoyIds) {
 			server.addWarningTriggers(vm.trigger, buoyIds).then(function(res) {
 				queryWarningTriggers();
@@ -422,6 +425,7 @@
 			});
 		}
 		
+		/** Clear trigger inputs */
 		function resetNewTrigger() {
 			vm.trigger = {
 				sensorTypeId: -1,
@@ -431,16 +435,27 @@
 			};
 		}
 		
+		/** Cancel creation of a new trigger */
 		function cancelNewTrigger() {
 			vm.newTrigger = false;
 			resetNewTrigger();
 		}
 		
+		/** 
+		 * Filter 'unassigned' out of buoy group list
+		 * @param  {object} buoyGroup 
+		 * @return {bool}           show buoy group
+		 */
 		function buoyGroupFilter(buoyGroup) {
 			if (buoyGroup.id != 0) return true;
 			return false;
 		}
 		
+		/**
+		 * Filter commands list based on currently selected buoy/group
+		 * @param  {object} command command
+		 * @return {bool}         show command
+		 */
 		function commandFilter(command) {
 			if (vm.selected.type == 'all') {
 				return true;
@@ -452,11 +467,21 @@
 			return false;
 		}
 		
+		/**
+		 * Helper function for commandFilter
+		 * @param  {object} command command
+		 * @return {bool}         show command
+		 */
 		function buoyInstanceCommandFilter(command) {
 			if (command.buoyId == vm.selected.obj.buoyId) return true;
 			return false;
 		}
 		
+		/**
+		 * Helper function for commandFilter
+		 * @param  {object} command command
+		 * @return {bool}         show command
+		 */
 		function buoyGroupCommandFilter(command) {
 			for (var i = 0; i < vm.buoyInstances.length; i++) {
 				var buoyInstance = vm.buoyInstances[i];

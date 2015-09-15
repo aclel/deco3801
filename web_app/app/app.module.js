@@ -13,6 +13,11 @@
 (function() {
     'use strict';
     
+    /**
+        * @ngdoc overview
+        * @name app.module
+        * @description App module, ties together all submodules
+    **/
     angular.module('app', [
         // Shared modules
         'app.core',

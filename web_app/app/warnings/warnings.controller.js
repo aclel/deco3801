@@ -4,7 +4,7 @@
 	angular.module('app.warnings')
 		.controller('WarningsController', WarningsController);
 	
-	function WarningsController(server) {
+	function WarningsController(server, moment) {
 		var vm = this;
 		
 		vm.warnings = [];
@@ -45,6 +45,9 @@
 		
 		function parseWarnings() {
 			vm.warnings.forEach(function(warning) {
+				// parse time
+				warning.readingTime = moment(warning.readingTimestamp,
+					'X').format("DD/MM/YY HH:mm A");
 				// get buoy name
 				for (var i = 0; i < vm.buoyInstances.length; i++) {
 					var buoyInstance = vm.buoyInstances[i];

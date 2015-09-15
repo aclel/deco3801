@@ -22,7 +22,7 @@ type Buoy struct {
 type BuoyRepository interface {
 	GetAllBuoys() ([]Buoy, error)
 	GetBuoyById(id int) (*Buoy, error)
-	CreateBuoy(buoy *Buoy) error
+	CreateBuoy(buoy *Buoy) (int64, error)
 	UpdateBuoy(buoy *Buoy) error
 	DeleteBuoyWithId(id int) error
 	AddCommandToBuoy(command *Command) error
@@ -54,18 +54,23 @@ func (db *DB) GetBuoyById(id int) (*Buoy, error) {
 }
 
 // Insert a new Buoy into the database.
-func (db *DB) CreateBuoy(buoy *Buoy) error {
+func (db *DB) CreateBuoy(buoy *Buoy) (int64, error) {
 	query, err := db.Preparex("INSERT INTO buoy (guid, name) VALUES(?, ?);")
 	if err != nil {
-		return err
+		return -1, err
 	}
 
-	_, err = query.Exec(buoy.Guid, buoy.Name)
+	result, err := query.Exec(buoy.Guid, buoy.Name)
 	if err != nil {
-		return err
+		return -1, err
 	}
 
-	return nil
+	newId, err := result.LastInsertId()
+	if err != nil {
+		return -1, err
+	}
+
+	return newId, nil
 }
 
 // Updates the given buoy in the database.

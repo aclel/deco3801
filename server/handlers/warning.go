@@ -64,7 +64,11 @@ func getWarnings(recentReadings []models.Reading, warningTriggers []models.Warni
 			// Check if a warning trigger is applicable to a reading
 			if reading.BuoyInstanceId == warningTrigger.BuoyInstanceId && reading.SensorTypeId == warningTrigger.SensorTypeId {
 				if isWarningTriggerSatisfied(reading, warningTrigger) {
-					warnings = append(warnings, models.Warning{ReadingValue: reading.Value, WarningTrigger: warningTrigger})
+					warnings = append(warnings, models.Warning{
+																											ReadingValue: reading.Value, 
+																											ReadingTimestamp: reading.Timestamp.Unix(),
+																											WarningTrigger: warningTrigger,
+																										})
 				}
 			}
 		}

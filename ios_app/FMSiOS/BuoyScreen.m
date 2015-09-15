@@ -30,6 +30,8 @@
 
 @end
 
+
+// Popup controller used for the info button options settings
 @interface BuoySettingsPopup : UIViewController <UITableViewDataSource, UITableViewDelegate>
 
 @property (strong, nonatomic) UITableView *t;
@@ -83,6 +85,8 @@
 }
 
 @end
+
+
 
 @implementation BuoyScreen
 

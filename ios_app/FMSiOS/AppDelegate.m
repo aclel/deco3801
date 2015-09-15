@@ -18,6 +18,8 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    /* APP ENTRY POINT */
+    
     // Setup initial themes
     [Interface setupThemes];
     

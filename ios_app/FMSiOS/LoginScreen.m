@@ -201,8 +201,6 @@
     [self.errorLabel setHidden:NO];
 }
 
-
-
 - (void)disableLoginButton {
     self.loginButton.enabled = NO;
     [self.loginInd startAnimating];
@@ -223,6 +221,7 @@
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
+    // Change return button behaviour depending on field
     if (textField == self.emailField) {
         [self.passField becomeFirstResponder];
         return NO;

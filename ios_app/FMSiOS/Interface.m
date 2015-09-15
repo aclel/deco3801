@@ -56,6 +56,7 @@
 
 @implementation ShadowButton
 
+// The following are all overrides with specific shadow-related settings
 - (instancetype)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {

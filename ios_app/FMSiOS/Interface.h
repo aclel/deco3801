@@ -9,10 +9,11 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+// Static methods for misc UI/other related needs
 @interface Interface : NSObject
 
 + (void)setupThemes;
-+ (BOOL)NSStringIsValidEmail:(NSString *)s;
++ (BOOL)NSStringIsValidEmail:(NSString *)s; // Returns whether the given string is a valid email
 
 @end
 

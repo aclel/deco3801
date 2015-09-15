@@ -79,6 +79,7 @@
     
     NSString *dataToSend = [NSString stringWithFormat:@" { \"email\" : \"%@\", \"password\" : \"%@\" } ",email, password];
     
+    // Send a server api request to logon
     [self sendRequestToServerUrl:@"api/login" textData:dataToSend handler:
      ^(NSData *data, NSURLResponse *response, NSError *error){
          if (error) {
@@ -87,6 +88,7 @@
              return;
          }
          
+         // Interpret their response
          NSHTTPURLResponse *httpRes = (NSHTTPURLResponse *)response;
          NSLog(@"Got login response: %d", httpRes.statusCode);
          if (httpRes.statusCode == 401 || httpRes.statusCode == 403) { //Unauthorised
@@ -111,6 +113,7 @@
 }
 
 - (void)dummyMakeBuoys {
+    // Dummy method for making fake buoys
     NSMutableArray *a = [[NSMutableArray alloc] init];
     NSLog(@"Getting buoy info...");
     

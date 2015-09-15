@@ -28,8 +28,18 @@ The web server is written in Go, meaning that the entire project needs to be clo
 2. Create a database and import fms.sql
 3. Create a user and give them access to the database
 
-### Create Environment Variables
-Several environment variables need to be configured for the server to run:
+#### Configuring SMTP Server
+
+1. Create a Gmail account or use an existing one. 
+2. Get the username and password (you will need them later) for that account.
+
+#### Create Environment Variables
+
+Several environment variables need to be configured for the server to run.
+
+1. Open and edit `tools/env.sh` or `tools/env.bat` depending on your OS.
+2. Run the edited enviornment script.  
+3. Alternatively, you may manually add the following variables:
 - `FMS_DB_HOST` - The hostname of the database, for example "localhost"
 - `FMS_DB_PORT` - The port of the database at the hostname, for example "3306"
 - `FMS_DB_USERNAME` - The username of the user that has access to the database
@@ -45,7 +55,8 @@ Several environment variables need to be configured for the server to run:
 A private key can be generated with: `openssl genrsa -out mykey.pem 1024`  
 A public key can be generated with: `openssl rsa -in mykey.pem -pubout > mykey.pub`
 
-On Mac OSX you can set environment variables in `~/.bash_profile`.
+On Mac OSX/Unix you can set environment variables in `~/.bash_profile`.
+On Windows you can set environment variables through a GUI, just search for them in start menu.
 
 ### Running the server
 1. `cd` into `deco3801/server`
@@ -99,7 +110,7 @@ The web app is a single-page application built with [AngularJS](https://angularj
 ### Quickstart
 
 1. Copy `web_app/env.js` to `web_app/app/env.js`
-2. `cd` into``web_app` and run `npm install`, `bower install` and `gulp build`
+2. `cd` into `web_app` and run `npm install`, `bower install` and `gulp build`
 3. Serve *web_app* through a web server (eg. [http-server](https://www.npmjs.com/package/http-server))
 
 ### Getting Started
@@ -116,4 +127,11 @@ The web app needs to be served through a web server with the server root directo
  2. Run `http-server` from the *web_app* directory. You should get a message saying which port the server is using.
  3. Browse to http://localhost:8080 or whichever port the server is using.
 
- ## iOS App
+## iOS App
+
+1. You will need a machine running OSX and Xcode 6.4 or greater. 
+2. Open Xcode and import the project. You should be able to compile and run it under the iPhone simulators straight away. Note that these simulators cannot use Core Location to find your current position. To log in, you must first create a user on the server at teamneptune.co, which is the server the app attempts to access.
+3. To compile and run on a device, plug in the device using a usb cable. Under Xcode->preferences->accounts, add a user who belongs to a team with an iOS developer account. You should now be able to compile for the device.
+4. If the device complains about signing issues, you may have to update your provisioning profile to contain the device. Logon to developer.apple.com using the above account, and under Certificates->Devices, you can add your iPhone/iPad using its internal id. This should update your provisioning profile to let you build the app for this device.
+
+Note that up to 100 devices can be added to a single iOS developer account.

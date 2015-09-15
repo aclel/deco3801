@@ -13,6 +13,7 @@
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
+// Core app global properties
 @property (strong, nonatomic) UIWindow *window;
 @property (strong, nonatomic) DataModel *d;
 

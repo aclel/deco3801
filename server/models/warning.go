@@ -16,5 +16,6 @@ package models
 // is requested.
 type Warning struct {
 	ReadingValue   float64        `json:"readingValue"`
+	ReadingTimestamp int64 				`json:"readingTimestamp"`
 	WarningTrigger WarningTrigger `json:"warningTrigger"`
 }

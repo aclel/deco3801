@@ -106,7 +106,7 @@ The web app is a single-page application built with [AngularJS](https://angularj
 
 Before the web app can be run, it needs to be built. Make sure you have installed the dependencies, and the follow these instructions.
 
- 1. Copy `web_app/env.js` to `web_app/app/env.js`. This file contains environment variables for the web app.
+ 1. Copy `web_app/env.js` to `web_app/app/env.js`. This file contains environment variables for the web app. Feel free to edit these.
  2. Install dependencies by running `npm install` followed by `bower install` from the *web_app* directory.
  3. Build the javascript files by running `gulp build` from the *web_app* directory.
 

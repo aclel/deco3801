@@ -11,8 +11,10 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/aclel/deco3801/server/handlers"
 	"github.com/aclel/deco3801/server/models"
@@ -35,6 +37,12 @@ type EnvVars struct {
 }
 
 func main() {
+	// Set command line flags
+	// Server port defaults to port 8080.
+	serverPort := flag.Int("port", 8080, "Server port")
+	flag.Parse()
+	port := strconv.Itoa(*serverPort)
+
 	// Read environment variables
 	var conf EnvVars
 	err := envconfig.Process("fms", &conf)
@@ -70,6 +78,6 @@ func main() {
 
 	// Run HTTP server
 	log.Println("Database connection successful. Connected to " + dataSourceName)
-	log.Println("Web service listening on :8080")
-	log.Fatal(http.ListenAndServe(":8080", router))
+	log.Println("Web service listening on :" + port)
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }

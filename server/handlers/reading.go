@@ -108,10 +108,18 @@ func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 	}
 
 	// Insert each reading into db
-	for _, reading := range readings {
-		err = env.DB.CreateReading(&reading)
+	for _, reading := range *readings {
+		id, err := env.DB.CreateReading(reading)
 		if err != nil {
 			return &AppError{err, "Error inserting the reading into the database", http.StatusInternalServerError}
+		}
+		reading.Id = id
+		for _, sensorReading := range reading.SensorReadings {
+			sensorReading.ReadingId = id
+			err = env.DB.CreateSensorReading(sensorReading)
+			if err != nil {
+				return &AppError{err, "Error inserting the sensor reading into the database", http.StatusInternalServerError}
+			}
 		}
 	}
 
@@ -122,7 +130,7 @@ func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 }
 
 // Constructs Readings from the JSON which was in the request body of a /api/readings POST request.
-func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContainer) ([]models.Reading, *AppError) {
+func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContainer) (*[]*models.Reading, *AppError) {
 	// Get most recent buoy instance for buoy with guid
 	buoyInstance, err := env.DB.GetActiveBuoyInstance(readingsContainer.BuoyGuid)
 	if err != nil {
@@ -131,37 +139,25 @@ func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContain
 
 	// Go through each reading in the request and build
 	// a Reading object for each individual sensor reading
-	var readings []models.Reading
-	for _, r := range readingsContainer.Readings {
-		for _, s := range r.SensorReadings {
-			// Assign all properties from BuoyContainer
-			// and BuoyReading objects to a Reading object
-			reading := &models.Reading{}
-			reading.BuoyGuid = readingsContainer.BuoyGuid
-			reading.BuoyInstanceId = buoyInstance.Id
-			reading.Latitude = r.Latitude
-			reading.Longitude = r.Longitude
-
+	for _, reading := range *readingsContainer.Readings {
+		for _, sensorReading := range reading.SensorReadings {
 			// Get sensor type for the reading
-			sensorType, err := env.DB.GetSensorTypeWithName(s.SensorName)
+			sensorType, err := env.DB.GetSensorTypeWithName(sensorReading.SensorTypeName)
 			if err != nil {
 				return nil, &AppError{err, "Could not find a sensor type with the specified name", http.StatusBadRequest}
 			}
-			reading.SensorTypeId = sensorType.Id
+			sensorReading.SensorTypeId = sensorType.Id
+		}
+		reading.BuoyInstanceId = buoyInstance.Id
+		reading.BuoyGuid = readingsContainer.BuoyGuid
+		reading.Timestamp = time.Unix(reading.UnixTimestamp, 0).UTC()
 
-			reading.Value = s.Value
-			reading.Timestamp = time.Unix(r.Timestamp, 0).UTC()
-			reading.MessageNumber = r.MessageNumber
-
-			if e := validateReading(reading); e != nil {
-				return nil, e
-			}
-
-			readings = append(readings, *reading)
+		if e := validateReading(reading); e != nil {
+			return nil, e
 		}
 	}
 
-	return readings, nil
+	return readingsContainer.Readings, nil
 }
 
 // Ensure the reading has a buoy guid and valid latitude and longitude.
@@ -186,6 +182,7 @@ func validateReading(reading *models.Reading) *AppError {
 
 // GET /api/export?readings=1,2,3,4
 // Gets all Readings that have the ids specific in the "readings" query parameter.
+// Returns all Sensor Readings for the Readings.
 // The Readings are written to a CSV file and sent in the response.
 func ReadingsExport(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	u, err := url.Parse(r.URL.String())

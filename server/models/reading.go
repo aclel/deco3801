@@ -11,7 +11,6 @@
 package models
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 
@@ -61,25 +60,38 @@ func (db *DB) CreateReading(reading *Reading) error {
 	return nil
 }
 
+// Insert a new Reading into the database
+func (db *DB) CreateReadingValue(readingId int, value float64) error {
+	stmt, err := db.Preparex(`INSERT INTO reading_value (reading_id, sensor_type_id, value) VALUES(?, ?);`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(readingId, value)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // Needed to store data from a complex SQL query which gets
 // all Buoy Groups, their Buoy Instances, the Readings for those
 // Buoy Instances and the Sensor Types for those Readings. This is
 // needed to populate the Dashboard in the web app.
 type DbMapReading struct {
-	Id                    int       `db:"id"`
-	BuoyInstanceId        int       `db:"buoy_instance_id"`
-	BuoyInstanceName      string    `db:"buoy_instance_name"`
-	Value                 float64   `db:"value"`
-	Latitude              float64   `db:"latitude"`
-	Longitude             float64   `db:"longitude"`
-	Timestamp             time.Time `db:"timestamp"`
-	SensorTypeId          int       `db:"sensor_type_id"`
-	SensorTypeName        string    `db:"sensor_type_name"`
-	SensorTypeDescription string    `db:"sensor_type_description"`
-	SensorTypeUnit        string    `db:"sensor_type_unit"`
-	BuoyGroupId           int       `db:"buoy_group_id"`
-	BuoyGroupName         string    `db:"buoy_group_name"`
-	BuoyId                int       `db:"buoy_id"`
+	Id               int       `db:"id"`
+	ReadingId        int       `db:"reading_id"`
+	BuoyInstanceId   int       `db:"buoy_instance_id"`
+	BuoyInstanceName string    `db:"buoy_instance_name"`
+	Value            float64   `db:"value"`
+	Latitude         float64   `db:"latitude"`
+	Longitude        float64   `db:"longitude"`
+	Timestamp        time.Time `db:"timestamp"`
+	SensorTypeId     int       `db:"sensor_type_id"`
+	BuoyGroupId      int       `db:"buoy_group_id"`
+	BuoyGroupName    string    `db:"buoy_group_name"`
+	BuoyId           int       `db:"buoy_id"`
 }
 
 // Top level wrapper for data which is used to populate the dashboard
@@ -95,10 +107,10 @@ type MapReadingBuoyGroup struct {
 }
 
 type MapReadingBuoyInstance struct {
-	Id         int                    `json:"id"`
-	Name       string                 `json:"name"`
-	Readings   []MapReading           `json:"readings"`
-	ReadingMap map[string]*MapReading `json:"-"`
+	Id         int                 `json:"id"`
+	Name       string              `json:"name"`
+	Readings   []MapReading        `json:"readings"`
+	ReadingMap map[int]*MapReading `json:"-"`
 }
 
 type MapReading struct {
@@ -118,16 +130,14 @@ type MapSensorReading struct {
 func (db *DB) GetAllReadings(startTime time.Time, endTime time.Time) (*MapReadingBuoyGroupsWrapper, error) {
 	readings := []DbMapReading{}
 	err := db.Select(&readings, `SELECT 
-		reading.id AS id, 
-		reading.buoy_instance_id AS buoy_instance_id, 
-		reading.sensor_type_id AS sensor_type_id, 
-		reading.value AS value, 
+		reading_value.id AS id, 
+		reading_value.buoy_instance_id AS buoy_instance_id, 
+		reading_value.sensor_type_id AS sensor_type_id, 
+		reading_value.value AS value, 
+		reading.id AS reading_id,
 		reading.latitude AS latitude, 
 		reading.longitude AS longitude, 
 		reading.timestamp AS timestamp, 
-		sensor_type.name AS sensor_type_name, 
-		sensor_type.unit AS sensor_type_unit, 
-		sensor_type.description AS sensor_type_description, 
 		buoy_instance.buoy_id AS buoy_id, 
 		buoy_instance.name AS buoy_instance_name,
 		buoy_group.id AS buoy_group_id, 
@@ -136,16 +146,21 @@ func (db *DB) GetAllReadings(startTime time.Time, endTime time.Time) (*MapReadin
 		(
 			(
 				(
-					reading 
+					(
+						reading_value
+						LEFT JOIN reading ON(
+							reading_value.reading_id = reading.id
+						)
+					)
 					LEFT JOIN sensor_type ON(
 						(
-							reading.sensor_type_id = sensor_type.id
+							reading_value.sensor_type_id = sensor_type.id
 						)
 					)
 				) 
 				LEFT JOIN buoy_instance ON(
 					(
-						reading.buoy_instance_id = buoy_instance.id
+						reading_value.buoy_instance_id = buoy_instance.id
 					)
 				)
 			) 
@@ -181,7 +196,6 @@ func buildReadingsIndexData(mapReadings []DbMapReading) (*MapReadingBuoyGroupsWr
 
 	// For each row in the SQL result
 	for _, reading := range mapReadings {
-		//fmt.Println(reading)
 		var group *MapReadingBuoyGroup
 		var exists bool
 		// If the Buoy Group doesn't exist, add it
@@ -195,25 +209,22 @@ func buildReadingsIndexData(mapReadings []DbMapReading) (*MapReadingBuoyGroupsWr
 		// If the Buoy Instance doesn't exist within the Buoy Group, add it
 		if buoyInstance, exists = group.BuoyInstanceMap[reading.BuoyInstanceId]; !exists {
 			buoyInstance = &MapReadingBuoyInstance{Id: reading.BuoyInstanceId, Name: reading.BuoyInstanceName}
-			buoyInstance.ReadingMap = make(map[string]*MapReading)
+			buoyInstance.ReadingMap = make(map[int]*MapReading)
 			group.BuoyInstanceMap[reading.BuoyInstanceId] = buoyInstance
 		}
 
-		// The unique value for a reading is generated from the buoy instance id and timestamp
-		readingHash := fmt.Sprintf("%d-%d", reading.BuoyInstanceId, reading.Timestamp.Unix())
-
 		var mapReading *MapReading
 		// If a Map Reading for the given buoy instance with the given timestamp doesn't already exist, add it
-		if mapReading, exists = buoyInstance.ReadingMap[readingHash]; !exists {
+		if mapReading, exists = buoyInstance.ReadingMap[reading.ReadingId]; !exists {
 			// Construct Reading for Buoy Instance
 			mapReading = &MapReading{
-				Id:        reading.Id,
+				Id:        reading.ReadingId,
 				Latitude:  reading.Latitude,
 				Longitude: reading.Longitude,
 				Timestamp: reading.Timestamp.Unix(),
 			}
 			// Store the reading in the map
-			buoyInstance.ReadingMap[readingHash] = mapReading
+			buoyInstance.ReadingMap[reading.ReadingId] = mapReading
 		}
 
 		sensorReading := MapSensorReading{Value: reading.Value, SensorTypeId: reading.SensorTypeId}

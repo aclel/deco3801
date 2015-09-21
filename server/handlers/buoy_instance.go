@@ -52,6 +52,7 @@ func BuoyInstancesIndex(env *models.Env, w http.ResponseWriter, r *http.Request)
 	// The active buoy instance is the instance that was most recently created for each buoy.
 	var buoyInstanceWrapper BuoyInstancesWrapper
 	if active {
+		// This is used by the iOS app to get all information needed to display the buoys on the map
 		buoyInstanceWrapper.BuoyInstances, err = env.DB.GetAllActiveBuoyInstances()
 	} else {
 		buoyInstanceWrapper.BuoyInstances, err = env.DB.GetAllBuoyInstances()

@@ -1,4 +1,4 @@
-<div class="medium-3 grid-block vertical">
+<div class="medium-2 grid-block vertical">
 	<div class="grid-content shadow-bottom">
 		<h3>Times</h3>
 		
@@ -8,7 +8,7 @@
 			<label class="btn btn-default"><input type="radio" class="btn btn-default" value="point" ng-change="vm.updateTimesFilter()">Point</label>
 		</div>
 		<div class="timefilters">
-			<div ng-show="vm.times.type=='since'">
+			<div ng-show="vm.times.type=='since'" id="since">
 				<label><i class="fa fa-calendar"></i>Since</label>
 				<input type="text" ng-model="vm.times.inputs.since.value" ng-change="vm.updateTimesFilter()" name="value">
 				
@@ -81,8 +81,10 @@
 		<h3>Filters</h3>
 		<div class="sensorfilters">
 			<div ng-repeat="sensor in vm.sensors">
-				<input type="checkbox" ng-model="sensor.inputs.enabled" ng-change="vm.updateSensorsFilter()">
-				{{ sensor.name }}
+				<div class="sensor-name">
+					<input type="checkbox" ng-model="sensor.inputs.enabled" ng-change="vm.updateSensorsFilter()">
+					{{ sensor.name }}
+				</div>
 				<div>
 					<button type="button" class="btn btn-default" 
 							ng-model="sensor.inputs.selected" 
@@ -96,12 +98,12 @@
 		</div>
 	</div>
 </div>
-<div class="medium-5 grid-content no-overflow shadow-glow">
+<div class="medium-8 grid-content no-overflow shadow-glow">
 	<div id="map-canvas"></div>
 	<div id="infoBox"></div>
 	<!--<div id="map-popover"></div>-->
 </div>
-<div class="medium-4 grid-content">
+<div class="medium-2 grid-content">
 	<!--<canvas id="sensorChart" class="chart chart-line" data="vm.data"
 		labels="vm.labels" series="vm.series" legend="true" >
 	</canvas>-->

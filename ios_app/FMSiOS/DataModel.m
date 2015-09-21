@@ -44,7 +44,6 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _serverAddr = [NSURL URLWithString:@"http://teamneptune.co"];
         _jwt = nil;
     }
     return self;
@@ -52,10 +51,20 @@
 
 #pragma mark - server connection
 
+- (NSURL *)getServerUrl {
+    // Return the server url specified by the current settings
+    NSString *address = [[NSUserDefaults standardUserDefaults] objectForKey:@"ServerAddress"];
+    if (address == nil) {
+        NSLog(@"Saved server address could not be found; using default");
+        address = DEFAULT_SERVER_ADDRESS;
+    }
+    return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@", address]];
+}
+
 - (void)sendRequestToServerUrl:(NSString *)relPath textData:(NSString *)requestString handler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))handler {
     
     // Get request info
-    NSURL *postUrl = [NSURL URLWithString:relPath relativeToURL:self.serverAddr];
+    NSURL *postUrl = [NSURL URLWithString:relPath relativeToURL:[self getServerUrl]];
     NSData *postData = [requestString dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
     NSString *postLen = [NSString stringWithFormat:@"%lu", (unsigned long)requestString.length];
     
@@ -83,8 +92,7 @@
     [self sendRequestToServerUrl:@"api/login" textData:dataToSend handler:
      ^(NSData *data, NSURLResponse *response, NSError *error){
          if (error) {
-             //TODO: tell user
-             NSLog(@"Server connect error: %@", error);
+             [self.delegate performSelectorOnMainThread:@selector(didFailToConnectServerNotFound) withObject:nil waitUntilDone:NO];
              return;
          }
          
@@ -95,14 +103,14 @@
              [self.delegate performSelectorOnMainThread:@selector(didFailToConnectBadDetails) withObject:nil waitUntilDone:NO];
          } else if (httpRes.statusCode == 200) { //Success
              // Get user info
-             //TODO: handle initial login
+             //TODO: handle first login
              NSDictionary *user = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
              
              self.jwt = [user objectForKey:@"token"];
              
              [self.delegate performSelectorOnMainThread:@selector(didConnectToServer) withObject:nil waitUntilDone:NO];
          } else { //Server failure
-             [self.delegate performSelectorOnMainThread:@selector(didFailToConnectServerLoss) withObject:nil waitUntilDone:NO];
+             [self.delegate performSelectorOnMainThread:@selector(didFailToConnectServerFail) withObject:nil waitUntilDone:NO];
          }
     }];
 }

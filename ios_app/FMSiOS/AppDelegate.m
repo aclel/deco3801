@@ -19,6 +19,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     /* APP ENTRY POINT */
+    // Set default settings
+    [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"ServerAddress" : DEFAULT_SERVER_ADDRESS}];
     
     // Setup initial themes
     [Interface setupThemes];

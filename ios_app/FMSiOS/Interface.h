@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
+#define DEFAULT_SERVER_ADDRESS @"teamneptune.co"
+
 // Static methods for misc UI/other related needs
 @interface Interface : NSObject
 

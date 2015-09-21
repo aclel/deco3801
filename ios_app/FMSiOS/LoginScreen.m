@@ -176,9 +176,9 @@
     
     // Fill dialogs with text from default info
     NSUserDefaults *d = [NSUserDefaults standardUserDefaults];
-    self.emailField.text = [d objectForKey:@"savedemail"] != nil ? [d objectForKey:@"savedemail"] : @"";
-    self.passField.text = [d objectForKey:@"savedpassword"] != nil ? [d objectForKey:@"savedpassword"] : @"";
-    if ([d objectForKey:@"savedemail"] != nil || [d objectForKey:@"savedpassword"] != nil) {
+    self.emailField.text = [d objectForKey:@"SavedEmail"] != nil ? [d objectForKey:@"SavedEmail"] : @"";
+    self.passField.text = [d objectForKey:@"SavedPassword"] != nil ? [d objectForKey:@"SavedPassword"] : @"";
+    if ([d objectForKey:@"SavedEmail"] != nil || [d objectForKey:@"SavedPassword"] != nil) {
         self.saveSwitch.on = YES;
     } else {
         self.saveSwitch.on = NO;
@@ -222,8 +222,13 @@
     [self.errorLabel setHidden:NO];
 }
 
+- (void)errorServerFail {
+    self.errorLabel.text = @"Error connecting to server";
+    [self.errorLabel setHidden:NO];
+}
+
 - (void)errorServerNotFound {
-    self.errorLabel.text = @"Could not connect to server";
+    self.errorLabel.text = @"Could not find server at given address";
     [self.errorLabel setHidden:NO];
 }
 
@@ -289,11 +294,11 @@
     // Save defaults for user info
     NSUserDefaults *d = [NSUserDefaults standardUserDefaults];
     if (self.saveSwitch.on) { // Should save user data
-        [d setObject:self.emailField.text forKey:@"savedemail"];
-        [d setObject:self.passField.text forKey:@"savedpassword"];
+        [d setObject:self.emailField.text forKey:@"SavedEmail"];
+        [d setObject:self.passField.text forKey:@"SavedPassword"];
     } else { // Should remove if it exists
-        [d removeObjectForKey:@"savedemail"];
-        [d removeObjectForKey:@"savedpassword"];
+        [d removeObjectForKey:@"SavedEmail"];
+        [d removeObjectForKey:@"SavedPassword"];
     }
     
     // Go to buoy page
@@ -306,7 +311,12 @@
     [self enableLoginButton];
 }
 
-- (void)didFailToConnectServerLoss {
+- (void)didFailToConnectServerFail {
+    [self errorServerFail];
+    [self enableLoginButton];
+}
+
+- (void)didFailToConnectServerNotFound {
     [self errorServerNotFound];
     [self enableLoginButton];
 }

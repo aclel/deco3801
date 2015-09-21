@@ -57,7 +57,7 @@ func WarningsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 
 // Get a warning for every Warning Trigger which is satisfied by the most recent Reading
 // for each Buoy Instance Sensor.
-func getWarnings(recentReadings []models.Reading, warningTriggers []models.WarningTrigger) []models.Warning {
+func getWarnings(recentReadings []models.DbMapReading, warningTriggers []models.WarningTrigger) []models.Warning {
 	warnings := []models.Warning{}
 	for _, reading := range recentReadings {
 		for _, warningTrigger := range warningTriggers {
@@ -65,10 +65,10 @@ func getWarnings(recentReadings []models.Reading, warningTriggers []models.Warni
 			if reading.BuoyInstanceId == warningTrigger.BuoyInstanceId && reading.SensorTypeId == warningTrigger.SensorTypeId {
 				if isWarningTriggerSatisfied(reading, warningTrigger) {
 					warnings = append(warnings, models.Warning{
-																											ReadingValue: reading.Value, 
-																											ReadingTimestamp: reading.Timestamp.Unix(),
-																											WarningTrigger: warningTrigger,
-																										})
+						ReadingValue:     reading.Value,
+						ReadingTimestamp: reading.Timestamp.Unix(),
+						WarningTrigger:   warningTrigger,
+					})
 				}
 			}
 		}
@@ -78,7 +78,7 @@ func getWarnings(recentReadings []models.Reading, warningTriggers []models.Warni
 
 // Check if a the Reading value satisfies the conditions for the Warning Trigger. Returns true
 // if the Warning Trigger is satisfied.
-func isWarningTriggerSatisfied(reading models.Reading, warningTrigger models.WarningTrigger) bool {
+func isWarningTriggerSatisfied(reading models.DbMapReading, warningTrigger models.WarningTrigger) bool {
 	operator := warningTrigger.Operator
 	switch operator {
 	case ">":

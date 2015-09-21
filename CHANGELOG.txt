@@ -1,0 +1,19 @@
+FMS Changelog
+=============
+
+Whenever you make additions/changes to the repo, please edit this file to give a breakdown of all changes each week.
+Legend:
++ New
+* Changed
+! Fixed
+
+
+v0.2 - Week 8 22/9
+* Readings table has been split into two tables, "reading" and "sensor_reading". A reading has many sensor readings. When a "reading" is taken the buoy checks its sensors at the same time, so we can assume that the latitude, longitude and timestamp are all going to be the same for each "sensor_reading".
+
+* All SQL queries related to readings have been updated to reflect the changes to the readings in the database.
+
+! GET /api/warnings now properly returns all warnings for warning triggers that have been satisfied. The old implementation used to only check if a warning trigger was satisfied for ONE sensor from the most recent reading for each active buoy instance. This has been corrected so now warning triggers are checked against EVERY sensor in the most recent reading for each active buoy instance.
+
+v0.1 (MVP) - Week 7 15/9
++ Initial release

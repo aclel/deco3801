@@ -92,7 +92,7 @@ func (mdb *MockDB) GetWarningTriggersForBuoyInstance(id int) ([]WarningTrigger, 
 	return nil, nil
 }
 
-func (mdb *MockDB) GetMostRecentReadingsForActiveBuoyInstances() ([]Reading, error) {
+func (mdb *MockDB) GetMostRecentReadingsForActiveBuoyInstances() ([]DbMapReading, error) {
 	return nil, nil
 }
 
@@ -127,7 +127,11 @@ func (db *MockDB) GetAllReadings(start time.Time, end time.Time) (*MapReadingBuo
 	return &MapReadingBuoyGroupsWrapper{}, nil
 }
 
-func (mdb *MockDB) CreateReading(reading *Reading) error {
+func (mdb *MockDB) CreateReading(reading *Reading) (int64, error) {
+	return -1, nil
+}
+
+func (mdb *MockDB) CreateSensorReading(sensorReading *SensorReading) error {
 	return nil
 }
 

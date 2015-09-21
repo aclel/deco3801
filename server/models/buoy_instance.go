@@ -39,7 +39,7 @@ type BuoyInstanceRepository interface {
 	AddSensorToBuoyInstance(int, int) error
 	DeleteBuoyInstanceSensor(int, int) error
 	GetWarningTriggersForBuoyInstance(int) ([]WarningTrigger, error)
-	GetMostRecentReadingsForActiveBuoyInstances() ([]Reading, error)
+	GetMostRecentReadingsForActiveBuoyInstances() ([]DbMapReading, error)
 	GetWarningTriggersForActiveBuoyInstances() ([]WarningTrigger, error)
 }
 
@@ -191,12 +191,46 @@ func (db *DB) GetWarningTriggersForBuoyInstance(id int) ([]WarningTrigger, error
 }
 
 // Get the most recent Readings for all active Buoy Instances
-func (db *DB) GetMostRecentReadingsForActiveBuoyInstances() ([]Reading, error) {
-	readings := []Reading{}
-	err := db.Select(&readings, `SELECT * FROM (SELECT * FROM reading WHERE buoy_instance_id IN (
-									SELECT buoy_instance.id AS buoy_instance_id FROM buoy_instance
-									INNER JOIN buoy ON buoy_instance.id=buoy.active_buoy_instance_id 
-								) ORDER BY timestamp DESC) AS active_readings GROUP BY buoy_instance_id`)
+func (db *DB) GetMostRecentReadingsForActiveBuoyInstances() ([]DbMapReading, error) {
+	readings := []DbMapReading{}
+	err := db.Select(&readings, `SELECT 
+									sensor_reading.id AS id,
+									sensor_reading.reading_id,
+									sensor_reading.sensor_type_id,
+									sensor_reading.value, 
+									reading.latitude, 
+									reading.longitude, 
+									reading.timestamp, 
+									reading.buoy_instance_id 
+								FROM 
+									sensor_reading 
+									INNER JOIN reading on sensor_reading.reading_id = reading.id 
+								WHERE 
+									reading.buoy_instance_id IN (
+										SELECT 
+											buoy_instance.id 
+										FROM 
+											buoy_instance 
+											INNER JOIN buoy ON buoy_instance.id = buoy.active_buoy_instance_id
+									) 
+									AND reading.id IN (
+										SELECT 
+											reading.id 
+										FROM 
+											reading 
+										WHERE 
+											(
+												reading.buoy_instance_id, reading.timestamp
+											) IN (
+												SELECT 
+													reading.buoy_instance_id, 
+													MAX(reading.timestamp) 
+												FROM 
+													reading 
+												GROUP BY 
+													reading.buoy_instance_id
+											)
+									)`)
 	if err != nil {
 		return nil, err
 	}

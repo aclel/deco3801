@@ -37,24 +37,26 @@ package models
 // POST request. Every reading will have the same buoy guid
 // so there's no point in repeating it.
 type BuoyReadingContainer struct {
-	BuoyGuid string        `json:"guid"`
-	Readings []BuoyReading `json:"readings"`
+	BuoyGuid string      `json:"guid"`
+	Readings *[]*Reading `json:"readings"`
 }
 
 // Stores the data for multiple sensor readings.
 // Each sensor reading within a buoy reading has the same latitude
 // and longitude and timestamp, so there's no point in repeating it.
+/*
 type BuoyReading struct {
-	Latitude       float64         `json:"latitude"`
-	Longitude      float64         `json:"longitude"`
-	SensorReadings []SensorReading `json:"sensorReadings"`
-	Timestamp      int64           `json:"timestamp"`
-	MessageNumber  int             `json:"messageNumber"`
+	Latitude       float64             `json:"latitude"`
+	Longitude      float64             `json:"longitude"`
+	SensorReadings []BuoySensorReading `json:"sensorReadings"`
+	Timestamp      int64               `json:"timestamp"`
+	MessageNumber  int                 `json:"messageNumber"`
 }
 
 // Stores the name of a sensor and the value associated with
 // a particular reading for that sensor.
-type SensorReading struct {
+type BuoySensorReading struct {
 	SensorName string  `json:"sensorName"`
 	Value      float64 `json:"value"`
 }
+*/

@@ -15,7 +15,7 @@ package models
 // in the database. They are generated when GET /api/warnings
 // is requested.
 type Warning struct {
-	ReadingValue   float64        `json:"readingValue"`
-	ReadingTimestamp int64 				`json:"readingTimestamp"`
-	WarningTrigger WarningTrigger `json:"warningTrigger"`
+	ReadingValue     float64        `json:"readingValue"`
+	ReadingTimestamp int64          `json:"readingTimestamp"`
+	WarningTrigger   WarningTrigger `json:"warningTrigger"`
 }

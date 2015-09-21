@@ -10,6 +10,8 @@
 #import <MapKit/MapKit.h>
 #import "Interface.h"
 
+#define DEFAULT_SERVER_ADDRESS @"teamneptune.co"
+
 // Data model for a buoy - really simple for the moment
 @interface Buoy : NSObject <MKAnnotation>
 
@@ -45,5 +47,8 @@
 
 - (void)connectToServerWithEmail:(NSString *)email andPass:(NSString *)password;
 - (void)updateBuoyListingFromServer;
+
+// Static helper methods
++ (BOOL)NSStringIsValidEmail:(NSString *)s; // Returns whether the given string is a valid email
 
 @end

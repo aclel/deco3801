@@ -8,22 +8,6 @@
 
 #import "Interface.h"
 
-@implementation Interface
-
-+ (void)setupThemes {
-    // Set up all UIAppearance theme information here
-    [[UIActivityIndicatorView appearance] setTintColor:[UIColor whiteColor]];
-}
-
-+ (BOOL)NSStringIsValidEmail:(NSString *)s {
-    NSString *regex = @"^[A-Z0-9a-z\\._%+-]+@([A-Za-z0-9-]+\\.)+[A-Za-z]{2,4}$";
-    NSPredicate *test = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
-    return [test evaluateWithObject:s];
-}
-
-@end
-
-
 @implementation SpacedTextField
 
 - (instancetype)initWithFrame:(CGRect)frame {

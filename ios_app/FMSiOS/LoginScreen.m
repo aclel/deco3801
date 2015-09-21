@@ -281,7 +281,7 @@
     [self clearError];
     
     // Check for valid email/password
-    if ([self.emailField.text isEqualToString:@""] || [self.passField.text isEqualToString:@""] || ![Interface NSStringIsValidEmail:self.emailField.text]) {
+    if ([self.emailField.text isEqualToString:@""] || [self.passField.text isEqualToString:@""] || ![DataModel NSStringIsValidEmail:self.emailField.text]) {
         [self errorInvalid];
         return;
     }

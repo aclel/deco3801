@@ -8,6 +8,8 @@
 
 #import "DataModel.h"
 
+//TODO: handle first-time login
+
 @implementation Buoy
 
 - (instancetype)init {
@@ -104,7 +106,6 @@
              [self.delegate performSelectorOnMainThread:@selector(didFailToConnectBadDetails) withObject:nil waitUntilDone:NO];
          } else if (httpRes.statusCode == 200) { //Success
              // Get user info
-             //TODO: handle first login
              NSDictionary *user = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
              
              self.jwt = [user objectForKey:@"token"];
@@ -137,6 +138,12 @@
     }
     
     [self.dataDelegate didGetBuoyListFromServer:a];
+}
+
++ (BOOL)NSStringIsValidEmail:(NSString *)s {
+    NSString *regex = @"^[A-Z0-9a-z\\._%+-]+@([A-Za-z0-9-]+\\.)+[A-Za-z]{2,4}$";
+    NSPredicate *test = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
+    return [test evaluateWithObject:s];
 }
 
 @end

@@ -103,6 +103,8 @@
     // Create map and fit to screen
     self.map = [[MKMapView alloc] initWithFrame:self.view.frame];
     self.map.mapType = MKMapTypeStandard;
+    self.map.showsPointsOfInterest = NO;
+    self.map.showsBuildings = NO;
     self.map.zoomEnabled = YES;
     self.map.scrollEnabled = YES;
     self.map.pitchEnabled = NO;

@@ -8,17 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-
-#define DEFAULT_SERVER_ADDRESS @"teamneptune.co"
-
-// Static methods for misc UI/other related needs
-@interface Interface : NSObject
-
-+ (void)setupThemes;
-+ (BOOL)NSStringIsValidEmail:(NSString *)s; // Returns whether the given string is a valid email
-
-@end
-
+#import <MapKit/MapKit.h>
 
 // Special text field used to pad text from edges
 @interface SpacedTextField : UITextField

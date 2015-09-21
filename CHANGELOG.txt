@@ -24,5 +24,11 @@ iOS app:
 + Added server address option to settings screen, specifying which server to connect to.
 ! Fixed issue where connecting to nonexistent server froze app.
 
+Web app:
+* Change font to Lato
+* Change navbar colour to an aqua-blue
+* Increase size of the map on the Dashboard
+! Fix alignment issues on Filters on the Dashboard
+
 v0.1 (MVP) - Week 7 15/9
 + Initial release

@@ -18,8 +18,9 @@ Server:
 
 iOS app:
 + Added 'Remember me' option to login screen for email/password.
-+ Added settings screen.
++ Added settings screen plus a button to access it.
 + Added server address option to settings screen, specifying which server to connect to.
+! Fixed issue where connecting to nonexistent server froze app.
 
 v0.1 (MVP) - Week 7 15/9
 + Initial release

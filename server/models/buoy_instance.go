@@ -24,6 +24,8 @@ type BuoyInstance struct {
 	BuoyGuid      string    `json:"buoyGuid" db:"buoy_guid"`
 	BuoyGroupId   int       `json:"buoyGroupId" db:"buoy_group_id"`
 	BuoyGroupName string    `json:"buoyGroupName" db:"buoy_group_name"`
+	Latitude      float64   `json:"latitude" db:"latitude"`
+	Longitude     float64   `json:"longitude" db:"longitude"`
 	DateCreated   time.Time `json:"dateCreated" db:"date_created"`
 }
 
@@ -55,13 +57,34 @@ func (db *DB) GetAllBuoyInstances() ([]BuoyInstance, error) {
 }
 
 // Get all active Buoy Instances. A Buoy can only have one
-// active Buoy Instance at any one time.
+// active Buoy Instance at any one time. Also gets the last known
+// latitude and longitude.
 func (db *DB) GetAllActiveBuoyInstances() ([]BuoyInstance, error) {
 	buoyInstances := []BuoyInstance{}
-	err := db.Select(&buoyInstances, `SELECT buoy_instance.id, buoy_instance.name, buoy_id, buoy_group_id, date_created
-		from buoy_instance 
-		INNER JOIN buoy on buoy_instance.buoy_id = buoy.id 
-		WHERE buoy_instance.id=buoy.active_buoy_instance_id;`)
+	err := db.Select(&buoyInstances, `SELECT buoy_instance.*, buoy.name AS buoy_name, buoy.guid as buoy_guid, 
+											 buoy_group.name AS buoy_group_name, latitude, longitude
+										FROM buoy_instance 
+										INNER JOIN buoy ON buoy_instance.buoy_id = buoy.id
+										INNER JOIN buoy_group ON buoy_instance.buoy_group_id = buoy_group.id
+										INNER JOIN reading ON reading.buoy_instance_id=buoy.active_buoy_instance_id 
+										WHERE buoy_instance.id=buoy.active_buoy_instance_id AND reading.id IN (
+											SELECT 
+												reading.id 
+											FROM 
+												reading 
+											WHERE 
+												(
+													reading.buoy_instance_id, reading.timestamp
+												) IN (
+													SELECT 
+														reading.buoy_instance_id, 
+														MAX(reading.timestamp) 
+													FROM 
+														reading 
+													GROUP BY 
+														reading.buoy_instance_id
+												)
+										)`)
 
 	if err != nil {
 		return nil, err

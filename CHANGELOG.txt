@@ -15,5 +15,7 @@ v0.2 - Week 8 22/9
 
 ! GET /api/warnings now properly returns all warnings for warning triggers that have been satisfied. The old implementation used to only check if a warning trigger was satisfied for ONE sensor from the most recent reading for each active buoy instance. This has been corrected so now warning triggers are checked against EVERY sensor in the most recent reading for each active buoy instance.
 
+* GET /api/buoy_instances?active_true now also returns the last known location for a buoy instance. This will be used by the iOS app to display the buoys on the map.
+
 v0.1 (MVP) - Week 7 15/9
 + Initial release

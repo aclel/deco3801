@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <MapKit/MapKit.h>
+#import "Interface.h"
 
 // Data model for a buoy - really simple for the moment
 @interface Buoy : NSObject <MKAnnotation>
@@ -25,7 +26,8 @@
 
 - (void)didConnectToServer;
 - (void)didFailToConnectBadDetails;
-- (void)didFailToConnectServerLoss;
+- (void)didFailToConnectServerFail;
+- (void)didFailToConnectServerNotFound;
 
 @end
 
@@ -40,8 +42,6 @@
 
 @property (nonatomic, weak) NSObject<DataModelInitDelegate> *delegate;
 @property (nonatomic, weak) NSObject<DataModelDataDelegate> *dataDelegate;
-
-@property (nonatomic, strong) NSURL *serverAddr;
 
 - (void)connectToServerWithEmail:(NSString *)email andPass:(NSString *)password;
 - (void)updateBuoyListingFromServer;

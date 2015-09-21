@@ -19,6 +19,7 @@
 @property UILabel *errorLabel;
 @property UITextField *emailField;
 @property UITextField *passField;
+@property UISwitch *saveSwitch;
 @property ShadowButton *loginButton;
 @property UIActivityIndicatorView *loginInd;
 
@@ -98,6 +99,20 @@
     UITapGestureRecognizer *t = [[UITapGestureRecognizer alloc] initWithTarget:self.view action:@selector(endEditing:)];
     [self.view addGestureRecognizer:t];
     
+    // Save switch
+    UISwitch *saveSwitch = [[UISwitch alloc] init];
+    //TODO set on from settings
+    saveSwitch.center = CGPointMake(60, 265);
+    saveSwitch.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.7];
+    saveSwitch.layer.cornerRadius = 16;
+    
+    UILabel *saveLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, 35)];
+    saveLabel.textAlignment = NSTextAlignmentCenter;
+    saveLabel.font = [UIFont systemFontOfSize:17];
+    saveLabel.textColor = [UIColor whiteColor];;
+    saveLabel.text = @"Remember?";
+    saveLabel.center = CGPointMake(60, 295);
+    
     // Login button
     ShadowButton *loginButton = [ShadowButton buttonWithType:UIButtonTypeCustom];
     loginButton.backgroundColor = [UIColor purpleColor];
@@ -108,15 +123,15 @@
     [loginButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [loginButton setTitle:@"" forState:UIControlStateDisabled];
     loginButton.titleLabel.font = [UIFont systemFontOfSize:20];
-    loginButton.frame = CGRectMake(0, 0, 170, 45);
-    loginButton.center = CGPointMake(150, 275);
+    loginButton.frame = CGRectMake(0, 0, 170, 50);
+    loginButton.center = CGPointMake(200, 275);
     
     // Login button indicator
     self.loginInd = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
     self.loginInd.hidesWhenStopped = YES;
     [self.loginInd stopAnimating];
     self.loginInd.frame = loginButton.bounds;
-    self.loginInd.center = CGPointMake(150, 275);
+    self.loginInd.center = loginButton.center;
     
     // Round corners
     UIBezierPath *topMaskPath = [UIBezierPath bezierPathWithRoundedRect:emailField.bounds byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight cornerRadii:CGSizeMake(10.0, 10.0)];
@@ -138,12 +153,15 @@
     [self.loginDialog addSubview:errorLabel];
     [self.loginDialog addSubview:emailField];
     [self.loginDialog addSubview:passField];
+    [self.loginDialog addSubview:saveSwitch];
+    [self.loginDialog addSubview:saveLabel];
     [self.loginDialog addSubview:loginButton];
     [self.loginDialog addSubview:self.loginInd];
     [self.view addSubview:self.loginDialog];
     self.errorLabel = errorLabel;
     self.emailField = emailField;
     self.passField = passField;
+    self.saveSwitch = saveSwitch;
     self.loginButton = loginButton;
     
     // Events
@@ -156,9 +174,17 @@
     self.d.delegate = self;
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     
-    // Fill dialogs with text
-    self.emailField.text = @"sean_manson@iprimus.com.au";
-    self.passField.text = @"eB7WIenG";
+    // Fill dialogs with text from default info
+    NSUserDefaults *d = [NSUserDefaults standardUserDefaults];
+    self.emailField.text = [d objectForKey:@"SavedEmail"] != nil ? [d objectForKey:@"SavedEmail"] : @"";
+    self.passField.text = [d objectForKey:@"SavedPassword"] != nil ? [d objectForKey:@"SavedPassword"] : @"";
+    if ([d objectForKey:@"SavedEmail"] != nil || [d objectForKey:@"SavedPassword"] != nil) {
+        self.saveSwitch.on = YES;
+    } else {
+        self.saveSwitch.on = NO;
+    }
+    //self.emailField.text = @"sean_manson@iprimus.com.au";
+    //self.passField.text = @"eB7WIenG";
 }
 
 - (void)viewWillLayoutSubviews {
@@ -196,8 +222,13 @@
     [self.errorLabel setHidden:NO];
 }
 
+- (void)errorServerFail {
+    self.errorLabel.text = @"Error connecting to server";
+    [self.errorLabel setHidden:NO];
+}
+
 - (void)errorServerNotFound {
-    self.errorLabel.text = @"Could not connect to server";
+    self.errorLabel.text = @"Could not find server at given address";
     [self.errorLabel setHidden:NO];
 }
 
@@ -260,10 +291,19 @@
 
 #pragma mark - server conn delegate
 - (void)didConnectToServer {
-    [self enableLoginButton];
+    // Save defaults for user info
+    NSUserDefaults *d = [NSUserDefaults standardUserDefaults];
+    if (self.saveSwitch.on) { // Should save user data
+        [d setObject:self.emailField.text forKey:@"SavedEmail"];
+        [d setObject:self.passField.text forKey:@"SavedPassword"];
+    } else { // Should remove if it exists
+        [d removeObjectForKey:@"SavedEmail"];
+        [d removeObjectForKey:@"SavedPassword"];
+    }
     
     // Go to buoy page
     [self openBuoyPage];
+    [self enableLoginButton];
 }
 
 - (void)didFailToConnectBadDetails {
@@ -271,7 +311,12 @@
     [self enableLoginButton];
 }
 
-- (void)didFailToConnectServerLoss {
+- (void)didFailToConnectServerFail {
+    [self errorServerFail];
+    [self enableLoginButton];
+}
+
+- (void)didFailToConnectServerNotFound {
     [self errorServerNotFound];
     [self enableLoginButton];
 }

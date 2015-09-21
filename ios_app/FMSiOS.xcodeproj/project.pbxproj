@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D41963B11BB004A2002ED6F9 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = D41963B01BB004A2002ED6F9 /* Settings.bundle */; };
 		D45892C61B98500100EB8DCC /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D45892C51B98500100EB8DCC /* main.m */; };
 		D45892C91B98500100EB8DCC /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D45892C81B98500100EB8DCC /* AppDelegate.m */; };
 		D45892CC1B98500100EB8DCC /* LoginScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = D45892CB1B98500100EB8DCC /* LoginScreen.m */; };
@@ -29,6 +30,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		D41963B01BB004A2002ED6F9 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		D45892C01B98500100EB8DCC /* FMSiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FMSiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D45892C41B98500100EB8DCC /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D45892C51B98500100EB8DCC /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -70,6 +72,7 @@
 		D45892B71B98500100EB8DCC = {
 			isa = PBXGroup;
 			children = (
+				D41963B01BB004A2002ED6F9 /* Settings.bundle */,
 				D45AEF401BA00F740075185C /* MapKit.framework */,
 				D45892C11B98500100EB8DCC /* Products */,
 				D45892C21B98500100EB8DCC /* FMSiOS */,
@@ -195,6 +198,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D4ECE1DB1B989EE4006D5142 /* Launch.xib in Resources */,
+				D41963B11BB004A2002ED6F9 /* Settings.bundle in Resources */,
 				D45892D11B98500100EB8DCC /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

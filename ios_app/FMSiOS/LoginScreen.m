@@ -22,6 +22,7 @@
 @property UISwitch *saveSwitch;
 @property ShadowButton *loginButton;
 @property UIActivityIndicatorView *loginInd;
+@property UIButton *settingsButton;
 
 @end
 
@@ -148,7 +149,7 @@
     loginButton.clipsToBounds = YES;
     loginButton.layer.masksToBounds = NO;
     
-    // End UI
+    // End centre login dialog
     [self.loginDialog addSubview:topLabel];
     [self.loginDialog addSubview:errorLabel];
     [self.loginDialog addSubview:emailField];
@@ -158,14 +159,26 @@
     [self.loginDialog addSubview:loginButton];
     [self.loginDialog addSubview:self.loginInd];
     [self.view addSubview:self.loginDialog];
+    
+    // Settings icon
+    UIButton *settingsButton = [UIButton buttonWithType:UIButtonTypeSystem];
+    [settingsButton setTitle:@"\u2699" forState:UIControlStateNormal];
+    [settingsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    settingsButton.titleLabel.font = [UIFont fontWithName:@"Helvetica" size:45];
+    settingsButton.frame = CGRectMake(0, self.view.frame.size.height - 80, 80, 80);
+    [self.view addSubview:settingsButton];
+    
+    // Set globals
     self.errorLabel = errorLabel;
     self.emailField = emailField;
     self.passField = passField;
     self.saveSwitch = saveSwitch;
     self.loginButton = loginButton;
+    self.settingsButton = settingsButton;
     
     // Events
     [loginButton addTarget:self action:@selector(loginButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [settingsButton addTarget:self action:@selector(settingsButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -192,6 +205,7 @@
     
     self.bg.frame = CGRectMake(-30, -25, self.view.frame.size.width + 60, self.view.frame.size.height + 50);
     self.loginDialog.center = self.view.center;
+    self.settingsButton.frame = CGRectMake(0, self.view.frame.size.height - 80, 80, 80);
 }
 
 - (void)didReceiveMemoryWarning {
@@ -277,6 +291,10 @@
     
     // Start connection process
     [self.d connectToServerWithEmail:self.emailField.text andPass:self.passField.text];
+}
+
+- (void)settingsButtonPressed:(UIControl *)button {
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
 }
 
 #pragma mark - navigation

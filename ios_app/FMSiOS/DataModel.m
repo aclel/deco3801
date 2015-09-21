@@ -65,6 +65,7 @@
     
     // Get request info
     NSURL *postUrl = [NSURL URLWithString:relPath relativeToURL:[self getServerUrl]];
+    NSLog(@"Connecting to url: %@", postUrl);
     NSData *postData = [requestString dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
     NSString *postLen = [NSString stringWithFormat:@"%lu", (unsigned long)requestString.length];
     

@@ -16,26 +16,31 @@
 }*/
 
 .shadow-glow {
-  box-shadow: 0 0 5px 2px lightgray;
+  box-shadow: 0 0 5px 2px #C5C5C5;
 }
 
 .shadow-bottom {
-  box-shadow: 0 2px 2px lightgray;
+  box-shadow: 0 2px 2px #C5C5C5;
 }
 
 .mapWindow {
 	background-color: darkgrey;
 }
 
+input[type="text"] {
+  margin-bottom: 0;
+}
+
 .timefilters input[type="text"] {
 	width: 40%;
 	display: inline;
-	margin-right: 10px;
 }
-
 .timefilters {
   margin-left: 8px;
   margin-top: 15px;
+}
+.timefilters > div#since > input {
+  width: 30%;
 }
 
 .sensorfilters input[type="text"] {
@@ -43,11 +48,14 @@
 	display: inline;
 	margin-right: 5px;
 }
-
+.sensorfilters div.sensor-name {
+  margin-bottom: 4px;
+}
 
 .datepicker.dropdown-menu {
-  width: 250px;
+  width: 330px;
   height: 250px;
+  bottom: 0;
 }
 .datepicker.dropdown-menu button {
   outline: none;
@@ -57,7 +65,7 @@
   height: 180px;
 }
 .datepicker.dropdown-menu tbody button {
-  padding: 6px;
+  padding: 3px;
 }
 .datepicker.dropdown-menu.datepicker-mode-1 tbody button, .datepicker.dropdown-menu.datepicker-mode-2 tbody button {
   height: 65px;

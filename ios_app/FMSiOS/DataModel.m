@@ -9,6 +9,7 @@
 #import "DataModel.h"
 
 //TODO: handle first-time login
+//TODO: get info from user for later use
 
 @implementation Buoy
 

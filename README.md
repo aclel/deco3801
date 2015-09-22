@@ -129,9 +129,5 @@ The web app needs to be served through a web server with the server root directo
 
 ## iOS App
 
-1. You will need a machine running OSX and Xcode 6.4 or greater. 
-2. Open Xcode and import the project. You should be able to compile and run it under the iPhone simulators straight away. Note that these simulators cannot use Core Location to find your current position. To log in, you must first create a user on the server at teamneptune.co, which is the server the app attempts to access.
-3. To compile and run on a device, plug in the device using a usb cable. Under Xcode->preferences->accounts, add a user who belongs to a team with an iOS developer account. You should now be able to compile for the device.
-4. If the device complains about signing issues, you may have to update your provisioning profile to contain the device. Logon to developer.apple.com using the above account, and under Certificates->Devices, you can add your iPhone/iPad using its internal id. This should update your provisioning profile to let you build the app for this device.
-
-Note that up to 100 devices can be added to a single iOS developer account.
+1. You will need a machine running OSX and Xcode 7.0 or greater.
+2. Simply import the project. You can compile the given code for simulators or load it onto any device physically connected to the machine by USB. 

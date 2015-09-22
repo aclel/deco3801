@@ -192,11 +192,6 @@
     self.navigationItem.rightBarButtonItems = a;
 }
 
-#pragma mark - Orientation
-- (NSUInteger)supportedInterfaceOrientations {
-    return UIInterfaceOrientationMaskAllButUpsideDown;
-}
-
 #pragma mark - location updates
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
     if (status == kCLAuthorizationStatusAuthorizedWhenInUse) {

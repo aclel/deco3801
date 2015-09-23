@@ -152,6 +152,13 @@
     self.d.dataDelegate = self;
 }
 
+- (void)viewDidDisappear:(BOOL)animated {
+    [super viewDidDisappear:animated];
+    
+    // Disconnect from server after leaving this screen
+    [self.d disconnect];
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -201,13 +208,48 @@
 }
 
 - (void)mapViewDidFailLoadingMap:(MKMapView *)mapView withError:(NSError *)error {
-    //TODO
-    // Failed - popup network message
+    NSLog(@"Map loading error: %@", error);
+    
+    // Create alert box informing user
+    UIAlertController *a = [UIAlertController alertControllerWithTitle:@"Couldn't load map" message:@"Loading map data requires an active internet connection." preferredStyle:UIAlertControllerStyleAlert];
+    
+    // Add buttons for logging out and cancelling (cancelling should just repeat until it's fixed or they logout)
+    [a addAction:[UIAlertAction actionWithTitle:@"Logout" style:UIAlertActionStyleDefault handler:^(UIAlertAction *a) {
+        [self.navigationController popViewControllerAnimated:YES];
+    }]];
+    [a addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
+    
+    [self presentViewController:a animated:YES completion:nil];
 }
 
 - (void)mapView:(MKMapView *)mapView didFailToLocateUserWithError:(NSError *)error {
-    //TODO
-    // Failed - do something about it?
+    NSLog(@"Locating user error: %@", error);
+    
+    // Create alert box informing user
+    UIAlertController *a;
+    if ([CLLocationManager locationServicesEnabled]) { // Depends on type of error
+        if (error.code == 0) {
+            return; //Don't give a fuck about those damn error 0 messages.
+        }
+        a = [UIAlertController alertControllerWithTitle:@"Locate failed" message:error.localizedDescription preferredStyle:UIAlertControllerStyleAlert];
+        
+        // Logout button
+        [a addAction:[UIAlertAction actionWithTitle:@"Logout" style:UIAlertActionStyleDefault handler:^(UIAlertAction *a) {
+            [self.navigationController popViewControllerAnimated:YES];
+        }]];
+    } else {
+        a = [UIAlertController alertControllerWithTitle:@"Locate failed" message:@"Location services must be enabled in order to locate your position." preferredStyle:UIAlertControllerStyleAlert];
+        
+        // Settings button
+        [a addAction:[UIAlertAction actionWithTitle:@"Settings" style:UIAlertActionStyleDefault handler:^(UIAlertAction *a) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString]];
+        }]];
+    }
+    
+    // Cancel button
+    [a addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
+    
+    [self presentViewController:a animated:YES completion:nil];
 }
 
 - (MKAnnotationView *)mapView:(MKMapView *)mapView viewForAnnotation:(id<MKAnnotation>)annotation {
@@ -237,13 +279,23 @@
         [self.map removeAnnotations:self.buoys];
     }
     
-    for (Buoy *b in buoys) {
-        NSLog(@"Buoy %f, %f", b.coordinate.latitude, b.coordinate.longitude);
+    NSMutableArray *newBuoys = [[NSMutableArray alloc] init];
+    for (NSDictionary *b in buoys) {
+        NSNumber *lat = [b objectForKey:@"latitude"];
+        NSNumber *lon = [b objectForKey:@"longitude"];
+        Buoy *new = [[Buoy alloc] initWithCoord:CLLocationCoordinate2DMake(lat.doubleValue, lon.doubleValue)];
+        new.title = [b objectForKey:@"buoyName"];
+        [newBuoys addObject:new];
     }
     
     // Add annotations for these buoys
-    [self.map addAnnotations:buoys];
-    self.buoys = buoys;
+    [self.map addAnnotations:newBuoys];
+    self.buoys = newBuoys;
+}
+
+- (void)didFailServerComms {
+    //TODO
+    [self setRefreshIconRefresh];
 }
 
 #pragma mark - UI events

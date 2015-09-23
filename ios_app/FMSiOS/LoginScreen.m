@@ -185,6 +185,7 @@
     [super viewWillAppear:animated];
     
     self.d.delegate = self;
+    self.b = nil;
     [self.navigationController setNavigationBarHidden:YES animated:YES];
     
     // Fill dialogs with text from default info

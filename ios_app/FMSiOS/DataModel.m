@@ -38,7 +38,6 @@
 @interface DataModel ()
 
 @property (strong, nonatomic) NSString *jwt;
-@property (strong, nonatomic) NSURLSessionConfiguration *conf;
 
 @end
 
@@ -64,7 +63,7 @@
     return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@", address]];
 }
 
-- (void)sendRequestToServerUrl:(NSString *)relPath textData:(NSString *)requestString handler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))handler {
+- (void)sendRequestToServerUrl:(NSString *)relPath textData:(NSString *)requestString method:(NSString *)method authorization:(BOOL)authorization handler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))handler {
     
     // Get request info
     NSURL *postUrl = [NSURL URLWithString:relPath relativeToURL:[self getServerUrl]];
@@ -75,25 +74,31 @@
     // Create request
     NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:postUrl];
     request.allowsCellularAccess = YES;
-    request.HTTPMethod = @"POST";
+    request.HTTPMethod = method;
     request.HTTPBody = postData;
-    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-    [request setValue:postLen forHTTPHeaderField:@"Content-Length"];
+    if (authorization && self.jwt != nil) {
+        [request setValue:[NSString stringWithFormat:@"Bearer %@", self.jwt] forHTTPHeaderField:@"Authorization"];
+    } else {
+        [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+        [request setValue:postLen forHTTPHeaderField:@"Content-Length"];
+    }
     
     // Send request
-    NSURLSession *s = [NSURLSession sharedSession];
-    [[s dataTaskWithRequest:request completionHandler:handler] resume];
+    /*NSLog(@"Sending request: %@", request);
+    for (NSString *header in [[request allHTTPHeaderFields] allKeys]) {
+        NSLog(@"header %@: %@", header, [request allHTTPHeaderFields][header]);
+    }*/
+    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:handler] resume];
 }
 
 
 #pragma mark - external methods
 
 - (void)connectToServerWithEmail:(NSString *)email andPass:(NSString *)password {
-    
     NSString *dataToSend = [NSString stringWithFormat:@" { \"email\" : \"%@\", \"password\" : \"%@\" } ",email, password];
     
     // Send a server api request to logon
-    [self sendRequestToServerUrl:@"api/login" textData:dataToSend handler:
+    [self sendRequestToServerUrl:@"api/login" textData:dataToSend method:@"POST" authorization:NO handler:
      ^(NSData *data, NSURLResponse *response, NSError *error){
          if (error) {
              [self.delegate performSelectorOnMainThread:@selector(didFailToConnectServerNotFound) withObject:nil waitUntilDone:NO];
@@ -115,32 +120,36 @@
          } else { //Server failure
              [self.delegate performSelectorOnMainThread:@selector(didFailToConnectServerFail) withObject:nil waitUntilDone:NO];
          }
-    }];
+     }];
 }
 
 - (void)updateBuoyListingFromServer {
-    // For now just generate random buoys
-    [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(dummyMakeBuoys) userInfo:nil repeats:NO];
+    
+    // Send a server api request to logon
+    [self sendRequestToServerUrl:@"api/buoy_instances?active=true" textData:@"" method:@"GET" authorization:YES handler:
+     ^(NSData *data, NSURLResponse *response, NSError *error){
+         // Interpret their response
+         NSHTTPURLResponse *httpRes = (NSHTTPURLResponse *)response;
+         if (!error && httpRes.statusCode == 200) { //Success
+             // Get buoy info
+             //TODO: parser methods to handle this cooler
+             NSDictionary *res = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+             NSArray *buoys = [res objectForKey:@"buoyInstances"];
+             
+             [self.dataDelegate performSelectorOnMainThread:@selector(didGetBuoyListFromServer:) withObject:buoys waitUntilDone:NO];
+         } else { //Server failure
+             [self.dataDelegate performSelectorOnMainThread:@selector(didFailServerComms) withObject:nil waitUntilDone:NO];
+         }
+     }];
 }
 
-- (void)dummyMakeBuoys {
-    // Dummy method for making fake buoys
-    NSMutableArray *a = [[NSMutableArray alloc] init];
-    NSLog(@"Getting buoy info...");
-    
-    for (NSUInteger i = 0; i < 15; i++) {
-        int rand = arc4random_uniform(100);
-        int rand2 = arc4random_uniform(100);
-        CLLocationDegrees lon = 153.033 + rand/1000.0;
-        CLLocationDegrees lat = -27.466 + rand2/1000.0;
-        Buoy *new = [[Buoy alloc] initWithCoord:CLLocationCoordinate2DMake(lat, lon)];
-        new.title = [NSString stringWithFormat:@"Buoy %lu", i + 1];
-        [a addObject:new];
-    }
-    
-    [self.dataDelegate didGetBuoyListFromServer:a];
+- (void)disconnect {
+    self.jwt = nil;
 }
 
+
+
+#pragma mark - static methods
 + (BOOL)NSStringIsValidEmail:(NSString *)s {
     NSString *regex = @"^[A-Z0-9a-z\\._%+-]+@([A-Za-z0-9-]+\\.)+[A-Za-z]{2,4}$";
     NSPredicate *test = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];

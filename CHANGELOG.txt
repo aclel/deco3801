@@ -11,6 +11,8 @@ v0.3 - Week 9 29/9
 
 iOS App:
 * Updated project to support iOS 9. Our app is now able to support devices using both 8 and 9.
++ Added missing error messages for internet disconnection and loss of location information.
++ App now loads buoy information from the server with authorization.
 
 v0.2 - Week 8 22/9
 Server:

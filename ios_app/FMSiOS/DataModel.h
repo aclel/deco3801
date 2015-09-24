@@ -12,12 +12,29 @@
 
 #define DEFAULT_SERVER_ADDRESS @"teamneptune.co"
 
-// Data model for a buoy - really simple for the moment
+// Data model for a buoy and the groups containing them
+@interface BuoyGroup : NSObject
+
+@property (nonatomic, strong, readonly) NSMutableArray *buoys;
+
+@property (nonatomic, strong) NSString *title; //Name of this group of buoys
+@property NSUInteger groupId; //ID for this group
+
+@end
+
 @interface Buoy : NSObject <MKAnnotation>
 
-@property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
+@property (nonatomic, weak) BuoyGroup *group; //nil for no group
+
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *subtitle;
+@property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
+@property (nonatomic, strong) NSDate *dateCreated;
+@property (nonatomic, strong) NSString *buoyName;
+@property (nonatomic, strong) NSString *buoyGuid; //ids for different purposes
+@property NSUInteger buoyId;
+@property NSUInteger databaseId;
+
 
 - (instancetype)initWithCoord:(CLLocationCoordinate2D)coord;
 

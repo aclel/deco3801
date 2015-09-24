@@ -16,30 +16,51 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
+        _group = nil;
         _coordinate = CLLocationCoordinate2DMake(0, 0);
         _title = @"Unknown";
         _subtitle = [NSString stringWithFormat:@"%f lat, %f long", _coordinate.latitude, _coordinate.longitude];
+        _dateCreated = [NSDate dateWithTimeIntervalSince1970:0];
+        _buoyName = @"N/A";
+        _buoyGuid = @"N/A";
+        _buoyId = -1;
+        _databaseId = -1;
     }
     return self;
 }
 
 - (instancetype)initWithCoord:(CLLocationCoordinate2D)coord {
-    self = [super init];
+    self = [self init];
     if (self) {
         _coordinate = coord;
-        _title = @"Unknown";
-        _subtitle = [NSString stringWithFormat:@"%f lat, %f long", _coordinate.latitude, _coordinate.longitude];
     }
     return self;
 }
 
 @end
 
+
+@implementation BuoyGroup
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _buoys = [[NSMutableArray alloc] init];
+        _title = @"Unknown Group";
+        _groupId = -1;
+        
+    }
+    return self;
+}
+@end
+
 @interface DataModel ()
 
 @property (strong, nonatomic) NSString *jwt;
+@property (strong, nonatomic) NSDateFormatter *dateFormatter;
 
 @end
+
 
 @implementation DataModel
 
@@ -47,8 +68,78 @@
     self = [super init];
     if (self) {
         _jwt = nil;
+        _dateFormatter = [[NSDateFormatter alloc] init];
+        [_dateFormatter setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"]];
+        [_dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZZ"];
     }
     return self;
+}
+
+#pragma mark - parsing/data methods
+
+- (NSArray *)parseJSONForCurrentBuoys:(NSArray *)buoyDictList {
+    // Given a list of buoy dictionaries retrieved from the server, generates buoy and buoy group objects and returns an array of these buoy group objects
+    // Buoys and BuoyGroups are mixed in the results; any buoys not in a group are by themselves, while those which are are inserted into the buoy groups arrays.
+    
+    NSMutableArray *parsed = [[NSMutableArray alloc] initWithCapacity:buoyDictList.count];
+    NSSet *curGroups = [[NSSet alloc] init];
+    for (NSDictionary *buoyInfo in buoyDictList) {
+        // Get lat, long
+        NSNumber *lat = [buoyInfo objectForKey:@"latitude"];
+        NSNumber *lon = [buoyInfo objectForKey:@"longitude"];
+        
+        // Create buoy
+        Buoy *b;
+        if (lat != nil && lon != nil) {
+            b = [[Buoy alloc] initWithCoord:CLLocationCoordinate2DMake(lat.doubleValue, lon.doubleValue)];
+        } else {
+            b = [[Buoy alloc] init];
+        }
+        
+        // Set properties
+        NSString *buoyGuid = [buoyInfo objectForKey:@"buoyGuid"];
+        NSNumber *buoyId = [buoyInfo objectForKey:@"buoyID"];
+        NSString *buoyName = [buoyInfo objectForKey:@"buoyName"];
+        NSString *dateCreated = [buoyInfo objectForKey:@"dateCreated"];
+        NSNumber *databaseId = [buoyInfo objectForKey:@"id"];
+        NSString *name = [buoyInfo objectForKey:@"name"];
+        if (buoyGuid != nil) b.buoyGuid = buoyGuid;
+        if (buoyId != nil) b.buoyId = buoyId.integerValue;
+        if (buoyName != nil) b.buoyName = buoyName;
+        if (dateCreated != nil) b.dateCreated = [_dateFormatter dateFromString:dateCreated];
+        if (databaseId != nil) b.databaseId = databaseId.integerValue;
+        if (name != nil) b.title = name;
+        
+        // Handle groups
+        NSNumber *groupId = [buoyInfo objectForKey:@"buoyGroupId"];
+        NSString *groupName = [buoyInfo objectForKey:@"buoyGroupInfo"];
+        if (groupId != nil || groupId.integerValue == -1) { // Add to group
+            // Find group for this
+            BuoyGroup *groupForBuoy = nil;
+            for (BuoyGroup *g in curGroups) {
+                if (g.groupId == groupId.integerValue) {
+                    groupForBuoy = g;
+                }
+            }
+            
+            // If not there, create it and add to list of all groups
+            if (groupForBuoy == nil) {
+                groupForBuoy = [[BuoyGroup alloc] init];
+                groupForBuoy.groupId = groupId.integerValue;
+                if (groupName != nil) groupForBuoy.title = groupName;
+                [parsed addObject:groupForBuoy];
+            }
+            
+            // Add to this group
+            b.group = groupForBuoy;
+            [groupForBuoy.buoys addObject:b];
+        } else { // Add individually
+            b.group = nil;
+            [parsed addObject:b];
+        }
+    }
+    
+    return parsed;
 }
 
 #pragma mark - server connection
@@ -132,11 +223,10 @@
          NSHTTPURLResponse *httpRes = (NSHTTPURLResponse *)response;
          if (!error && httpRes.statusCode == 200) { //Success
              // Get buoy info
-             //TODO: parser methods to handle this cooler
              NSDictionary *res = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-             NSArray *buoys = [res objectForKey:@"buoyInstances"];
+             NSArray *buoyGroups = [self parseJSONForCurrentBuoys:[res objectForKey:@"buoyInstances"]];
              
-             [self.dataDelegate performSelectorOnMainThread:@selector(didGetBuoyListFromServer:) withObject:buoys waitUntilDone:NO];
+             [self.dataDelegate performSelectorOnMainThread:@selector(didGetBuoyListFromServer:) withObject:buoyGroups waitUntilDone:NO];
          } else { //Server failure
              [self.dataDelegate performSelectorOnMainThread:@selector(didFailServerComms) withObject:nil waitUntilDone:NO];
          }

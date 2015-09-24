@@ -279,18 +279,19 @@
         [self.map removeAnnotations:self.buoys];
     }
     
-    NSMutableArray *newBuoys = [[NSMutableArray alloc] init];
-    for (NSDictionary *b in buoys) {
-        NSNumber *lat = [b objectForKey:@"latitude"];
-        NSNumber *lon = [b objectForKey:@"longitude"];
-        Buoy *new = [[Buoy alloc] initWithCoord:CLLocationCoordinate2DMake(lat.doubleValue, lon.doubleValue)];
-        new.title = [b objectForKey:@"buoyName"];
-        [newBuoys addObject:new];
+    // Get buoy information from list of buoys/groups
+    NSMutableArray *allBuoys = [[NSMutableArray alloc] init];
+    for (NSObject *item in buoys) {
+        if ([item isKindOfClass:[Buoy class]]) {
+            [allBuoys addObject:item];
+        } else if ([item isKindOfClass:[BuoyGroup class]]) {
+            [allBuoys addObjectsFromArray:((BuoyGroup *)item).buoys];
+        }
     }
     
     // Add annotations for these buoys
-    [self.map addAnnotations:newBuoys];
-    self.buoys = newBuoys;
+    [self.map addAnnotations:allBuoys];
+    self.buoys = allBuoys;
 }
 
 - (void)didFailServerComms {

@@ -54,7 +54,7 @@
 
 - (void)didFailServerComms;
 
-- (void)didGetBuoyListFromServer:(NSArray *)buoys;
+- (void)didGetBuoyListFromServer:(NSArray *)buoyGroups;
 
 @end
 
@@ -64,10 +64,13 @@
 @property (nonatomic, weak) NSObject<DataModelInitDelegate> *delegate;
 @property (nonatomic, weak) NSObject<DataModelDataDelegate> *dataDelegate;
 
+// Server connection stuff
 - (void)connectToServerWithEmail:(NSString *)email andPass:(NSString *)password;
 - (void)updateBuoyListingFromServer;
-
 - (void)disconnect;
+
+// Info methods after connecting to server (DO NOT USE WHEN DISCONNECTED)
+- (NSString *)userDisplayName; //Name/text to display for user's name
 
 // Static helper methods
 + (BOOL)NSStringIsValidEmail:(NSString *)s; // Returns whether the given string is a valid email

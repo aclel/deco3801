@@ -56,7 +56,14 @@
 
 @interface DataModel ()
 
+// Login info
 @property (strong, nonatomic) NSString *jwt;
+@property (strong, nonatomic) NSString *email;
+@property (strong, nonatomic) NSString *firstName;
+@property (strong, nonatomic) NSString *lastName;
+@property (strong, nonatomic) NSString *role;
+
+// Misc
 @property (strong, nonatomic) NSDateFormatter *dateFormatter;
 
 @end
@@ -67,7 +74,7 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _jwt = nil;
+        _jwt = _email = _firstName = _lastName = _role = nil;
         _dateFormatter = [[NSDateFormatter alloc] init];
         [_dateFormatter setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"]];
         [_dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZZ"];
@@ -76,6 +83,21 @@
 }
 
 #pragma mark - parsing/data methods
+
+- (BOOL)parseJSONForUserLogin:(NSDictionary *)userInfo {
+    // Given a dictionary response to a user login, sets all class properties for a user login as necessary, returning false for a bad login (one without a token)
+    self.jwt = [userInfo objectForKey:@"token"];
+    if (self.jwt == nil) {
+        return NO;
+    }
+    
+    self.email = [userInfo objectForKey:@"email"];
+    self.firstName = [userInfo objectForKey:@"firstName"];
+    self.lastName = [userInfo objectForKey:@"lastName"];
+    self.role = [userInfo objectForKey:@"role"];
+    
+    return YES;
+}
 
 - (NSArray *)parseJSONForCurrentBuoys:(NSArray *)buoyDictList {
     // Given a list of buoy dictionaries retrieved from the server, generates buoy and buoy group objects and returns an array of these buoy group objects
@@ -96,7 +118,7 @@
             b = [[Buoy alloc] init];
         }
         
-        // Set properties
+        // Set indiv. properties
         NSString *buoyGuid = [buoyInfo objectForKey:@"buoyGuid"];
         NSNumber *buoyId = [buoyInfo objectForKey:@"buoyID"];
         NSString *buoyName = [buoyInfo objectForKey:@"buoyName"];
@@ -110,33 +132,34 @@
         if (databaseId != nil) b.databaseId = databaseId.integerValue;
         if (name != nil) b.title = name;
         
-        // Handle groups
+        // Get group id to put under
         NSNumber *groupId = [buoyInfo objectForKey:@"buoyGroupId"];
-        NSString *groupName = [buoyInfo objectForKey:@"buoyGroupInfo"];
-        if (groupId != nil || groupId.integerValue == -1) { // Add to group
-            // Find group for this
-            BuoyGroup *groupForBuoy = nil;
-            for (BuoyGroup *g in curGroups) {
-                if (g.groupId == groupId.integerValue) {
-                    groupForBuoy = g;
-                }
+        if (groupId == nil) groupId = [NSNumber numberWithInteger:0];
+        
+        // Find group for this id
+        BuoyGroup *groupForBuoy = nil;
+        for (BuoyGroup *g in curGroups) {
+            if (g.groupId == groupId.integerValue) {
+                groupForBuoy = g;
             }
-            
-            // If not there, create it and add to list of all groups
-            if (groupForBuoy == nil) {
-                groupForBuoy = [[BuoyGroup alloc] init];
-                groupForBuoy.groupId = groupId.integerValue;
-                if (groupName != nil) groupForBuoy.title = groupName;
-                [parsed addObject:groupForBuoy];
-            }
-            
-            // Add to this group
-            b.group = groupForBuoy;
-            [groupForBuoy.buoys addObject:b];
-        } else { // Add individually
-            b.group = nil;
-            [parsed addObject:b];
         }
+        
+        // If not there, create it and add to list of all groups
+        if (groupForBuoy == nil) {
+            groupForBuoy = [[BuoyGroup alloc] init];
+            groupForBuoy.groupId = groupId.integerValue;
+            if (groupId.integerValue == 0) {
+                groupForBuoy.title = @"Unassigned";
+            } else {
+                NSString *groupName = [buoyInfo objectForKey:@"buoyGroupInfo"];
+                if (groupName != nil) groupForBuoy.title = groupName;
+            }
+            [parsed addObject:groupForBuoy];
+        }
+        
+        // Add buoy to this group
+        b.group = groupForBuoy;
+        [groupForBuoy.buoys addObject:b];
     }
     
     return parsed;
@@ -204,10 +227,11 @@
          } else if (httpRes.statusCode == 200) { //Success
              // Get user info
              NSDictionary *user = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
-             
-             self.jwt = [user objectForKey:@"token"];
-             
-             [self.delegate performSelectorOnMainThread:@selector(didConnectToServer) withObject:nil waitUntilDone:NO];
+             if ([self parseJSONForUserLogin:user]) {
+                 [self.delegate performSelectorOnMainThread:@selector(didConnectToServer) withObject:nil waitUntilDone:NO];
+             } else {
+                 [self.delegate performSelectorOnMainThread:@selector(didFailToConnectServerFail) withObject:nil waitUntilDone:NO];
+             }
          } else { //Server failure
              [self.delegate performSelectorOnMainThread:@selector(didFailToConnectServerFail) withObject:nil waitUntilDone:NO];
          }
@@ -234,10 +258,32 @@
 }
 
 - (void)disconnect {
-    self.jwt = nil;
+    self.jwt = self.email = self.firstName = self.lastName = self.role = nil;
 }
 
-
+- (NSString *)userDisplayName {
+    // First name exists
+    if (self.firstName != nil && self.firstName.length > 0) {
+        if (self.lastName != nil && self.lastName.length > 0) {
+            return [NSString stringWithFormat:@"%@ %@", self.firstName, self.lastName];
+        } else {
+            return self.firstName;
+        }
+    }
+    
+    // Last name only
+    if (self.lastName != nil && self.lastName.length > 0) {
+        return self.lastName;
+    }
+    
+    // Use email otherwise, if it exists
+    if (self.email != nil && self.email.length > 0) {
+        return self.email;
+    }
+    
+    // Else unknown way to display name
+    return @"User";
+}
 
 #pragma mark - static methods
 + (BOOL)NSStringIsValidEmail:(NSString *)s {

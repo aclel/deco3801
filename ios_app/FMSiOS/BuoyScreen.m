@@ -24,7 +24,8 @@
 @property (strong, nonatomic) UIBarButtonItem *rIndButton;
 @property (strong, nonatomic) UIViewController *popup;
 
-@property (strong, nonatomic) NSArray *buoys; // List of all buoys to display
+@property (strong, nonatomic) NSArray *allBuoys; // List of all buoys to display
+@property (strong, nonatomic) NSArray *buoyGroups; // List of buoy groups, containing the above
 
 - (void)mapTypeButtonPressed:(UIControl *)c;
 
@@ -150,6 +151,8 @@
     
     [self.navigationController setNavigationBarHidden:NO animated:YES];
     self.d.dataDelegate = self;
+    
+    self.title = [self.d userDisplayName];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -270,33 +273,55 @@
     return v;
 }
 
-- (void)didGetBuoyListFromServer:(NSArray *)buoys {
+#pragma mark - server comms
+
+- (void)didGetBuoyListFromServer:(NSArray *)buoyGroups {
     // Stop loading icon
     [self setRefreshIconRefresh];
     
     // Remove all current map annotations
-    if (self.buoys != nil) {
-        [self.map removeAnnotations:self.buoys];
+    if (self.allBuoys != nil) {
+        [self.map removeAnnotations:self.allBuoys];
     }
     
     // Get buoy information from list of buoys/groups
     NSMutableArray *allBuoys = [[NSMutableArray alloc] init];
-    for (NSObject *item in buoys) {
-        if ([item isKindOfClass:[Buoy class]]) {
-            [allBuoys addObject:item];
-        } else if ([item isKindOfClass:[BuoyGroup class]]) {
-            [allBuoys addObjectsFromArray:((BuoyGroup *)item).buoys];
-        }
+    for (BuoyGroup *g in buoyGroups) {
+        // Get all buoys
+        [allBuoys addObjectsFromArray:g.buoys];
     }
     
     // Add annotations for these buoys
     [self.map addAnnotations:allBuoys];
-    self.buoys = allBuoys;
+    
+    // Update globals
+    self.allBuoys = allBuoys;
+    self.buoyGroups = [buoyGroups sortedArrayUsingComparator:^NSComparisonResult(id a, id b) {
+        BuoyGroup *a2 = (BuoyGroup *)a;
+        BuoyGroup *b2 = (BuoyGroup *)b;
+        if (a2.groupId < b2.groupId) {
+            return NSOrderedAscending;
+        } else if (a2.groupId > b2.groupId) {
+            return NSOrderedDescending;
+        } else {
+            return NSOrderedSame;
+        }
+    }];
 }
 
 - (void)didFailServerComms {
-    //TODO
     [self setRefreshIconRefresh];
+    
+    // Create alert box informing user
+    UIAlertController *a = [UIAlertController alertControllerWithTitle:@"Couldn't load buoy locations" message:@"Could not establish connection with server" preferredStyle:UIAlertControllerStyleAlert];
+    
+    // Add buttons for logging out or cancelling
+    [a addAction:[UIAlertAction actionWithTitle:@"Logout" style:UIAlertActionStyleDefault handler:^(UIAlertAction *a) {
+        [self.navigationController popViewControllerAnimated:YES];
+    }]];
+    [a addAction:[UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleCancel handler:nil]];
+    
+    [self presentViewController:a animated:YES completion:nil];
 }
 
 #pragma mark - UI events

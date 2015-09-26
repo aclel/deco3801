@@ -7,12 +7,14 @@ Legend:
 * Changed
 ! Fixed
 
-v0.3 - Week 9 29/9
+v0.3 - Week 9 6/10
 
 iOS App:
 * Updated project to support iOS 9. Our app is now able to support devices using both 8 and 9.
 + Added missing error messages for internet disconnection and loss of location information.
++ Added missing error message for connection failure for buoy information
 + App now loads buoy information from the server with authorization.
++ Added name/email section to top of map page to show which user is logged in.
 
 v0.2 - Week 8 22/9
 Server:

@@ -14,7 +14,9 @@ iOS App:
 + Added missing error messages for internet disconnection and loss of location information.
 + Added missing error message for connection failure for buoy information
 + App now loads buoy information from the server with authorization.
+* Updated map markers to show colour depending upon their associated group. These markers are animated and generally pretty cool.
 + Added name/email section to top of map page to show which user is logged in.
+* Updated some colours to be consistent with the web app.
 
 v0.2 - Week 8 22/9
 Server:

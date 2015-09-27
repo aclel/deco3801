@@ -99,3 +99,101 @@
 }
 
 @end
+
+
+
+@interface DiamondMarker ()
+
+@property (strong, nonatomic) UIColor *coreColour;
+@property (strong, nonatomic) UIColor *edgeColour;
+
+@end
+
+@implementation DiamondMarker
+
+#pragma mark - initialisation
+- (void)baseInit {
+    _coreColour = [UIColor whiteColor];
+    _edgeColour = [UIColor whiteColor];
+    self.backgroundColor = [UIColor clearColor];
+    self.frame = CGRectMake(0, 0, 30, 35);
+    self.layer.masksToBounds = NO;
+}
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        [self baseInit];
+    }
+    return self;
+}
+
+- (instancetype)initWithFrame:(CGRect)frame {
+    self = [super initWithFrame:frame];
+    if (self) {
+        [self baseInit];
+        self.frame = frame;
+    }
+    return self;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
+        [self baseInit];
+    }
+    return self;
+}
+
+- (instancetype)initWithAnnotation:(id<MKAnnotation>)annotation reuseIdentifier:(NSString *)reuseIdentifier {
+    self = [super initWithAnnotation:annotation reuseIdentifier:reuseIdentifier];
+    if (self) {
+        [self baseInit];
+    }
+    return self;
+}
+
+
+#pragma mark - drawing methods
+
+- (void)drawRect:(CGRect)rect {
+    // Create new path with set colours
+    UIBezierPath *p = [UIBezierPath bezierPath];
+    [self.coreColour setFill];
+    [self.edgeColour setStroke];
+    p.lineWidth = 4;
+    
+    // Draw shape using this path
+    double pad = 5.0; // Padding
+    [p moveToPoint:CGPointMake(rect.origin.x + rect.size.width/2, rect.origin.y + pad)];
+    [p addLineToPoint:CGPointMake(rect.origin.x + pad, rect.origin.y + rect.size.height/2)];
+    [p addLineToPoint:CGPointMake(rect.origin.x + rect.size.width/2, rect.origin.y + rect.size.height - pad)];
+    [p addLineToPoint:CGPointMake(rect.origin.x + rect.size.width - pad, rect.origin.y + rect.size.height/2)];
+    [p closePath];
+    
+    // Colour path
+    [p fill];
+    [p stroke];
+    
+    // Add shadow
+    self.layer.shadowColor = [UIColor blackColor].CGColor;
+    self.layer.shadowOffset = CGSizeMake(0.0, 1.0);
+    self.layer.shadowRadius = 5.0;
+    self.layer.shadowOpacity = 0.5;
+    self.layer.shadowPath = p.CGPath;
+}
+
+
+#pragma mark - external methods
+
+- (void)changeCoreColour:(UIColor *)colour {
+    self.coreColour = colour;
+    [self setNeedsDisplay];
+}
+
+- (void)changeEdgeColour:(UIColor *)colour {
+    self.edgeColour = colour;
+    [self setNeedsDisplay];
+}
+
+@end

@@ -104,7 +104,6 @@
     // Buoys and BuoyGroups are mixed in the results; any buoys not in a group are by themselves, while those which are are inserted into the buoy groups arrays.
     
     NSMutableArray *parsed = [[NSMutableArray alloc] initWithCapacity:buoyDictList.count];
-    NSSet *curGroups = [[NSSet alloc] init];
     for (NSDictionary *buoyInfo in buoyDictList) {
         // Get lat, long
         NSNumber *lat = [buoyInfo objectForKey:@"latitude"];
@@ -138,7 +137,7 @@
         
         // Find group for this id
         BuoyGroup *groupForBuoy = nil;
-        for (BuoyGroup *g in curGroups) {
+        for (BuoyGroup *g in parsed) {
             if (g.groupId == groupId.integerValue) {
                 groupForBuoy = g;
             }
@@ -239,7 +238,6 @@
 }
 
 - (void)updateBuoyListingFromServer {
-    
     // Send a server api request to logon
     [self sendRequestToServerUrl:@"api/buoy_instances?active=true" textData:@"" method:@"GET" authorization:YES handler:
      ^(NSData *data, NSURLResponse *response, NSError *error){
@@ -248,6 +246,8 @@
          if (!error && httpRes.statusCode == 200) { //Success
              // Get buoy info
              NSDictionary *res = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+             
+             NSLog(@"%@", res);
              NSArray *buoyGroups = [self parseJSONForCurrentBuoys:[res objectForKey:@"buoyInstances"]];
              
              [self.dataDelegate performSelectorOnMainThread:@selector(didGetBuoyListFromServer:) withObject:buoyGroups waitUntilDone:NO];

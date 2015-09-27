@@ -259,15 +259,30 @@
     if ([annotation isKindOfClass:[MKUserLocation class]]) {
         return nil;
     }
-
-    MKPinAnnotationView *v = (MKPinAnnotationView *)[self.map dequeueReusableAnnotationViewWithIdentifier:@"BuoyIcon"];
+    
+    DiamondMarker *v = (DiamondMarker *)[self.map dequeueReusableAnnotationViewWithIdentifier:@"BuoyIcon"];
     if (v == nil) {
-        v = [[MKPinAnnotationView alloc] initWithAnnotation:annotation reuseIdentifier:@"BuoyIcon"];
-        v.pinColor = MKPinAnnotationColorPurple;
-        v.animatesDrop = YES;
+        // Initial only properties
+        v = [[DiamondMarker alloc] initWithAnnotation:annotation reuseIdentifier:@"BuoyIcon"];
         v.canShowCallout = YES;
     } else {
+        // Reuse only properties
         v.annotation = annotation;
+    }
+    
+    // General properties
+    Buoy *b = (Buoy *)annotation;
+    
+    // Marker colours
+    if (b.group == nil) { // Ungrouped buoy
+        [v changeEdgeColour:[UIColor grayColor]];
+    } else { // Grouped buoy
+        NSUInteger colourIndex = [self.buoyGroups indexOfObject:b.group];
+        double spacingForColour = 1.0/self.buoyGroups.count;
+        
+        NSLog(@"%@", self.buoyGroups);
+        NSLog(@"colour index %u, spacing %f hue %f", colourIndex, spacingForColour, colourIndex * spacingForColour);
+        [v changeEdgeColour:[UIColor colorWithHue:(colourIndex * spacingForColour) saturation:0.9 brightness:0.9 alpha:1.0]];
     }
     
     return v;

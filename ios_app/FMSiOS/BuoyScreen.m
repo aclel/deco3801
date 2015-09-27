@@ -202,7 +202,7 @@
     self.navigationItem.rightBarButtonItems = a;
 }
 
-#pragma mark - location updates
+#pragma mark - location updates and animations
 - (void)locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status {
     if (status == kCLAuthorizationStatusAuthorizedWhenInUse) {
         self.map.showsUserLocation = YES;
@@ -286,6 +286,58 @@
     }
     
     return v;
+}
+
+- (void)mapView:(MKMapView *)mapView didAddAnnotationViews:(NSArray<MKAnnotationView *> *)views {
+    for (NSUInteger i = 0; i < views.count; i++) {
+        MKAnnotationView *av = [views objectAtIndex:i];
+        
+        // Ignore user location
+        if ([av.annotation isKindOfClass:[MKUserLocation class]]) {
+            continue;
+        }
+        
+        // Ensure contained within visible map rect
+        MKMapPoint p = MKMapPointForCoordinate(av.annotation.coordinate);
+        if (!MKMapRectContainsPoint(self.map.visibleMapRect, p)) {
+            continue;
+        }
+        
+        // Otherwise, animate bounce
+        av.transform = CGAffineTransformMakeScale(0, 0);
+        [UIView animateWithDuration:0.3 delay:0.1*i options:UIViewAnimationOptionCurveLinear
+                         animations:^{
+                             av.transform = CGAffineTransformMakeScale(0.8, 1.2);
+                         }
+                         completion:^(BOOL finished){
+                             [UIView animateWithDuration:0.05 animations:^{
+                                 av.transform = CGAffineTransformIdentity;
+                             }];
+                         }
+         ];
+    }
+}
+
+- (void)mapView:(MKMapView *)mapView didSelectAnnotationView:(MKAnnotationView *)view {
+    // Ignore user location
+    if ([view.annotation isKindOfClass:[MKUserLocation class]]) {
+        return;
+    }
+    
+    // Select
+    DiamondMarker *d = (DiamondMarker *)view;
+    [d changeCoreColour:[UIColor colorWithWhite:0.9 alpha:1.0]];
+}
+
+- (void)mapView:(MKMapView *)mapView didDeselectAnnotationView:(MKAnnotationView *)view {
+    // Ignore user location
+    if ([view.annotation isKindOfClass:[MKUserLocation class]]) {
+        return;
+    }
+    
+    // Deselect
+    DiamondMarker *d = (DiamondMarker *)view;
+    [d changeCoreColour:[UIColor whiteColor]];
 }
 
 #pragma mark - server comms

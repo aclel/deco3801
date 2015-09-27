@@ -29,6 +29,11 @@
     UINavigationController *n = [[UINavigationController alloc] init];
     n.navigationBar.barStyle = UIBarStyleBlackTranslucent;
     n.navigationBar.tintColor = [UIColor whiteColor];
+    n.navigationBar.barTintColor = [UIColor colorWithRed:0.008 green:0.494 blue:0.573 alpha:1.0];
+    [(UIView *)[n.navigationBar.subviews objectAtIndex:0] setAlpha:0.9];
+    n.navigationBar.translucent = YES;
+    //[n.navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];
+    //n.navigationBar.backgroundColor = [UIColor colorWithRed:0.008 green:0.494 blue:0.573 alpha:0.6];
     [n setNavigationBarHidden:YES];
     
     // Setup first screen

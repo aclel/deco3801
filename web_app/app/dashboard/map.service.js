@@ -201,10 +201,8 @@
 				// create new marker if it doesn't exist
 				addMarker(reading, buoyInstance);
 			} else {
-				if (disabledMarkers.indexOf(id) != -1) {
-					// show (re-enable) marker if it already exists
-					enableMarker(id);
-				}
+				// show (re-enable) marker if it already exists
+				enableMarker(id);
 			}
 			markers[id].setIcon(markerColour(colour));
 			markers[id].setOpacity(calculateOpacity(reading));

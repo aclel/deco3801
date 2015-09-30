@@ -1,5 +1,5 @@
-<div class="medium-4 grid-block vertical">
-	<div class="grid-content shadow-bottom">
+<div class="medium-4 grid-content">
+	<div class="filterPane border-bottom">
 		<h3>Times</h3>
 		
 		<div class="btn-group" ng-model="vm.times.type" bs-radio-group>
@@ -59,7 +59,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="grid-content shadow-bottom">
+	<div class="filterPane border-bottom">
 		<h3>Buoys</h3>
 
 		<div ng-repeat="buoyGroup in vm.buoys" class="buoyGroup">
@@ -77,7 +77,7 @@
 			</div>
 		</div>
 	</div>
-	<div class="grid-content">
+	<div class="filterPane">
 		<h3>Filters</h3>
 		<div class="sensorfilters">
 			<div ng-repeat="sensor in vm.sensors">

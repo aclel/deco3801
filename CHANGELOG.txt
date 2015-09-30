@@ -27,6 +27,7 @@ Web app:
 + Dashboard reacts to buoy group and instance name changes made in config page without requiring page refresh.
 * Allow time range filters to accept dates without needing to specify times.
 * Color styling.
+* Filter sections no longer have individual scrollbars.
 
 
 

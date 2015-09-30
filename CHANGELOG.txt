@@ -29,6 +29,7 @@ Web app:
 * Dashboard styling.
 * Filter sections no longer have individual scrollbars.
 + Optimise dashboard for small screens.
++ Each buoy instance marker on the map has its own colour.
 
 
 

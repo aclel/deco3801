@@ -173,13 +173,16 @@
 			var readings = dashboard.readings();
 			var enabledMarkers = [];
 
+			var insNum = 0;
+
 			// show a marker for every reading
 			readings.forEach(function(buoyGroup) {
 				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
 					buoyInstance.readings.forEach(function(reading) {
 						enabledMarkers.push(reading.id);
-						showMarker(reading, buoyInstance);
+						showMarker(reading, buoyInstance, colorPalette(insNum));
 					});
+					insNum++;
 				});
 			});
 
@@ -190,8 +193,9 @@
 		 * Show a marker on the map
 		 * @param  {object} reading      reading for the marker
 		 * @param  {object} buoyInstance buoyInstance the reading is from
+		 * @param {string} colour hex colour of the marker
 		 */
-		function showMarker(reading, buoyInstance) {
+		function showMarker(reading, buoyInstance, colour) {
 			var id = reading.id;
 			if (!markers.hasOwnProperty(id)) {
 				// create new marker if it doesn't exist
@@ -202,6 +206,7 @@
 					enableMarker(id);
 				}
 			}
+			markers[id].setIcon(markerColour(colour));
 			markers[id].setOpacity(calculateOpacity(reading));
 		}
 		
@@ -273,6 +278,68 @@
 			var age = dashboard.getRelativeAge(reading);
 			var minVisibleOpacity = 0.3;
 			return age * (1 - minVisibleOpacity) + minVisibleOpacity;
+		}
+
+		/**
+		 * Returns a marker icon with a specified colour
+		 * @param  {string} colour colour in hex format
+		 * @return {object}        marker icon usable in google maps API
+		 */
+		function markerColour(colour) {
+			// return {
+			// 	path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z M -2,-30 a 2,2 0 1,1 4,0 2,2 0 1,1 -4,0',
+		 //        fillColor: colour,
+		 //        fillOpacity: 1,
+		 //        strokeColor: '#000',
+		 //        strokeWeight: 1,
+		 //        scale: 1
+			// };
+			
+			return (new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + colour.substr(1),
+		        new google.maps.Size(21, 34),
+		        new google.maps.Point(0, 0),
+		        new google.maps.Point(10, 34)
+	        ));
+		}
+
+		/**
+		 * Generates a random hex colour
+		 * @return {string} hex colour
+		 */
+		function randomColour() {
+			return "#" + Math.random().toString(16).slice(2, 8);
+		}
+
+		/**
+		 * Hardcoded colour palette
+		 * @param  {int} n index of colour in palette to get (wraps around)
+		 * @return {string}   hex colour
+		 */
+		function colorPalette(n) {
+			// palette generated from http://tools.medialab.sciences-po.fr/iwanthue/
+			var palette = [
+				"#84CBD1",
+				"#CC4B30",
+				"#BF54D0",
+				"#70D84C",
+				"#36362B",
+				"#CD4075",
+				"#553264",
+				"#CBCC92",
+				"#D2983C",
+				"#6B7AD0",
+				"#C78378",
+				"#5A8A37",
+				"#CCD446",
+				"#72DA9E",
+				"#598369",
+				"#6D292F",
+				"#CAB3CC",
+				"#785F2A",
+				"#596C87",
+				"#C471B4"
+			];
+			return palette[n % palette.length];	
 		}
 		
 		/** Close the infobox (map marker popup) */

@@ -25,12 +25,17 @@
 	**/
 	function dashboard($log, server, moment) {
 		/** Internal variables. These are preserved until page refresh. */
-		var data = [];
+		// var data = [];
 		var filteredReadings = [];
-		var filters = {};
+		// var filters = {};
 
-		initialiseFilters();
-		
+		var readings = [];
+		var sensors = {};
+		var buoys = [];
+		var times = {};
+
+		initialiseTimes();
+
 		/** The service methods to expose */
 		return {
 			queryReadings: queryReadings,
@@ -39,7 +44,6 @@
 			buoys: getBuoys,
 			times: getTimes,
 			sensors: getSensors,
-			sensorMetadata: getSensorMetadata,
 			updateBuoys: updateBuoys,
 			updateTimes: updateTimes,
 			updateFilters: updateFilters,
@@ -57,14 +61,15 @@
 		 */
 		function queryReadings(from, to) {
 			if (!from) {
-				from = moment().subtract(filters.times.inputs.since.value,
-					 filters.times.inputs.since.quantifier).unix();
+				from = moment().subtract(times.inputs.since.value,
+					 times.inputs.since.quantifier).unix();
 				to = moment().unix();
 			}
 			var promise = server.getReadings(from, to);
 			promise.then(function(res) {
-				data = res.data.buoyGroups;
+				readings = res.data.buoyGroups;
 				populateBuoys();
+				updateFilters();
 			}, function(res) {
 				$log.error(res);
 			});
@@ -73,12 +78,13 @@
 		
 		/**
 		 * Query sensors from server and update internal data structures
-		 * @return {promis} request promise
+		 * @return {promise} request promise
 		 */
 		function querySensors() {
 			var promise = server.getSensorTypes();
 			promise.then(function(res) {
 				populateSensors(res.data.sensorTypes);
+				updateFilters();
 			}, function(res) {
 				$log.error(res);
 			});
@@ -86,11 +92,8 @@
 		}
 		
 		/** Initialise filters and inputs */
-		function initialiseFilters() {
-			filters.buoys = [];
-			populateBuoys();
-			
-			filters.times = {
+		function initialiseTimes() {
+			times = {
 				type: "since",
 				range: { from: null, to: null }, // from and to contain moments
 				point: null,
@@ -106,32 +109,93 @@
 					point: { date: "", time: "" },
 				}
 			}
-			
-			filters.sensors = {};
-			filters.sensorInputs = {};
 		}
 		
 		/** Populate buoys filter */
-		function populateBuoys() {		
-			if (filters.buoys.length !== 0) return;
-			
-			data.forEach(function(buoyGroup) {
+		function populateBuoys() {	
+			var groups = [];
+			var instances = [];
+
+			for (var i = 0; i < readings.length; i++) {
+				var buoyGroup = readings[i];
+				groups.push(buoyGroup.id);
+
+				// add groups, don't overwrite existing groups
 				var group = {};
-				group.id = buoyGroup.id;
-				group.name = buoyGroup.name;
-				group.enabled = true;
-				group.collapsed = false;
-				group.indeterminate = false;
-				group.buoyInstances = [];
-				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+				var gId = buoysContainsGroup(buoyGroup.id);
+				if (gId != -1) {
+					group = buoys[gId];
+				} else {
+					group.id = buoyGroup.id;
+					group.name = buoyGroup.name;
+					group.enabled = true;
+					group.collapsed = false;
+					group.indeterminate = false;
+					group.buoyInstances = [];
+					buoys.push(group);
+				}
+
+				// add instances, don't overwrite existing instances
+				for (var j = 0; j < buoyGroup.buoyInstances.length; j++) {
+					var buoyInstance = buoyGroup.buoyInstances[j];
+					instances.push(buoyInstance.id);
+
 					var instance = {};
-					instance.id = buoyInstance.id;
-					instance.name = buoyInstance.name;
-					instance.enabled = true;
-					group.buoyInstances.push(instance);
-				});
-				filters.buoys.push(group);
-			});
+					var iId = buoysContainsInstance(buoyInstance.id, gId);
+					if (iId == -1) {
+						instance.id = buoyInstance.id;
+						instance.name = buoyInstance.name;
+						instance.enabled = true;
+						group.buoyInstances.push(instance);
+					}
+				}
+			}		
+
+			// remove old groups
+			var remove = [];
+			for (var j = 0; j < buoys.length; j++) {
+				var group = buoys[j];
+				if (groups.indexOf(group.id) == -1) {
+					remove.push(j);
+				}
+			}
+			for (var j = 0; j < remove.length; j++) {
+				buoys.splice(remove[j], 1);
+			}
+
+			// remove old instances
+			remove = [];
+			for (var j = 0; j < buoys.length; j++) {
+				var group = buoys[j];
+				for (var k = 0; k < group.buoyInstances.length; k++) {
+					var instance = group.buoyInstances[k];
+					if (instances.indexOf(instance.id) == -1) {
+						remove.push({ group: j, instance: k });
+					}
+				}
+			}
+			for (var j = 0; j < remove.length; j++) {
+				buoys[remove[j].group].splice(remove[j].instance, 1);
+			}
+		}
+
+		function buoysContainsGroup(id) {
+			for (var i = 0; i < buoys.length; i++) {
+				if (buoys[i].id == id) {
+					return i;
+				}
+			}
+			return -1;
+		}
+
+		function buoysContainsInstance(id, gId) {
+			if (gId == -1) return -1;
+			for (var i = 0; i < buoys[gId].buoyInstances.length; i++) {
+				if (buoys[gId].buoyInstances[i].id == id) {
+					return i;
+				}
+			}
+			return -1;
 		}
 
 		/**
@@ -147,7 +211,7 @@
 		 * @return {object} buoys filters and inputs
 		 */
 		function getBuoys() {
-			return filters.buoys;
+			return buoys;
 		}
 		
 		/**
@@ -155,7 +219,7 @@
 		 * @return {object} time inputs
 		 */
 		function getTimes() {
-			return filters.times;
+			return times;
 		}
 		
 		/**
@@ -163,30 +227,7 @@
 		 * @return {object} sensor inputs and filters
 		 */
 		function getSensors() {
-			// include input data in return
-			for (var key in filters.sensorInputs) {
-				if (filters.sensorInputs.hasOwnProperty(key)) {
-					filters.sensors[key].inputs = filters.sensorInputs[key];
-				}
-			}
-			// filter out sensors which are disabled
-			var sensors = []; 
-			for (var key in filters.sensors) {
-				if (filters.sensors.hasOwnProperty(key)) {
-					// if (filters.sensors[key].display) {
-						sensors.push(filters.sensors[key]);
-					// }
-				}
-			}
 			return sensors;
-		}
-		
-		/** 
-		 * Return sensor type details
-		 * @return {object} sensor types
-		 */
-		function getSensorMetadata() {
-			return filters.sensors;
 		}
 		
 		/** Update internal filtered readings when buoy filters changed */
@@ -199,24 +240,24 @@
 			// query server for new times
 			var from, to;
 			
-			if (filters.times.type == 'since') {
-				from = moment().subtract(filters.times.inputs.since.value,
-					 filters.times.inputs.since.quantifier).unix();
+			if (times.type == 'since') {
+				from = moment().subtract(times.inputs.since.value,
+					 times.inputs.since.quantifier).unix();
 				to = moment().unix();
-			} else if (filters.times.type == 'all') {
+			} else if (times.type == 'all') {
 				from = 0;
 				to = moment().unix();
-			} else if (filters.times.type == 'range') {
-				from = filters.times.range.from.unix();
-				to = filters.times.range.to.unix();
-			} else if (filters.times.type == 'point') {
-				from = filters.times.point.clone().subtract(2, 'weeks').unix();
-				to = filters.times.point.clone().add(2, 'weeks').unix();
+			} else if (times.type == 'range') {
+				from = times.range.from.unix();
+				to = times.range.to.unix();
+			} else if (times.type == 'point') {
+				from = times.point.clone().subtract(2, 'weeks').unix();
+				to = times.point.clone().add(2, 'weeks').unix();
 			}
 			
 			var promise = queryReadings(from, to);
 			promise.then(function() {
-				if (filters.times.type == 'point') {
+				if (times.type == 'point') {
 					calculatePointReadings();
 				}
 				updateFilters();
@@ -230,23 +271,20 @@
 		}
 		
 		/** Populate sensor input data */
-		function populateSensors(sensors) {
-			for (var i = 0; i < sensors.length; i++) {
-				filters.sensors[sensors[i].id] = sensors[i];
+		function populateSensors(data) {
+			for (var i = 0; i < data.length; i++) {
+				var sensor = data[i];
 				
-				if (!filters.sensorInputs.hasOwnProperty(sensors[i].id)) {
-					filters.sensorInputs[sensors[i].id] = {
-						enabled: false,
-						options: [">", "<", "="],
-						selected: ">",
-						value: ""
-					}
-				}
-				
-				// disable inputs which aren't set to display
-				// if (!sensors[i].display) {
-				// 	filters.sensorInputs[sensors[i].id].enabled = false;
-				// }				
+				if (sensors.hasOwnProperty(sensor.id)) continue;
+
+				sensor.inputs = {
+					enabled: false,
+					options: [">", "<", "="],
+					selected: ">",
+					value: ""
+				};
+
+				sensors[sensor.id] = sensor;	
 			}
 		}
 		
@@ -268,15 +306,15 @@
 		/** Calculate readings closest to specified time */
 		function calculatePointReadings() {
 			var pointReadings = [];
-			data.forEach(function(buoyGroup) {
+			readings.forEach(function(buoyGroup) {
 				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
 					var closest = {
 						id: buoyInstance.readings[0].id,
 						timestamp: buoyInstance.readings[0].timestamp
 					};
 					buoyInstance.readings.forEach(function(reading) {
-						var diffOld = moment.unix(closest.timestamp).diff(filters.times.point);
-						var diffNew = moment.unix(reading.timestamp).diff(filters.times.point);
+						var diffOld = moment.unix(closest.timestamp).diff(times.point);
+						var diffNew = moment.unix(reading.timestamp).diff(times.point);
 						if (Math.abs(diffNew) < Math.abs(diffOld)) {
 							closest.id = reading.id;
 							closest.timestamp = reading.timestamp;
@@ -285,7 +323,7 @@
 					pointReadings.push(closest.id);
 				});
 			});
-			filters.times.pointReadings = pointReadings;
+			times.pointReadings = pointReadings;
 		}
 		
 		/** Re-filter readings based on updated filters */
@@ -294,7 +332,7 @@
 			
 			// Get enabled buoy groups
 			var enabledBuoyGroups = [];
-			filters.buoys.forEach(function(buoyGroup) {
+			buoys.forEach(function(buoyGroup) {
 				if (buoyGroup.enabled) {
 					enabledBuoyGroups.push(buoyGroup.id);
 				}
@@ -302,7 +340,7 @@
 			
 			// Get enabled buoy instances
 			var enabledBuoyInstances = [];
-			filters.buoys.forEach(function(buoyGroup) {
+			buoys.forEach(function(buoyGroup) {
 				if (buoyGroup.enabled) {
 					buoyGroup.buoyInstances.forEach(function(buoyInstance) {
 						if (buoyInstance.enabled) {
@@ -314,8 +352,8 @@
 			
 			// Get readings to display based on other filters
 			var enabledReadings = [];
-			for (var i = 0; i < data.length; i++) {
-				var buoyGroup = data[i];
+			for (var i = 0; i < readings.length; i++) {
+				var buoyGroup = readings[i];
 				if (enabledBuoyGroups.indexOf(buoyGroup.id) != -1) {
 					for (var j = 0; j < buoyGroup.buoyInstances.length; j++) {
 						var buoyInstance = buoyGroup.buoyInstances[j];
@@ -332,7 +370,7 @@
 			}
 			
 			// Add enabled buoy groups and instances (without readings)
-			data.forEach(function(buoyGroup) {
+			readings.forEach(function(buoyGroup) {
 				if (enabledBuoyGroups.indexOf(buoyGroup.id) != -1) {
 					var group = {};
 					group.id = buoyGroup.id;
@@ -361,8 +399,8 @@
 		
 
 		// function showBuoyGroup(buoyGroup) {
-		// 	for (var i = 0; i < filters.buoys.length; i++) {
-		// 		var group = filters.buoys[i];
+		// 	for (var i = 0; i < buoys.length; i++) {
+		// 		var group = buoys[i];
 		// 		if (buoyGroup.id == group.id) {
 		// 			if (!group.enabled) {
 		// 				return false;
@@ -378,7 +416,7 @@
 		 * @return {bool}         include reading
 		 */
 		function filterBuoys(reading) {
-			if (!filters.buoys[reading.buoy]) {
+			if (!buoys[reading.buoy]) {
 				return false;
 			}
 			return true;
@@ -390,20 +428,20 @@
 		 * @return {bool}         include reading
 		 */
 		function filterTimes(reading) {
-			if (filters.times.type == 'since') {
-				var since = moment().subtract(filters.times.inputs.since.value,
-					 filters.times.inputs.since.quantifier);
+			if (times.type == 'since') {
+				var since = moment().subtract(times.inputs.since.value,
+					 times.inputs.since.quantifier);
 				var time = moment.unix(reading.timestamp);
 				if (!time.isAfter(since)) {
 					return false;
 				}
-			} else if (filters.times.type == 'range') {
+			} else if (times.type == 'range') {
 				var time = moment.unix(reading.timestamp);
-				if (!time.isBetween(filters.times.range.from, filters.times.range.to)) {
+				if (!time.isBetween(times.range.from, times.range.to)) {
 					return false;
 				}
-			} else if (filters.times.type == 'point') {
-				if (filters.times.pointReadings.indexOf(reading.id) == -1) {
+			} else if (times.type == 'point') {
+				if (times.pointReadings.indexOf(reading.id) == -1) {
 					return false;
 				}
 			}
@@ -416,7 +454,7 @@
 		 * @return {bool}         include reading
 		 */
 		function filterSensors(reading) {
-			if (Object.keys(filters.sensorInputs).length === 0) {
+			if (Object.keys(sensors).length === 0) {
 				return true;
 			}
 			
@@ -434,7 +472,7 @@
 		 * @return {bool}          include reading
 		 */
 		function filterSensor(sReading) {
-			var sensor = filters.sensorInputs[sReading.sensorTypeId];
+			var sensor = sensors[sReading.sensorTypeId].inputs;
 			
 			if (!sensor.enabled) {
 				return true;
@@ -464,7 +502,6 @@
 		function getRelativeAge(reading) {
 			// returns age between 0 and 1, based on a range determined as seen below
 			var time = moment.unix(reading.timestamp);
-			var times = filters.times;
 			
 			if (times.type == 'all') {
 				// range: from 2 weeks ago until now

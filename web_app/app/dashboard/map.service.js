@@ -23,7 +23,7 @@
 		* @requires moment
 		* @requires google
 	**/
-	function map(dashboard, moment, google) {
+	function map($log, dashboard, moment, google) {
 			
 		/** Internal variables */
 		var map;
@@ -171,6 +171,7 @@
 		/** Update map markers based on filtered readings */
 		function updateReadings() {
 			var readings = dashboard.readings();
+			console.log(readings);
 		
 			// create an array of readings which should be enabled
 			var enabledBuoyInstances = [];
@@ -191,9 +192,15 @@
 			}
 
 			// add or re-enable markers and set opacity
+			var num = 0;
 			readings.forEach(function(buoyGroup) {
 				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+					// $log.error(buoyInstance.name);
 					buoyInstance.readings.forEach(function(reading) {
+						// if (num > 10) return;
+						num++;
+						// $log.debug(reading.id);
+						// $log.debug(reading.latitude + ", " + reading.longitude);
 						var id = reading.id;
 						if (!markers.hasOwnProperty(id)) {
 							addMarker(reading, buoyInstance);
@@ -206,9 +213,10 @@
 								enableMarker(id);
 							}
 						}
-					})
+					});
 				});
 			});
+			// $log.log('number of readings: ' + num);
 		}
 		
 		/** Add new marker to map */
@@ -298,7 +306,7 @@
 		 * @return {string}              popup content
 		 */
 		function popupContent(reading, buoyInstance) {
-			var sensors = dashboard.sensorMetadata();
+			var sensors = dashboard.sensors();
 			var formattedTime = moment.unix(reading.timestamp)
 										.format('D MMMM h:mm A');
 										

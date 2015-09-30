@@ -28,6 +28,7 @@ Web app:
 * Allow time range filters to accept dates without needing to specify times.
 * Dashboard styling.
 * Filter sections no longer have individual scrollbars.
++ Optimise dashboard for small screens.
 
 
 

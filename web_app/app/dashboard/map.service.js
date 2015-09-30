@@ -136,7 +136,7 @@
 					"elementType": "all",
 					"stylers": [
 						{
-							"color": "#46bcec"
+							"color": "#0B5B91"
 						},
 						{
 							"visibility": "on"

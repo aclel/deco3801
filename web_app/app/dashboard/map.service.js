@@ -45,7 +45,7 @@
 
 		/** Setup google map, set styles and listeners */
 		function initialiseMap() {
-			// styles to hide points of interest
+			// styles to hide points of interest (not currently used)
 			var noPoi = [
 			    {
 			        featureType: "poi",

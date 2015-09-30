@@ -71,7 +71,7 @@
 				if (!user.lastLogin.Valid) {
 					user.lastLogin.text = 'Never';
 				} else {
-					user.lastLogin.text = user.lastLogin.Time;
+					user.lastLogin.text = moment(user.lastLogin.Time).fromNow();
 				}
 			});
 		}

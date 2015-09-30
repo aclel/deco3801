@@ -18,6 +18,18 @@ iOS App:
 + Added name/email section to top of map page to show which user is logged in.
 * Updated some colours to be consistent with the web app.
 
+Web app:
+* Refactor dashboard to simplify code.
+! Population of buoys list on dashboard.
+! Filtering of map markers on dashboard.
+* Format last login time as from now.
++ Add placeholders to Add User input fields.
++ Dashboard reacts to buoy group and instance name changes made in config page without requiring page refresh.
+* Allow time range filters to accept dates without needing to specify times.
+* Color styling.
+
+
+
 v0.2 - Week 8 22/9
 Server:
 * Readings table has been split into two tables, "reading" and "sensor_reading". A reading has many sensor readings. When a "reading" is taken the buoy checks its sensors at the same time, so we can assume that the latitude, longitude and timestamp are all going to be the same for each "sensor_reading".

@@ -120,13 +120,13 @@
 			for (var i = 0; i < readings.length; i++) {
 				var buoyGroup = readings[i];
 				groups.push(buoyGroup.id);
-				var group = addBuoyGroup(buoyGroup);
+				var group = addBuoyGroupFilter(buoyGroup);
 
 				// add instances
 				for (var j = 0; j < buoyGroup.buoyInstances.length; j++) {
 					var buoyInstance = buoyGroup.buoyInstances[j];
 					instances.push(buoyInstance.id);
-					addBuoyInstance(buoyInstance, group);
+					addBuoyInstanceFilter(buoyInstance, group);
 				}
 			}		
 
@@ -136,12 +136,12 @@
 		}
 
 		/**
-		 * Add buoy group to buoys list, don't overwrite existing groups
+		 * Add buoy group to buoys filter array, don't overwrite existing groups
 		 * 
 		 * @param {object} buoyGroup buoyGroup to add
 		 * @return {object} reference to added group
 		 */
-		function addBuoyGroup(buoyGroup) {
+		function addBuoyGroupFilter(buoyGroup) {
 			var group = {};
 			var gIndex = buoyGroupIndex(buoyGroup.id);
 			if (gIndex != -1) {
@@ -164,10 +164,9 @@
 		 * @param {object} group        buoyGroup to add the instance to
 		 * @return {object} reference to added instance
 		 */
-		function addBuoyInstance(buoyInstance, group) {
+		function addBuoyInstanceFilter(buoyInstance, group) {
 			var instance = {};
-			var gIndex = buoyGroupIndex(group.id);
-			var iIndex = buoyInstanceIndex(buoyInstance.id, gIndex);
+			var iIndex = buoyInstanceIndex(buoyInstance.id, group.id);
 			if (iIndex == -1) {
 				instance.id = buoyInstance.id;
 				instance.name = buoyInstance.name;
@@ -194,10 +193,11 @@
 		/**
 		 * Find out index of buoyInstance in buoyGroup in buoys array
 		 * @param  {int} id  id of buoyInstance to find
-		 * @param  {int} gIndex index of buoyGroup to check
+		 * @param  {int} gId id of buoyGroup
 		 * @return {int}     index of buoyInstance or -1 if not found
 		 */
-		function buoyInstanceIndex(id, gIndex) {
+		function buoyInstanceIndex(id, gId) {
+			var gIndex = buoyGroupIndex(gId);
 			if (gIndex == -1) return -1;
 			for (var i = 0; i < buoys[gIndex].buoyInstances.length; i++) {
 				if (buoys[gIndex].buoyInstances[i].id == id) {
@@ -374,87 +374,87 @@
 		
 		/** Re-filter readings based on updated filters */
 		function updateFilters() {
-			var fdata = [];
-			
-			// Get enabled buoy groups
-			var enabledBuoyGroups = [];
-			buoys.forEach(function(buoyGroup) {
-				if (buoyGroup.enabled) {
-					enabledBuoyGroups.push(buoyGroup.id);
-				}
-			});
-			
-			// Get enabled buoy instances
-			var enabledBuoyInstances = [];
-			buoys.forEach(function(buoyGroup) {
-				if (buoyGroup.enabled) {
-					buoyGroup.buoyInstances.forEach(function(buoyInstance) {
-						if (buoyInstance.enabled) {
-							enabledBuoyInstances.push(buoyInstance.id);
-						}
-					});
-				}
-			});
-			
-			// Get readings to display based on other filters
-			var enabledReadings = [];
+			filteredReadings = [];
+
 			for (var i = 0; i < readings.length; i++) {
 				var buoyGroup = readings[i];
-				if (enabledBuoyGroups.indexOf(buoyGroup.id) != -1) {
-					for (var j = 0; j < buoyGroup.buoyInstances.length; j++) {
-						var buoyInstance = buoyGroup.buoyInstances[j];
-						if (enabledBuoyInstances.indexOf(buoyInstance.id) != -1) {
-							for (var k = 0; k < buoyInstance.readings.length; k++) {
-								var reading = buoyInstance.readings[k];
-								if (filterTimes(reading) && filterSensors(reading)) { 
-									enabledReadings.push(reading.id);
-								}
-							}		
-						}
+				if (!buoyGroupEnabled(buoyGroup.id)) continue;
+				var group = addBuoyGroup(buoyGroup);
+
+				for (var j = 0; j < buoyGroup.buoyInstances.length; j++) {
+					var buoyInstance = buoyGroup.buoyInstances[j];
+					if (!buoyInstanceEnabled(buoyInstance.id, buoyGroup.id)) continue;
+					var instance = addBuoyInstance(buoyInstance, group);
+
+					for (var k = 0; k < buoyInstance.readings.length; k++) {
+						var reading = buoyInstance.readings[k];
+						if (!showReading(reading)) continue;
+						instance.readings.push(reading);
 					}
 				}
 			}
-			
-			// Add enabled buoy groups and instances (without readings)
-			readings.forEach(function(buoyGroup) {
-				if (enabledBuoyGroups.indexOf(buoyGroup.id) != -1) {
-					var group = {};
-					group.id = buoyGroup.id;
-					group.name = buoyGroup.name;
-					group.buoyInstances = [];
-					buoyGroup.buoyInstances.forEach(function(buoyInstance) {
-						if (enabledBuoyInstances.indexOf(buoyInstance.id) != -1) {
-							var instance = {};
-							instance.id = buoyInstance.id;
-							instance.name = buoyInstance.name;
-							instance.readings = [];
-							buoyInstance.readings.forEach(function(reading) {
-								if (enabledReadings.indexOf(reading.id) != -1) {
-									instance.readings.push(reading);
-								}
-							});
-							group.buoyInstances.push(instance);
-						}
-					});
-					fdata.push(group);
-				}
-			});
-			
-			filteredReadings = fdata;
 		}
-		
 
-		// function showBuoyGroup(buoyGroup) {
-		// 	for (var i = 0; i < buoys.length; i++) {
-		// 		var group = buoys[i];
-		// 		if (buoyGroup.id == group.id) {
-		// 			if (!group.enabled) {
-		// 				return false;
-		// 			}
-		// 		}
-		// 	}		
-		// 	return true;
-		// }
+		/**
+		 * Check whether a buoy group should be shown
+		 * @param  {int} id id of buoy group to check
+		 * @return {bool}    true if it should be shown, false if not
+		 */
+		function buoyGroupEnabled(id) {
+			return buoys[buoyGroupIndex(id)].enabled;
+		}
+
+		/**
+		 * Check whether a buoy instance should be shown
+		 * @param  {int} id id of buoy instance to check
+		 * @param {int} gId id of group instance is in
+		 * @return {bool}    true if it should be shown, false if not
+		 */
+		function buoyInstanceEnabled(id, gId) {
+			var gIndex = buoyGroupIndex(gId);
+			var iIndex = buoyInstanceIndex(id, gId);
+			return buoys[gIndex].buoyInstances[iIndex].enabled;
+		}
+
+		/**
+		 * Add a buoy group to filtered readings
+		 * @param {object} buoyGroup buoy group to add
+		 * @return {object} reference to added group
+		 */
+		function addBuoyGroup(buoyGroup) {
+			var group = {};
+			filteredReadings.push(group);
+			group.id = buoyGroup.id;
+			group.name = buoyGroup.name;
+			group.buoyInstances = [];
+			return group;
+		}
+
+		/**
+		 * Add a buoy instance to filtered readings
+		 * @param {object} buoyInstance buoy instance to add
+		 * @param {object} group the group it should be added to
+		 * @return {object} reference to added instance
+		 */
+		function addBuoyInstance(buoyInstance, group) {
+			var instance = {};
+			group.buoyInstances.push(instance);
+			instance.id = buoyInstance.id;
+			instance.name = buoyInstance.name;
+			instance.readings = [];
+			return instance;
+		}
+
+		/**
+		 * Check whether or not to show a reading based on other filters
+		 * @param  {object} reading reading to check
+		 * @return {bool}         true if the reading should be show, else false
+		 */
+		function showReading(reading) {
+			if (!filterTimes(reading)) return false;
+			if (!filterSensors(reading)) return false;
+			return true;
+		}
 		
 		/**
 		 * Filter buoys from readings
@@ -553,19 +553,16 @@
 				// range: from 2 weeks ago until now
 				var max = moment();
 				var min = max.clone().subtract(2, 'weeks');
-				return calculateAgeInRange(time, min, max);
 			
 			} else if (times.type == 'since') {
 				var max = moment();
 				var min = moment().subtract(times.inputs.since.value,
 					 times.inputs.since.quantifier);
-				return calculateAgeInRange(time, min, max);	 
 					
 			} else if (times.type == 'range') {
 				// range: range of time filters
 				var max = times.range.to;
 				var min = times.range.from;
-				return calculateAgeInRange(time, min, max);
 			
 			}  else if (times.type == 'point') {
 				// range: from two weeks before point until point
@@ -574,8 +571,8 @@
 				}
 				var max = times.point;
 				var min = max.clone().subtract(2, 'weeks');
-				return calculateAgeInRange(time, min, max);
 			}
+			return calculateAgeInRange(time, min, max);
 		}
 		
 		/** 

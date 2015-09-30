@@ -25,7 +25,7 @@
 			* @requires map
 			* @requires moment
 		**/	
-	function DashboardController($document, dashboard, map, moment) {
+	function DashboardController($log, $document, dashboard, map, moment) {
 		var vm = this;
 		
 		/** Internal variables */
@@ -44,25 +44,18 @@
 		vm.selectBuoyInstance = selectBuoyInstance;
 		vm.exportData = exportData;
 		
-		
+
 		
 		activate();
 		
 		/** Called when controller is instantiated (dashboard page is loaded) */
 		function activate() {
 			dashboard.queryReadings().then(function() {
-				vm.buoys = dashboard.buoys();
-				vm.times = dashboard.times();
-				
-				dashboard.updateFilters();
 				map.updateReadings();
 			});
 			
 			dashboard.querySensors().then(function() {
 				vm.sensors = dashboard.sensors();
-				
-				// dashboard.updateFilters();
-				// map.updateReadings();
 			});
 			
 			setupChart();

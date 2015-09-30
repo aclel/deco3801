@@ -158,6 +158,7 @@
 				group.buoyInstances = [];
 				buoys.push(group);
 			}
+			group.name = buoyGroup.name; // always update name in case it was changed in config page
 			return group;
 		}
 
@@ -169,13 +170,16 @@
 		 */
 		function addBuoyInstanceFilter(buoyInstance, group) {
 			var instance = {};
+			var gIndex = buoyGroupIndex(group.id);
 			var iIndex = buoyInstanceIndex(buoyInstance.id, group.id);
-			if (iIndex == -1) {
+			if (iIndex != -1) {
+				instance = buoys[gIndex].buoyInstances[iIndex];
+			} else {
 				instance.id = buoyInstance.id;
-				instance.name = buoyInstance.name;
 				instance.enabled = true;
 				group.buoyInstances.push(instance);
 			}
+			instance.name = buoyInstance.name; // always update name in case it was changed in config page
 			return instance;
 		}
 
@@ -356,7 +360,7 @@
 		function calculatePointReadings() {
 			times.pointReadings = [];
 			if (!readings) return;
-			
+
 			readings.forEach(function(buoyGroup) {
 				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
 					var closest = {

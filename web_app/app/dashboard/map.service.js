@@ -136,7 +136,7 @@
 					"elementType": "all",
 					"stylers": [
 						{
-							"color": "#46bcec"
+							"color": "#0B5B91"
 						},
 						{
 							"visibility": "on"
@@ -265,10 +265,11 @@
 				closeInfoBox();
 				
 				if (reading.id == currentMarkerId) {
+
 					return;
 				}
 			}
-			
+			dashboard.displayChartInstance(buoyInstance.name);
 			var content = popupContent(reading, buoyInstance);
 							
 			infoBox = new InfoBox({
@@ -289,6 +290,7 @@
 			infoBox.open(map, marker);			
 			infoBoxOpen = true;
 			currentMarkerId = reading.id;
+
 		}
 		
 		/** 

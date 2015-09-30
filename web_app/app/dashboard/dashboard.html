@@ -105,12 +105,14 @@
 </div>
 
 <div class="medium-2 grid-content">
+	<h3>Chart Display</h3>
+	<canvas id="line" class="chart chart-line" data="vm.chart.data"
+		labels="vm.chart.labels" series="vm.chart.series" >
+	</canvas>
+
+
 	<button class="large button" style="margin: 10px"
 		ng-click="vm.exportData()">
 		Export Data
 	</button>
-	
-	<canvas id="sensorChart" class="chart chart-line" data="vm.data"
-		labels="vm.labels" series="vm.series" legend="true" >
-	</canvas>
 </div>

@@ -25,7 +25,7 @@
 			* @requires map
 			* @requires moment
 		**/	
-	function DashboardController($document, dashboard, map, moment) {
+	function DashboardController($document, $interval, dashboard, map, moment) {
 		var vm = this;
 		
 		/** Internal variables */
@@ -36,6 +36,7 @@
 		vm.buoys = dashboard.buoys();
 		vm.times = dashboard.times();
 		vm.sensors = dashboard.sensors();
+		vm.readings = dashboard.readings();
 		vm.updateBuoysFilter = updateBuoysFilter;
 		vm.updateTimesFilter = updateTimesFilter;
 		vm.updateSensorsFilter = updateSensorsFilter;
@@ -43,9 +44,8 @@
 		vm.selectBuoyGroup = selectBuoyGroup;
 		vm.selectBuoyInstance = selectBuoyInstance;
 		vm.exportData = exportData;
-		
-		
-		
+		vm.setupReadings = dashboard.setupReadings;
+		vm.chart = dashboard.chart();
 		activate();
 		
 		/** Called when controller is instantiated (dashboard page is loaded) */
@@ -56,6 +56,9 @@
 				
 				dashboard.updateFilters();
 				map.updateReadings();
+				vm.readings = dashboard.readings();
+				
+
 			});
 			
 			dashboard.querySensors().then(function() {
@@ -64,18 +67,15 @@
 				// dashboard.updateFilters();
 				// map.updateReadings();
 			});
+
+			// hack to notify controller about chart update when map marker is clicked
+			$interval(function() {
+				dashboard.chart();
+			}, 1000);
 			
-			setupChart();
 		}
-		
-		function setupChart() {
-			vm.labels = ["January", "February", "March", "April", "May", "June", "July"];
-			vm.series = ['Series A', 'Series B'];
-			vm.data = [
-				[65, 59, 80, 81, 56, 55, 40],
-				[28, 48, 40, 19, 86, 27, 90]
-			];
-		}
+
+
 			
 		/** Initialise google map when document is loaded */
 		$document.ready(function() {
@@ -153,9 +153,12 @@
 				
 				dashboard.updateTimes().then(function() {
 					map.updateReadings();
+
 				});
 			}
 		}
+
+
 		
 		/** Basic validation of times inputs */
 		function timesInputsValid() {
@@ -195,5 +198,8 @@
 		function exportData() {
 			dashboard.exportData();
 		}
+
+		
+
 	}
 })();

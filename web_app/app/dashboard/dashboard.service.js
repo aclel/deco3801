@@ -28,8 +28,11 @@
 		var data = [];
 		var filteredReadings = [];
 		var filters = {};
+		var chart = {};
+		
 
 		initialiseFilters();
+		setupChart();
 		
 		/** The service methods to expose */
 		return {
@@ -46,7 +49,10 @@
 			updateSensors: updateSensors,
 			getOldestReading: getOldestReading,
 			getRelativeAge: getRelativeAge,
-			exportData: exportData
+			exportData: exportData,
+			setupReadings: setupReadings,
+			displayChartInstance: displayChartInstance,
+			chart: getChart
 		};
 		
 		/**
@@ -84,6 +90,86 @@
 			});
 			return promise;
 		}
+
+
+		function getChart(){
+
+			return chart;
+		}
+
+
+
+		function setupChart(){
+			chart.series = [];
+			chart.labels = [];
+			chart.data = [
+				[null]
+			];
+
+			
+		}
+
+		function setupReadings() {
+
+			var chartArray = [];
+			
+			var readingsList = getReadings();
+
+			for (var p = 0; p < readingsList.length; p++) {
+				for (var i = 0; i < readingsList[p].buoyInstances.length; i++) {
+					var chartData = {};
+
+					chartData.name = readingsList[p].buoyInstances[i].name;
+					var chartReadings = [];
+					for(var q = 0; q < readingsList[p].buoyInstances[i].readings.length; q ++){
+						
+						for (var z = 0; z < readingsList[p].buoyInstances[i].readings[q].sensorReadings.length; z ++){
+							
+							if (readingsList[p].buoyInstances[i].readings[q].sensorReadings[z].sensorTypeId == 1){
+		
+								var timeStamp = readingsList[i].buoyInstances[i].readings[q].timestamp;
+								var turbidity = readingsList[i].buoyInstances[i].readings[q].sensorReadings[z].value;
+								chartReadings.push({timeStamp: timeStamp,turbidity: turbidity});
+
+							}
+
+						}
+						
+					}
+				
+				chartData.readings = chartReadings;
+				chartArray.push(chartData);
+
+				}
+			
+			}
+
+			return chartArray;
+			
+		}
+
+		function displayChartInstance(instanceName){
+			
+			var instanceReadings = setupReadings();
+			console.log(instanceReadings);
+			var tempData = [];
+			var tempLabels = [];
+			for (var i = 0; i < instanceReadings.length; i++){
+				if (instanceReadings[i].name == instanceName){
+
+					chart.series = [instanceReadings[i].name];
+
+					for(var q = 0; q < instanceReadings[q].readings.length; q++){
+						tempLabels.push(instanceReadings[i].readings[q].timeStamp);
+						tempData.push(instanceReadings[i].readings[q].turbidity);
+					}
+				}
+
+			}
+			chart.labels = tempLabels;
+			chart.data = [tempData];
+			console.log(chart);
+		}
 		
 		/** Initialise filters and inputs */
 		function initialiseFilters() {
@@ -96,7 +182,7 @@
 				point: null,
 				pointReadings: [], // contains list of closest readings to point
 				inputs: {
-					since: { value: 2, quantifier: "weeks", options: [
+					since: { value: 500, quantifier: "months", options: [
 						"hours", "days", "weeks", "months"
 					] },
 					range: {

@@ -20,10 +20,9 @@
 		* @ngdoc service
 		* @name app.dashboard.map
 		* @requires dashboard
-		* @requires moment
 		* @requires google
 	**/
-	function map($log, dashboard, moment, google) {
+	function map($log, dashboard, google) {
 			
 		/** Internal variables */
 		var map;
@@ -46,7 +45,7 @@
 
 		/** Setup google map, set styles and listeners */
 		function initialiseMap() {
-			// disable points of interest
+			// styles to hide points of interest
 			var noPoi = [
 			    {
 			        featureType: "poi",
@@ -64,6 +63,7 @@
 			    }
 			];
 			
+			// Blue water style from https://snazzymaps.com/style/25/blue-water
 			var blueWater = [
 				{
 					"featureType": "administrative",
@@ -171,61 +171,50 @@
 		/** Update map markers based on filtered readings */
 		function updateReadings() {
 			var readings = dashboard.readings();
-			console.log(readings);
-		
-			// create an array of readings which should be enabled
-			var enabledBuoyInstances = [];
-			readings.forEach(function(buoyGroup) {
-				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
-					enabledBuoyInstances.push(buoyInstance.id);
-				});
-			});
-			
-			// disable markers which shouldn't be enabled
-			for (var key in markers) {
-				if (markers.hasOwnProperty(key)) {
-					key = parseInt(key, 10);
-					if (enabledBuoyInstances.indexOf(key) == -1) {
-						disableMarker(key);
-					}
-				}
-			}
+			var enabledMarkers = [];
 
-			// add or re-enable markers and set opacity
-			var num = 0;
+			// show a marker for every reading
 			readings.forEach(function(buoyGroup) {
 				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
-					// $log.error(buoyInstance.name);
 					buoyInstance.readings.forEach(function(reading) {
-						// if (num > 10) return;
-						num++;
-						// $log.debug(reading.id);
-						// $log.debug(reading.latitude + ", " + reading.longitude);
-						var id = reading.id;
-						if (!markers.hasOwnProperty(id)) {
-							addMarker(reading, buoyInstance);
-						} else {
-							// update opacity
-							markers[id].setOpacity(calculateOpacity(reading));
-							
-							// re-enable disabled markers
-							if (disabledMarkers.indexOf(id) != -1) {
-								enableMarker(id);
-							}
-						}
+						enabledMarkers.push(reading.id);
+						showMarker(reading, buoyInstance);
 					});
 				});
 			});
-			// $log.log('number of readings: ' + num);
+
+			hideDisabledMarkers(enabledMarkers);
+		}
+
+		/**
+		 * Show a marker on the map
+		 * @param  {object} reading      reading for the marker
+		 * @param  {object} buoyInstance buoyInstance the reading is from
+		 */
+		function showMarker(reading, buoyInstance) {
+			var id = reading.id;
+			if (!markers.hasOwnProperty(id)) {
+				// create new marker if it doesn't exist
+				addMarker(reading, buoyInstance);
+			} else {
+				if (disabledMarkers.indexOf(id) != -1) {
+					// show (re-enable) marker if it already exists
+					enableMarker(id);
+				}
+			}
+			markers[id].setOpacity(calculateOpacity(reading));
 		}
 		
-		/** Add new marker to map */
+		/** 
+		 * Add new marker to map
+		 * @param {object} reading      reading for marker
+		 * @param {object} buoyInstance buoyInstance the reading is from
+		 */
 		function addMarker(reading, buoyInstance) {
 			var marker = new google.maps.Marker({
 				position: new google.maps.LatLng(reading.latitude, reading.longitude),
 				map: map,
 				// title: 'Buoy ' + reading.buoy + ': reading ' + reading.id,
-				opacity: calculateOpacity(reading)
 			});
 			
 			google.maps.event.addListener(marker, 'click', function() {
@@ -234,8 +223,26 @@
 			
 			markers[reading.id] = marker;
 		}
+
+		/**
+		 * Disable old markers which shouldn't be displayed
+		 * @param  {int[]} enabledMarkers list of marker ids which are enabled
+		 */
+		function hideDisabledMarkers(enabledMarkers) {
+			for (var key in markers) {
+				if (markers.hasOwnProperty(key)) {
+					key = parseInt(key, 10);
+					if (enabledMarkers.indexOf(key) == -1) {
+						disableMarker(key);
+					}
+				}
+			}
+		}
 		
-		/** Disable marker (hide from map) without deleting it */
+		/** 
+		 * Disable marker (hide from map) without deleting it
+		 * @param  {int} id id of marker to disable
+		 */
 		function disableMarker(id) {
 			markers[id].setMap(null);
 			disabledMarkers.push(id);
@@ -248,13 +255,20 @@
 			}
 		}
 		
-		/** Re-enable (show on map) disabled marker */
+		/**
+		 * Re-enable (show on map) disabled marker
+		 * @param  {int} id id of marker to enable
+		 */
 		function enableMarker(id) {
 			markers[id].setMap(map);
 			disabledMarkers.splice(disabledMarkers.indexOf(id), 1);
 		}
 		
-		/** Get the value to set for marker opacity */
+		/** 
+		 * Get the value to set for marker opacity
+		 * @param  {object} reading the reading to calculate opacity for
+		 * @return {float}         opacity value between 0 and 1
+		 */
 		function calculateOpacity(reading) {
 			var age = dashboard.getRelativeAge(reading);
 			var minVisibleOpacity = 0.3;
@@ -267,7 +281,12 @@
 			infoBoxOpen = false;
 		}
 		
-		/** Open the infobox, set content based on marker reading details */
+		/** 
+		 * Open the infobox, set content based on marker reading details
+		 * @param  {object} reading      reading
+		 * @param  {object} buoyInstance buoyInstance the reading is for
+		 * @param  {object} marker       marker object
+		 */
 		function openInfoBox(reading, buoyInstance, marker) {
 			if (infoBoxOpen) {
 				closeInfoBox();
@@ -277,7 +296,7 @@
 				}
 			}
 			
-			var content = popupContent(reading, buoyInstance);
+			var content = dashboard.popupContent(reading, buoyInstance);
 							
 			infoBox = new InfoBox({
 				content: content,
@@ -297,34 +316,6 @@
 			infoBox.open(map, marker);			
 			infoBoxOpen = true;
 			currentMarkerId = reading.id;
-		}
-		
-		/** 
-		 * Determine content to set for marker popup
-		 * @param  {object} reading      reading
-		 * @param  {object} buoyInstance buoy instance
-		 * @return {string}              popup content
-		 */
-		function popupContent(reading, buoyInstance) {
-			var sensors = dashboard.sensors();
-			var formattedTime = moment.unix(reading.timestamp)
-										.format('D MMMM h:mm A');
-										
-			var content = "<div>" +
-				"<h5 style='color: white'>" + buoyInstance.name + "</h5>" +
-				formattedTime + 
-				"<br>---";
-			
-			reading.sensorReadings.forEach(function(sensorReading) {
-				content += "<br>" + 
-					sensors[sensorReading.sensorTypeId].name +
-					": " + sensorReading.value + " " +
-					sensors[sensorReading.sensorTypeId].unit;
-			});			
-				
-			content += "</div>";
-				
-			return content;
 		}
 	}
 })();

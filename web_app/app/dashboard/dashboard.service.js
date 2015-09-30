@@ -50,7 +50,8 @@
 			updateSensors: updateSensors,
 			getOldestReading: getOldestReading,
 			getRelativeAge: getRelativeAge,
-			exportData: exportData
+			exportData: exportData,
+			popupContent: popupContent
 		};
 		
 		/**
@@ -113,6 +114,8 @@
 		
 		/** Populate buoys filter */
 		function populateBuoys() {	
+			if (!readings) return;
+
 			var groups = [];
 			var instances = [];
 
@@ -375,6 +378,7 @@
 		/** Re-filter readings based on updated filters */
 		function updateFilters() {
 			filteredReadings = [];
+			if (!readings) return;
 
 			for (var i = 0; i < readings.length; i++) {
 				var buoyGroup = readings[i];
@@ -602,6 +606,33 @@
 				});
 			});
 			server.exportData(readingIds);
+		}
+
+		/** 
+		 * Determine content to set for marker popup
+		 * @param  {object} reading      reading
+		 * @param  {object} buoyInstance buoy instance
+		 * @return {string}              popup content
+		 */
+		function popupContent(reading, buoyInstance) {
+			var formattedTime = moment.unix(reading.timestamp)
+										.format('D MMMM h:mm A');
+										
+			var content = "<div>" +
+				"<h5 style='color: white'>" + buoyInstance.name + "</h5>" +
+				formattedTime + 
+				"<br>---";
+			
+			reading.sensorReadings.forEach(function(sensorReading) {
+				content += "<br>" + 
+					sensors[sensorReading.sensorTypeId].name +
+					": " + sensorReading.value + " " +
+					sensors[sensorReading.sensorTypeId].unit;
+			});			
+				
+			content += "</div>";
+				
+			return content;
 		}
 	}
 })();

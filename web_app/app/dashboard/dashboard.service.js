@@ -116,70 +116,73 @@
 			var groups = [];
 			var instances = [];
 
+			// add groups
 			for (var i = 0; i < readings.length; i++) {
 				var buoyGroup = readings[i];
 				groups.push(buoyGroup.id);
+				var group = addBuoyGroup(buoyGroup);
 
-				// add groups, don't overwrite existing groups
-				var group = {};
-				var gId = buoysContainsGroup(buoyGroup.id);
-				if (gId != -1) {
-					group = buoys[gId];
-				} else {
-					group.id = buoyGroup.id;
-					group.name = buoyGroup.name;
-					group.enabled = true;
-					group.collapsed = false;
-					group.indeterminate = false;
-					group.buoyInstances = [];
-					buoys.push(group);
-				}
-
-				// add instances, don't overwrite existing instances
+				// add instances
 				for (var j = 0; j < buoyGroup.buoyInstances.length; j++) {
 					var buoyInstance = buoyGroup.buoyInstances[j];
 					instances.push(buoyInstance.id);
-
-					var instance = {};
-					var iId = buoysContainsInstance(buoyInstance.id, gId);
-					if (iId == -1) {
-						instance.id = buoyInstance.id;
-						instance.name = buoyInstance.name;
-						instance.enabled = true;
-						group.buoyInstances.push(instance);
-					}
+					addBuoyInstance(buoyInstance, group);
 				}
 			}		
 
-			// remove old groups
-			var remove = [];
-			for (var j = 0; j < buoys.length; j++) {
-				var group = buoys[j];
-				if (groups.indexOf(group.id) == -1) {
-					remove.push(j);
-				}
-			}
-			for (var j = 0; j < remove.length; j++) {
-				buoys.splice(remove[j], 1);
-			}
-
-			// remove old instances
-			remove = [];
-			for (var j = 0; j < buoys.length; j++) {
-				var group = buoys[j];
-				for (var k = 0; k < group.buoyInstances.length; k++) {
-					var instance = group.buoyInstances[k];
-					if (instances.indexOf(instance.id) == -1) {
-						remove.push({ group: j, instance: k });
-					}
-				}
-			}
-			for (var j = 0; j < remove.length; j++) {
-				buoys[remove[j].group].splice(remove[j].instance, 1);
-			}
+			// remove old buoys
+			removeOldBuoyGroups(groups);
+			removeOldBuoyInstances(instances);
 		}
 
-		function buoysContainsGroup(id) {
+		/**
+		 * Add buoy group to buoys list, don't overwrite existing groups
+		 * 
+		 * @param {object} buoyGroup buoyGroup to add
+		 * @return {object} reference to added group
+		 */
+		function addBuoyGroup(buoyGroup) {
+			var group = {};
+			var gIndex = buoyGroupIndex(buoyGroup.id);
+			if (gIndex != -1) {
+				group = buoys[gIndex];
+			} else {
+				group.id = buoyGroup.id;
+				group.name = buoyGroup.name;
+				group.enabled = true;
+				group.collapsed = false;
+				group.indeterminate = false;
+				group.buoyInstances = [];
+				buoys.push(group);
+			}
+			return group;
+		}
+
+		/**
+		 * Add buoy instance to a buoy group, don't overwrite existing instances
+		 * @param {object} buoyInstance buoyInstance to add
+		 * @param {object} group        buoyGroup to add the instance to
+		 * @return {object} reference to added instance
+		 */
+		function addBuoyInstance(buoyInstance, group) {
+			var instance = {};
+			var gIndex = buoyGroupIndex(group.id);
+			var iIndex = buoyInstanceIndex(buoyInstance.id, gIndex);
+			if (iIndex == -1) {
+				instance.id = buoyInstance.id;
+				instance.name = buoyInstance.name;
+				instance.enabled = true;
+				group.buoyInstances.push(instance);
+			}
+			return instance;
+		}
+
+		/**
+		 * Find out index of buoyGroup in buoys array
+		 * @param  {int} id id of buoyGroup
+		 * @return {int}    index or -1 if not found
+		 */
+		function buoyGroupIndex(id) {
 			for (var i = 0; i < buoys.length; i++) {
 				if (buoys[i].id == id) {
 					return i;
@@ -188,14 +191,57 @@
 			return -1;
 		}
 
-		function buoysContainsInstance(id, gId) {
-			if (gId == -1) return -1;
-			for (var i = 0; i < buoys[gId].buoyInstances.length; i++) {
-				if (buoys[gId].buoyInstances[i].id == id) {
+		/**
+		 * Find out index of buoyInstance in buoyGroup in buoys array
+		 * @param  {int} id  id of buoyInstance to find
+		 * @param  {int} gIndex index of buoyGroup to check
+		 * @return {int}     index of buoyInstance or -1 if not found
+		 */
+		function buoyInstanceIndex(id, gIndex) {
+			if (gIndex == -1) return -1;
+			for (var i = 0; i < buoys[gIndex].buoyInstances.length; i++) {
+				if (buoys[gIndex].buoyInstances[i].id == id) {
 					return i;
 				}
 			}
 			return -1;
+		}
+
+		/**
+		 * Remove buoyGroup from buoys list
+		 * @param  {int[]} keep array of buoyGroup IDs not to remove
+		 */
+		function removeOldBuoyGroups(keep) {
+			var remove = [];
+			for (var i = 0; i < buoys.length; i++) {
+				var group = buoys[i];
+				if (keep.indexOf(group.id) == -1) {
+					remove.push(i);
+				}
+			}
+			for (var i = 0; i < remove.length; i++) {
+				buoys.splice(remove[i], 1);
+			}
+		}
+
+		/**
+		 * Remove buoyInstance from buoys list
+		 * @param  {int[]} keep array of buoyInstance IDs not to remove
+		 */
+		function removeOldBuoyInstances(keep) {
+			var remove = [];
+			for (var i = 0; i < buoys.length; i++) {
+				var group = buoys[i];
+				for (var j = 0; j < group.buoyInstances.length; j++) {
+					var instance = group.buoyInstances[j];
+					if (keep.indexOf(instance.id) == -1) {
+						remove.push({ group: i, instance: j });
+					}
+				}
+			}
+			for (var i = 0; i < remove.length; i++) {
+				buoys[remove[i].group].splice(remove[i].instance, 1);
+			}
 		}
 
 		/**

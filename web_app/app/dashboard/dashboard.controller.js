@@ -165,8 +165,7 @@
 				var toTime = vm.times.inputs.range.to.time;
 				
 				if (fromDate && fromTime && toDate && toTime) return true;
-				// if (fromDate && !fromTime && toDate && !toTime) return true;
-				// if (fromDate && fromTime && toDate && toTime) return true;
+				if (fromDate && !fromTime && toDate && !toTime) return true;
 			}
 			if (vm.times.type == 'point') {
 				// must have date, time is optional

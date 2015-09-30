@@ -354,7 +354,9 @@
 		
 		/** Calculate readings closest to specified time */
 		function calculatePointReadings() {
-			var pointReadings = [];
+			times.pointReadings = [];
+			if (!readings) return;
+			
 			readings.forEach(function(buoyGroup) {
 				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
 					var closest = {
@@ -369,10 +371,9 @@
 							closest.timestamp = reading.timestamp;
 						}
 					});
-					pointReadings.push(closest.id);
+					times.pointReadings.push(closest.id);
 				});
 			});
-			times.pointReadings = pointReadings;
 		}
 		
 		/** Re-filter readings based on updated filters */

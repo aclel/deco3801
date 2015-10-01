@@ -21,7 +21,6 @@
 	angular.module('app.config', [
 		// Shared modules
 		'app.core',
-		'app.gui',
-        'app.templates'
+		'app.gui'
 	]);
 })();

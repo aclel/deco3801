@@ -178,3 +178,12 @@ table {
 .alert button {
   padding-left: 10px;
 }
+
+.bs-tabs {
+  margin-top: 20px;
+}
+
+.bs-pane {
+  margin-top: 20px;
+  margin-left: 30px;
+}

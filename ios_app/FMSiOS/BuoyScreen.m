@@ -265,6 +265,15 @@
         // Initial only properties
         v = [[DiamondMarker alloc] initWithAnnotation:annotation reuseIdentifier:@"BuoyIcon"];
         v.canShowCallout = YES;
+        
+        // Label containing lat/long
+        UILabel *leftViewLabel = [[UILabel alloc] init];
+        leftViewLabel.font = [UIFont systemFontOfSize:12];
+        leftViewLabel.numberOfLines = 0;
+        v.leftCalloutAccessoryView = leftViewLabel;
+        
+        // Buttons for more info and stuff
+        //TODO
     } else {
         // Reuse only properties
         v.annotation = annotation;
@@ -273,16 +282,18 @@
     // General properties
     Buoy *b = (Buoy *)annotation;
     
+    //TODO: improve rendering here to make it look nicer
+    UILabel *leftViewLabel = (UILabel *)v.leftCalloutAccessoryView;
+    leftViewLabel.text = [NSString stringWithFormat:@"lat: %.2f\nlong: %.2f", b.coordinate.latitude, b.coordinate.longitude];
+    [leftViewLabel sizeToFit];
+    
     // Marker colours
     if (b.group == nil) { // Ungrouped buoy
-        [v changeEdgeColour:[UIColor grayColor]];
+        v.edgeColour = [UIColor grayColor];
     } else { // Grouped buoy
         NSUInteger colourIndex = [self.buoyGroups indexOfObject:b.group];
         double spacingForColour = 1.0/self.buoyGroups.count;
-        
-        NSLog(@"%@", self.buoyGroups);
-        NSLog(@"colour index %u, spacing %f hue %f", colourIndex, spacingForColour, colourIndex * spacingForColour);
-        [v changeEdgeColour:[UIColor colorWithHue:(colourIndex * spacingForColour) saturation:0.9 brightness:0.9 alpha:1.0]];
+        v.edgeColour = [UIColor colorWithHue:(colourIndex * spacingForColour) saturation:0.9 brightness:0.9 alpha:1.0];
     }
     
     return v;
@@ -293,7 +304,7 @@
         MKAnnotationView *av = [views objectAtIndex:i];
         
         // Ignore user location
-        if ([av.annotation isKindOfClass:[MKUserLocation class]]) {
+        if (![av.annotation isKindOfClass:[Buoy class]]) {
             continue;
         }
         
@@ -326,7 +337,7 @@
     
     // Select
     DiamondMarker *d = (DiamondMarker *)view;
-    [d changeCoreColour:[UIColor colorWithWhite:0.9 alpha:1.0]];
+    d.coreColour = [UIColor colorWithWhite:0.9 alpha:1.0];
 }
 
 - (void)mapView:(MKMapView *)mapView didDeselectAnnotationView:(MKAnnotationView *)view {
@@ -337,7 +348,7 @@
     
     // Deselect
     DiamondMarker *d = (DiamondMarker *)view;
-    [d changeCoreColour:[UIColor whiteColor]];
+    d.coreColour = [UIColor whiteColor];
 }
 
 #pragma mark - server comms

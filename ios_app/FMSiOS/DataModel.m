@@ -19,7 +19,7 @@
         _group = nil;
         _coordinate = CLLocationCoordinate2DMake(0, 0);
         _title = @"Unknown";
-        _subtitle = [NSString stringWithFormat:@"%f lat, %f long", _coordinate.latitude, _coordinate.longitude];
+        _subtitle = @"Ungrouped";
         _dateCreated = [NSDate dateWithTimeIntervalSince1970:0];
         _buoyName = @"N/A";
         _buoyGuid = @"N/A";
@@ -35,6 +35,16 @@
         _coordinate = coord;
     }
     return self;
+}
+
+- (void)setGroup:(BuoyGroup *)group {
+    _group = group;
+    
+    if (group != nil) {
+        self.subtitle = group.title;
+    } else {
+        self.subtitle = @"Ungrouped";
+    }
 }
 
 @end
@@ -150,7 +160,7 @@
             if (groupId.integerValue == 0) {
                 groupForBuoy.title = @"Unassigned";
             } else {
-                NSString *groupName = [buoyInfo objectForKey:@"buoyGroupInfo"];
+                NSString *groupName = [buoyInfo objectForKey:@"buoyGroupName"];
                 if (groupName != nil) groupForBuoy.title = groupName;
             }
             [parsed addObject:groupForBuoy];

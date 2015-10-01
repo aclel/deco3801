@@ -23,7 +23,7 @@
 		* @requires $log
 		* @requires server
 	**/
-	function AdminController($log, server) {
+	function AdminController($log, server, gui) {
 		var vm = this;
 		
 		/** Variables and methods bound to viewmodel */
@@ -49,7 +49,9 @@
 		/** Called when controller is instantiated (admin page is loaded) */
 		function activate() {
 			queryUsers();
+			gui.alertSuccess('You died');
 		}
+
 		
 		/**
 		 * Query users from the server

@@ -15,10 +15,13 @@
 	
 	/** Set timepicker and datepicker defaults */
 	angular.module('app.gui')
-		.config(function($datepickerProvider, $timepickerProvider, $httpProvider) {
-			
+		.config(function($datepickerProvider, $timepickerProvider,
+						$httpProvider, $alertProvider) {
+		
+			// intercept all requests to check for token	
 			$httpProvider.interceptors.push('authInterceptor');
 			
+			// default settings for datepicker
 			angular.extend($datepickerProvider.defaults, {
 				autoclose: true,
 				dateFormat: 'd/M/yy',
@@ -27,11 +30,20 @@
 				startWeek: 1
 			});
 			
+			// default settings for timepicker
 			angular.extend($timepickerProvider.defaults, {
 				autoclose: false,
 				timeFormat: 'h:mm a',
 				modelTimeFormat: 'h:mm a',
 				timeType: 'string'
+			});
+
+			// default settings for alerts
+			angular.extend($alertProvider.defaults, {
+				placement: 'alert-placement',
+				duration: 3,
+				container: '#page',
+				show: true
 			});
 		});
 })();

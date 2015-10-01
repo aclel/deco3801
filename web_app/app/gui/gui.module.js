@@ -20,6 +20,7 @@
     **/
 	angular.module('app.gui', [
 		// 3rd-party modules
+        'ngAnimate', 
 		'mgcrea.ngStrap',
 		'mgcrea.ngStrap.helpers.dimensions',
 		'mgcrea.ngStrap.helpers.dateParser',
@@ -28,6 +29,8 @@
 		'mgcrea.ngStrap.datepicker',
 		'mgcrea.ngStrap.timepicker',
 		'mgcrea.ngStrap.button',
-		'mgcrea.ngStrap.select'
+		'mgcrea.ngStrap.select',
+        'mgcrea.ngStrap.modal',
+        'mgcrea.ngStrap.alert'
 	]);
 })();

@@ -9,7 +9,7 @@
 // @copyright  Team Neptune (2015)
 // @link       https://github.com/aclel/deco3801
 package handlers
-
+/*
 import (
 	"bytes"
 	"net/http"
@@ -18,7 +18,8 @@ import (
 
 	"github.com/aclel/deco3801/server/models"
 )
-
+*/
+/*
 var userCreateTests = []struct {
 	in  string
 	out int
@@ -49,3 +50,4 @@ func TestUsersCreate(t *testing.T) {
 		}
 	}
 }
+*/

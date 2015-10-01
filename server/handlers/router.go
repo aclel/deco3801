@@ -14,6 +14,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/http/httputil"
 
 	"github.com/aclel/deco3801/server/models"
 	jwt "github.com/dgrijalva/jwt-go"
@@ -71,7 +72,6 @@ func NewRouter(env *models.Env) *mux.Router {
 	r.Handle("/api/buoy_instances/{id:[0-9]+}/warning_triggers", defaultChain.Then(AuthHandler{env, BuoyInstancesWarningTriggersIndex, "researcher"})).Methods("GET", "OPTIONS")
 
 	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsIndex, "researcher"})).Methods("GET", "OPTIONS")
-	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsCreate, "researcher"})).Methods("POST", "OPTIONS")
 
 	r.Handle("/api/sensor_types", defaultChain.Then(AuthHandler{env, SensorTypesIndex, "researcher"})).Methods("GET", "OPTIONS")
 
@@ -99,6 +99,7 @@ func NewRouter(env *models.Env) *mux.Router {
 	// Unauthenticated routes
 	r.Handle("/api/users", defaultChain.Then(AppHandler{env, UsersCreate})).Methods("POST", "OPTIONS")
 	r.Handle("/api/login", defaultChain.Then(AppHandler{env, LoginHandler})).Methods("POST", "OPTIONS")
+	r.Handle("/api/readings", defaultChain.Then(AppHandler{env, ReadingsCreate})).Methods("POST", "OPTIONS")
 
 	return r
 }
@@ -174,8 +175,19 @@ type AppHandler struct {
 // and it will be hard to debug what's going on. The handler can now just return an error
 // code and this function will server the http.Error.
 func (appHandler AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	dumpRequest(r)
 	if e := appHandler.handle(appHandler.Env, w, r); e != nil {
 		log.Println(e.Message + ": " + e.Error.Error())
 		http.Error(w, e.Message, e.Code)
+	}
+}
+
+func dumpRequest(r *http.Request) {
+	rawBytes, err := httputil.DumpRequest(r, true);
+	if err != nil {
+		s := string(rawBytes[:])
+		log.Print(s)
+	} else {
+		panic(err)
 	}
 }

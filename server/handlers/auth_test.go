@@ -10,6 +10,7 @@
 // @link       https://github.com/aclel/deco3801
 package handlers
 
+/*
 import (
 	"bytes"
 	"encoding/json"
@@ -19,7 +20,8 @@ import (
 
 	"github.com/aclel/deco3801/server/models"
 )
-
+*/
+/*
 func TestLogin(t *testing.T) {
 	rec := httptest.NewRecorder()
 	jsonStr := []byte(`{"username":"test", "password": "secret123"}`)
@@ -46,3 +48,4 @@ func TestLogin(t *testing.T) {
 		t.Errorf("Token was empty, %v", resp.Token)
 	}
 }
+*/

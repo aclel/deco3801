@@ -9,7 +9,7 @@
 				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="point" ng-change="vm.updateTimesFilter()">Point</label>
 			</div>
 			<div class="timefilters">
-				<div ng-show="vm.times.type=='since'" id="since">
+				<div ng-if="vm.times.type=='since'" id="since">
 					<label><i class="fa fa-calendar"></i>Since</label>
 					<input type="text" ng-model="vm.times.inputs.since.value" ng-change="vm.updateTimesFilter()" name="value">
 					
@@ -21,7 +21,7 @@
 				</div>
 				
 				
-				<div ng-show="vm.times.type == 'range'">
+				<div ng-if="vm.times.type == 'range'">
 					<!--<div class="form-group" ng-class="{'has-error': datepickerForm.date.$invalid}">-->
 					<div>
 					    <label><i class="fa fa-calendar"></i>From</label>
@@ -46,7 +46,7 @@
 					  <!--</div>-->
 					</div>
 				</div>
-				<div ng-show="vm.times.type == 'point'">
+				<div ng-if="vm.times.type == 'point'">
 					<div>
 					    <label><i class="fa fa-calendar"></i>From</label>
 					    <input type="text" ng-model="vm.times.inputs.point.date" ng-change="vm.updateTimesFilter()" name="date" placeholder="dd/mm/yy" bs-datepicker>

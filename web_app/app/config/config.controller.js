@@ -20,10 +20,9 @@
 		* @ngdoc object
 		* @name app.config.controller:ConfigController
 		* @description Provides viewmodel for config view
-		* @requires $log
 		* @requires server
 	**/
-	function ConfigController($log, server) {
+	function ConfigController(server, gui) {
 		var vm = this;
 		
 		/** Variables and methods bound to viewmodel */
@@ -82,7 +81,7 @@
 				vm.buoyGroups = res.data.buoyGroups;
 				parseGroupNames()
 			}, function(res) {
-				$log.error(res);
+				gui.alertBadResponse(res);
 			});
 		}
 		
@@ -92,7 +91,7 @@
 				vm.buoyInstances = res.data.buoyInstances;
 				parseGroupNames()
 			}, function(res) {
-				$log.error(res);
+				gui.alertBadResponse(res);
 			});
 		}
 		
@@ -102,7 +101,7 @@
 				vm.commandTypes = res.data.commandTypes;
 				queryCommands();
 			}, function(res) {
-				$log.error(res);
+				gui.alertBadResponse(res);
 			});
 		}
 		
@@ -112,7 +111,7 @@
 				vm.commands = res.data.commands;
 				parseCommands();
 			}, function(res) {
-				$log.error(res);
+				gui.alertBadResponse(res);
 			});
 		}
 		
@@ -122,7 +121,7 @@
 				vm.warningTriggers = res.data.warningTriggers;
 				querySensorTypes();
 			}, function(res) {
-				$log.error(res);
+				gui.alertBadResponse(res);
 			});
 		}
 		
@@ -132,7 +131,7 @@
 				vm.sensorTypes = res.data.sensorTypes;
 				parseWarningSensors();
 			}, function(res) {
-				$log.error(res);
+				gui.alertBadResponse(res);
 			});
 		}
 		
@@ -244,15 +243,17 @@
 				server.updateBuoyGroupName(vm.selected.obj.id,
 					vm.selected.obj.name).then(function(res) {
 						queryBuoyGroups();
+						gui.alertSuccess('Name updated.')
 					}, function(res) {
-						$log.error(res);
+						gui.alertBadResponse(res);
 					});
 			} else if (vm.selected.type == 'instance') {
 				server.updateBuoyInstanceName(vm.selected.obj.id,
 					vm.selected.obj.name, vm.selected.obj.buoyGroupId).then(function(res) {
 						queryBuoyInstances();
+						gui.alertSuccess('Name updated.')
 					}, function(res) {
-						$log.error(res);
+						gui.alertBadResponse(res);
 					});;
 			}
 		}
@@ -277,10 +278,12 @@
 			server.updateBuoyInstanceGroup(
 				vm.selected.obj.buoyId,
 				vm.editGroup.buoyGroupId,
-				vm.editGroup.name).then(function(res) {
+				vm.editGroup.name
+			).then(function(res) {
 				queryBuoyInstances();
+				gui.alertSuccess('New buoy instance created.')
 			}, function(res) {
-				$log.error(res);
+				gui.alertBadResponse(res);
 			});
 		}
 		
@@ -313,8 +316,9 @@
 			server.newBuoyGroup(vm.editName.value).then(function(res) {
 				vm.selected.type = 'all';
 				queryBuoyGroups();
+				gui.alertSuccess('New group created.')
 			}, function(res) {
-				$log.error(res);
+				gui.alertBadResponse(res);
 			});
 		}
 				
@@ -382,8 +386,9 @@
 		function sendCommands(buoyIds) {
 			server.sendBuoyCommand(vm.command, buoyIds).then(function(res) {
 				queryCommands();
+				gui.alertSuccess('Command queued.')
 			}, function(res) {
-				$log.error(res);
+				gui.alertBadResponse(res);
 			});
 		}
 		
@@ -420,8 +425,9 @@
 		function sendTriggers(buoyIds) {
 			server.addWarningTriggers(vm.trigger, buoyIds).then(function(res) {
 				queryWarningTriggers();
+				gui.alertSuccess('Warning trigger added.')
 			}, function(res) {
-				$log.error(res);
+				gui.alertBadResponse(res);
 			});
 		}
 		

@@ -16,38 +16,48 @@ var sourcemaps = require('gulp-sourcemaps');
 var uglify = require('gulp-uglify');
 var ngAnnotate = require('gulp-ng-annotate');
 var livereload = require('gulp-livereload');
-var cache = require('gulp-cached');
 var plumber = require('gulp-plumber');
+var templateCache = require('gulp-angular-templatecache');
+var minifyCss = require('gulp-minify-css');
 
 gulp.task('js', function () {
-  gulp.src(['app/**/*.module.js', 'app/**/*.js', '!app/**/*.spec.js'])
+  gulp.src(['app/**/*.module.js',
+            'app/**/*.js',
+            'assets/js/templates.js',
+            '!app/**/*.spec.js'])
     .pipe(plumber())
     .pipe(sourcemaps.init())
       .pipe(concat('app.js'))
       .pipe(ngAnnotate())
       .pipe(uglify())
     .pipe(sourcemaps.write())
-    .pipe(gulp.dest('assets/js'))
+    .pipe(gulp.dest('dist/js'))
     .pipe(livereload());
 });
 
 gulp.task('css', function() {
   gulp.src('assets/css/*.css')
     .pipe(plumber())
+    .pipe(sourcemaps.init())
+      .pipe(concat('app.css'))
+      .pipe(minifyCss())
+    .pipe(sourcemaps.write())
+    .pipe(gulp.dest('dist/css'))
     .pipe(livereload());
 });
 
 gulp.task('html', function() {
   gulp.src('app/**/*.html')
-    .pipe(cache('htmlcache'))
+    .pipe(templateCache({ module: 'app.templates', standalone: true }))
+    .pipe(gulp.dest('assets/js'))
     .pipe(livereload());
 });
 
 gulp.task('watch', ['js', 'css', 'html'], function() {
   livereload.listen();
-  gulp.watch('app/**/*.js', ['js']);
-  gulp.watch('assets/css/*.css', ['css']);
   gulp.watch('app/**/*.html', ['html']);
+  gulp.watch('assets/css/*.css', ['css']);
+  gulp.watch('app/**/*.js', ['js']);
 });
 
 gulp.task('build', ['js'], function() {

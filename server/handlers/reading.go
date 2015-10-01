@@ -15,6 +15,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -97,7 +98,7 @@ func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 	err := decoder.Decode(&readingsContainer)
 
 	// Check if the request is valid
-	if err != nil {
+	if err != nil && err != io.EOF {
 		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
 	}
 

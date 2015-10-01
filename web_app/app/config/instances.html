@@ -1,0 +1,13 @@
+<ul>
+    <li class="expand info button listButton"
+        ng-click="vm.selectAll()">
+        All Buoys
+    </li>
+    <li class="expand info button listButton"
+        ng-repeat="buoyInstance in vm.buoyInstances"
+        ng-click="vm.selectBuoyInstance(buoyInstance)">
+            <span ng-if="buoyInstance.name != ''">{{ buoyInstance.name }}</span>
+            <span ng-if="buoyInstance.name == ''" class="red">(no name)</span>
+            ({{ buoyInstance.buoyGroupName }})
+    </li>
+</ul>

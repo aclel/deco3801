@@ -1,0 +1,33 @@
+<ul>
+    <li class="expand info button listButton"
+        ng-click="vm.selectAll()">
+        All Buoys
+    </li>
+    <li class="expand button listButton"
+        ng-click="vm.selectNewBuoyGroup()">
+        New Buoy Group
+    </li>
+    <li class="expand info button listButton"
+        ng-repeat="buoyGroup in vm.buoyGroups | filter:vm.buoyGroupFilter"
+        ng-click="vm.selectBuoyGroup(buoyGroup)">
+            {{ buoyGroup.name }}
+    </li>
+</ul>
+
+<!-- <div ui-tree>
+    <ol ui-tree-nodes="" ng-model="vm.buoyGroups">
+        <li ng-repeat="buoyGroup in vm.buoyGroups" ui-tree-node>
+            <div ui-tree-handle>
+                {{ buoyGroup.name }}
+            </div>
+            <ol ui-tree-nodes="" ng-model="vm.buoyGroups">
+                <li ng-repeat="buoyGroup in vm.buoyGroups" ui-tree-node>
+                    <div ui-tree-handle>
+                        {{ buoyGroup.name }}
+                    </div>
+
+                </li>
+            </ol>
+        </li>
+    </ol>
+</div> -->

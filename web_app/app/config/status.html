@@ -1,0 +1,10 @@
+<div ng-if="vm.selected.type == 'group'">
+    <h3>Buoys</h3>
+    <span ng-if="vm.groupBuoys.length == 0">(none)</span>
+    <ul ng-if="vm.groupBuoys.length > 0">
+        <li ng-repeat="buoyInstance in vm.groupBuoys">
+            {{ buoyInstance.name }}
+            <span ng-if="buoyInstance.name == ''">(no name)</span>
+        </li>
+    </ul>
+</div>

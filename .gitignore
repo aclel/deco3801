@@ -34,7 +34,7 @@ web_app/app/env.js
 *.sublime-workspace
 
 # Built files
-web_app/assets/js/app.js
+web_app/dist
 
 # VS Code files
 web_app/typings

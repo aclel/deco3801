@@ -71,7 +71,7 @@
 				if (!user.lastLogin.Valid) {
 					user.lastLogin.text = 'Never';
 				} else {
-					user.lastLogin.text = user.lastLogin.Time;
+					user.lastLogin.text = moment(user.lastLogin.Time).fromNow();
 				}
 			});
 		}
@@ -144,7 +144,7 @@
 		 * called on Add User button click
 		 */
 		function startAddingUser() {
-			var tempUser = { id: -2 };
+			var tempUser = { id: -2, role: vm.roles[0] };
 			vm.users.push(tempUser);
 			startEditingUser(tempUser);
 		}

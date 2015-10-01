@@ -1,116 +1,118 @@
-<div class="medium-2 grid-block vertical">
-	<div class="grid-content shadow-bottom">
-		<h3>Times</h3>
-		
-		<div class="btn-group" ng-model="vm.times.type" bs-radio-group>
-			<label class="btn btn-default"><input type="radio" class="btn btn-default" value="since" ng-change="vm.updateTimesFilter()">Since</label>
-			<label class="btn btn-default"><input type="radio" class="btn btn-default" value="range" ng-change="vm.updateTimesFilter()">Range</label>
-			<label class="btn btn-default"><input type="radio" class="btn btn-default" value="point" ng-change="vm.updateTimesFilter()">Point</label>
-		</div>
-		<div class="timefilters">
-			<div ng-show="vm.times.type=='since'" id="since">
-				<label><i class="fa fa-calendar"></i>Since</label>
-				<input type="text" ng-model="vm.times.inputs.since.value" ng-change="vm.updateTimesFilter()" name="value">
-				
-				<button type="button" class="btn btn-default" 
-							ng-model="vm.times.inputs.since.quantifier" 
-							bs-options="opt for opt in vm.times.inputs.since.options"
-							ng-change="vm.updateSensorsFilter()" bs-select>
-				</button>
-			</div>
+<div class="grid-block wrap">
+	<div class="small-12 medium-4 large-3 grid-content">
+		<div class="filterPane">
+			<h3>Times</h3>
 			
-			
-			<div ng-show="vm.times.type == 'range'">
-				<!--<div class="form-group" ng-class="{'has-error': datepickerForm.date.$invalid}">-->
-				<div>
-				    <label><i class="fa fa-calendar"></i>From</label>
-				    <input type="text" ng-model="vm.times.inputs.range.from.date" ng-change="vm.updateTimesFilter()" name="date" placeholder="dd/mm/yy" bs-datepicker>
-			  	<!--</div>-->
-				  
-				 <!--<div class="form-group" ng-class="{'has-error': timepickerForm.time.$invalid}">-->
-				    <!--<label><i class="fa fa-clock-o"></i> To </label>-->
-				    <input type="text" size="8" ng-model="vm.times.inputs.range.from.time" ng-change="vm.updateTimesFilter()" name="time" placeholder="hh:mm" bs-timepicker>
-				  <!--</div>-->
-				</div>	  
-				  
-				<div>		  
-				 <!--<div class="form-group" ng-class="{'has-error': datepickerForm.date.$invalid}">-->
-				    <label><i class="fa fa-calendar"></i>To</label>
-				    <input type="text" ng-model="vm.times.inputs.range.to.date" ng-change="vm.updateTimesFilter()" name="date" placeholder="dd/mm/yy" bs-datepicker>
-			  	<!--</div>-->
-				  
-				 <!--<div class="form-group" ng-class="{'has-error': timepickerForm.time.$invalid}">-->
-				    <!--<label><i class="fa fa-clock-o"></i> To </label>-->
-				    <input type="text" size="8" ng-model="vm.times.inputs.range.to.time" ng-change="vm.updateTimesFilter()" name="time" placeholder="hh:mm" bs-timepicker>
-				  <!--</div>-->
-				</div>
+			<div class="btn-group" ng-model="vm.times.type" bs-radio-group>
+				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="since" ng-change="vm.updateTimesFilter()">Since</label>
+				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="range" ng-change="vm.updateTimesFilter()">Range</label>
+				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="point" ng-change="vm.updateTimesFilter()">Point</label>
 			</div>
-			<div ng-show="vm.times.type == 'point'">
-				<div>
-				    <label><i class="fa fa-calendar"></i>From</label>
-				    <input type="text" ng-model="vm.times.inputs.point.date" ng-change="vm.updateTimesFilter()" name="date" placeholder="dd/mm/yy" bs-datepicker>
-			  	<!--</div>-->
-				  
-				 <!--<div class="form-group" ng-class="{'has-error': timepickerForm.time.$invalid}">-->
-				    <!--<label><i class="fa fa-clock-o"></i> To </label>-->
-				    <input type="text" size="8" ng-model="vm.times.inputs.point.time" ng-change="vm.updateTimesFilter()" name="time" placeholder="hh:mm" bs-timepicker>
-				  <!--</div>-->
-				</div>	  
-			</div>
-		</div>
-	</div>
-	<div class="grid-content shadow-bottom">
-		<h3>Buoys</h3>
-
-		<div ng-repeat="buoyGroup in vm.buoys" class="buoyGroup">
-			<a class="btn btn-xs" ng-if="buoyGroup.buoyInstances && buoyGroup.buoyInstances.length > 0" ng-click="vm.toggleBuoyGroup(buoyGroup)"><span
-					class="glyphicon"
-					ng-class="{
-					'glyphicon-chevron-right': buoyGroup.collapsed,
-					'glyphicon-chevron-down': !buoyGroup.collapsed
-					}"></span></a>
-			<input type="checkbox" ng-model="buoyGroup.enabled" ui-indeterminate="buoyGroup.indeterminate" ng-change="vm.selectBuoyGroup(buoyGroup)">
-			{{ buoyGroup.name }}
-			<div ng-if="!buoyGroup.collapsed" ng-repeat="buoyInstance in buoyGroup.buoyInstances" class="buoyInstance">
-				<input type="checkbox" ng-model="buoyInstance.enabled" ng-change="vm.selectBuoyInstance(buoyGroup)">
-				{{ buoyInstance.name }}
-			</div>
-		</div>
-	</div>
-	<div class="grid-content">
-		<h3>Filters</h3>
-		<div class="sensorfilters">
-			<div ng-repeat="sensor in vm.sensors">
-				<div class="sensor-name">
-					<input type="checkbox" ng-model="sensor.inputs.enabled" ng-change="vm.updateSensorsFilter()">
-					{{ sensor.name }}
-				</div>
-				<div>
+			<div class="timefilters">
+				<div ng-if="vm.times.type=='since'" id="since">
+					<label><i class="fa fa-calendar"></i>Since</label>
+					<input type="text" ng-model="vm.times.inputs.since.value" ng-change="vm.updateTimesFilter()" name="value">
+					
 					<button type="button" class="btn btn-default" 
-							ng-model="sensor.inputs.selected" 
-							bs-options="opt for opt in sensor.inputs.options"
-							ng-change="vm.updateSensorsFilter()" bs-select>
+								ng-model="vm.times.inputs.since.quantifier" 
+								bs-options="opt for opt in vm.times.inputs.since.options"
+								ng-change="vm.updateSensorsFilter()" bs-select>
 					</button>
-					<input type="text" ng-model="sensor.inputs.value" ng-change="vm.updateSensorsFilter()"> {{ sensor.units }}
 				</div>
-				<br>
+				
+				
+				<div ng-if="vm.times.type == 'range'">
+					<!--<div class="form-group" ng-class="{'has-error': datepickerForm.date.$invalid}">-->
+					<div>
+					    <label><i class="fa fa-calendar"></i>From</label>
+					    <input type="text" ng-model="vm.times.inputs.range.from.date" ng-change="vm.updateTimesFilter()" name="date" placeholder="dd/mm/yy" bs-datepicker>
+				  	<!--</div>-->
+					  
+					 <!--<div class="form-group" ng-class="{'has-error': timepickerForm.time.$invalid}">-->
+					    <!--<label><i class="fa fa-clock-o"></i> To </label>-->
+					    <input type="text" size="8" ng-model="vm.times.inputs.range.from.time" ng-change="vm.updateTimesFilter()" name="time" placeholder="hh:mm" bs-timepicker>
+					  <!--</div>-->
+					</div>	  
+					  
+					<div>		  
+					 <!--<div class="form-group" ng-class="{'has-error': datepickerForm.date.$invalid}">-->
+					    <label><i class="fa fa-calendar"></i>To</label>
+					    <input type="text" ng-model="vm.times.inputs.range.to.date" ng-change="vm.updateTimesFilter()" name="date" placeholder="dd/mm/yy" bs-datepicker>
+				  	<!--</div>-->
+					  
+					 <!--<div class="form-group" ng-class="{'has-error': timepickerForm.time.$invalid}">-->
+					    <!--<label><i class="fa fa-clock-o"></i> To </label>-->
+					    <input type="text" size="8" ng-model="vm.times.inputs.range.to.time" ng-change="vm.updateTimesFilter()" name="time" placeholder="hh:mm" bs-timepicker>
+					  <!--</div>-->
+					</div>
+				</div>
+				<div ng-if="vm.times.type == 'point'">
+					<div>
+					    <label><i class="fa fa-calendar"></i>From</label>
+					    <input type="text" ng-model="vm.times.inputs.point.date" ng-change="vm.updateTimesFilter()" name="date" placeholder="dd/mm/yy" bs-datepicker>
+				  	<!--</div>-->
+					  
+					 <!--<div class="form-group" ng-class="{'has-error': timepickerForm.time.$invalid}">-->
+					    <!--<label><i class="fa fa-clock-o"></i> To </label>-->
+					    <input type="text" size="8" ng-model="vm.times.inputs.point.time" ng-change="vm.updateTimesFilter()" name="time" placeholder="hh:mm" bs-timepicker>
+					  <!--</div>-->
+					</div>	  
+				</div>
+			</div>
+		</div>
+		<div class="filterPane">
+			<h3>Buoys</h3>
+
+			<div ng-repeat="buoyGroup in vm.buoys" class="buoyGroup">
+				<a class="btn btn-xs" ng-if="buoyGroup.buoyInstances && buoyGroup.buoyInstances.length > 0" ng-click="vm.toggleBuoyGroup(buoyGroup)"><span
+						class="glyphicon"
+						ng-class="{
+						'glyphicon-chevron-right': buoyGroup.collapsed,
+						'glyphicon-chevron-down': !buoyGroup.collapsed
+						}"></span></a>
+				<input type="checkbox" ng-model="buoyGroup.enabled" ui-indeterminate="buoyGroup.indeterminate" ng-change="vm.selectBuoyGroup(buoyGroup)">
+				{{ buoyGroup.name }}
+				<div ng-if="!buoyGroup.collapsed" ng-repeat="buoyInstance in buoyGroup.buoyInstances" class="buoyInstance">
+					<input type="checkbox" ng-model="buoyInstance.enabled" ng-change="vm.selectBuoyInstance(buoyGroup)">
+					{{ buoyInstance.name }}
+				</div>
+			</div>
+		</div>
+		<div class="filterPane">
+			<h3>Filters</h3>
+			<div class="sensorfilters">
+				<div ng-repeat="sensor in vm.sensors">
+					<div class="sensor-name">
+						<input type="checkbox" ng-model="sensor.inputs.enabled" ng-change="vm.updateSensorsFilter()">
+						{{ sensor.name }}
+					</div>
+					<div>
+						<button type="button" class="btn btn-default" 
+								ng-model="sensor.inputs.selected" 
+								bs-options="opt for opt in sensor.inputs.options"
+								ng-change="vm.updateSensorsFilter()" bs-select>
+						</button>
+						<input type="text" ng-model="sensor.inputs.value" ng-change="vm.updateSensorsFilter()"> {{ sensor.units }}
+					</div>
+					<br>
+				</div>
 			</div>
 		</div>
 	</div>
-</div>
-<div class="medium-8 grid-content no-overflow shadow-glow">
-	<div id="map-canvas"></div>
-	<div id="infoBox"></div>
-	<!--<div id="map-popover"></div>-->
-</div>
+	<div class="small-12 medium-8 large-5 grid-content no-overflow shadow-glow">
+		<div id="map-canvas"></div>
+		<div id="infoBox"></div>
+		<!--<div id="map-popover"></div>-->
+	</div>
 
-<div class="medium-2 grid-content">
-	<button class="large button" style="margin: 10px"
-		ng-click="vm.exportData()">
-		Export Data
-	</button>
-	
-	<canvas id="sensorChart" class="chart chart-line" data="vm.data"
-		labels="vm.labels" series="vm.series" legend="true" >
-	</canvas>
+	<div class="small-12 medium-12 large-4 grid-content">
+		<button class="large button" style="margin: 10px"
+			ng-click="vm.exportData()">
+			Export Data
+		</button>
+		
+		<canvas id="sensorChart" class="chart chart-line" chart-data="vm.data"
+			chart-labels="vm.labels" chart-series="vm.series" chart-legend="true" >
+		</canvas>
+	</div>
 </div>

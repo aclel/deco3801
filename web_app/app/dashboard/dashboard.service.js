@@ -126,10 +126,18 @@
 						for (var z = 0; z < readingsList[p].buoyInstances[i].readings[q].sensorReadings.length; z ++){
 							
 							if (readingsList[p].buoyInstances[i].readings[q].sensorReadings[z].sensorTypeId == 1){
-		
+								
+
+
 								var timeStamp = readingsList[p].buoyInstances[i].readings[q].timestamp;
+								
+								var niceTime = moment.unix(timeStamp).format("D/M h:mma")
 								var turbidity = readingsList[p].buoyInstances[i].readings[q].sensorReadings[z].value;
-								chartReadings.push({timeStamp: timeStamp,turbidity: turbidity});
+								//sets a max value on turbidity due to chart limitations 
+								if (turbidity > 200){
+									turbidity = 200;
+								}
+								chartReadings.push({timeStamp: niceTime,turbidity: turbidity});
 
 							}
 
@@ -152,16 +160,19 @@
 		function displayChartInstance(instanceName){
 			
 			var instanceReadings = setupReadings();
-			console.log(instanceReadings);
+
 			var tempData = [];
 			var tempLabels = [];
+			var tempName;
 			for (var i = 0; i < instanceReadings.length; i++){
 				if (instanceReadings[i].name == instanceName){
 
-					chart.series = [instanceReadings[i].name ];
+					tempName = [instanceReadings[i].name ];
 					// var date = new Date();
 					for(var q = 0; q < instanceReadings[i].readings.length; q++){
-						console.log(instanceReadings[i].readings.length);
+					
+
+
 						// date = instanceReadings[i].readings[q].timeStamp
 						tempLabels.push(instanceReadings[i].readings[q].timeStamp);
 						tempData.push(instanceReadings[i].readings[q].turbidity);
@@ -169,8 +180,27 @@
 				}
 
 			}
+			if (tempLabels.length > 100){
+				tempLabels = tempLabels.slice(0,101);
+				var division = Math.floor(tempLabels.length/10);
+				console.log(division);
+				chart.labels.unshift("");
+				for (var i = 1; i < tempLabels.length; i++){
+					if (i % division != 0){
+						tempLabels[i] = "";
+					}
+				console.log(tempLabels);
+
+				}
+			} 
+			chart.series = tempName;
 			chart.labels = tempLabels;
+			chart.labels.unshift("");
 			chart.data = [tempData];
+
+			chart.data[0].unshift(tempData[0]);
+
+			
 
 		}
 		

@@ -71,7 +71,6 @@ func NewRouter(env *models.Env) *mux.Router {
 	r.Handle("/api/buoy_instances/{id:[0-9]+}/warning_triggers", defaultChain.Then(AuthHandler{env, BuoyInstancesWarningTriggersIndex, "researcher"})).Methods("GET", "OPTIONS")
 
 	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsIndex, "researcher"})).Methods("GET", "OPTIONS")
-	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsCreate, "researcher"})).Methods("POST", "OPTIONS")
 
 	r.Handle("/api/sensor_types", defaultChain.Then(AuthHandler{env, SensorTypesIndex, "researcher"})).Methods("GET", "OPTIONS")
 
@@ -99,6 +98,7 @@ func NewRouter(env *models.Env) *mux.Router {
 	// Unauthenticated routes
 	r.Handle("/api/users", defaultChain.Then(AppHandler{env, UsersCreate})).Methods("POST", "OPTIONS")
 	r.Handle("/api/login", defaultChain.Then(AppHandler{env, LoginHandler})).Methods("POST", "OPTIONS")
+	r.Handle("/api/readings", defaultChain.Then(AppHandler{env, ReadingsCreate})).Methods("POST", "OPTIONS")
 
 	return r
 }

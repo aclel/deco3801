@@ -101,22 +101,14 @@
 @end
 
 
-
-@interface DiamondMarker ()
-
-@property (strong, nonatomic) UIColor *coreColour;
-@property (strong, nonatomic) UIColor *edgeColour;
-
-@end
-
 @implementation DiamondMarker
 
 #pragma mark - initialisation
 - (void)baseInit {
     _coreColour = [UIColor whiteColor];
     _edgeColour = [UIColor whiteColor];
-    self.backgroundColor = [UIColor clearColor];
     self.frame = CGRectMake(0, 0, 30, 35);
+    self.backgroundColor = [UIColor clearColor];
     self.layer.masksToBounds = NO;
 }
 
@@ -186,13 +178,13 @@
 
 #pragma mark - external methods
 
-- (void)changeCoreColour:(UIColor *)colour {
-    self.coreColour = colour;
+- (void)setCoreColour:(UIColor *)coreColour {
+    _coreColour = coreColour;
     [self setNeedsDisplay];
 }
 
-- (void)changeEdgeColour:(UIColor *)colour {
-    self.edgeColour = colour;
+- (void)setEdgeColour:(UIColor *)edgeColour {
+    _edgeColour = edgeColour;
     [self setNeedsDisplay];
 }
 

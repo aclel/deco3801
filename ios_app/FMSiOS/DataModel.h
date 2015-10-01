@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 #import <MapKit/MapKit.h>
-#import "Interface.h"
 
 #define DEFAULT_SERVER_ADDRESS @"teamneptune.co"
 

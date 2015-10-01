@@ -29,8 +29,7 @@
 // Map marker diamond
 @interface DiamondMarker : MKAnnotationView
 
-// Colour properties
-- (void)changeCoreColour:(UIColor *)colour;
-- (void)changeEdgeColour:(UIColor *)colour;
+@property (strong, nonatomic) UIColor *coreColour;
+@property (strong, nonatomic) UIColor *edgeColour;
 
 @end

@@ -183,10 +183,10 @@ func (appHandler AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func dumpRequest(r *http.Request) {
-	rawBytes, err := httputil.DumpRequest(r, true);
+	rawBytes, err := httputil.DumpRequest(r, true)
 	if err != nil {
 		panic(err)
-	} 
+	}
 	s := string(rawBytes)
-	fmt.Printf("%+q",s)
+	fmt.Printf("%+q\n", s)
 }

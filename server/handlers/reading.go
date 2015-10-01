@@ -15,6 +15,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -95,6 +96,7 @@ func ReadingsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	readingsContainer := new(models.BuoyReadingContainer)
 	decoder := json.NewDecoder(r.Body)
+	fmt.Println(r.Body)
 	err := decoder.Decode(&readingsContainer)
 
 	// Check if the request is valid
@@ -102,6 +104,7 @@ func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
 	}
 
+	fmt.Println(readingsContainer)
 	// Constructs the Readings from the data
 	readings, e := buildReadings(env, readingsContainer)
 	if e != nil {

@@ -127,8 +127,8 @@
 							
 							if (readingsList[p].buoyInstances[i].readings[q].sensorReadings[z].sensorTypeId == 1){
 		
-								var timeStamp = readingsList[i].buoyInstances[i].readings[q].timestamp;
-								var turbidity = readingsList[i].buoyInstances[i].readings[q].sensorReadings[z].value;
+								var timeStamp = readingsList[p].buoyInstances[i].readings[q].timestamp;
+								var turbidity = readingsList[p].buoyInstances[i].readings[q].sensorReadings[z].value;
 								chartReadings.push({timeStamp: timeStamp,turbidity: turbidity});
 
 							}
@@ -138,12 +138,13 @@
 					}
 				
 				chartData.readings = chartReadings;
+
 				chartArray.push(chartData);
 
 				}
 			
 			}
-
+			console.log(chartArray);
 			return chartArray;
 			
 		}
@@ -157,9 +158,11 @@
 			for (var i = 0; i < instanceReadings.length; i++){
 				if (instanceReadings[i].name == instanceName){
 
-					chart.series = [instanceReadings[i].name];
-
-					for(var q = 0; q < instanceReadings[q].readings.length; q++){
+					chart.series = [instanceReadings[i].name ];
+					// var date = new Date();
+					for(var q = 0; q < instanceReadings[i].readings.length; q++){
+						console.log(instanceReadings[i].readings.length);
+						// date = instanceReadings[i].readings[q].timeStamp
 						tempLabels.push(instanceReadings[i].readings[q].timeStamp);
 						tempData.push(instanceReadings[i].readings[q].turbidity);
 					}
@@ -168,7 +171,7 @@
 			}
 			chart.labels = tempLabels;
 			chart.data = [tempData];
-			console.log(chart);
+
 		}
 		
 		/** Initialise filters and inputs */

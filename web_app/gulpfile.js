@@ -29,7 +29,6 @@ gulp.task('js', function () {
     .pipe(sourcemaps.init())
       .pipe(concat('app.js'))
       .pipe(ngAnnotate())
-      .pipe(uglify())
     .pipe(sourcemaps.write())
     .pipe(gulp.dest('dist/js'))
     .pipe(livereload());
@@ -41,7 +40,7 @@ gulp.task('js-prod', function () {
             'assets/js/templates.js',
             '!app/**/*.spec.js'])
     .pipe(plumber())
-    .pipe(concat('app.js'))
+    .pipe(concat('app.min.js'))
     .pipe(ngAnnotate())
     .pipe(uglify())
     .pipe(gulp.dest('dist/js'))
@@ -53,7 +52,6 @@ gulp.task('css', function() {
     .pipe(plumber())
     .pipe(sourcemaps.init())
       .pipe(concat('app.css'))
-      .pipe(minifyCss())
     .pipe(sourcemaps.write())
     .pipe(gulp.dest('dist/css'))
     .pipe(livereload());
@@ -62,7 +60,7 @@ gulp.task('css', function() {
 gulp.task('css-prod', function() {
   gulp.src('assets/css/*.css')
     .pipe(plumber())
-    .pipe(concat('app.css'))
+    .pipe(concat('app.min.css'))
     .pipe(minifyCss())
     .pipe(gulp.dest('dist/css'))
     .pipe(livereload());

@@ -174,3 +174,7 @@ table {
   right: 30px;
   /*width: 50%;*/
 }
+
+.alert button {
+  padding-left: 10px;
+}

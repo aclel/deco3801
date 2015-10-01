@@ -21,12 +21,13 @@
         * @name app.gui.gui
         * @requires $alert
     **/
-	function gui($alert) {
+	function gui($alert, $log) {
 		
 		/** The service methods to expose */
 		return {
 			alertSuccess: alertSuccess,
-            alertError: alertError
+            alertError: alertError,
+            alertBadResponse: alertBadResponse
 		};
 		
         /**
@@ -43,6 +44,15 @@
          */
         function alertError(message) {
             $alert({title: 'Error:', content: message, type: 'danger' });
+        }
+
+        /**
+         * Shows an error alert on bad response from the server
+         * @param  {object} res http response object
+         */
+        function alertBadResponse(res) {
+            $log.error(res); // for debugging purposes
+            alertError(res.data + '(' + res.status + ')');
         }
 	}
 })();

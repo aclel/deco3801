@@ -32,6 +32,14 @@ Web app:
 + Each buoy instance marker on the map has its own colour.
 * Performance optimisations.
 + Use CDNs in production to reduce load time.
++ Show alert modals when updating stuff in the database, or a response from the server contains an error.
++ Implement tabbed interface on admin page
+* Restructure config page:
+    + Implement tabbed interface
+    + Implement drag drop of buoys between groups
+    * Replace edit button with icon
+    * Temporarily disable group changing
+    + Show buoy status details table
 
 
 

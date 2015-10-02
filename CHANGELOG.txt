@@ -27,19 +27,20 @@ Web app:
 + Dashboard reacts to buoy group and instance name changes made in config page without requiring page refresh.
 * Allow time range filters to accept dates without needing to specify times.
 * Dashboard styling.
++ Display units next to dashboard sensor filters.
 * Filter sections no longer have individual scrollbars.
 + Optimise dashboard for small screens.
 + Each buoy instance marker on the map has its own colour.
 * Performance optimisations.
 + Use CDNs in production to reduce load time.
 + Show alert modals when updating stuff in the database, or a response from the server contains an error.
-+ Implement tabbed interface on admin page
++ Implement tabbed interface on admin page.
 * Restructure config page:
-    + Implement tabbed interface
-    + Implement drag drop of buoys between groups
-    * Replace edit button with icon
-    * Temporarily disable group changing
-    + Show buoy status details table
+    + Implement tabbed interface.
+    + Implement drag drop of buoys between groups.
+    * Replace edit button with icon.
+    * Temporarily disable group changing.
+    + Show buoy status details table.
 
 
 

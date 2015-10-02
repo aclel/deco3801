@@ -43,6 +43,7 @@
 		vm.newTrigger = false;
 		vm.operators = [ '<', '>', '=' ];
 		vm.trigger = {};
+		vm.treeOptions = {};
 		vm.selectAll = selectAll;
 		vm.selectBuoyGroup = selectBuoyGroup;
 		vm.selectBuoyInstance = selectBuoyInstance;
@@ -63,6 +64,7 @@
 		vm.editing = editing;
 		vm.cancelEditName = cancelEditName;
 		vm.cancelEditGroup = cancelEditGroup;
+		vm.toggleBuoyGroup = toggleBuoyGroup;
 		
 		activate();
 		
@@ -73,6 +75,42 @@
 			queryCommandTypes();
 			queryWarningTriggers();
 			resetNewTrigger();
+			setTreeOptions();
+		}
+
+		/** Set the tree options for buoy groups list */
+		function setTreeOptions() {
+			vm.treeOptions = {
+				accept: function(source, dest, destIndex) {
+					// if (dest.nodropEnabled) return false;
+
+					if (source.$modelValue.type != "instance") {
+						// prevent groups from being moved into groups
+						if (dest.depth() > 0) return false;
+					} else {
+						// prevent instances from being moved out of a group
+						if (dest.depth() != 1) return false;
+						// prevent instances being dragged into collapsed groups
+						if (dest.childNodes()[destIndex] != null) {
+							if (dest.childNodes()[destIndex].collapsed) return false;
+						}
+					}
+					return true;
+				},
+				dropped: function(event) {
+					console.log(event);
+				},
+				dragStart: function(event) {
+					// select buoy group/instance when it's clicked
+					//  (dragging overrides ng-click event)
+					var source = event.source.nodeScope;
+					if (source.$modelValue.type == "group") {
+						selectBuoyGroup(source.$modelValue);
+					} else {
+						selectBuoyInstance(source.$modelValue);
+					}
+				}
+			};
 		}
 		
 		/** Query buoy groups from the server */
@@ -90,6 +128,7 @@
 			server.getBuoyInstances().then(function(res) {
 				vm.buoyInstances = res.data.buoyInstances;
 				parseGroupNames()
+				console.log(vm.buoyGroups);
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});
@@ -135,10 +174,12 @@
 			});
 		}
 		
-		/** Set buoy group name for each buoy instance */
+		/** Associate buoy instances with groups */
 		function parseGroupNames() {
+			resetBuoyGroupInstances();
 			vm.buoyInstances.forEach(function(buoyInstance) {
-				setBuoyGroupName(buoyInstance);
+				setBuoyInstanceGroup(buoyInstance);
+				buoyInstance.type = 'instance';
 			});
 		}
 		
@@ -214,16 +255,31 @@
 			vm.selected.obj = buoyInstance;
 			updateGroupBuoys();
 		}
-		
-		/** Update buoy group name for all buoys */
-		function setBuoyGroupName(buoyInstance) {
+
+		/** Set all buoy groups to have no instances */
+		function resetBuoyGroupInstances() {
+			vm.buoyGroups.forEach(function(buoyGroup) {
+				buoyGroup.collapsed = false;
+				buoyGroup.type = 'group';
+				buoyGroup.buoyInstances = [];
+			});
+		}
+
+		/** Associate buoy instances with groups */
+		function setBuoyInstanceGroup(buoyInstance) {
 			vm.buoyGroups.forEach(function(buoyGroup) {
 				if (buoyGroup.id == buoyInstance.buoyGroupId) {
 					buoyInstance.buoyGroupName = buoyGroup.name;
+					buoyGroup.buoyInstances.push(buoyInstance);
 					return;
 				}
 			});
-		}	
+		}
+
+		/** Toggle buoy group in list */
+		function toggleBuoyGroup(buoyGroup) {
+			buoyGroup.collapsed = !buoyGroup.collapsed;
+		}
 		
 		/** Start editing buoy group or instance name */
 		function startEditingName() {

@@ -1,4 +1,4 @@
-<ul>
+<!-- <ul>
     <li class="expand info button listButton"
         ng-click="vm.selectAll()">
         All Buoys
@@ -12,22 +12,35 @@
         ng-click="vm.selectBuoyGroup(buoyGroup)">
             {{ buoyGroup.name }}
     </li>
-</ul>
+</ul> -->
 
-<!-- <div ui-tree>
+<div ui-tree="vm.treeOptions">
     <ol ui-tree-nodes="" ng-model="vm.buoyGroups">
+        <li><a
+            ng-click="vm.selectAll()">
+            <strong>All Buoys</strong>
+        </a></li>
         <li ng-repeat="buoyGroup in vm.buoyGroups" ui-tree-node>
-            <div ui-tree-handle>
-                {{ buoyGroup.name }}
+            <div>
+                <div ui-tree-handle class="tree-node">
+                    <a class="btn btn-xs" ng-click="toggle(this)" data-nodrag
+                    ng-if="buoyGroup.buoyInstances && buoyGroup.buoyInstances.length > 0">
+                    <span class="glyphicon"
+                            ng-class="{
+                            'glyphicon-chevron-right': collapsed,
+                            'glyphicon-chevron-down': !collapsed
+                            }">
+                    </span></a>
+                    {{ buoyGroup.name }}
+                </div>
+                <ol ui-tree-nodes="" ng-model="buoyGroup.buoyInstances">
+                    <li ng-if="!collapsed" ng-repeat="buoyInstance in buoyGroup.buoyInstances" ui-tree-node>
+                        <div ui-tree-handle class="tree-node">
+                            {{ buoyInstance.name }}
+                        </div>
+                    </li>
+                </ol>
             </div>
-            <ol ui-tree-nodes="" ng-model="vm.buoyGroups">
-                <li ng-repeat="buoyGroup in vm.buoyGroups" ui-tree-node>
-                    <div ui-tree-handle>
-                        {{ buoyGroup.name }}
-                    </div>
-
-                </li>
-            </ol>
         </li>
     </ol>
-</div> -->
+</div>

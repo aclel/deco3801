@@ -187,3 +187,11 @@ table {
   margin-top: 20px;
   margin-left: 30px;
 }
+
+.tree-node {
+  border: 1px solid #dae2ea;
+  background: #f8faff;
+  color: #7c9eb2;
+  padding: 4px;
+  margin: 5px;
+}

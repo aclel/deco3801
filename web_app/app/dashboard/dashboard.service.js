@@ -22,6 +22,7 @@
 		* @requires $log
 		* @requires server
 		* @requires moment
+		* @requires map
 	**/
 	function dashboard($log, server, moment, map) {
 		/** Internal variables. These are preserved until page refresh. */
@@ -34,6 +35,9 @@
 		var buoys = [];
 		var times = {};
 
+		var dateFormat = "D/M/YY";
+		var timeFormat = "h:mm A";
+
 		initialiseTimes();
 
 		/** The service methods to expose */
@@ -44,6 +48,8 @@
 			buoys: getBuoys,
 			times: getTimes,
 			sensors: getSensors,
+			selectBuoyGroup: selectBuoyGroup,
+			selectBuoyInstance: selectBuoyInstance,
 			updateBuoys: updateBuoys,
 			updateTimes: updateTimes,
 			updateFilters: updateFilters,
@@ -236,6 +242,7 @@
 		 * @param  {int[]} keep array of buoyInstance IDs not to remove
 		 */
 		function removeOldBuoyInstances(keep) {
+			if (!buoys.length) return;
 			var remove = [];
 			for (var i = 0; i < buoys.length; i++) {
 				var group = buoys[i];
@@ -282,14 +289,104 @@
 		function getSensors() {
 			return sensors;
 		}
+
+		/** Update whether buoy group filter is enabled */
+		function selectBuoyGroup(buoyGroup) {
+			buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+				buoyInstance.enabled = buoyGroup.enabled;
+			});
+			updateBuoys();
+		}
+
+		/** Update whether buoy instance filter is enabled */
+		function selectBuoyInstance(buoyGroup) {
+			updateBuoyGroupSelectState(buoyGroup);			
+			updateBuoys();
+		}
+
+		/** Also handle display of indeterminate checkbox for group */
+		function updateBuoyGroupSelectState(buoyGroup) {
+			var allTrue = true;
+			var allFalse = true;
+			
+			buoyGroup.buoyInstances.forEach(function(instance) {
+				if (instance.enabled) {
+					allFalse = false;
+				} else {
+					allTrue = false;
+				}
+			});
+			
+			if (allFalse) {
+				buoyGroup.enabled = false;
+			} else {
+				buoyGroup.enabled = true;
+			}
+			
+			if (allFalse || allTrue) {
+				buoyGroup.indeterminate = false;
+			} else {
+				buoyGroup.indeterminate = true;
+			}
+		}
 		
 		/** Update internal filtered readings when buoy filters changed */
 		function updateBuoys() {
 			updateFilters();
 		}
+
+		/** Update filters and map when time filters are changed */
+		function updateTimes() {
+			// convert input strings to moments 
+			// and update vm.times, which updates reference in dashboard service
+			if (timesInputsValid()) {
+				var momentFormat = dateFormat + " " + timeFormat;
+				
+				if (times.type == 'range') {
+					times.range.from = moment(times.inputs.range.from.date
+						+ " " + times.inputs.range.from.time, momentFormat);
+					times.range.to = moment(times.inputs.range.to.date
+						+ " " + times.inputs.range.to.time, momentFormat);
+				}
+				
+				else if (times.type == 'point') {
+					times.point = moment(times.inputs.point.date
+						+ " " + times.inputs.point.time, momentFormat);
+				}
+				
+				queryReadingTimes();
+			}
+		}
+
+		/** Basic validation of times inputs */
+		function timesInputsValid() {
+			if (times.type == 'since') {
+				if (times.inputs.since.value) {
+					return true;
+				}
+			}
+			if (times.type == 'range') {
+				// valid combinations: all filled, dates filled, times filled
+				var fromDate = times.inputs.range.from.date;
+				var fromTime = times.inputs.range.from.time;
+				var toDate = times.inputs.range.to.date;
+				var toTime = times.inputs.range.to.time;
+				
+				if (fromDate && fromTime && toDate && toTime) return true;
+				if (fromDate && !fromTime && toDate && !toTime) return true;
+			}
+			if (times.type == 'point') {
+				// must have date, time is optional
+				if (times.inputs.point.date) {
+					return true;
+				}
+			}
+			
+			return false;
+		}
 		
 		/** Update internal filtered readings when time filters changes */
-		function updateTimes() {
+		function queryReadingTimes() {
 			// query server for new times
 			var from, to;
 			
@@ -641,6 +738,9 @@
 			return content;
 		}
 
+		/**
+		 * Update the map to show markers for filtered readings
+		 */
 		function updateMap() {
 			var enabledMarkers = [];
 			var insNum = 0;

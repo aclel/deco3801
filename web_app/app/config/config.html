@@ -8,59 +8,7 @@
 </div>
 
 <div class="medium-9 grid-content">
-	<div ng-if="vm.selected.type == 'newGroup'">
-		<label>Name</label>
-		<form>
-			<input type="text" ng-model="vm.editName.value">
-			<input type="submit" ng-click="vm.saveNewBuoyGroup()" 
-				value="Save" class="small button">
-		</form>
-	</div>
-	<div ng-if="vm.selected.type == 'group'">
-		<h3>{{ vm.selected.obj.name }}</h3>
-			<button ng-if="!vm.editing()"
-				class="small button" ng-click="vm.startEditingName()">Edit name
-			</button>
-		<form ng-if="vm.editName.on">
-			<input type="text" ng-model="vm.selected.obj.name">
-			<input type="submit" ng-click="vm.finishEditingName()"
-				value="Save" class="small button">
-			<button class="info button" ng-click="vm.cancelEditName()">Cancel</button>
-		</form>
-	</div>
-	<div ng-if="vm.selected.type == 'instance'">
-		<h3 ng-if="vm.selected.obj.name != ''">{{ vm.selected.obj.name }}</h3>
-		<h3 ng-if="vm.selected.obj.name == ''" class="red">(no name)</h3>
-		<button ng-if="!vm.editing()"
-			class="small button" ng-click="vm.startEditingName()">Edit name
-		</button>
-		<form ng-if="vm.editName.on">
-			<input type="text" ng-model="vm.selected.obj.name">
-			<input type="submit" ng-click="vm.finishEditingName()"
-				value="Save" class="small button">
-			<button class="info button" ng-click="vm.cancelEditName()">Cancel</button>
-		</form>
-		<div ng-if="!vm.editGroup.on">
-			<span>{{ vm.selected.obj.buoyGroupName }} 
-				<button class="small button" ng-click="vm.startEditingBuoyGroup()"
-					ng-if="!vm.editing()">Change group</button>
-			</span>
-		</div>
-		<form ng-if="vm.editGroup.on">
-			<label>New name</label>
-			<input type="text" ng-model="vm.editGroup.name">
-			<label>New group</label>
-			<select type="button" class="btn btn-default" 
-					ng-model="vm.editGroup.buoyGroupId" 
-					bs-options="opt.id as opt.name for opt in vm.buoyGroups"
-					bs-select>
-			</select>
-			<br>
-			<input type="submit" ng-click="vm.finishEditingBuoyGroup()"
-				value="Save" class="small button">
-			<button class="info button" ng-click="vm.cancelEditGroup()">Cancel</button>
-		</form>
-	</div>
+	<div ng-include="'/app/config/selected.html'"></div>
 
 	<div ng-if="vm.showBuoyConfig()">
 		<div class="bs-tabs" bs-tabs>

@@ -195,3 +195,16 @@ table {
   padding: 4px;
   margin: 5px;
 }
+
+.inline {
+  display: inline;
+  margin-right: 10px;
+}
+
+.right {
+  float: right;
+}
+
+.groupright {
+  padding-left: 100px;
+}

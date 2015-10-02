@@ -34,7 +34,7 @@
 		vm.sensorTypes = [];
 		vm.warningTriggers = [];
 		vm.command = { id: -1, value: '' };
-		vm.selected = { type: 'none', obj: null };
+		vm.selected = { type: 'all', obj: null };
 		vm.editName = {};
 		vm.editName.on = false;
 		vm.editGroup = {};
@@ -259,7 +259,6 @@
 		/** Set all buoy groups to have no instances */
 		function resetBuoyGroupInstances() {
 			vm.buoyGroups.forEach(function(buoyGroup) {
-				buoyGroup.collapsed = false;
 				buoyGroup.type = 'group';
 				buoyGroup.buoyInstances = [];
 			});

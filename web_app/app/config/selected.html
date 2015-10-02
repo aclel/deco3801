@@ -6,6 +6,9 @@
             value="Save" class="small button">
     </form>
 </div> -->
+<div ng-if="vm.selected.type == 'all'">
+    <h3>All Buoys</h3>
+</div>
 <div ng-if="vm.selected.type == 'group'">
     <h3 class="inline">{{ vm.selected.obj.name }}</h3>
         <a><img src="/assets/img/edit.png"

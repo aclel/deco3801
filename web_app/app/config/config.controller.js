@@ -98,7 +98,7 @@
 					return true;
 				},
 				dropped: function(event) {
-					console.log(event);
+					// console.log(event);
 				},
 				dragStart: function(event) {
 					// select buoy group/instance when it's clicked

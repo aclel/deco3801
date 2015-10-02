@@ -39,35 +39,27 @@
 		vm.updateBuoysFilter = updateBuoysFilter;
 		vm.updateTimesFilter = updateTimesFilter;
 		vm.updateSensorsFilter = updateSensorsFilter;
-		vm.toggleBuoyGroup = toggleBuoyGroup;
 		vm.selectBuoyGroup = selectBuoyGroup;
 		vm.selectBuoyInstance = selectBuoyInstance;
-		vm.exportData = exportData;
-		
-
+		vm.exportData = dashboard.exportData;
 		
 		activate();
 		
 		/** Called when controller is instantiated (dashboard page is loaded) */
 		function activate() {
+			queryReadings();
+			querySensors();
+		}
+
+		function queryReadings() {
 			dashboard.queryReadings().then(function() {
-				map.updateReadings();
 			});
-			
+		}
+
+		function querySensors() {
 			dashboard.querySensors().then(function() {
 				vm.sensors = dashboard.sensors();
 			});
-			
-			setupChart();
-		}
-		
-		function setupChart() {
-			vm.labels = ["January", "February", "March", "April", "May", "June", "July"];
-			vm.series = ['Series A', 'Series B'];
-			vm.data = [
-				[65, 59, 80, 81, 56, 55, 40],
-				[28, 48, 40, 19, 86, 27, 90]
-			];
 		}
 			
 		/** Initialise google map when document is loaded */
@@ -75,24 +67,22 @@
 			map.initialiseMap();
 		});
 		
-		/** Toggle buoy group in list */
-		function toggleBuoyGroup(buoyGroup) {
-			buoyGroup.collapsed = !buoyGroup.collapsed;
-		}
-		
 		/** Update whether buoy group filter is enabled */
 		function selectBuoyGroup(buoyGroup) {
 			buoyGroup.buoyInstances.forEach(function(buoyInstance) {
 				buoyInstance.enabled = buoyGroup.enabled;
 			});
-			
 			updateBuoysFilter();
 		}
 		
-		/** Update whether buoy instance filter is enabled,
-		 *  Also handle display of indeterminate checkbox for group	
-		 */
-		function selectBuoyInstance(buoyGroup, buoyInstance) {
+		/** Update whether buoy instance filter is enabled */
+		function selectBuoyInstance(buoyGroup) {
+			updateBuoyGroupSelectState(buoyGroup);			
+			updateBuoysFilter();
+		}
+
+		/** Also handle display of indeterminate checkbox for group */
+		function updateBuoyGroupSelectState(buoyGroup) {
 			var allTrue = true;
 			var allFalse = true;
 			
@@ -115,14 +105,11 @@
 			} else {
 				buoyGroup.indeterminate = true;
 			}
-			
-			updateBuoysFilter();
 		}
 		
 		/** Update filters and map when buoy filters are changed */
 		function updateBuoysFilter() {
 			dashboard.updateBuoys();
-			map.updateReadings();
 		}
 		
 		/** Update filters and map when time filters are changed */
@@ -145,7 +132,6 @@
 				}
 				
 				dashboard.updateTimes().then(function() {
-					map.updateReadings();
 				});
 			}
 		}
@@ -180,12 +166,6 @@
 		/** Update filters and map when sensor filters are changed */
 		function updateSensorsFilter() {
 			dashboard.updateSensors();
-			map.updateReadings();
-		}
-		
-		/** Export data when button is clicked */
-		function exportData() {
-			dashboard.exportData();
 		}
 	}
 })();

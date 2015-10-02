@@ -23,7 +23,7 @@
 		* @requires server
 		* @requires moment
 	**/
-	function dashboard($log, server, moment) {
+	function dashboard($log, server, moment, map) {
 		/** Internal variables. These are preserved until page refresh. */
 		// var data = [];
 		var filteredReadings = [];
@@ -383,7 +383,7 @@
 		/** Re-filter readings based on updated filters */
 		function updateFilters() {
 			filteredReadings = [];
-			if (!readings) return;
+			if (!readings.length || !Object.keys(sensors).length) return;
 
 			for (var i = 0; i < readings.length; i++) {
 				var buoyGroup = readings[i];
@@ -402,6 +402,7 @@
 					}
 				}
 			}
+			updateMap();
 		}
 
 		/**
@@ -627,7 +628,7 @@
 				"<h5 style='color: white'>" + buoyInstance.name + "</h5>" +
 				formattedTime + 
 				"<br>---";
-			
+
 			reading.sensorReadings.forEach(function(sensorReading) {
 				content += "<br>" + 
 					sensors[sensorReading.sensorTypeId].name +
@@ -638,6 +639,25 @@
 			content += "</div>";
 				
 			return content;
+		}
+
+		function updateMap() {
+			var enabledMarkers = [];
+			var insNum = 0;
+
+			// show a marker for every reading
+			filteredReadings.forEach(function(buoyGroup) {
+				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+					buoyInstance.readings.forEach(function(reading) {
+						enabledMarkers.push(reading.id);
+						map.showMarker(reading, buoyInstance,
+							insNum, getRelativeAge(reading),
+							popupContent(reading, buoyInstance));
+					});
+					insNum++;
+				});
+			});
+			map.hideDisabledMarkers(enabledMarkers);
 		}
 	}
 })();

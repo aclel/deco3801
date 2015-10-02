@@ -41,6 +41,7 @@ Web app:
     * Replace edit button with icon.
     * Temporarily disable group changing.
     + Show buoy status details table.
+* Improve loading time of warning page.
 
 
 

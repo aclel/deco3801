@@ -26,6 +26,8 @@
 	**/
 	function WarningsController($log, server, moment) {
 		var vm = this;
+
+		var resolved = 0; // used to determine when data is received
 		
 		/** Variables and methods bound to viewmodel */
 		vm.warnings = [];
@@ -37,13 +39,16 @@
 		/** Called when controller is instantiated (warnings page is loaded) */
 		function activate() {
 			queryWarnings();
+			queryBuoyInstances();
+			querySensorTypes();
 		}
 		
 		/** Query warnings from server and update viewmodel */
 		function queryWarnings() {
 			server.getWarnings().then(function(res) {
 				vm.warnings = res.data.warnings;
-				queryBuoyInstances();
+				resolved++;
+				parseWarnings();
 			}, function(res) {
 				$log.error(res);
 			});
@@ -53,7 +58,8 @@
 		function queryBuoyInstances() {
 			server.getBuoyInstances().then(function(res) {
 				vm.buoyInstances = res.data.buoyInstances;
-				querySensorTypes();
+				resolved++;
+				parseWarnings();
 			}, function(res) {
 				$log.error(res);
 			});
@@ -63,6 +69,7 @@
 		function querySensorTypes() {
 			server.getSensorTypes().then(function(res) {
 				vm.sensorTypes = res.data.sensorTypes;
+				resolved++;
 				parseWarnings();
 			}, function(res) {
 				$log.error(res);
@@ -71,6 +78,8 @@
 		
 		/** Associate buoy, sensor and time info with warnings */
 		function parseWarnings() {
+			if (resolved < 3) return; // wait until all data has been received from server
+
 			vm.warnings.forEach(function(warning) {
 				// parse time
 				warning.readingTime = moment(warning.readingTimestamp,

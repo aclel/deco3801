@@ -21,16 +21,13 @@
 		* @name app.dashboard.dashboard
 		* @requires $log
 		* @requires server
-		* @requires moment
 		* @requires map
+		* @requires moment
 	**/
-	function dashboard($log, server, moment, map) {
+	function dashboard($log, server, map, moment) {
 		/** Internal variables. These are preserved until page refresh. */
-		// var data = [];
-		var filteredReadings = [];
-		// var filters = {};
-
 		var readings = [];
+		var filteredReadings = [];
 		var sensors = {};
 		var buoys = [];
 		var times = {};
@@ -42,23 +39,41 @@
 
 		/** The service methods to expose */
 		return {
-			queryReadings: queryReadings,
-			querySensors: querySensors,
-			readings: getReadings,
 			buoys: getBuoys,
 			times: getTimes,
 			sensors: getSensors,
+			queryReadings: queryReadings,
+			querySensors: querySensors,
 			selectBuoyGroup: selectBuoyGroup,
 			selectBuoyInstance: selectBuoyInstance,
-			updateBuoys: updateBuoys,
 			updateTimes: updateTimes,
-			updateFilters: updateFilters,
 			updateSensors: updateSensors,
-			getOldestReading: getOldestReading,
-			getRelativeAge: getRelativeAge,
-			exportData: exportData,
-			popupContent: popupContent
+			exportData: exportData
 		};
+
+		/**
+		 * Return buoy input data structures
+		 * @return {object} buoys filters and inputs
+		 */
+		function getBuoys() {
+			return buoys;
+		}
+		
+		/**
+		 * Return time input data structures
+		 * @return {object} time inputs
+		 */
+		function getTimes() {
+			return times;
+		}
+		
+		/**
+		 * Return sensor input data structures
+		 * @return {object} sensor inputs and filters
+		 */
+		function getSensors() {
+			return sensors;
+		}
 		
 		/**
 		 * Query readings from server and update internal data structures
@@ -129,19 +144,37 @@
 			for (var i = 0; i < readings.length; i++) {
 				var buoyGroup = readings[i];
 				groups.push(buoyGroup.id);
-				var group = addBuoyGroupFilter(buoyGroup);
+				var group = buoysFilterAddGroup(buoyGroup);
 
 				// add instances
 				for (var j = 0; j < buoyGroup.buoyInstances.length; j++) {
 					var buoyInstance = buoyGroup.buoyInstances[j];
 					instances.push(buoyInstance.id);
-					addBuoyInstanceFilter(buoyInstance, group);
+					buoysFilterAddInstance(buoyInstance, group);
 				}
 			}		
 
 			// remove old buoys
-			removeOldBuoyGroups(groups);
-			removeOldBuoyInstances(instances);
+			buoysFilterRemoveOldGroups(groups);
+			buoysFilterRemoveOldInstances(instances);
+		}
+
+		/** Populate sensor input data */
+		function populateSensors(data) {
+			for (var i = 0; i < data.length; i++) {
+				var sensor = data[i];
+				
+				if (sensors.hasOwnProperty(sensor.id)) continue;
+
+				sensor.inputs = {
+					enabled: false,
+					options: [">", "<", "="],
+					selected: ">",
+					value: ""
+				};
+
+				sensors[sensor.id] = sensor;	
+			}
 		}
 
 		/**
@@ -150,9 +183,9 @@
 		 * @param {object} buoyGroup buoyGroup to add
 		 * @return {object} reference to added group
 		 */
-		function addBuoyGroupFilter(buoyGroup) {
+		function buoysFilterAddGroup(buoyGroup) {
 			var group = {};
-			var gIndex = buoyGroupIndex(buoyGroup.id);
+			var gIndex = buoysFilterGroupIndex(buoyGroup.id);
 			if (gIndex != -1) {
 				group = buoys[gIndex];
 			} else {
@@ -174,10 +207,10 @@
 		 * @param {object} group        buoyGroup to add the instance to
 		 * @return {object} reference to added instance
 		 */
-		function addBuoyInstanceFilter(buoyInstance, group) {
+		function buoysFilterAddInstance(buoyInstance, group) {
 			var instance = {};
-			var gIndex = buoyGroupIndex(group.id);
-			var iIndex = buoyInstanceIndex(buoyInstance.id, group.id);
+			var gIndex = buoysFilterGroupIndex(group.id);
+			var iIndex = buoysFilterInstanceIndex(buoyInstance.id, group.id);
 			if (iIndex != -1) {
 				instance = buoys[gIndex].buoyInstances[iIndex];
 			} else {
@@ -194,7 +227,7 @@
 		 * @param  {int} id id of buoyGroup
 		 * @return {int}    index or -1 if not found
 		 */
-		function buoyGroupIndex(id) {
+		function buoysFilterGroupIndex(id) {
 			for (var i = 0; i < buoys.length; i++) {
 				if (buoys[i].id == id) {
 					return i;
@@ -209,8 +242,8 @@
 		 * @param  {int} gId id of buoyGroup
 		 * @return {int}     index of buoyInstance or -1 if not found
 		 */
-		function buoyInstanceIndex(id, gId) {
-			var gIndex = buoyGroupIndex(gId);
+		function buoysFilterInstanceIndex(id, gId) {
+			var gIndex = buoysFilterGroupIndex(gId);
 			if (gIndex == -1) return -1;
 			for (var i = 0; i < buoys[gIndex].buoyInstances.length; i++) {
 				if (buoys[gIndex].buoyInstances[i].id == id) {
@@ -224,7 +257,7 @@
 		 * Remove buoyGroup from buoys list
 		 * @param  {int[]} keep array of buoyGroup IDs not to remove
 		 */
-		function removeOldBuoyGroups(keep) {
+		function buoysFilterRemoveOldGroups(keep) {
 			var remove = [];
 			for (var i = 0; i < buoys.length; i++) {
 				var group = buoys[i];
@@ -241,8 +274,8 @@
 		 * Remove buoyInstance from buoys list
 		 * @param  {int[]} keep array of buoyInstance IDs not to remove
 		 */
-		function removeOldBuoyInstances(keep) {
-			if (!buoys.length) return;
+		function buoysFilterRemoveOldInstances(keep) {
+			// if (!buoys.length) return; doesn't do anything?
 			var remove = [];
 			for (var i = 0; i < buoys.length; i++) {
 				var group = buoys[i];
@@ -258,50 +291,19 @@
 			}
 		}
 
-		/**
-		 * Return filtered readings
-		 * @return {object array} filtered readings
-		 */
-		function getReadings() {
-			return filteredReadings;
-		}
-		
-		/**
-		 * Return buoy input data structures
-		 * @return {object} buoys filters and inputs
-		 */
-		function getBuoys() {
-			return buoys;
-		}
-		
-		/**
-		 * Return time input data structures
-		 * @return {object} time inputs
-		 */
-		function getTimes() {
-			return times;
-		}
-		
-		/**
-		 * Return sensor input data structures
-		 * @return {object} sensor inputs and filters
-		 */
-		function getSensors() {
-			return sensors;
-		}
 
 		/** Update whether buoy group filter is enabled */
 		function selectBuoyGroup(buoyGroup) {
 			buoyGroup.buoyInstances.forEach(function(buoyInstance) {
 				buoyInstance.enabled = buoyGroup.enabled;
 			});
-			updateBuoys();
+			updateFilters();
 		}
 
 		/** Update whether buoy instance filter is enabled */
 		function selectBuoyInstance(buoyGroup) {
 			updateBuoyGroupSelectState(buoyGroup);			
-			updateBuoys();
+			updateFilters();
 		}
 
 		/** Also handle display of indeterminate checkbox for group */
@@ -328,11 +330,6 @@
 			} else {
 				buoyGroup.indeterminate = true;
 			}
-		}
-		
-		/** Update internal filtered readings when buoy filters changed */
-		function updateBuoys() {
-			updateFilters();
 		}
 
 		/** Update filters and map when time filters are changed */
@@ -410,7 +407,6 @@
 				if (times.type == 'point') {
 					calculatePointReadings();
 				}
-				updateFilters();
 			});
 			return promise;
 		}
@@ -418,39 +414,6 @@
 		/** Update internal filtered readings when sensor filters changed */
 		function updateSensors() {
 			updateFilters();
-		}
-		
-		/** Populate sensor input data */
-		function populateSensors(data) {
-			for (var i = 0; i < data.length; i++) {
-				var sensor = data[i];
-				
-				if (sensors.hasOwnProperty(sensor.id)) continue;
-
-				sensor.inputs = {
-					enabled: false,
-					options: [">", "<", "="],
-					selected: ">",
-					value: ""
-				};
-
-				sensors[sensor.id] = sensor;	
-			}
-		}
-		
-		/**
-		 * Return the oldest reading from filtered readings
-		 * @return {object} oldest reading
-		 */
-		function getOldestReading() {
-			var readings = filteredReadings;
-			var oldest = moment.unix(readings[0].timestamp);
-			for (var i = 1; i < readings.length; i++) {
-				if (moment.unix(readings[i].timestamp).isBefore(oldest)) {
-					oldest = moment.unix(readings[i].timestamp);
-				}
-			}
-			return oldest;
 		}
 		
 		/** Calculate readings closest to specified time */
@@ -508,7 +471,7 @@
 		 * @return {bool}    true if it should be shown, false if not
 		 */
 		function buoyGroupEnabled(id) {
-			return buoys[buoyGroupIndex(id)].enabled;
+			return buoys[buoysFilterGroupIndex(id)].enabled;
 		}
 
 		/**
@@ -518,8 +481,8 @@
 		 * @return {bool}    true if it should be shown, false if not
 		 */
 		function buoyInstanceEnabled(id, gId) {
-			var gIndex = buoyGroupIndex(gId);
-			var iIndex = buoyInstanceIndex(id, gId);
+			var gIndex = buoysFilterGroupIndex(gId);
+			var iIndex = buoysFilterInstanceIndex(id, gId);
 			return buoys[gIndex].buoyInstances[iIndex].enabled;
 		}
 
@@ -560,18 +523,6 @@
 		function showReading(reading) {
 			if (!filterTimes(reading)) return false;
 			if (!filterSensors(reading)) return false;
-			return true;
-		}
-		
-		/**
-		 * Filter buoys from readings
-		 * @param  {object} reading reading
-		 * @return {bool}         include reading
-		 */
-		function filterBuoys(reading) {
-			if (!buoys[reading.buoy]) {
-				return false;
-			}
 			return true;
 		}
 		

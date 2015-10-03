@@ -17,15 +17,14 @@
 		.controller('DashboardController', DashboardController);
 	
 	/**
-			* @ngdoc object
-			* @name app.dashboard.controller:DashboardController
-			* @description Provides viewmodel for dashboard view
-			* @requires $document
-			* @requires dashboard
-			* @requires map
-			* @requires moment
-		**/	
-	function DashboardController($log, $document, dashboard, map, moment) {
+		* @ngdoc object
+		* @name app.dashboard.controller:DashboardController
+		* @description Provides viewmodel for dashboard view
+		* @requires $document
+		* @requires dashboard
+		* @requires map
+	**/	
+	function DashboardController($log, $document, dashboard, map) {
 		var vm = this;
 		
 		/** Variables and methods bound to viewmodel */

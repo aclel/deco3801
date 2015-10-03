@@ -140,10 +140,8 @@ func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	})
 
 	// Check token validity
-	if err == nil && token.Valid {
-		log.Println("Token is valid")
-	} else {
-		fmt.Println(err)
+	if err != nil || !token.Valid {
+		log.Println(err)
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
@@ -175,7 +173,7 @@ type AppHandler struct {
 // and it will be hard to debug what's going on. The handler can now just return an error
 // code and this function will server the http.Error.
 func (appHandler AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	dumpRequest(r)
+	// dumpRequest(r)
 	if e := appHandler.handle(appHandler.Env, w, r); e != nil {
 		log.Println(e.Message + ": " + e.Error.Error())
 		http.Error(w, e.Message, e.Code)
@@ -183,7 +181,7 @@ func (appHandler AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func dumpRequest(r *http.Request) {
-	rawBytes, err := httputil.DumpRequest(r, true);
+	rawBytes, err := httputil.DumpRequest(r, true)
 	if err != nil {
 		s := string(rawBytes[:])
 		log.Print(s)

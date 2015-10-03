@@ -9,7 +9,7 @@
 // @copyright  Team Neptune (2015)
 // @link       https://github.com/aclel/deco3801
 package handlers
-/*
+
 import (
 	"bytes"
 	"net/http"
@@ -18,8 +18,7 @@ import (
 
 	"github.com/aclel/deco3801/server/models"
 )
-*/
-/*
+
 func TestReadingsCreate(t *testing.T) {
 	env := &models.Env{DB: &models.MockDB{}}
 
@@ -27,26 +26,13 @@ func TestReadingsCreate(t *testing.T) {
 		rec := httptest.NewRecorder()
 		reqBody := []byte(tt.in)
 
-		jwtAuth, err := models.InitJWTAuth()
-		if err != nil {
-			t.Error(err)
-		}
-
-		testUser := &models.User{Email: "test@email.com", Role: "system_admin"}
-		token, err := jwtAuth.GenerateToken(testUser)
-		if err != nil {
-			t.Error(err)
-		}
-
 		req, err := http.NewRequest("POST", "/api/readings", bytes.NewBuffer(reqBody))
 		req.Header.Set("Content-Type", "application/json")
 		if err != nil {
 			t.Error(err)
 		}
 
-		req.Header.Set("Authorization", "Bearer "+string(token))
-
-		AuthHandler{env, ReadingsCreate, "researcher"}.ServeHTTP(rec, req)
+		AppHandler{env, ReadingsCreate}.ServeHTTP(rec, req)
 
 		got := rec.Code
 		want := tt.out
@@ -190,5 +176,3 @@ var readingCreateTests = []struct {
 	// Invalid JSON
 	{"Invalid JSON", `asdfasd`, http.StatusBadRequest},
 }
-
-*/

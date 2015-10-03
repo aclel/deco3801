@@ -61,30 +61,39 @@ func (db *DB) GetAllBuoyInstances() ([]BuoyInstance, error) {
 // latitude and longitude.
 func (db *DB) GetAllActiveBuoyInstances() ([]BuoyInstance, error) {
 	buoyInstances := []BuoyInstance{}
-	err := db.Select(&buoyInstances, `SELECT buoy_instance.*, buoy.name AS buoy_name, buoy.guid as buoy_guid, 
-											 buoy_group.name AS buoy_group_name, latitude, longitude
-										FROM buoy_instance 
-										INNER JOIN buoy ON buoy_instance.buoy_id = buoy.id
-										INNER JOIN buoy_group ON buoy_instance.buoy_group_id = buoy_group.id
-										INNER JOIN reading ON reading.buoy_instance_id=buoy.active_buoy_instance_id 
-										WHERE buoy_instance.id=buoy.active_buoy_instance_id AND reading.id IN (
-											SELECT 
-												reading.id 
-											FROM 
-												reading 
-											WHERE 
-												(
-													reading.buoy_instance_id, reading.timestamp
-												) IN (
-													SELECT 
-														reading.buoy_instance_id, 
-														MAX(reading.timestamp) 
-													FROM 
-														reading 
-													GROUP BY 
-														reading.buoy_instance_id
-												)
-										)`)
+	err := db.Select(&buoyInstances, `SELECT 
+											buoy_instance.*, 
+											buoy.name AS buoy_name, 
+											buoy.guid as buoy_guid, 
+											buoy_group.name AS buoy_group_name, 
+											latitude, 
+											longitude 
+										FROM 
+											buoy_instance 
+											INNER JOIN buoy ON buoy_instance.id = buoy.active_buoy_instance_id 
+											INNER JOIN buoy_group ON buoy_instance.buoy_group_id = buoy_group.id 
+											INNER JOIN reading ON reading.buoy_instance_id = buoy.active_buoy_instance_id 
+										WHERE 
+											buoy_instance.id IN (
+												SELECT 
+													DISTINCT reading.buoy_instance_id 
+												FROM 
+													reading 
+												WHERE 
+													(
+														reading.buoy_instance_id, reading.timestamp
+													) IN (
+														SELECT 
+															reading.buoy_instance_id, 
+															MAX(reading.timestamp) 
+														FROM 
+															reading 
+														GROUP BY 
+															reading.buoy_instance_id
+													)
+											) 
+										GROUP BY 
+											buoy_instance.id`)
 
 	if err != nil {
 		return nil, err

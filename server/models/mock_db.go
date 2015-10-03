@@ -179,7 +179,15 @@ func (mdb *MockDB) UpdateUserExcludePassword(updatedUser *User) error {
 	return nil
 }
 
+func (mdb *MockDB) UpdateUserPassword(user *NewUserPassword) error {
+	return nil
+}
+
 func (mdb *MockDB) GetAllUsers() ([]User, error) {
+	return nil, nil
+}
+
+func (mdb *MockDB) GetUser(id int) (*User, error) {
 	return nil, nil
 }
 

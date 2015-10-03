@@ -170,58 +170,6 @@ func UsersDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 	return nil
 }
 
-// PUT /api/users/id/change_password
-// Responds with HTTP 200 if successful. Reponse body empty.
-func UsersUpdatePassword(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
-	if err != nil {
-		return &AppError{err, "Error parsing user id", http.StatusInternalServerError}
-	}
-
-	user := new(models.NewUserPassword)
-	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&user)
-
-	// Check if User JSON is valid
-	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
-	}
-	user.Id = id
-
-	// Get the user from the database
-	dbUser, err := env.DB.GetUser(user.Id)
-	if err != nil {
-		return &AppError{err, "Error while retrieving user", http.StatusInternalServerError}
-	}
-
-	if dbUser == nil {
-		return &AppError{err, "No user exists with the given id", http.StatusBadRequest}
-	}
-
-	// Check if the current password matches the one in the db
-	err = bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(user.CurrentPassword))
-	if err != nil {
-		return &AppError{err, "Current password does not match the one in the database", http.StatusBadRequest}
-	}
-
-	// Hash the new password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.NewPassword), 10)
-	if err != nil {
-		return &AppError{err, "Error hashing password", http.StatusInternalServerError}
-	}
-	user.NewHashedPassword = string(hashedPassword)
-
-	// Update password in the database
-	err = env.DB.UpdateUserPassword(user)
-	if err != nil {
-		return &AppError{err, "Error updating password in the database", http.StatusInternalServerError}
-	}
-
-	w.WriteHeader(http.StatusOK)
-	return nil
-}
-
 // Validate the User object that is created with the request body.
 func validateUser(user *models.User) *AppError {
 	// Check if email is present

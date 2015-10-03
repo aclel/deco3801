@@ -171,10 +171,6 @@ func (mdb *MockDB) GetUserWithEmail(email string) (*User, error) {
 	return nil, nil
 }
 
-func (mdb *MockDB) GetUser(id int) (*User, error) {
-	return nil, nil
-}
-
 func (mdb *MockDB) CreateUser(user *User) error {
 	return nil
 }
@@ -188,10 +184,6 @@ func (mdb *MockDB) GetAllUsers() ([]User, error) {
 }
 
 func (mdb *MockDB) DeleteUserWithId(id int) error {
-	return nil
-}
-
-func (mdb *MockDB) UpdateUserPassword(user *NewUserPassword) error {
 	return nil
 }
 

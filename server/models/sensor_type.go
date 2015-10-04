@@ -13,16 +13,19 @@ package models
 // A sensor has one sensor type. There are only a few different
 // types of sensors.
 type SensorType struct {
-	Id          int    `json:"id" db:"id"`
-	Description string `json:"description" db:"description"`
-	Unit        string `json:"unit" db:"unit"`
-	Name        string `json:"name" db:"name"`
+	Id          int     `json:"id" db:"id"`
+	Description string  `json:"description" db:"description"`
+	Unit        string  `json:"unit" db:"unit"`
+	Name        string  `json:"name" db:"name"`
+	LowerBound  float64 `json:"lowerBound" db:"lower_bound"`
+	UpperBound  float64 `json:"upperBound" db:"upper_bound"`
 }
 
 // Wraps Sensor Types methods to allow for testing with dependency injection.
 type SensorTypeRepository interface {
 	GetSensorTypeWithName(string) (*SensorType, error)
 	GetAllSensorTypes() ([]SensorType, error)
+	UpdateSensorType(*SensorType) error
 }
 
 // Get the sensor type from the database with the given unique name.
@@ -46,4 +49,20 @@ func (db *DB) GetAllSensorTypes() ([]SensorType, error) {
 	}
 
 	return sensorTypes, nil
+}
+
+// Replace a Sensor Type with the given updated Sensor Type.
+func (db *DB) UpdateSensorType(updatedSensorType *SensorType) error {
+	stmt, err := db.Preparex(`UPDATE sensor_type SET name=?, description=?, unit=?, lower_bound=?, upper_bound=? WHERE id=?;`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(updatedSensorType.Name, updatedSensorType.Description, updatedSensorType.Unit,
+		updatedSensorType.LowerBound, updatedSensorType.UpperBound, updatedSensorType.Id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

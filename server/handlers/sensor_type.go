@@ -13,8 +13,10 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/aclel/deco3801/server/models"
+	"github.com/gorilla/mux"
 )
 
 // Wraps Sensor Types array in json response
@@ -42,5 +44,43 @@ func SensorTypesIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *
 	w.WriteHeader(http.StatusOK)
 	w.Write(response)
 
+	return nil
+}
+
+// PUT /api/sensor_types/id
+// Request body contains JSON object of the Sensor Type which is being replaced.
+// Response with HTTP 200. Response body empty.
+// Example request body:
+//
+// {
+//    	"name": "Turbidity",
+//		"description": "Amount of light that can pass through the water",
+//		"unit": "NTU",
+//		"lowerBound": 0,
+//		"upperBound": 1000
+// }
+func SensorTypeUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing buoy instance id", http.StatusInternalServerError}
+	}
+
+	sensorType := new(models.SensorType)
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&sensorType)
+	// Check if Sensor Type JSON is valid
+	if err != nil {
+		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+	}
+	sensorType.Id = id
+
+	// Replace Sensor Type in the database
+	err = env.DB.UpdateSensorType(sensorType)
+	if err != nil {
+		return &AppError{err, "Error updating buoy instance in the database", http.StatusInternalServerError}
+	}
+
+	w.WriteHeader(http.StatusOK)
 	return nil
 }

@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <MapKit/MapKit.h>
 
-#define DEFAULT_SERVER_ADDRESS @"teamneptune.co"
+#define FMS_DEFAULT_SERVER_ADDRESS @"teamneptune.co"
 
 // Data model for a buoy and the groups containing them
 @interface BuoyGroup : NSObject
@@ -73,5 +73,8 @@
 
 // Static helper methods
 + (BOOL)NSStringIsValidEmail:(NSString *)s; // Returns whether the given string is a valid email
++ (NSString *)stringForLatitude:(CLLocationDegrees)latitude;
++ (NSString *)stringForLongitude:(CLLocationDegrees)longitude;
+
 
 @end

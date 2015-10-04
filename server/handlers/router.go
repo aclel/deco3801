@@ -74,6 +74,7 @@ func NewRouter(env *models.Env) *mux.Router {
 	r.Handle("/api/readings", defaultChain.Then(AuthHandler{env, ReadingsIndex, "researcher"})).Methods("GET", "OPTIONS")
 
 	r.Handle("/api/sensor_types", defaultChain.Then(AuthHandler{env, SensorTypesIndex, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/sensor_types", defaultChain.Then(AuthHandler{env, SensorTypesCreate, "researcher"})).Methods("POST", "OPTIONS")
 	r.Handle("/api/sensor_types/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, SensorTypeUpdate, "researcher"})).Methods("PUT", "OPTIONS")
 
 	r.Handle("/api/command_types", defaultChain.Then(AuthHandler{env, CommandTypesIndex, "researcher"})).Methods("GET", "OPTIONS")

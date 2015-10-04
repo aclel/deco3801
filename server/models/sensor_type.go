@@ -26,6 +26,7 @@ type SensorTypeRepository interface {
 	GetSensorTypeWithName(string) (*SensorType, error)
 	GetAllSensorTypes() ([]SensorType, error)
 	UpdateSensorType(*SensorType) error
+	CreateSensorType(*SensorType) error
 }
 
 // Get the sensor type from the database with the given unique name.
@@ -49,6 +50,21 @@ func (db *DB) GetAllSensorTypes() ([]SensorType, error) {
 	}
 
 	return sensorTypes, nil
+}
+
+// Create a new Sensor Type
+func (db *DB) CreateSensorType(sensorType *SensorType) error {
+	stmt, err := db.Preparex("INSERT INTO sensor_type (name, description, unit, lower_bound, upper_bound) VALUES (?, ?, ?, ?, ?);")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(sensorType.Name, sensorType.Description, sensorType.Unit, sensorType.LowerBound, sensorType.UpperBound)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Replace a Sensor Type with the given updated Sensor Type.

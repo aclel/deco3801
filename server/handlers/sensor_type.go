@@ -47,6 +47,38 @@ func SensorTypesIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *
 	return nil
 }
 
+// POST /api/sensor_types
+// Request body contains JSON object of Sensor Type to be added to database.
+// Responds with HTTP 201. Response body empty.
+// Example request body:
+//
+// {
+//    	"name": "Turbidity",
+//		"description": "Amount of light that can pass through the water",
+//		"unit": "NTU",
+//		"lowerBound": 0,
+//		"upperBound": 1000
+// }
+func SensorTypesCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	sensorType := new(models.SensorType)
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&sensorType)
+
+	// Check if Sensor Type JSON is valid
+	if err != nil {
+		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+	}
+
+	// Insert the Sensor Type into the database
+	err = env.DB.CreateSensorType(sensorType)
+	if err != nil {
+		return &AppError{err, "Error inserting sensor type into the database", http.StatusInternalServerError}
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	return nil
+}
+
 // PUT /api/sensor_types/id
 // Request body contains JSON object of the Sensor Type which is being replaced.
 // Response with HTTP 200. Response body empty.
@@ -63,7 +95,7 @@ func SensorTypeUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		return &AppError{err, "Error parsing buoy instance id", http.StatusInternalServerError}
+		return &AppError{err, "Error parsing sensor type id", http.StatusInternalServerError}
 	}
 
 	sensorType := new(models.SensorType)
@@ -78,7 +110,7 @@ func SensorTypeUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *
 	// Replace Sensor Type in the database
 	err = env.DB.UpdateSensorType(sensorType)
 	if err != nil {
-		return &AppError{err, "Error updating buoy instance in the database", http.StatusInternalServerError}
+		return &AppError{err, "Error updating sensor type in the database", http.StatusInternalServerError}
 	}
 
 	w.WriteHeader(http.StatusOK)

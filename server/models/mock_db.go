@@ -148,6 +148,10 @@ func (mdb *MockDB) GetAllSensorTypes() ([]SensorType, error) {
 	return nil, nil
 }
 
+func (mdb *MockDB) CreateSensorType(sensorType *SensorType) error {
+	return nil
+}
+
 func (mdb *MockDB) UpdateSensorType(updatedSensorType *SensorType) error {
 	return nil
 }

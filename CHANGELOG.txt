@@ -10,13 +10,16 @@ Legend:
 v0.3 - Week 9 6/10
 
 iOS App:
-* Updated project to support iOS 9. Our app is now able to support devices using both 8 and 9.
-+ Added missing error messages for internet disconnection and loss of location information.
-+ Added missing error message for connection failure for buoy information
+* Support for iOS 9. Our app is now able to support devices using both 8 and 9.
++ Missing error messages for internet disconnection and loss of location information.
++ Missing error message for connection failure for buoy information
 + App now loads buoy information from the server with authorization.
-* Updated map markers to show colour depending upon their associated group. These markers are animated and generally pretty cool.
+* Map markers now show colour depending upon their associated group. These markers are animated and generally pretty cool.
 + Added name/email section to top of map page to show which user is logged in.
-* Updated some colours to be consistent with the web app.
+* Updated colours to be consistent with the web app.
+! Issue where ungrouped markers were incorrectly coloured.
+! Many small interface issues and inconsistencies.
++ Map markers now display their name, group, location and a button for more info in their callout.
 
 Web app:
 * Refactor dashboard to simplify code.

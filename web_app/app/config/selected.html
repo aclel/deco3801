@@ -1,0 +1,59 @@
+<div ng-if="vm.selected.type == 'newGroup'">
+    <label>Name</label>
+    <form>
+        <input type="text" ng-model="vm.editName.value">
+        <input type="submit" ng-click="vm.saveNewBuoyGroup()" 
+            value="Save" class="small button">
+    </form>
+</div>
+<div ng-if="vm.selected.type == 'all'">
+    <h3>All Buoys</h3>
+</div>
+<div ng-if="vm.selected.type == 'group'">
+    <h3 class="inline">{{ vm.selected.obj.name }}</h3>
+        <a><img src="/assets/img/edit.png"
+              ng-if="!vm.editing()"
+              ng-click="vm.startEditingName()"/>
+        </a>
+    <form ng-if="vm.editName.on">
+        <input type="text" ng-model="vm.selected.obj.name">
+        <input type="submit" ng-click="vm.finishEditingName()"
+            value="Save" class="small button">
+        <button class="info button" ng-click="vm.cancelEditName()">Cancel</button>
+    </form>
+</div>
+<div ng-if="vm.selected.type == 'instance'">
+    <h3 class="inline" ng-if="vm.selected.obj.name != ''">{{ vm.selected.obj.name }}</h3>
+    <h3 class="inline red" ng-if="vm.selected.obj.name == ''">(no name)</h3>
+    <a><img src="/assets/img/edit.png"
+              ng-if="!vm.editing()"
+              ng-click="vm.startEditingName()"/>
+    </a>
+    <h4 class="inline"> ({{ vm.selected.obj.buoyGroupName }})</h4>
+    <form ng-if="vm.editName.on">
+        <input type="text" ng-model="vm.selected.obj.name">
+        <input type="submit" ng-click="vm.finishEditingName()"
+            value="Save" class="small button">
+        <button class="info button" ng-click="vm.cancelEditName()">Cancel</button>
+    </form>
+    <!-- <div class="inline right" ng-if="!vm.editGroup.on">
+        <span><h4>{{ vm.selected.obj.buoyGroupName }} </h4>
+            <button class="small button" ng-click="vm.startEditingBuoyGroup()"
+                ng-if="!vm.editing()">Change group</button>
+        </span>
+    </div> -->
+<!--     <form ng-if="vm.editGroup.on">
+        <label>New name</label>
+        <input type="text" ng-model="vm.editGroup.name">
+        <label>New group</label>
+        <select type="button" class="btn btn-default" 
+                ng-model="vm.editGroup.buoyGroupId" 
+                bs-options="opt.id as opt.name for opt in vm.buoyGroups"
+                bs-select>
+        </select>
+        <br>
+        <input type="submit" ng-click="vm.finishEditingBuoyGroup()"
+            value="Save" class="small button">
+        <button class="info button" ng-click="vm.cancelEditGroup()">Cancel</button>
+    </form> -->
+</div>

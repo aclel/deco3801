@@ -19,6 +19,8 @@ var livereload = require('gulp-livereload');
 var plumber = require('gulp-plumber');
 var templateCache = require('gulp-angular-templatecache');
 var minifyCss = require('gulp-minify-css');
+var autoprefixer = require('gulp-autoprefixer');
+var sass = require('gulp-sass');
 
 gulp.task('js', function () {
   gulp.src(['app/**/*.module.js',
@@ -29,7 +31,6 @@ gulp.task('js', function () {
     .pipe(sourcemaps.init())
       .pipe(concat('app.js'))
       .pipe(ngAnnotate())
-      .pipe(uglify())
     .pipe(sourcemaps.write())
     .pipe(gulp.dest('dist/js'))
     .pipe(livereload());
@@ -41,7 +42,7 @@ gulp.task('js-prod', function () {
             'assets/js/templates.js',
             '!app/**/*.spec.js'])
     .pipe(plumber())
-    .pipe(concat('app.js'))
+    .pipe(concat('app.min.js'))
     .pipe(ngAnnotate())
     .pipe(uglify())
     .pipe(gulp.dest('dist/js'))
@@ -53,7 +54,6 @@ gulp.task('css', function() {
     .pipe(plumber())
     .pipe(sourcemaps.init())
       .pipe(concat('app.css'))
-      .pipe(minifyCss())
     .pipe(sourcemaps.write())
     .pipe(gulp.dest('dist/css'))
     .pipe(livereload());
@@ -62,8 +62,15 @@ gulp.task('css', function() {
 gulp.task('css-prod', function() {
   gulp.src('assets/css/*.css')
     .pipe(plumber())
-    .pipe(concat('app.css'))
+    .pipe(concat('app.min.css'))
     .pipe(minifyCss())
+    .pipe(gulp.dest('dist/css'))
+    .pipe(livereload());
+});
+
+gulp.task('sass', function() {
+  gulp.src('assets/scss/**/*.scss')
+    .pipe(sass())
     .pipe(gulp.dest('dist/css'))
     .pipe(livereload());
 });
@@ -75,17 +82,18 @@ gulp.task('html', function() {
     .pipe(livereload());
 });
 
-gulp.task('watch', ['css', 'html', 'js'], function() {
+gulp.task('watch', ['sass', 'css', 'html', 'js'], function() {
   livereload.listen();
   gulp.watch('app/**/*.html', ['html']);
+  gulp.watch('assets/scss/**/*.scss', ['sass']);
   gulp.watch('assets/css/*.css', ['css']);
   gulp.watch('app/**/*.js', ['js']);
 });
 
-gulp.task('build', ['css', 'html', 'js'], function() {
+gulp.task('build', ['sass', 'css', 'html', 'js'], function() {
   //
 });
 
-gulp.task('build-prod', ['css-prod', 'html', 'js-prod'], function() {
+gulp.task('build-prod', ['sass', 'css-prod', 'html', 'js-prod'], function() {
   //
 });

@@ -21,6 +21,9 @@
 	angular.module('app.config', [
 		// Shared modules
 		'app.core',
-		'app.gui'
+		'app.gui',
+
+        // 3rd-party modules
+        'ui.tree'
 	]);
 })();

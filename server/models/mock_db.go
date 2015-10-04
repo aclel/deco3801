@@ -148,6 +148,14 @@ func (mdb *MockDB) GetAllSensorTypes() ([]SensorType, error) {
 	return nil, nil
 }
 
+func (mdb *MockDB) CreateSensorType(sensorType *SensorType) error {
+	return nil
+}
+
+func (mdb *MockDB) UpdateSensorType(updatedSensorType *SensorType) error {
+	return nil
+}
+
 // COMMAND TYPES
 func (mdb *MockDB) GetAllCommandTypes() ([]CommandType, error) {
 	return nil, nil
@@ -179,7 +187,15 @@ func (mdb *MockDB) UpdateUserExcludePassword(updatedUser *User) error {
 	return nil
 }
 
+func (mdb *MockDB) UpdateUserPassword(user *NewUserPassword) error {
+	return nil
+}
+
 func (mdb *MockDB) GetAllUsers() ([]User, error) {
+	return nil, nil
+}
+
+func (mdb *MockDB) GetUser(id int) (*User, error) {
 	return nil, nil
 }
 

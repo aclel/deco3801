@@ -48,6 +48,18 @@
 				}
 			},
 			{
+				state: 'reset_password',
+				config: {
+					url: '/reset_password?token',
+					// controller: 'AuthController', now uses parent controller
+					// controllerAs: 'vm',
+					templateUrl: '/app/auth/reset_password.html',
+					data: {
+						access: 'unauthed'
+					}
+				}
+			},
+			{
 				state: 'forgot_password',
 				config: {
 					url: '/forgot_password',

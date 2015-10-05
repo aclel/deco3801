@@ -22,34 +22,41 @@
 		* @description Controller for authentication across entire app
 		* @requires $scope
 		* @requires $state
+		* @requires $stateParams
 		* @requires auth
 		* @requires server
 		* @requires routeHelper
 	**/
-	function AuthController($scope, $state, auth, server, routerHelper) {
+	function AuthController($scope, $state, $stateParams, auth, server, routerHelper) {
 		var vm = this;
 		
 		/** Variables and methods bound to viewmodel */
 		vm.firstLogin = false;
 		vm.login = login;
 		vm.forgotResponse =- 1;
+		vm.changePasswordResponse = -1;
 		vm.waiting = false;
 		vm.changePassword = changePassword;
 		vm.forgotPassword = forgotPassword;
+		vm.resetPassword = resetPassword;
 		
 		activate();
 		
 		/** Called when controller is instantiated */
 		function activate() {
-			resetForm();
+			resetLoginForm();
 			$scope.$on('$stateChangeSuccess', stateLoaded);
 		}
 
 		/** Called when a state is loaded, used to reset views */
 		function stateLoaded() {
-			if ($state.is('forgot_password')) {
+			if ($state.is('change_password') ||
+					$state.is('reset_password') ||
+					$state.is('forgot_password')) {
+				vm.changePasswordResponse = -1;
 				vm.forgotResponse = -1;
 				vm.waiting = false;
+				resetPasswordForm();
 			}
 		}
 		
@@ -64,7 +71,7 @@
 					} else {
 						$state.go('dashboard');
 					}
-					resetForm();
+					resetLoginForm();
 				}
 				
 			},
@@ -75,11 +82,29 @@
 		
 		/** Send change password request to server */
 		function changePassword() {
+			vm.waiting = true;
 			// need to validate input
 			if (vm.newPassword != "" && vm.newPassword == vm.confirmPassword) {
-				server.changePassword(vm.newPassword);
-				vm.newPassword = vm.confirmPassword = "";
+				server.changePassword(vm.currentPassword, vm.newPassword).then(function(res) {
+					vm.changePasswordResponse = 0;
+				}, function(res) {
+					vm.changePasswordResponse = 1;
+				});
 				vm.firstLogin = false;
+			} else {
+				alert("Invalid password");
+			}
+		}
+
+		/** Send reset password request to server */
+		function resetPassword() {
+			vm.waiting = true;
+			if (vm.newPassword != "" && vm.newPassword == vm.confirmPassword) {
+				server.resetPassword($stateParams.token + "=", vm.newPassword).then(function(res) {
+					vm.changePasswordResponse = 0;
+				}, function(res) {
+					vm.changePasswordResponse = 1;
+				});
 			} else {
 				alert("Invalid password");
 			}
@@ -90,17 +115,24 @@
 			vm.waiting = true;
 			server.forgotPassword(vm.email).then(function(res) {
 				vm.forgotResponse = 0;
-				resetForm();
+				resetLoginForm();
 			}, function(res) {
 				vm.forgotResponse = 1;
-				resetForm();
+				resetLoginForm();
 			});
 		}
 		
 		/** Reset login form */
-		function resetForm() {
+		function resetLoginForm() {
 			vm.email = "andrew@dyergroup.com.au"; // placeholder
 			vm.password = "D9mEpnvx";
+		}
+
+		/** Reset change password form */
+		function resetPasswordForm() {
+			vm.currentPassword = "";
+			vm.newPassword = "";
+			vm.confirmPassword = "";
 		}
 	}
 })();

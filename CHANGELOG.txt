@@ -10,6 +10,8 @@ Legend:
 v0.3 - Week 9 6/10
 Server:
 + Add Apache logging for web requests
++ Add POST /api/users/id/change_password - Can now change user password through the api
++ Add POST /api/forgot_password and GET /api/reset_password?token=gdfgdsfg - Forgot password routes have been implemented
 + Add POST /api/sensor_types - Can now add sensor types through the api
 + Add PUT /api/sensor_types/id - Can now update a sensor type through the api
 + Add lower bound and upper bound fields to sensor type

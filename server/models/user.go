@@ -12,6 +12,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -43,6 +44,7 @@ type UserRepository interface {
 	CreateUser(*User) error
 	GetUser(int) (*User, error)
 	GetUserWithEmail(string) (*User, error)
+	GetPasswordHash(string) ([]byte, error)
 	GetAllUsers() ([]User, error)
 	DeleteUserWithId(int) error
 	UpdateUserExcludePassword(*User) error
@@ -111,6 +113,20 @@ func (db *DB) GetUserWithEmail(email string) (*User, error) {
 	}
 
 	return &dbUser, nil
+}
+
+// Returns the password hash for the user with the given email
+func (db *DB) GetPasswordHash(email string) ([]byte, error) {
+	user, err := db.GetUserWithEmail(email)
+	if err != nil {
+		return []byte(""), err
+	}
+
+	if user == nil {
+		return []byte(""), errors.New("User does not exist with the given email")
+	}
+
+	return []byte(user.Password), nil
 }
 
 // Delete User from the database with the given id.

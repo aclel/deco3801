@@ -179,6 +179,10 @@ func (mdb *MockDB) GetUserWithEmail(email string) (*User, error) {
 	return nil, nil
 }
 
+func (mdb *MockDB) GetPasswordHash(email string) ([]byte, error) {
+	return []byte(""), nil
+}
+
 func (mdb *MockDB) CreateUser(user *User) error {
 	return nil
 }
@@ -231,5 +235,9 @@ func (mdb *MockDB) RefreshToken(user *User) ([]byte, error) {
 }
 
 func (mdb *MockDB) SendNewUserEmail(user *User, emailUser *EmailCredentials) error {
+	return nil
+}
+
+func (mdb *MockDB) SendPasswordResetEmail(user *User, link string, emailUser *EmailCredentials) error {
 	return nil
 }

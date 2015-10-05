@@ -27,6 +27,7 @@ type EmailCredentials struct {
 // Wraps the Smtp methods to allow for testing with dependency injection.
 type SmtpManager interface {
 	SendNewUserEmail(*User, *EmailCredentials) error
+	SendPasswordResetEmail(*User, string, *EmailCredentials) error
 }
 
 // Send an email to a new User which contains a link to the login page, as well
@@ -50,6 +51,29 @@ func (db *DB) SendNewUserEmail(user *User, emailUser *EmailCredentials) error {
 	}
 
 	log.Println("Signup email sent to " + user.Email)
+
+	return nil
+}
+
+// Send an email to an existing User which contains a link for the user to change their password
+func (db *DB) SendPasswordResetEmail(user *User, link string, emailUser *EmailCredentials) error {
+	m := gomail.NewMessage()
+	m.SetHeader("From", emailUser.Username)
+	m.SetHeader("To", user.Email)
+	m.SetHeader("Subject", "UQ Flood Monitoring System Password Reset")
+	m.SetBody("text/html",
+		`<h1>Hi `+user.FirstName+`,</h1>
+		<p>Here is a link to reset your password: </p>
+		<a href="`+link+`">Reset password</a>
+		<p>You will be prompted to change your password.</p>`)
+
+	d := gomail.NewPlainDialer(emailUser.Server, emailUser.Port, emailUser.Username, emailUser.Password)
+
+	if err := d.DialAndSend(m); err != nil {
+		return err
+	}
+
+	log.Println("Reset password email sent to " + user.Email)
 
 	return nil
 }

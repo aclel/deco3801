@@ -104,7 +104,7 @@ func NewRouter(env *models.Env) *mux.Router {
 	// Unauthenticated routes
 	r.Handle("/api/users", defaultChain.Then(AppHandler{env, UsersCreate})).Methods("POST", "OPTIONS")
 	r.Handle("/api/forgot_password", defaultChain.Then(AppHandler{env, UsersForgotPassword})).Methods("POST", "OPTIONS")
-	r.Handle("/api/reset_password", defaultChain.Then(AppHandler{env, UsersResetPassword})).Methods("GET", "OPTIONS")
+	r.Handle("/api/reset_password", defaultChain.Then(AppHandler{env, UsersResetPassword})).Methods("POST", "OPTIONS")
 	r.Handle("/api/login", defaultChain.Then(AppHandler{env, LoginHandler})).Methods("POST", "OPTIONS")
 	r.Handle("/api/readings", defaultChain.Then(AppHandler{env, ReadingsCreate})).Methods("POST", "OPTIONS")
 

@@ -12,6 +12,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -31,13 +32,23 @@ type User struct {
 	Token     string         `json:"token"`
 }
 
+type NewUserPassword struct {
+	Id                int
+	CurrentPassword   string `json:"currentPassword"`
+	NewPassword       string `json:"newPassword"`
+	NewHashedPassword string
+}
+
 // Wraps the User methods to allow for testing with dependency injection.
 type UserRepository interface {
 	CreateUser(*User) error
+	GetUser(int) (*User, error)
 	GetUserWithEmail(string) (*User, error)
+	GetPasswordHash(string) ([]byte, error)
 	GetAllUsers() ([]User, error)
 	DeleteUserWithId(int) error
 	UpdateUserExcludePassword(*User) error
+	UpdateUserPassword(*NewUserPassword) error
 }
 
 // All possible roles that a user can have. A user can only have one role at a time.
@@ -74,6 +85,21 @@ func (db *DB) GetAllUsers() ([]User, error) {
 	return users, nil
 }
 
+// Get the User with the given id
+func (db *DB) GetUser(id int) (*User, error) {
+	dbUser := User{}
+	err := db.Get(&dbUser, "SELECT * FROM user WHERE id = ?;", id)
+	if err == sql.ErrNoRows {
+		return nil, nil
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &dbUser, nil
+}
+
 // Gets a user from the database with the given email address
 func (db *DB) GetUserWithEmail(email string) (*User, error) {
 	dbUser := User{}
@@ -87,6 +113,20 @@ func (db *DB) GetUserWithEmail(email string) (*User, error) {
 	}
 
 	return &dbUser, nil
+}
+
+// Returns the password hash for the user with the given email
+func (db *DB) GetPasswordHash(email string) ([]byte, error) {
+	user, err := db.GetUserWithEmail(email)
+	if err != nil {
+		return []byte(""), err
+	}
+
+	if user == nil {
+		return []byte(""), errors.New("User does not exist with the given email")
+	}
+
+	return []byte(user.Password), nil
 }
 
 // Delete User from the database with the given id.
@@ -132,6 +172,21 @@ func (db *DB) UpdateUserExcludePassword(updatedUser *User) error {
 
 	_, err = stmt.Exec(updatedUser.FirstName,
 		updatedUser.LastName, updatedUser.Role, updatedUser.LastLogin, updatedUser.Id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Update the user's password in the database
+func (db *DB) UpdateUserPassword(user *NewUserPassword) error {
+	stmt, err := db.Preparex(`UPDATE user SET password=? WHERE id=?;`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(user.NewHashedPassword, user.Id)
 	if err != nil {
 		return err
 	}

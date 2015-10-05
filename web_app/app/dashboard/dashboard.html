@@ -93,6 +93,7 @@
 								ng-change="vm.updateSensorsFilter()" bs-select>
 						</button>
 						<input type="text" ng-model="sensor.inputs.value" ng-change="vm.updateSensorsFilter()"> {{ sensor.units }}
+						{{ sensor.unit }}
 					</div>
 					<br>
 				</div>
@@ -111,8 +112,8 @@
 			Export Data
 		</button>
 		
-		<canvas id="sensorChart" class="chart chart-line" chart-data="vm.data"
+		<!-- <canvas id="sensorChart" class="chart chart-line" chart-data="vm.data"
 			chart-labels="vm.labels" chart-series="vm.series" chart-legend="true" >
-		</canvas>
+		</canvas> -->
 	</div>
 </div>

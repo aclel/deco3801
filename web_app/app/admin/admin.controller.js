@@ -20,10 +20,9 @@
 		* @ngdoc object
 		* @name app.admin.controller:AdminController
 		* @description Provides viewmodel for admin view
-		* @requires $log
 		* @requires server
 	**/
-	function AdminController($log, server) {
+	function AdminController(server, gui) {
 		var vm = this;
 		
 		/** Variables and methods bound to viewmodel */
@@ -50,7 +49,7 @@
 		function activate() {
 			queryUsers();
 		}
-		
+
 		/**
 		 * Query users from the server
 		 */
@@ -59,7 +58,7 @@
 				vm.users = res.data.users;
 				formatLastLogin();
 			}, function(res) {
-				$log.error(res);
+				gui.alertBadResponse(res);
 			});
 		}
 		
@@ -93,14 +92,16 @@
 			if (vm.editUserId != -2) {
 				server.updateUser(vm.editUser).then(function(res) {
 					queryUsers();
+					gui.alertSuccess('User updated.');
 				}, function(res) {
-					$log.error(res);
+					gui.alertBadResponse(res);
 				});
 			} else {
 				server.addUser(vm.editUser).then(function(res) {
 					queryUsers();
+					gui.alertSuccess('User added.');
 				}, function(res) {
-					$log.error(res);
+					gui.alertBadResponse(res);
 				});
 				vm.users.splice(vm.users.length - 1, 1);
 			}
@@ -124,8 +125,9 @@
 		function deleteUser(user) {
 			server.deleteUser(user.id).then(function(res) {
 				queryUsers();
+				gui.alertSuccess('User deleted.');
 			}, function(res) {
-				$log.error(res);
+				gui.alertBadResponse(res);
 			});
 		}
 		
@@ -156,9 +158,9 @@
 			if (vm.newBuoyName == '') return;
 			var guid = generateGuid();
 			server.addBuoy(vm.newBuoyName, guid).then(function(res) {
-				alert('Buoy created successfully');
+				gui.alertSuccess('Buoy created.');
 			}, function(res) {
-				$log.error(res);
+				gui.alertBadResponse(res);
 			});
 			vm.newBuoyName = '';
 		}

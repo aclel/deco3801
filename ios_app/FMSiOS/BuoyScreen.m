@@ -6,11 +6,8 @@
 //  Copyright (c) 2015 Team Neptune. All rights reserved.
 //
 
-// TODO: good buoy icon
-// TODO: show name/email at top
-// TODO: buoy groupings
+// TODO: more info popup
 // TODO: buoy distance from self
-
 
 #import "BuoyScreen.h"
 
@@ -113,15 +110,26 @@
     self.map.delegate = self;
     
     // Navigation bar settings
+    // Info gear button
+    UIButton *infoView = [UIButton buttonWithType:UIButtonTypeSystem];
+    infoView.frame = CGRectMake(0, 0, 40, 32);
+    [infoView setTitle:@"\u2699" forState:UIControlStateNormal];
+    infoView.titleLabel.font = [UIFont systemFontOfSize:33];
+    [infoView setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [infoView addTarget:self action:@selector(infoButtonPressed) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *infoIcon = [[UIBarButtonItem alloc] initWithCustomView:infoView];
+    
+    // Position icon
     UIBarButtonItem *posIcon = [[MKUserTrackingBarButtonItem alloc] initWithMapView:self.map];
-    UIButton *tempInfoB = [UIButton buttonWithType:UIButtonTypeInfoLight];
-    UIBarButtonItem *infoIcon = [[UIBarButtonItem alloc] initWithImage:tempInfoB.currentImage style:UIBarButtonItemStylePlain target:self action:@selector(infoButtonPressed)];
+    
+    // Refresh icon
     UIBarButtonItem *refreshIcon = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRefresh target:self action:@selector(refreshButtonPressed)];
-    UIActivityIndicatorView *refreshInd = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    UIActivityIndicatorView *refreshInd = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
     [refreshInd sizeToFit];
     [refreshInd startAnimating];
     refreshInd.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     UIBarButtonItem *refreshIndIcon = [[UIBarButtonItem alloc] initWithCustomView:refreshInd];
+    refreshIndIcon.width = refreshIcon.width;
     
     self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:infoIcon, posIcon, refreshIcon, nil];
     
@@ -265,6 +273,17 @@
         // Initial only properties
         v = [[DiamondMarker alloc] initWithAnnotation:annotation reuseIdentifier:@"BuoyIcon"];
         v.canShowCallout = YES;
+        
+        // Label containing lat/long
+        UILabel *leftViewLabel = [[UILabel alloc] init];
+        leftViewLabel.font = [UIFont systemFontOfSize:12];
+        leftViewLabel.numberOfLines = 0;
+        leftViewLabel.textAlignment = NSTextAlignmentRight;
+        v.leftCalloutAccessoryView = leftViewLabel;
+        
+        // Buttons for more info and stuff
+        UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+        v.rightCalloutAccessoryView = rightButton;
     } else {
         // Reuse only properties
         v.annotation = annotation;
@@ -273,16 +292,18 @@
     // General properties
     Buoy *b = (Buoy *)annotation;
     
+    UILabel *leftViewLabel = (UILabel *)v.leftCalloutAccessoryView;
+    leftViewLabel.text = [NSString stringWithFormat:@"%@\n%@", [DataModel stringForLatitude:b.coordinate.latitude], [DataModel stringForLongitude:b.coordinate.longitude]];
+    [leftViewLabel sizeToFit];
+    
     // Marker colours
-    if (b.group == nil) { // Ungrouped buoy
-        [v changeEdgeColour:[UIColor grayColor]];
+    if (b.group == nil || b.group.groupId == 0) { // Ungrouped
+        v.edgeColour = [UIColor lightGrayColor];
     } else { // Grouped buoy
+        NSUInteger shift = ((BuoyGroup *)[self.buoyGroups objectAtIndex:0]).groupId == 0 ? 1 : 0;
+        double spacingForColour = 1.0/(self.buoyGroups.count - shift);
         NSUInteger colourIndex = [self.buoyGroups indexOfObject:b.group];
-        double spacingForColour = 1.0/self.buoyGroups.count;
-        
-        NSLog(@"%@", self.buoyGroups);
-        NSLog(@"colour index %u, spacing %f hue %f", colourIndex, spacingForColour, colourIndex * spacingForColour);
-        [v changeEdgeColour:[UIColor colorWithHue:(colourIndex * spacingForColour) saturation:0.9 brightness:0.9 alpha:1.0]];
+        v.edgeColour = [UIColor colorWithHue:(colourIndex * spacingForColour) saturation:0.9 brightness:0.9 alpha:1.0];
     }
     
     return v;
@@ -293,7 +314,7 @@
         MKAnnotationView *av = [views objectAtIndex:i];
         
         // Ignore user location
-        if ([av.annotation isKindOfClass:[MKUserLocation class]]) {
+        if (![av.annotation isKindOfClass:[Buoy class]]) {
             continue;
         }
         
@@ -326,7 +347,7 @@
     
     // Select
     DiamondMarker *d = (DiamondMarker *)view;
-    [d changeCoreColour:[UIColor colorWithWhite:0.9 alpha:1.0]];
+    d.coreColour = [UIColor colorWithWhite:0.9 alpha:1.0];
 }
 
 - (void)mapView:(MKMapView *)mapView didDeselectAnnotationView:(MKAnnotationView *)view {
@@ -337,7 +358,7 @@
     
     // Deselect
     DiamondMarker *d = (DiamondMarker *)view;
-    [d changeCoreColour:[UIColor whiteColor]];
+    d.coreColour = [UIColor whiteColor];
 }
 
 #pragma mark - server comms

@@ -14,9 +14,12 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/url"
 	"regexp"
 	"strconv"
+	"time"
 
+	"github.com/dchest/passwordreset"
 	"github.com/gorilla/mux"
 	"golang.org/x/crypto/bcrypt"
 	"stablelib.com/v1/uniuri"
@@ -164,6 +167,165 @@ func UsersDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 	err = env.DB.DeleteUserWithId(id)
 	if err != nil {
 		return &AppError{err, "Error deleting user", http.StatusInternalServerError}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	return nil
+}
+
+// PUT /api/users/id/change_password
+// Responds with HTTP 200 if successful. Reponse body empty.
+// Example request body:
+//	{
+//		"currentPassword": "test",
+//		"newPassword": "test2"
+//	}
+func UsersUpdatePassword(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing user id", http.StatusInternalServerError}
+	}
+
+	user := new(models.NewUserPassword)
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&user)
+
+	// Check if User JSON is valid
+	if err != nil {
+		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+	}
+	user.Id = id
+
+	// Get the user from the database
+	dbUser, err := env.DB.GetUser(user.Id)
+	if err != nil {
+		return &AppError{err, "Error while retrieving user", http.StatusInternalServerError}
+	}
+
+	if dbUser == nil {
+		return &AppError{err, "No user exists with the given id", http.StatusBadRequest}
+	}
+
+	// Check if the current password matches the one in the db
+	err = bcrypt.CompareHashAndPassword([]byte(dbUser.Password), []byte(user.CurrentPassword))
+	if err != nil {
+		return &AppError{err, "Current password does not match the one in the database", http.StatusBadRequest}
+	}
+
+	// Hash the new password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.NewPassword), 10)
+	if err != nil {
+		return &AppError{err, "Error hashing password", http.StatusInternalServerError}
+	}
+	user.NewHashedPassword = string(hashedPassword)
+
+	// Update password in the database
+	err = env.DB.UpdateUserPassword(user)
+	if err != nil {
+		return &AppError{err, "Error updating password in the database", http.StatusInternalServerError}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	return nil
+}
+
+// POST /api/forgot_password
+// Sends an email to the email in the request body with a link to reset their password.
+// Responds with 200 OK if successful. Empty response body.
+// Example request body:
+//	{
+//		"email": "test@email.com"
+//	}
+func UsersForgotPassword(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	u := new(models.User)
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&u)
+	if err != nil {
+		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
+	}
+
+	if u.Email == "" {
+		return &AppError{err, "Missing email", http.StatusBadRequest}
+	}
+
+	user, err := env.DB.GetUserWithEmail(u.Email)
+	if err != nil {
+		return &AppError{err, "Error retrieving user from the database", http.StatusBadRequest}
+	}
+
+	if user == nil {
+		return &AppError{err, "No user exists with that email", http.StatusBadRequest}
+	}
+
+	// Generate one-use token to facilitate password reset
+	token := passwordreset.NewToken(user.Email, 12*time.Hour, []byte(user.Password), []byte("secret123"))
+
+	link := "http://teamneptune.co/#/reset_password?token=" + token
+
+	// Send email to user with link (with token) to reset password
+	err = env.DB.SendPasswordResetEmail(user, link, &env.EmailUser)
+	if err != nil {
+		return &AppError{err, "Error sending email to user", http.StatusInternalServerError}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	return nil
+}
+
+// POST /api/reset_password?token=dfgsgdgfsdg
+// Returns 200 OK if the password was changed successfully.
+// Example request body:
+//	{
+//		"newPassword": "test"
+//	}
+func UsersResetPassword(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	// Get token from url params
+	u, err := url.Parse(r.URL.String())
+	params, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return &AppError{err, "Error parsing query parameters", http.StatusInternalServerError}
+	}
+	if params["token"] == nil {
+		return &AppError{err, "Password reset token is missing from url", http.StatusBadRequest}
+	}
+	token := params["token"][0]
+
+	// Get new password from request body
+	newPassword := new(models.NewUserPassword)
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&newPassword)
+	if err != nil {
+		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
+	}
+
+	// Check token validity
+	email, err := passwordreset.VerifyToken(token, env.DB.GetPasswordHash, []byte("secret123"))
+	if err != nil {
+		return &AppError{err, "Password reset token is not valid", http.StatusForbidden}
+	}
+
+	// Get the user with the email in the token
+	user, err := env.DB.GetUserWithEmail(email)
+	if err != nil {
+		return &AppError{err, "Error retrieving user", http.StatusInternalServerError}
+	}
+	if user == nil {
+		return &AppError{err, "No user exists with that email", http.StatusBadRequest}
+	}
+	newPassword.Id = user.Id
+
+	// Hash the new password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(newPassword.NewPassword), 10)
+	if err != nil {
+		return &AppError{err, "Error hashing password", http.StatusInternalServerError}
+	}
+	newPassword.NewHashedPassword = string(hashedPassword)
+
+	// Update the password hash in the database
+	err = env.DB.UpdateUserPassword(newPassword)
+	if err != nil {
+		return &AppError{err, "Error updating password in the database", http.StatusInternalServerError}
 	}
 
 	w.WriteHeader(http.StatusOK)

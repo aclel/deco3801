@@ -7,9 +7,6 @@
 //  Copyright (c) 2015 Team Neptune. All rights reserved.
 //
 
-// TODO: save login details
-// TODO: server options
-
 #import "LoginScreen.h"
 
 @interface LoginScreen () <UITextFieldDelegate>
@@ -102,7 +99,6 @@
     
     // Save switch
     UISwitch *saveSwitch = [[UISwitch alloc] init];
-    //TODO set on from settings
     saveSwitch.center = CGPointMake(60, 265);
     saveSwitch.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.7];
     saveSwitch.layer.cornerRadius = 16;
@@ -116,16 +112,16 @@
     
     // Login button
     ShadowButton *loginButton = [ShadowButton buttonWithType:UIButtonTypeCustom];
-    loginButton.backgroundColor = [UIColor purpleColor];
-    loginButton.normalColour = [UIColor purpleColor];
-    loginButton.highlightColour = [UIColor colorWithRed:115.0/255 green:30.0/255 blue:123.0/255 alpha:1.0];
-    loginButton.selectedColour = [UIColor purpleColor];
+    loginButton.backgroundColor = FMS_COLOUR_BUTTON;
+    loginButton.normalColour = FMS_COLOUR_BUTTON;
+    loginButton.highlightColour = FMS_COLOUR_BUTTON_SEL;
+    loginButton.selectedColour = FMS_COLOUR_BUTTON;
     [loginButton setTitle:@"Login" forState:UIControlStateNormal];
     [loginButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [loginButton setTitle:@"" forState:UIControlStateDisabled];
     loginButton.titleLabel.font = [UIFont systemFontOfSize:20];
-    loginButton.frame = CGRectMake(0, 0, 170, 50);
-    loginButton.center = CGPointMake(200, 275);
+    loginButton.frame = CGRectMake(0, 0, 150, 50);
+    loginButton.center = CGPointMake(210, 275);
     
     // Login button indicator
     self.loginInd = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
@@ -145,7 +141,7 @@
     bottomMaskLayer.frame = passField.bounds;
     bottomMaskLayer.path = bottomMaskPath.CGPath;
     passField.layer.mask = bottomMaskLayer;
-    loginButton.layer.cornerRadius = 20.0;
+    loginButton.layer.cornerRadius = 5.0;
     loginButton.clipsToBounds = YES;
     loginButton.layer.masksToBounds = NO;
     

@@ -20,8 +20,7 @@ import (
 
 	"github.com/aclel/deco3801/server/models"
 )
-*/
-/*
+
 func TestLogin(t *testing.T) {
 	rec := httptest.NewRecorder()
 	jsonStr := []byte(`{"username":"test", "password": "secret123"}`)

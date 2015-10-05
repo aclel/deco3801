@@ -9,7 +9,6 @@
 #import "DataModel.h"
 
 //TODO: handle first-time login
-//TODO: get info from user for later use
 
 @implementation Buoy
 
@@ -19,7 +18,7 @@
         _group = nil;
         _coordinate = CLLocationCoordinate2DMake(0, 0);
         _title = @"Unknown";
-        _subtitle = [NSString stringWithFormat:@"%f lat, %f long", _coordinate.latitude, _coordinate.longitude];
+        _subtitle = @"Unknown";
         _dateCreated = [NSDate dateWithTimeIntervalSince1970:0];
         _buoyName = @"N/A";
         _buoyGuid = @"N/A";
@@ -35,6 +34,16 @@
         _coordinate = coord;
     }
     return self;
+}
+
+- (void)setGroup:(BuoyGroup *)group {
+    _group = group;
+    
+    if (group != nil) {
+        self.subtitle = group.title;
+    } else {
+        self.subtitle = @"Ungrouped";
+    }
 }
 
 @end
@@ -148,9 +157,9 @@
             groupForBuoy = [[BuoyGroup alloc] init];
             groupForBuoy.groupId = groupId.integerValue;
             if (groupId.integerValue == 0) {
-                groupForBuoy.title = @"Unassigned";
+                groupForBuoy.title = @"-";
             } else {
-                NSString *groupName = [buoyInfo objectForKey:@"buoyGroupInfo"];
+                NSString *groupName = [buoyInfo objectForKey:@"buoyGroupName"];
                 if (groupName != nil) groupForBuoy.title = groupName;
             }
             [parsed addObject:groupForBuoy];
@@ -171,7 +180,7 @@
     NSString *address = [[NSUserDefaults standardUserDefaults] objectForKey:@"ServerAddress"];
     if (address == nil) {
         NSLog(@"Saved server address could not be found; using default");
-        address = DEFAULT_SERVER_ADDRESS;
+        address = FMS_DEFAULT_SERVER_ADDRESS;
     }
     return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@", address]];
 }
@@ -290,6 +299,26 @@
     NSString *regex = @"^[A-Z0-9a-z\\._%+-]+@([A-Za-z0-9-]+\\.)+[A-Za-z]{2,4}$";
     NSPredicate *test = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", regex];
     return [test evaluateWithObject:s];
+}
+
++ (NSString *)stringForLatitude:(CLLocationDegrees)latitude {
+    if (latitude > 0) { // North of equator
+        return [NSString stringWithFormat:@"%.2f°N", latitude];
+    } else if (latitude < 0) { // South
+        return [NSString stringWithFormat:@"%.2f°S", -latitude];
+    } else {
+        return @"0°";
+    }
+}
+
++ (NSString *)stringForLongitude:(CLLocationDegrees)longitude {
+    if (longitude > 0) { // East of london
+        return [NSString stringWithFormat:@"%.2f°E", longitude];
+    } else if (longitude < 0) { // West
+        return [NSString stringWithFormat:@"%.2f°W", -longitude];
+    } else {
+        return @"0°";
+    }
 }
 
 @end

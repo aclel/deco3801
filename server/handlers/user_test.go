@@ -9,6 +9,7 @@
 // @copyright  Team Neptune (2015)
 // @link       https://github.com/aclel/deco3801
 package handlers
+
 /*
 import (
 	"bytes"
@@ -18,8 +19,7 @@ import (
 
 	"github.com/aclel/deco3801/server/models"
 )
-*/
-/*
+
 var userCreateTests = []struct {
 	in  string
 	out int

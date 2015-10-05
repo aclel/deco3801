@@ -1,0 +1,82 @@
+<!-- <div ng-if="vm.selected.type == 'group'">
+    <h3>Buoys</h3>
+    <span ng-if="vm.groupBuoys.length == 0">(none)</span>
+    <ul ng-if="vm.groupBuoys.length > 0">
+        <li ng-repeat="buoyInstance in vm.groupBuoys">
+            {{ buoyInstance.name }}
+            <span ng-if="buoyInstance.name == ''">(no name)</span>
+        </li>
+    </ul>
+</div> -->
+
+<div ng-if="vm.selected.type == 'all'">
+    <h3>Buoys</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Last Received</th>
+                <th>Next Scheduled</th>
+                <th>Poll Interval</th>
+            </tr>
+        </thead>
+        <body>
+            <tr ng-repeat="buoyInstance in vm.buoyInstances">
+                <td>
+                    {{ buoyInstance.name }}
+                    <span ng-if="buoyInstance.name == ''">(no name)</span>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </body>
+    </table>
+</div>
+<div ng-if="vm.selected.type == 'group'">
+    <h3>Buoys</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Last Received</th>
+                <th>Next Scheduled</th>
+                <th>Poll Interval</th>
+            </tr>
+        </thead>
+        <body>
+            <tr ng-repeat="buoyInstance in vm.groupBuoys">
+                <td>
+                    {{ buoyInstance.name }}
+                    <span ng-if="buoyInstance.name == ''">(no name)</span>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </body>
+    </table>
+</div>
+<div ng-if="vm.selected.type == 'instance'">
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Last Received</th>
+                <th>Next Scheduled</th>
+                <th>Poll Interval</th>
+            </tr>
+        </thead>
+        <body>
+            <tr>
+                <td>
+                    {{ vm.selected.obj.name }}
+                    <span ng-if="vm.selected.obj.name == ''">(no name)</span>
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+        </body>
+    </table>
+</div>

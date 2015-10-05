@@ -8,7 +8,7 @@
 
 #import "AppDelegate.h"
 
-// TODO: leaving and returning to app
+// TODO: test leaving and returning to app
 
 @interface AppDelegate ()
 
@@ -20,7 +20,7 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     /* APP ENTRY POINT */
     // Set default settings
-    [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"ServerAddress" : DEFAULT_SERVER_ADDRESS}];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"ServerAddress" : FMS_DEFAULT_SERVER_ADDRESS}];
     
     // Build model
     self.d = [[DataModel alloc] init];
@@ -29,7 +29,7 @@
     UINavigationController *n = [[UINavigationController alloc] init];
     n.navigationBar.barStyle = UIBarStyleBlackTranslucent;
     n.navigationBar.tintColor = [UIColor whiteColor];
-    n.navigationBar.barTintColor = [UIColor colorWithRed:0.008 green:0.494 blue:0.573 alpha:1.0];
+    n.navigationBar.barTintColor = FMS_COLOUR_BAR;
     [(UIView *)[n.navigationBar.subviews objectAtIndex:0] setAlpha:0.9];
     n.navigationBar.translucent = YES;
     //[n.navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];

@@ -1,0 +1,52 @@
+<!-- <ul>
+    <li class="expand info button listButton"
+        ng-click="vm.selectAll()">
+        All Buoys
+    </li>
+    <li class="expand button listButton"
+        ng-click="vm.selectNewBuoyGroup()">
+        New Buoy Group
+    </li>
+    <li class="expand info button listButton"
+        ng-repeat="buoyGroup in vm.buoyGroups | filter:vm.buoyGroupFilter"
+        ng-click="vm.selectBuoyGroup(buoyGroup)">
+            {{ buoyGroup.name }}
+    </li>
+</ul> -->
+
+<div ui-tree="vm.treeOptions">
+    <ol ui-tree-nodes="" ng-model="vm.buoyGroups">
+        <li><a
+            ng-click="vm.selectAll()">
+            <strong>All Buoys</strong>
+        </a></li>
+        <li ng-repeat="buoyGroup in vm.buoyGroups" ui-tree-node>
+            <div>
+                <div ui-tree-handle class="tree-node">
+                    <a class="btn btn-xs" ng-click="toggle(this)" data-nodrag
+                    ng-if="buoyGroup.buoyInstances && buoyGroup.buoyInstances.length > 0">
+                    <span class="glyphicon"
+                            ng-class="{
+                            'glyphicon-chevron-right': collapsed,
+                            'glyphicon-chevron-down': !collapsed
+                            }">
+                    </span></a>
+                    {{ buoyGroup.name }}
+                </div>
+                <ol ui-tree-nodes="" ng-model="buoyGroup.buoyInstances">
+                    <li ng-if="!collapsed" ng-repeat="buoyInstance in buoyGroup.buoyInstances" ui-tree-node>
+                        <div ui-tree-handle class="tree-node">
+                            {{ buoyInstance.name }}
+                        </div>
+                    </li>
+                </ol>
+            </div>
+        </li>
+        <li >
+            <a class="btn btn-xs" ng-click="vm.selectNewBuoyGroup()">
+                <span class="glyphicon glyphicon-plus"></span>
+                (New Group)
+            </a>
+        </li>
+    </ol>
+</div>

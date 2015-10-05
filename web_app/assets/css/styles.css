@@ -1,3 +1,32 @@
+/************************** FONT **************************/
+
+/* latin-ext */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Lato Regular'), local('Lato-Regular'), url(https://fonts.gstatic.com/s/lato/v11/UyBMtLsHKBKXelqf4x7VRQ.woff2) format('woff2');
+  unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Lato Regular'), local('Lato-Regular'), url(https://fonts.gstatic.com/s/lato/v11/1YwB1sO8YE1Lyjf12WNiUA.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
+}
+
+body {
+    font-family: 'Lato', sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Lato', sans-serif;
+}
+
+/************************* other lol **********************/
+
 #map-canvas { 
 	height: 1200px;	
 	margin: 0 -16px 0 -16px;
@@ -6,14 +35,6 @@
 .no-overflow {
 	overflow: hidden;
 }
-
-.grid-block, .grid-content {
-	/*border: 1px solid black;*/
-}
-
-/*.shadow-right {
-	box-shadow: 2px 0 2px lightgray;
-}*/
 
 .shadow-glow {
   box-shadow: 0 0 5px 2px #C5C5C5;
@@ -90,51 +111,6 @@ input[type="text"] {
 .timepicker.dropdown-menu tbody button {
   padding: 6px;
 }
-
-
-table {
-  background: #FFFFFF;
-  border: solid 1px #DDDDDD;
-  margin-bottom: 1.25rem;
-  table-layout: auto;
-  width: 100% }
-  table caption {
-    background: transparent;
-    color: #222222;
-    font-size: 1rem;
-    font-weight: bold; }
-  table thead {
-    background: #F5F5F5; }
-    table thead tr th,
-    table thead tr td {
-      color: #222222;
-      font-size: 0.875rem;
-      font-weight: bold;
-      padding: 0.5rem 0.625rem 0.625rem; }
-  table tfoot {
-    background: #F5F5F5; }
-    table tfoot tr th,
-    table tfoot tr td {
-      color: #222222;
-      font-size: 0.875rem;
-      font-weight: bold;
-      padding: 0.5rem 0.625rem 0.625rem; }
-  table tr th,
-  table tr td {
-    color: #222222;
-    font-size: 0.875rem;
-    padding: 0.5625rem 0.625rem;
-    text-align: left; }
-  table tr.even, table tr.alt, table tr:nth-of-type(even) {
-    background: #F9F9F9; }
-  table thead tr th,
-  table tfoot tr th,
-  table tfoot tr td,
-  table tbody tr th,
-  table tbody tr td,
-  table tr td {
-    display: table-cell;
-    line-height: 1.125rem; }
     
 
 .invalidSensor {
@@ -166,4 +142,37 @@ table {
 .listButton {
   margin-top: 2px;
   margin-bottom: 2px;
+}
+
+.alert-placement {
+  position: absolute;
+  top: 10px;
+  right: 30px;
+  /*width: 50%;*/
+}
+
+.alert button {
+  padding-left: 10px;
+}
+
+.bs-tabs {
+  margin-top: 20px;
+}
+
+.bs-pane {
+  margin-top: 20px;
+  margin-left: 30px;
+}
+
+.tree-node {
+  border: 1px solid #dae2ea;
+  background: #f8faff;
+  color: #7c9eb2;
+  padding: 4px;
+  margin: 5px;
+}
+
+.inline {
+  display: inline;
+  margin-right: 10px;
 }

@@ -32,9 +32,14 @@
 		var loggedIn = auth.loggedIn();
 		
 		/** Variables and methods bound to viewmodel */
+		vm.accountMenu = [
+			{ text: "Change password", click: "vm.changePassword()" },
+			{ text: "Logout", click: "vm.logout()" }
+		];
 		vm.checkShowNav = checkShowNav;
 		vm.stateActive = stateActive;
 		vm.logout = logout;
+		vm.changePassword = changePassword;
 		
 		activate();
 		
@@ -72,6 +77,8 @@
 					return auth.checkUser('system_admin');
 				case 'logout':
 					return loggedIn;
+				case 'account':
+					return loggedIn;
 				default:
 					return false;
 			}
@@ -82,6 +89,11 @@
 			auth.logout();
 			loggedIn = false;
 			$state.go('login');	
+		}
+
+		/** Redirect user to change password page */
+		function changePassword() {
+			$state.go('change_password');
 		}
 	}
 })();

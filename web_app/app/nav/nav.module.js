@@ -21,6 +21,7 @@
 	angular.module('app.nav', [
 		// Shared modules
 		'app.core',
-		'app.auth'
+		'app.auth',
+        'app.gui'
 	]);
 })();

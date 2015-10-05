@@ -64,9 +64,10 @@
 		function login() {
 			server.login(vm.email, vm.password).then(
 			function(res) {
+				console.log(res);
 				if (auth.loggedIn()) {
 					if (!res.data.lastLogin.Valid) {
-						// $state.go('changepassword');
+						$state.go('reset_password');
 						vm.firstLogin = true;
 					} else {
 						$state.go('dashboard');
@@ -90,7 +91,6 @@
 				}, function(res) {
 					vm.changePasswordResponse = 1;
 				});
-				vm.firstLogin = false;
 			} else {
 				alert("Invalid password");
 			}
@@ -102,6 +102,7 @@
 			if (vm.newPassword != "" && vm.newPassword == vm.confirmPassword) {
 				server.resetPassword($stateParams.token + "=", vm.newPassword).then(function(res) {
 					vm.changePasswordResponse = 0;
+					vm.firstLogin = false;
 				}, function(res) {
 					vm.changePasswordResponse = 1;
 				});

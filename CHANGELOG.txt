@@ -54,6 +54,9 @@ Web app:
     * Temporarily disable group changing.
     + Show buoy status details table.
 * Improve loading time of warning page.
++ Implement reset password.
++ Implement change password.
+* Change 'Logout' button on navbar to an 'Account' dropdown menu
 
 
 

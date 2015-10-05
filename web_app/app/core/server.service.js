@@ -129,7 +129,7 @@
 			var data = {
 				email: email
 			};
-			return $http.post(SERVER_ADDRESS + '/api/forgotpassword', JSON.stringify(data));
+			return $http.post(SERVER_ADDRESS + '/api/forgot_password', JSON.stringify(data));
 		}
 		
 		/**

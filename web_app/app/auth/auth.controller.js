@@ -20,18 +20,20 @@
 		* @ngdoc object
 		* @name app.auth.controller:AuthController
 		* @description Controller for authentication across entire app
-		* @requires $rootScope
+		* @requires $scope
 		* @requires $state
 		* @requires auth
 		* @requires server
 		* @requires routeHelper
 	**/
-	function AuthController($rootScope, $state, auth, server, routerHelper) {
+	function AuthController($scope, $state, auth, server, routerHelper) {
 		var vm = this;
 		
 		/** Variables and methods bound to viewmodel */
 		vm.firstLogin = false;
 		vm.login = login;
+		vm.forgotResponse =- 1;
+		vm.waiting = false;
 		vm.changePassword = changePassword;
 		vm.forgotPassword = forgotPassword;
 		
@@ -40,6 +42,15 @@
 		/** Called when controller is instantiated */
 		function activate() {
 			resetForm();
+			$scope.$on('$stateChangeSuccess', stateLoaded);
+		}
+
+		/** Called when a state is loaded, used to reset views */
+		function stateLoaded() {
+			if ($state.is('forgot_password')) {
+				vm.forgotResponse = -1;
+				vm.waiting = false;
+			}
 		}
 		
 		/** Send login request to server, called on Login button click */	
@@ -76,7 +87,14 @@
 		
 		/** Send forgot password request to server */
 		function forgotPassword() {
-			server.forgotPassword(vm.email);
+			vm.waiting = true;
+			server.forgotPassword(vm.email).then(function(res) {
+				vm.forgotResponse = 0;
+				resetForm();
+			}, function(res) {
+				vm.forgotResponse = 1;
+				resetForm();
+			});
 		}
 		
 		/** Reset login form */

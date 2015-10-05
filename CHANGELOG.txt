@@ -8,6 +8,13 @@ Legend:
 ! Fixed
 
 v0.3 - Week 9 6/10
+Server:
++ Add Apache logging for web requests
++ Add POST /api/sensor_types - Can now add sensor types through the api
++ Add PUT /api/sensor_types/id - Can now update a sensor type through the api
++ Add lower bound and upper bound fields to sensor type
+! Fixed problem where decimals were maxing out at 999.999 in the database
+! Fixed problem where GET /api/buoy_instances?active=true was returning duplicate instances
 
 iOS App:
 * Support for iOS 9. Our app is now able to support devices using both 8 and 9.

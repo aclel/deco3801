@@ -94,7 +94,7 @@ func NewRouter(env *models.Env) *mux.Router {
 
 	r.Handle("/api/warnings", defaultChain.Then(AuthHandler{env, WarningsIndex, "researcher"})).Methods("GET", "OPTIONS")
 
-	r.Handle("/api/export", defaultChain.Then(AppHandler{env, ReadingsExport})).Methods("GET", "OPTIONS")
+	r.Handle("/api/readings/export", defaultChain.Then(AuthHandler{env, ReadingsExport, "researcher"})).Methods("POST", "OPTIONS")
 
 	r.Handle("/api/users", defaultChain.Then(AuthHandler{env, UsersIndex, "researcher"})).Methods("GET", "OPTIONS")
 	r.Handle("/api/users/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, UsersUpdate, "researcher"})).Methods("PUT", "OPTIONS")
@@ -195,9 +195,8 @@ func (appHandler AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func dumpRequest(r *http.Request) {
 	rawBytes, err := httputil.DumpRequest(r, true)
 	if err != nil {
-		s := string(rawBytes[:])
-		log.Print(s)
-	} else {
 		panic(err)
 	}
+	s := string(rawBytes)
+	fmt.Printf("%+q\n", s)
 }

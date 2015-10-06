@@ -98,7 +98,7 @@
 					return true;
 				},
 				dropped: function(event) {
-					console.log(event);
+					// console.log(event);
 				},
 				dragStart: function(event) {
 					// select buoy group/instance when it's clicked
@@ -128,7 +128,6 @@
 			server.getBuoyInstances().then(function(res) {
 				vm.buoyInstances = res.data.buoyInstances;
 				parseGroupNames()
-				console.log(vm.buoyGroups);
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});

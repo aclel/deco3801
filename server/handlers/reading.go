@@ -15,12 +15,10 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/aclel/deco3801/server/models"
@@ -96,7 +94,6 @@ func ReadingsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	readingsContainer := new(models.BuoyReadingContainer)
 	decoder := json.NewDecoder(r.Body)
-	fmt.Println(r.Body)
 	err := decoder.Decode(&readingsContainer)
 
 	// Check if the request is valid
@@ -104,7 +101,6 @@ func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
 	}
 
-	fmt.Println(readingsContainer)
 	// Constructs the Readings from the data
 	readings, e := buildReadings(env, readingsContainer)
 	if e != nil {
@@ -184,29 +180,25 @@ func validateReading(reading *models.Reading) *AppError {
 	return nil
 }
 
-// GET /api/export?readings=1,2,3,4
-// Gets all Readings that have the ids specific in the "readings" query parameter.
+// Used to store the reading ids in an incoming POST /api/export request
+type ReadingsIds struct {
+	Ids []int `json:"readings"`
+}
+
+// POST /api/export
+// Gets all Readings that have the ids specified in the request body
 // Returns all Sensor Readings for the Readings.
 // The Readings are written to a CSV file and sent in the response.
+// Example request body:
+//	{
+//		"readings": [1,2,3,4,5,6]
+//	}
 func ReadingsExport(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
-	u, err := url.Parse(r.URL.String())
-	params, err := url.ParseQuery(u.RawQuery)
-	if err != nil {
-		return &AppError{err, "Error parsing query parameters", http.StatusInternalServerError}
-	}
+	readingsIds := new(ReadingsIds)
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&readingsIds)
 
-	readingsParam := strings.Split(params["readings"][0], ",")
-
-	var readingsIds []int
-	for _, id := range readingsParam {
-		i, err := strconv.Atoi(id)
-		if err != nil {
-			return &AppError{err, "Error parsing query parameters into ints", http.StatusInternalServerError}
-		}
-		readingsIds = append(readingsIds, i)
-	}
-
-	readings, err := env.DB.GetReadingsIn(readingsIds)
+	readings, err := env.DB.GetReadingsIn(readingsIds.Ids)
 	if err != nil {
 		return &AppError{err, "Error retrieving readings", http.StatusInternalServerError}
 	}

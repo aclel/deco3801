@@ -20,7 +20,6 @@ type BuoyInstance struct {
 	Id            int       `json:"id" db:"id"`
 	Name          string    `json:"name" db:"name"`
 	BuoyId        int       `json:"buoyId" db:"buoy_id"`
-	BuoyName      string    `json:"buoyName" db:"buoy_name"`
 	BuoyGuid      string    `json:"buoyGuid" db:"buoy_guid"`
 	BuoyGroupId   int       `json:"buoyGroupId" db:"buoy_group_id"`
 	BuoyGroupName string    `json:"buoyGroupName" db:"buoy_group_name"`
@@ -62,8 +61,7 @@ func (db *DB) GetAllBuoyInstances() ([]BuoyInstance, error) {
 func (db *DB) GetAllActiveBuoyInstances() ([]BuoyInstance, error) {
 	buoyInstances := []BuoyInstance{}
 	err := db.Select(&buoyInstances, `SELECT 
-											buoy_instance.*, 
-											buoy.name AS buoy_name, 
+											buoy_instance.*,
 											buoy.guid as buoy_guid, 
 											buoy_group.name AS buoy_group_name, 
 											latitude, 

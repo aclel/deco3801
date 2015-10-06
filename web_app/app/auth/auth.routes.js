@@ -34,31 +34,43 @@
 						access: 'unauthed'
 					}
 				}
+			},
+			{
+				state: 'change_password',
+				config: {
+					url: '/change_password',
+					// controller: 'AuthController', now uses parent controller
+					// controllerAs: 'vm',
+					templateUrl: '/app/auth/change_password.html',
+					data: {
+						access: 'authed'
+					}
+				}
+			},
+			{
+				state: 'reset_password',
+				config: {
+					url: '/reset_password?token',
+					// controller: 'AuthController', now uses parent controller
+					// controllerAs: 'vm',
+					templateUrl: '/app/auth/reset_password.html',
+					data: {
+						access: 'unauthed'
+					}
+				}
+			},
+			{
+				state: 'forgot_password',
+				config: {
+					url: '/forgot_password',
+					// controller: 'AuthController', now uses parent controller
+					// controllerAs: 'vm',
+					templateUrl: '/app/auth/forgot_password.html',
+					data: {
+						access: 'unauthed'
+					}
+				}
 			}
-			// {
-			// 	state: 'changepassword',
-			// 	config: {
-			// 		url: '/changepassword',
-			// 		// controller: 'AuthController', now uses parent controller
-			// 		// controllerAs: 'vm',
-			// 		templateUrl: '/app/auth/changepassword.html',
-			// 		data: {
-			// 			access: 'authed'
-			// 		}
-			// 	}
-			// },
-			// {
-			// 	state: 'forgotpassword',
-			// 	config: {
-			// 		url: '/forgotpassword',
-			// 		// controller: 'AuthController', now uses parent controller
-			// 		// controllerAs: 'vm',
-			// 		templateUrl: '/app/auth/forgotpassword.html',
-			// 		data: {
-			// 			access: 'unauthed'
-			// 		}
-			// 	}
-			// }
 		];
 	}
 })();

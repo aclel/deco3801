@@ -10,7 +10,6 @@
 // @link       https://github.com/aclel/deco3801
 package handlers
 
-/*
 import (
 	"bytes"
 	"net/http"
@@ -50,4 +49,3 @@ func TestUsersCreate(t *testing.T) {
 		}
 	}
 }
-*/

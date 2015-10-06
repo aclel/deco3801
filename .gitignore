@@ -38,3 +38,6 @@ web_app/dist
 
 # VS Code files
 web_app/typings
+
+# Dockerfile - temporary
+server/Dockerfile

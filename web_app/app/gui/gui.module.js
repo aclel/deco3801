@@ -32,6 +32,7 @@
 		'mgcrea.ngStrap.select',
         'mgcrea.ngStrap.modal',
         'mgcrea.ngStrap.alert',
-        'mgcrea.ngStrap.tab'
+        'mgcrea.ngStrap.tab',
+        'mgcrea.ngStrap.dropdown'
 	]);
 })();

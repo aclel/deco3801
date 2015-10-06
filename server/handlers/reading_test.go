@@ -10,7 +10,6 @@
 // @link       https://github.com/aclel/deco3801
 package handlers
 
-/*
 import (
 	"bytes"
 	"net/http"
@@ -177,4 +176,3 @@ var readingCreateTests = []struct {
 	// Invalid JSON
 	{"Invalid JSON", `asdfasd`, http.StatusBadRequest},
 }
-*/

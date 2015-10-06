@@ -33,6 +33,7 @@
 			login: login,
 			logout: logout,
 			changePassword: changePassword,
+			resetPassword: resetPassword,
 			forgotPassword: forgotPassword,
 			getReadings: getReadings,
 			getBuoyGroups: getBuoyGroups,
@@ -111,12 +112,23 @@
 		 * @param  {string} password password
 		 * @return {promise}          request promise
 		 */
-		function changePassword(password) {
+		function changePassword(currentPassword, newPassword) {
+			var config = addToken(headers());
 			var data = {
-				email: auth.currentUser(),
-				password: password
+				currentPassword: currentPassword,
+				newPassword: newPassword
 			};
-			return $http.post(SERVER_ADDRESS + '/api/changepassword', JSON.stringify(data));
+			var email = auth.currentUser();
+			return $http.put(SERVER_ADDRESS + '/api/users/' +
+				email + '/change_password', JSON.stringify(data), config);
+		}
+
+		function resetPassword(token, newPassword) {
+			var data = {
+				newPassword: newPassword
+			};
+			var params = '?token=' + token;
+			return $http.post(SERVER_ADDRESS + '/api/reset_password' + params, JSON.stringify(data));
 		}
 		
 		/** 
@@ -129,7 +141,7 @@
 			var data = {
 				email: email
 			};
-			return $http.post(SERVER_ADDRESS + '/api/forgotpassword', JSON.stringify(data));
+			return $http.post(SERVER_ADDRESS + '/api/forgot_password', JSON.stringify(data));
 		}
 		
 		/**

@@ -129,8 +129,8 @@ func NewBuoyRouter(env *models.Env) *mux.Router {
 	// is executed.
 	defaultChain := alice.New(loggingHandler, c.Handler)
 
-	r.Handle("/api/commands", defaultChain.Then(AppHandler{env, CommandsIndex})).Methods("GET", "OPTIONS")
-	r.Handle("/api/readings", defaultChain.Then(AppHandler{env, ReadingsCreate})).Methods("POST", "OPTIONS")
+	r.Handle("/buoys/api/commands", defaultChain.Then(AppHandler{env, CommandsIndex})).Methods("GET", "OPTIONS")
+	r.Handle("/buoys/api/readings", defaultChain.Then(AppHandler{env, ReadingsCreate})).Methods("POST", "OPTIONS")
 
 	return r
 }

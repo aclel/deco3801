@@ -38,10 +38,13 @@ type EnvVars struct {
 
 func main() {
 	// Set command line flags
-	// Server port defaults to port 8080.
-	serverPort := flag.Int("port", 8080, "Server port")
+	// App port (web app, iOS app) defaults to port 8080.
+	app := flag.Int("clientport", 8080, "App port")
+	// Buoy port (incoming requests from buoys) defaults to port 8081
+	buoy := flag.Int("buoyport", 8081, "Buoy port")
 	flag.Parse()
-	port := strconv.Itoa(*serverPort)
+	appPort := strconv.Itoa(*app)
+	buoyPort := strconv.Itoa(*buoy)
 
 	// Read environment variables
 	var conf EnvVars
@@ -59,11 +62,11 @@ func main() {
 
 	// Initialise database connection pool
 	db, err := models.NewDB(dataSourceName)
-
 	if err != nil {
 		log.Println("Connection to database was unsuccessful.")
 		log.Panic(err)
 	}
+	log.Println("Database connection successful. Connected to " + dataSourceName)
 
 	// Initialise email settings
 	emailUser := models.EmailCredentials{
@@ -73,11 +76,18 @@ func main() {
 		Port:     conf.SmtpPort,
 	}
 
+	// Initialise app context (db, settings) - available in every handler
 	env := &models.Env{db, emailUser}
-	router := handlers.NewRouter(env)
+	appRouter := handlers.NewAppRouter(env)
+	buoyRouter := handlers.NewBuoyRouter(env)
 
-	// Run HTTP server
-	log.Println("Database connection successful. Connected to " + dataSourceName)
-	log.Println("Web service listening on :" + port)
-	log.Fatal(http.ListenAndServe(":"+port, router))
+	// Run web service which listens to all requests from Buoys
+	go func() {
+		log.Println("Buoy web service listening on :" + buoyPort)
+		log.Fatal(http.ListenAndServe(":"+buoyPort, buoyRouter))
+	}()
+
+	// Run web service which listens to all requests from API clients (web app, iOS app)
+	log.Println("App web service listening on :" + appPort)
+	log.Fatal(http.ListenAndServe(":"+appPort, appRouter))
 }

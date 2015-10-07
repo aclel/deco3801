@@ -25,11 +25,11 @@ import (
 	"github.com/rs/cors"
 )
 
-// Setup all routes in gorilla mux router. Authenticated routes access can be restricted to users
-// with certain roles - researchers, power users and system administrators. The permissions are heirarchical,
-// meaning that a system administrator can do everything that a power user can do, who can do everything that
-// a researcher can do.
-func NewRouter(env *models.Env) *mux.Router {
+// Setup all routes routes which are served to app clients (web app, iOS app).
+// Authenticated routes access can be restricted to users with certain roles - researchers, power users and system administrators.
+// The permissions are heirarchical, meaning that a system administrator can do everything that a power user can do,
+// who can do everything that a researcher can do.
+func NewAppRouter(env *models.Env) *mux.Router {
 	r := mux.NewRouter().StrictSlash(true)
 
 	// Enable CORS to allow Cross Origin requests
@@ -106,6 +106,30 @@ func NewRouter(env *models.Env) *mux.Router {
 	r.Handle("/api/forgot_password", defaultChain.Then(AppHandler{env, UsersForgotPassword})).Methods("POST", "OPTIONS")
 	r.Handle("/api/reset_password", defaultChain.Then(AppHandler{env, UsersResetPassword})).Methods("POST", "OPTIONS")
 	r.Handle("/api/login", defaultChain.Then(AppHandler{env, LoginHandler})).Methods("POST", "OPTIONS")
+	r.Handle("/api/readings", defaultChain.Then(AppHandler{env, ReadingsCreate})).Methods("POST", "OPTIONS")
+
+	return r
+}
+
+// Setup all routes which are consumed by Buoys.
+func NewBuoyRouter(env *models.Env) *mux.Router {
+	r := mux.NewRouter().StrictSlash(true)
+
+	// Enable CORS to allow Cross Origin requests
+	c := cors.New(cors.Options{
+		// This can be uncommented to restrict CORS to only localhost:8080 and teamneptune.co
+		//AllowedOrigins:   []string{"http://localhost:8080", "http://teamneptune.co"},
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"POST", "GET", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Content-Type", "Accept-Encoding", "X-CSRF-Token", "Authorization"},
+		AllowCredentials: true,
+	})
+
+	// Setup the default middleware chain. Everything in the chain is executed in order before the route handler
+	// is executed.
+	defaultChain := alice.New(loggingHandler, c.Handler)
+
+	r.Handle("/api/commands", defaultChain.Then(AppHandler{env, CommandsIndex})).Methods("GET", "OPTIONS")
 	r.Handle("/api/readings", defaultChain.Then(AppHandler{env, ReadingsCreate})).Methods("POST", "OPTIONS")
 
 	return r

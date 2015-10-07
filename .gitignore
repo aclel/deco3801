@@ -28,8 +28,7 @@ build/Release
 web_app/node_modules
 web_app/bower_components
 
-# Environment constants files
-web_app/env
+# Sublime Text files
 *.sublime-project
 *.sublime-workspace
 

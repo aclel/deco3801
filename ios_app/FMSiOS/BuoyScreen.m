@@ -13,6 +13,7 @@
 
 @interface BuoyScreen () <UIPopoverPresentationControllerDelegate, CLLocationManagerDelegate, MKMapViewDelegate>
 
+// Core UI elements
 @property (strong, nonatomic) MKMapView *map;
 @property (strong, nonatomic) CLLocationManager *l;
 @property (strong, nonatomic) UIBarButtonItem *pButton; //info popup
@@ -21,6 +22,14 @@
 @property (strong, nonatomic) UIBarButtonItem *rIndButton;
 @property (strong, nonatomic) UIViewController *popup;
 
+// Hidden elements
+@property (strong, nonatomic) UIButton *moreInfoDialogContainer; //More info dialog is in the content view for this
+@property (strong, nonatomic) UIView *moreInfoDialog;
+@property (strong, nonatomic) UIView *moreInfoContent;
+@property (strong, nonatomic) ShadowButton *moreInfoPingButton;
+@property (strong, nonatomic) UIActivityIndicatorView *moreInfoPingInd;
+
+// Data structures
 @property (strong, nonatomic) NSArray *allBuoys; // List of all buoys to display
 @property (strong, nonatomic) NSArray *buoyGroups; // List of buoy groups, containing the above
 
@@ -98,6 +107,9 @@
         [self.l requestWhenInUseAuthorization];
     }
     
+    // Overall colours
+    self.view.backgroundColor = [UIColor whiteColor];
+    
     // Create map and fit to screen
     self.map = [[MKMapView alloc] initWithFrame:self.view.frame];
     self.map.mapType = MKMapTypeStandard;
@@ -144,14 +156,54 @@
     self.rInd = refreshInd;
     self.rIndButton = refreshIndIcon;
     
+    // More info dialog container
+    self.moreInfoDialogContainer = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.moreInfoDialogContainer.backgroundColor = [UIColor colorWithWhite:0 alpha:0.3];
+    self.moreInfoDialogContainer.frame = self.view.bounds;
+    [self.moreInfoDialogContainer addTarget:self action:@selector(outsideMoreInfoPressed) forControlEvents:UIControlEventTouchUpInside];
+    
+    // More info dialog
+    self.moreInfoDialog = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 310, 310)];
+    self.moreInfoDialog.backgroundColor = [UIColor colorWithWhite:0.85 alpha:0.95];
+    self.moreInfoDialog.layer.cornerRadius = 10;
+    self.moreInfoDialog.center = self.moreInfoDialogContainer.center;
+    
+    // More info content section
+    
+    // More info ping button
+    self.moreInfoPingButton = [ShadowButton buttonWithType:UIButtonTypeCustom];
+    self.moreInfoPingButton.backgroundColor = FMS_COLOUR_BUTTON;
+    self.moreInfoPingButton.normalColour = FMS_COLOUR_BUTTON;
+    self.moreInfoPingButton.highlightColour = FMS_COLOUR_BUTTON_SEL;
+    self.moreInfoPingButton.selectedColour = FMS_COLOUR_BUTTON;
+    [self.moreInfoPingButton setTitle:@"Ping" forState:UIControlStateNormal];
+    [self.moreInfoPingButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [self.moreInfoPingButton setTitle:@"" forState:UIControlStateDisabled];
+    self.moreInfoPingButton.titleLabel.font = [UIFont systemFontOfSize:20];
+    self.moreInfoPingButton.frame = CGRectMake(0, 0, 150, 50);
+    self.moreInfoPingButton.center = CGPointMake(90, 265);
+    [self.moreInfoDialog addSubview:self.moreInfoPingButton];
+    
+    // More info ping indicator
+    self.moreInfoPingInd = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+    self.moreInfoPingInd.hidesWhenStopped = YES;
+    [self.moreInfoPingInd stopAnimating];
+    self.moreInfoPingInd.frame = self.moreInfoPingButton.bounds;
+    self.moreInfoPingInd.center = self.moreInfoPingButton.center;
+    [self.moreInfoDialog addSubview:self.moreInfoPingInd];
+    
     // Fin
     [self.view addSubview:self.map];
+    [self.view addSubview:self.moreInfoDialogContainer];
+    [self.moreInfoDialogContainer addSubview:self.moreInfoDialog];
+    [self.moreInfoDialogContainer setHidden:YES];
 }
 
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
-    
     self.map.frame = self.view.frame;
+    self.moreInfoDialogContainer.frame = self.view.frame;
+    self.moreInfoDialog.center = self.moreInfoDialogContainer.center;
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -159,8 +211,18 @@
     
     [self.navigationController setNavigationBarHidden:NO animated:YES];
     self.d.dataDelegate = self;
+    [self.moreInfoDialog setHidden:YES];
     
     self.title = [self.d userDisplayName];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    NSLog(@"%f", self.moreInfoDialog.center.x);
+    NSLog(@"%f", self.moreInfoDialog.center.y);
+    [self.moreInfoDialog setHidden:NO];
+    NSLog(@"%@", self.moreInfoDialog.isHidden ? @"yes" : @"no");
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -283,6 +345,7 @@
         
         // Buttons for more info and stuff
         UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+        [rightButton addTarget:self action:@selector(moreInfoButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
         v.rightCalloutAccessoryView = rightButton;
     } else {
         // Reuse only properties
@@ -291,10 +354,11 @@
     
     // General properties
     Buoy *b = (Buoy *)annotation;
-    
     UILabel *leftViewLabel = (UILabel *)v.leftCalloutAccessoryView;
     leftViewLabel.text = [NSString stringWithFormat:@"%@\n%@", [DataModel stringForLatitude:b.coordinate.latitude], [DataModel stringForLongitude:b.coordinate.longitude]];
     [leftViewLabel sizeToFit];
+    UIButton *rightButton = (UIButton *)v.rightCalloutAccessoryView;
+    rightButton.tag = [self.allBuoys indexOfObject:b];
     
     // Marker colours
     if (b.group == nil || b.group.groupId == 0) { // Ungrouped
@@ -438,6 +502,25 @@
     } else if (typeChooser.selectedSegmentIndex == 1) {
         self.map.mapType = MKMapTypeSatellite;
     }
+}
+
+- (void)moreInfoButtonPressed:(UIControl *)c {
+    // Deselect any annotations
+    for (id<MKAnnotation> a in self.map.selectedAnnotations) {
+        [self.map deselectAnnotation:a animated:YES];
+    }
+    
+    // Get buoy to display
+    UIButton *buttonPressed = (UIButton *)c;
+    Buoy *b = [self.allBuoys objectAtIndex:buttonPressed.tag];
+    
+    // Update and popup more info dialog
+    [self.moreInfoDialogContainer setHidden:NO];
+}
+
+- (void)outsideMoreInfoPressed {
+    // Done
+    [self.moreInfoDialogContainer setHidden:YES];
 }
 
 @end

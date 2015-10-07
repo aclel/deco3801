@@ -29,7 +29,7 @@ web_app/node_modules
 web_app/bower_components
 
 # Environment constants files
-web_app/app/env.js
+web_app/env
 *.sublime-project
 *.sublime-workspace
 

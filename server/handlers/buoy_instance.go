@@ -12,6 +12,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -94,6 +95,10 @@ func BuoyInstancesCreate(env *models.Env, w http.ResponseWriter, r *http.Request
 		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
 	}
 
+	if e := validateBuoyInstance(buoyInstance); e != nil {
+		return e
+	}
+
 	// Insert the Buoy into the database
 	err = env.DB.CreateBuoyInstance(buoyInstance)
 	if err != nil {
@@ -129,6 +134,10 @@ func BuoyInstancesUpdate(env *models.Env, w http.ResponseWriter, r *http.Request
 	}
 	buoyInstance.Id = id
 
+	if e := validateBuoyInstance(buoyInstance); e != nil {
+		return e
+	}
+
 	// Replace Buoy Instance in the database
 	err = env.DB.UpdateBuoyInstance(buoyInstance)
 	if err != nil {
@@ -136,6 +145,18 @@ func BuoyInstancesUpdate(env *models.Env, w http.ResponseWriter, r *http.Request
 	}
 
 	w.WriteHeader(http.StatusOK)
+	return nil
+}
+
+func validateBuoyInstance(buoyInstance *models.BuoyInstance) *AppError {
+	if buoyInstance.Name == "" {
+		return &AppError{errors.New("Buoy instance error"), "Buoy Instance is missing name", http.StatusBadRequest}
+	}
+
+	if buoyInstance.PollRate < 0 {
+		return &AppError{errors.New("Buoy instance error"), "Buoy Instance must be a positive integer", http.StatusBadRequest}
+	}
+
 	return nil
 }
 

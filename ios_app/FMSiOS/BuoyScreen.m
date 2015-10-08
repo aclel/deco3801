@@ -6,13 +6,133 @@
 //  Copyright (c) 2015 Team Neptune. All rights reserved.
 //
 
-// TODO: more info popup
+// TODO: pinging
+// TODO: more info content
+// TODO: animations
 // TODO: buoy distance from self
 
 #import "BuoyScreen.h"
 
+// View in the centre when clicking more info
+@interface MoreInfoDialog : UIView
+
+@property (strong, nonatomic) UILabel *content;
+@property (strong, nonatomic) UIActivityIndicatorView *contentInd;
+@property (strong, nonatomic) UIButton *pingButton;
+@property (strong, nonatomic) UIActivityIndicatorView *pingInd;
+@property (strong, nonatomic) UILabel *pingDetail;
+@property (strong, nonatomic) UIButton *cancelButton;
+
+- (void)reset;
+- (void)loadBuoyInfo:(NSString *)info;
+
+- (void)startPinging;
+- (void)finishPingingSuccessWithTime:(NSUInteger)milliseconds;
+- (void)finishPingingFailure;
+
+@end
+
+
+@implementation MoreInfoDialog
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        self.frame = CGRectMake(0, 0, 310, 250);
+        self.backgroundColor = [UIColor lightGrayColor];
+        self.backgroundColor = [UIColor colorWithWhite:0.85 alpha:0.95];
+        self.layer.cornerRadius = 10;
+        // Label
+        _content = [[UILabel alloc] init];
+        [_content setHidden:YES];
+        [self addSubview:_content];
+        
+        // Indicator for missing content
+        _contentInd = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+        _contentInd.color = FMS_COLOUR_BAR;
+        _contentInd.hidesWhenStopped = YES;
+        [_contentInd startAnimating];
+        [self addSubview:_contentInd];
+        
+        // Ping button
+        _pingButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        [_pingButton setTitle:@"Ping" forState:UIControlStateNormal];
+        [_pingButton setTitle:@"" forState:UIControlStateDisabled];
+        _pingButton.titleLabel.font = [UIFont systemFontOfSize:18];
+        [self addSubview:_pingButton];
+        
+        // Ping indicator
+        _pingInd = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
+        _pingInd.color = FMS_COLOUR_BAR;
+        _pingInd.hidesWhenStopped = YES;
+        [_pingInd stopAnimating];
+        [self addSubview:_pingInd];
+        
+        // Ping label
+        _pingDetail = [[UILabel alloc] init];
+        _pingDetail.font = [UIFont systemFontOfSize:17];
+        [self addSubview:_pingDetail];
+        [_pingDetail setHidden:YES];
+        
+        // Close button
+        _cancelButton = [UIButton buttonWithType:UIButtonTypeSystem];
+        [_cancelButton setTitle:@"Close" forState:UIControlStateNormal];
+        _cancelButton.titleLabel.font = [UIFont systemFontOfSize:18];
+        [self addSubview:_cancelButton];
+        
+        // End
+        [_pingButton sizeToFit];
+        [_cancelButton sizeToFit];
+    }
+    return self;
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    
+    _pingButton.frame = CGRectMake(15, 5, _pingButton.frame.size.width, _pingButton.frame.size.height);
+    _pingDetail.frame = CGRectMake(30 + _pingButton.frame.size.width, 5, 200, _pingButton.frame.size.height);
+    
+    _cancelButton.frame = CGRectMake(self.frame.size.width - _cancelButton.frame.size.width - 15, 5, _cancelButton.frame.size.width, _cancelButton.frame.size.height);
+    
+    _content = [[UILabel alloc] initWithFrame:CGRectMake(10, 40, self.frame.size.width - 20, self.frame.size.height - 70 - 10)];
+    
+    _contentInd.center = _content.center;
+    _pingInd.center = _pingButton.center;
+}
+
+- (void)reset {
+    [self.pingDetail setHidden:YES];
+}
+
+- (void)startPinging {
+    [self.pingDetail setHidden:YES];
+    [self.pingButton setEnabled:NO];
+    [self.pingInd startAnimating];
+}
+
+- (void)finishPingingFailure {
+    [self.pingInd stopAnimating];
+    self.pingDetail.textColor = [UIColor colorWithRed:1 green:0.35 blue:0.35 alpha:1];
+    self.pingDetail.text = [NSString stringWithFormat:@"\u274C no response"];
+    [self.pingDetail setHidden:NO];
+    [self.pingButton setEnabled:YES];
+}
+
+- (void)finishPingingSuccessWithTime:(NSUInteger)milliseconds {
+    [self.pingInd stopAnimating];
+    self.pingDetail.textColor = [UIColor colorWithHue:121/256.0 saturation:0.85 brightness:0.55 alpha:1.0];
+    self.pingDetail.text = [NSString stringWithFormat:@"%dms \u2713", milliseconds];
+    [self.pingDetail setHidden:NO];
+    [self.pingButton setEnabled:YES];
+}
+
+@end
+
+
 @interface BuoyScreen () <UIPopoverPresentationControllerDelegate, CLLocationManagerDelegate, MKMapViewDelegate>
 
+// Core UI elements
 @property (strong, nonatomic) MKMapView *map;
 @property (strong, nonatomic) CLLocationManager *l;
 @property (strong, nonatomic) UIBarButtonItem *pButton; //info popup
@@ -21,6 +141,11 @@
 @property (strong, nonatomic) UIBarButtonItem *rIndButton;
 @property (strong, nonatomic) UIViewController *popup;
 
+// Hidden elements
+@property (strong, nonatomic) UIButton *moreInfoDialogContainer; //More info dialog is in the content view for this
+@property (strong, nonatomic) MoreInfoDialog *moreInfoDialog;
+
+// Data structures
 @property (strong, nonatomic) NSArray *allBuoys; // List of all buoys to display
 @property (strong, nonatomic) NSArray *buoyGroups; // List of buoy groups, containing the above
 
@@ -53,7 +178,7 @@
     [self.view addSubview:self.t];
 }
 
-- (void)viewDidLayoutSubviews {
+- (void)viewWillLayoutSubviews {
     self.t.frame = self.view.frame;
 }
 
@@ -85,7 +210,6 @@
 @end
 
 
-
 @implementation BuoyScreen
 
 - (void)viewDidLoad {
@@ -97,6 +221,9 @@
     if ([self.l respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
         [self.l requestWhenInUseAuthorization];
     }
+    
+    // Overall colours
+    self.view.backgroundColor = [UIColor whiteColor];
     
     // Create map and fit to screen
     self.map = [[MKMapView alloc] initWithFrame:self.view.frame];
@@ -144,14 +271,32 @@
     self.rInd = refreshInd;
     self.rIndButton = refreshIndIcon;
     
+    // More info dialog container
+    self.moreInfoDialogContainer = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.moreInfoDialogContainer.backgroundColor = [UIColor colorWithWhite:0 alpha:0.3];
+    self.moreInfoDialogContainer.frame = self.view.bounds;
+    [self.moreInfoDialogContainer addTarget:self action:@selector(closeMoreInfoPressed) forControlEvents:UIControlEventTouchUpInside];
+    
+    // More info dialog
+    self.moreInfoDialog = [[MoreInfoDialog alloc] init];
+    self.moreInfoDialog.center = self.moreInfoDialogContainer.center;
+    [self.moreInfoDialog layoutSubviews];
+    [self.moreInfoDialog.pingButton addTarget:self action:@selector(pingMoreInfoPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.moreInfoDialog.cancelButton addTarget:self action:@selector(closeMoreInfoPressed) forControlEvents:UIControlEventTouchUpInside];
+    
     // Fin
     [self.view addSubview:self.map];
+    [self.view addSubview:self.moreInfoDialogContainer];
+    [self.moreInfoDialogContainer addSubview:self.moreInfoDialog];
+    [self.moreInfoDialogContainer setHidden:YES];
 }
 
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
-    
     self.map.frame = self.view.frame;
+    self.moreInfoDialogContainer.frame = self.view.frame;
+    self.moreInfoDialog.center = self.moreInfoDialogContainer.center;
+    [self.moreInfoDialog layoutSubviews];
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -159,8 +304,18 @@
     
     [self.navigationController setNavigationBarHidden:NO animated:YES];
     self.d.dataDelegate = self;
+    [self.moreInfoDialog setHidden:YES];
     
     self.title = [self.d userDisplayName];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    
+    NSLog(@"%f", self.moreInfoDialog.center.x);
+    NSLog(@"%f", self.moreInfoDialog.center.y);
+    [self.moreInfoDialog setHidden:NO];
+    NSLog(@"%@", self.moreInfoDialog.isHidden ? @"yes" : @"no");
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -283,6 +438,7 @@
         
         // Buttons for more info and stuff
         UIButton *rightButton = [UIButton buttonWithType:UIButtonTypeDetailDisclosure];
+        [rightButton addTarget:self action:@selector(moreInfoButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
         v.rightCalloutAccessoryView = rightButton;
     } else {
         // Reuse only properties
@@ -291,10 +447,11 @@
     
     // General properties
     Buoy *b = (Buoy *)annotation;
-    
     UILabel *leftViewLabel = (UILabel *)v.leftCalloutAccessoryView;
     leftViewLabel.text = [NSString stringWithFormat:@"%@\n%@", [DataModel stringForLatitude:b.coordinate.latitude], [DataModel stringForLongitude:b.coordinate.longitude]];
     [leftViewLabel sizeToFit];
+    UIButton *rightButton = (UIButton *)v.rightCalloutAccessoryView;
+    rightButton.tag = [self.allBuoys indexOfObject:b];
     
     // Marker colours
     if (b.group == nil || b.group.groupId == 0) { // Ungrouped
@@ -437,6 +594,46 @@
         self.map.mapType = MKMapTypeStandard;
     } else if (typeChooser.selectedSegmentIndex == 1) {
         self.map.mapType = MKMapTypeSatellite;
+    }
+}
+
+- (void)moreInfoButtonPressed:(UIControl *)c {
+    // Deselect any annotations
+    for (id<MKAnnotation> a in self.map.selectedAnnotations) {
+        [self.map deselectAnnotation:a animated:YES];
+    }
+    
+    // Get buoy to display
+    UIButton *buttonPressed = (UIButton *)c;
+    Buoy *b = [self.allBuoys objectAtIndex:buttonPressed.tag];
+    
+    // Update and popup more info dialog
+    [self.moreInfoDialogContainer setHidden:NO];
+    
+    // Start request for info
+    //TODO
+}
+
+- (void)closeMoreInfoPressed {
+    // Done
+    [self.moreInfoDialog reset];
+    [self.moreInfoDialogContainer setHidden:YES];
+}
+
+- (void)pingMoreInfoPressed {
+    // Update interface to start ping look
+    [self.moreInfoDialog startPinging];
+    
+    //for now just do dummy
+    [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(dummypingdone) userInfo:nil repeats:NO];
+}
+
+- (void)dummypingdone {
+    NSInteger success = arc4random() % 2;
+    if (success == 1) {
+        [self.moreInfoDialog finishPingingSuccessWithTime:23];
+    } else {
+        [self.moreInfoDialog finishPingingFailure];
     }
 }
 

@@ -22,6 +22,56 @@ var minifyCss = require('gulp-minify-css');
 var autoprefixer = require('gulp-autoprefixer');
 var sass = require('gulp-sass');
 
+gulp.task('env-dev', function(cb) {
+  gulp.src('env/dev/env.js')
+    .pipe(gulp.dest('app'));
+  gulp.src('env/dev/index.html')
+    .pipe(gulp.dest('.'));
+    cb();
+});
+
+gulp.task('env-prod', function(cb) {
+  gulp.src('env/prod/env.js')
+    .pipe(gulp.dest('app'));
+  gulp.src('env/prod/index.html')
+    .pipe(gulp.dest('.'));
+    cb();
+});
+
+gulp.task('html', function() {
+  gulp.src('app/**/*.html')
+    // .pipe(templateCache({ module: 'app.templates', standalone: true }))
+    // .pipe(gulp.dest('assets/js'))
+    .pipe(livereload());
+});
+
+gulp.task('sass', function(cb) {
+  gulp.src('assets/scss/**/*.scss')
+    .pipe(plumber())
+    .pipe(sass())
+    .pipe(gulp.dest('assets/css'));
+    cb();
+});
+
+gulp.task('css', function() {
+  gulp.src('assets/css/*.css')
+    .pipe(plumber())
+    .pipe(sourcemaps.init())
+      .pipe(concat('app.css'))
+    .pipe(sourcemaps.write())
+    .pipe(gulp.dest('dist/css'))
+    .pipe(livereload());
+});
+
+gulp.task('css-prod', ['sass'], function() {
+  gulp.src('assets/css/*.css')
+    .pipe(plumber())
+    .pipe(concat('app.min.css'))
+    .pipe(minifyCss())
+    .pipe(gulp.dest('dist/css'))
+    .pipe(livereload());
+});
+
 gulp.task('js', function () {
   gulp.src(['app/**/*.module.js',
             'app/**/*.js',
@@ -49,51 +99,13 @@ gulp.task('js-prod', function () {
     .pipe(livereload());
 });
 
-gulp.task('css', function() {
-  gulp.src('assets/css/*.css')
-    .pipe(plumber())
-    .pipe(sourcemaps.init())
-      .pipe(concat('app.css'))
-    .pipe(sourcemaps.write())
-    .pipe(gulp.dest('dist/css'))
-    .pipe(livereload());
-});
-
-gulp.task('css-prod', function() {
-  gulp.src('assets/css/*.css')
-    .pipe(plumber())
-    .pipe(concat('app.min.css'))
-    .pipe(minifyCss())
-    .pipe(gulp.dest('dist/css'))
-    .pipe(livereload());
-});
-
-gulp.task('sass', function() {
-  gulp.src('assets/scss/**/*.scss')
-    .pipe(sass())
-    .pipe(gulp.dest('dist/css'))
-    .pipe(livereload());
-});
-
-gulp.task('html', function() {
-  gulp.src('app/**/*.html')
-    // .pipe(templateCache({ module: 'app.templates', standalone: true }))
-    // .pipe(gulp.dest('assets/js'))
-    .pipe(livereload());
-});
-
-gulp.task('watch', ['sass', 'css', 'html', 'js'], function() {
+gulp.task('watch', ['env-dev', 'html', 'sass', 'css', 'js'], function() {
   livereload.listen();
   gulp.watch('app/**/*.html', ['html']);
-  gulp.watch('assets/scss/**/*.scss', ['sass']);
+  gulp.watch('assets/scss/**/*.scss', ['sass', 'css']);
   gulp.watch('assets/css/*.css', ['css']);
   gulp.watch('app/**/*.js', ['js']);
 });
 
-gulp.task('build', ['sass', 'css', 'html', 'js'], function() {
-  //
-});
-
-gulp.task('build-prod', ['sass', 'css-prod', 'html', 'js-prod'], function() {
-  //
-});
+gulp.task('build', ['env-dev', 'html', 'sass', 'css', 'js']);
+gulp.task('build-prod', ['env-prod', 'html', 'sass', 'css-prod', 'js-prod']);

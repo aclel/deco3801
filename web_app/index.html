@@ -9,15 +9,10 @@
     <link rel="stylesheet" href="/bower_components/angular-motion/dist/angular-motion.min.css">
     <link rel="stylesheet" href="/bower_components/angular-chart.js/dist/angular-chart.css">
     <link rel="stylesheet" href="/bower_components/angular-ui-tree/dist/angular-ui-tree.min.css">
-    <link rel="stylesheet" href="/dist/css/foundation.css">
     <link rel="stylesheet" href="/dist/css/app.css">
 </head>
-<body ng-controller="AuthController as authVm">
-    
-    <div class="grid-frame vertical">
-        <div ng-include="'/app/nav/nav.partial.html'"></div>
-        <div id="page" ui-view class="grid-block"></div>
-    </div>
+<body>
+    <div ng-include="'/app/app.html'"></div>
 
 
     <script src='https://maps.googleapis.com/maps/api/js?sensor=false'></script>

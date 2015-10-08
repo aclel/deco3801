@@ -15,9 +15,11 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
+	"os"
 
 	"github.com/aclel/deco3801/server/models"
 	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 	"github.com/rs/cors"
@@ -42,7 +44,7 @@ func NewRouter(env *models.Env) *mux.Router {
 
 	// Setup the default middleware chain. Everything in the chain is executed in order before the route handler
 	// is executed.
-	defaultChain := alice.New(c.Handler)
+	defaultChain := alice.New(loggingHandler, c.Handler)
 
 	//TODO: Update roles in routes
 
@@ -92,7 +94,7 @@ func NewRouter(env *models.Env) *mux.Router {
 
 	r.Handle("/api/warnings", defaultChain.Then(AuthHandler{env, WarningsIndex, "researcher"})).Methods("GET", "OPTIONS")
 
-	r.Handle("/api/export", defaultChain.Then(AppHandler{env, ReadingsExport})).Methods("GET", "OPTIONS")
+	r.Handle("/api/readings/export", defaultChain.Then(AuthHandler{env, ReadingsExport, "researcher"})).Methods("POST", "OPTIONS")
 
 	r.Handle("/api/users", defaultChain.Then(AuthHandler{env, UsersIndex, "researcher"})).Methods("GET", "OPTIONS")
 	r.Handle("/api/users/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, UsersUpdate, "researcher"})).Methods("PUT", "OPTIONS")
@@ -101,10 +103,17 @@ func NewRouter(env *models.Env) *mux.Router {
 
 	// Unauthenticated routes
 	r.Handle("/api/users", defaultChain.Then(AppHandler{env, UsersCreate})).Methods("POST", "OPTIONS")
+	r.Handle("/api/forgot_password", defaultChain.Then(AppHandler{env, UsersForgotPassword})).Methods("POST", "OPTIONS")
+	r.Handle("/api/reset_password", defaultChain.Then(AppHandler{env, UsersResetPassword})).Methods("POST", "OPTIONS")
 	r.Handle("/api/login", defaultChain.Then(AppHandler{env, LoginHandler})).Methods("POST", "OPTIONS")
 	r.Handle("/api/readings", defaultChain.Then(AppHandler{env, ReadingsCreate})).Methods("POST", "OPTIONS")
 
 	return r
+}
+
+// Apache web server logging
+func loggingHandler(h http.Handler) http.Handler {
+	return handlers.LoggingHandler(os.Stdout, h)
 }
 
 // Custom error type. The message field can be used to store
@@ -186,9 +195,8 @@ func (appHandler AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func dumpRequest(r *http.Request) {
 	rawBytes, err := httputil.DumpRequest(r, true)
 	if err != nil {
-		s := string(rawBytes[:])
-		log.Print(s)
-	} else {
 		panic(err)
 	}
+	s := string(rawBytes)
+	fmt.Printf("%+q\n", s)
 }

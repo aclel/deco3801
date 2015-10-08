@@ -14,12 +14,10 @@ import (
 	"flag"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/aclel/deco3801/server/handlers"
 	"github.com/aclel/deco3801/server/models"
-	gorilla "github.com/gorilla/handlers"
 	"github.com/kelseyhightower/envconfig"
 )
 
@@ -78,11 +76,8 @@ func main() {
 	env := &models.Env{db, emailUser}
 	router := handlers.NewRouter(env)
 
-	// Add Apache web server logging
-	loggedRouter := gorilla.LoggingHandler(os.Stdout, router)
-
 	// Run HTTP server
 	log.Println("Database connection successful. Connected to " + dataSourceName)
 	log.Println("Web service listening on :" + port)
-	log.Fatal(http.ListenAndServe(":"+port, loggedRouter))
+	log.Fatal(http.ListenAndServe(":"+port, router))
 }

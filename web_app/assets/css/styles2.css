@@ -28,13 +28,21 @@ h1, h2, h3, h4, h5, h6 {
 /************************* other lol **********************/
 
 #map-canvas { 
-	height: 1200px;	
-	margin: 0 -16px 0 -16px;
+  height: 1200px; 
+  margin: 0 -16px 0 -16px;
 }
 
 .no-overflow {
-	overflow: hidden;
+  overflow: hidden;
 }
+
+.grid-block, .grid-content {
+  /*border: 1px solid black;*/
+}
+
+/*.shadow-right {
+  box-shadow: 2px 0 2px lightgray;
+}*/
 
 .shadow-glow {
   box-shadow: 0 0 5px 2px #C5C5C5;
@@ -54,7 +62,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .mapWindow {
-	background-color: darkgrey;
+  background-color: darkgrey;
 }
 
 input[type="text"] {
@@ -62,8 +70,8 @@ input[type="text"] {
 }
 
 .timefilters input[type="text"] {
-	width: 40%;
-	display: inline;
+  width: 40%;
+  display: inline;
 }
 .timefilters {
   margin-left: 8px;
@@ -74,9 +82,9 @@ input[type="text"] {
 }
 
 .sensorfilters input[type="text"] {
-	width: 60px;
-	display: inline;
-	margin-right: 5px;
+  width: 60px;
+  display: inline;
+  margin-right: 5px;
 }
 .sensorfilters div.sensor-name {
   margin-bottom: 4px;
@@ -111,6 +119,51 @@ input[type="text"] {
 .timepicker.dropdown-menu tbody button {
   padding: 6px;
 }
+
+
+table {
+  background: #FFFFFF;
+  border: solid 1px #DDDDDD;
+  margin-bottom: 1.25rem;
+  table-layout: auto;
+  width: 100% }
+  table caption {
+    background: transparent;
+    color: #222222;
+    font-size: 1rem;
+    font-weight: bold; }
+  table thead {
+    background: #F5F5F5; }
+    table thead tr th,
+    table thead tr td {
+      color: #222222;
+      font-size: 0.875rem;
+      font-weight: bold;
+      padding: 0.5rem 0.625rem 0.625rem; }
+  table tfoot {
+    background: #F5F5F5; }
+    table tfoot tr th,
+    table tfoot tr td {
+      color: #222222;
+      font-size: 0.875rem;
+      font-weight: bold;
+      padding: 0.5rem 0.625rem 0.625rem; }
+  table tr th,
+  table tr td {
+    color: #222222;
+    font-size: 0.875rem;
+    padding: 0.5625rem 0.625rem;
+    text-align: left; }
+  table tr.even, table tr.alt, table tr:nth-of-type(even) {
+    background: #F9F9F9; }
+  table thead tr th,
+  table tfoot tr th,
+  table tfoot tr td,
+  table tbody tr th,
+  table tbody tr td,
+  table tr td {
+    display: table-cell;
+    line-height: 1.125rem; }
     
 
 .invalidSensor {
@@ -175,4 +228,12 @@ input[type="text"] {
 .inline {
   display: inline;
   margin-right: 10px;
+}
+
+.right {
+  float: right;
+}
+
+.groupright {
+  padding-left: 100px;
 }

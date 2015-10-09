@@ -14,7 +14,7 @@ package models
 type Buoy struct {
 	Id                   int    `json:"id" db:"id"`
 	Guid                 string `json:"guid" db:"guid"`
-	Name                 string `json:"name" db:"name"`
+	Name                 string `json:"name"` // This field is only used when a new buoy is created to add a name for buoy instance
 	ActiveBuoyInstanceId int    `json:"activeBuoyInstanceId" db:"active_buoy_instance_id"`
 }
 
@@ -55,12 +55,12 @@ func (db *DB) GetBuoyById(id int) (*Buoy, error) {
 
 // Insert a new Buoy into the database.
 func (db *DB) CreateBuoy(buoy *Buoy) (int64, error) {
-	query, err := db.Preparex("INSERT INTO buoy (guid, name) VALUES(?, ?);")
+	query, err := db.Preparex("INSERT INTO buoy (guid) VALUES(?);")
 	if err != nil {
 		return -1, err
 	}
 
-	result, err := query.Exec(buoy.Guid, buoy.Name)
+	result, err := query.Exec(buoy.Guid)
 	if err != nil {
 		return -1, err
 	}
@@ -75,12 +75,12 @@ func (db *DB) CreateBuoy(buoy *Buoy) (int64, error) {
 
 // Updates the given buoy in the database.
 func (db *DB) UpdateBuoy(buoy *Buoy) error {
-	stmt, err := db.Preparex("UPDATE buoy SET guid=?, name=? WHERE id=?;")
+	stmt, err := db.Preparex("UPDATE buoy SET guid=? WHERE id=?;")
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(buoy.Guid, buoy.Name, buoy.Id)
+	_, err = stmt.Exec(buoy.Guid, buoy.Id)
 	if err != nil {
 		return err
 	}

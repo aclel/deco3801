@@ -99,8 +99,8 @@ func BuoysCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 		return &AppError{err, "Error inserting buoy into the database", http.StatusInternalServerError}
 	}
 
-	// Insert an initial Buoy Instance for the Buoy
-	buoyInstance := &models.BuoyInstance{BuoyId: int(newId), BuoyGroupId: 0}
+	// Insert an initial Buoy Instance for the Buoy. Buoy group 0 is "Unassigned"
+	buoyInstance := &models.BuoyInstance{BuoyId: int(newId), Name: buoy.Name, BuoyGroupId: 0}
 	err = env.DB.CreateBuoyInstance(buoyInstance)
 	if err != nil {
 		return &AppError{err, "Error inserting buoy instance into the database", http.StatusInternalServerError}

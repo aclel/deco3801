@@ -23,8 +23,8 @@ import (
 
 // Application environment variables
 type EnvVars struct {
-	DbHost       string `envconfig:"db_host" required:"true"`
-	DbPort       string `envconfig:"db_port" required:"true"`
+	DbHost       string `envconfig:"db_port_3306_tcp_addr" required:"true"`
+	DbPort       string `envconfig:"db_port_3306_tcp_port" required:"true"`
 	DbUsername   string `envconfig:"db_username" required:"true"`
 	DbPassword   string `envconfig:"db_password" required:"true"`
 	DbName       string `envconfig:"db_name" required:"true"`

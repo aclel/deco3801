@@ -32,8 +32,7 @@ type EnvVars struct {
 	SmtpPassword string `envconfig:"smtp_password" required:"true"`
 	SmtpServer   string `envconfig:"smtp_server" required:"true"`
 	SmtpPort     int    `envconfig:"smtp_port" required:"true"`
-	PrivateKey   string `envconfig:"private_key" required:"true"`
-	PublicKey    string `envconfig:"public_key" required:"true"`
+	SecretKey    string `envconfig:"secret_key" required:"true"`
 }
 
 func main() {

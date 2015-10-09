@@ -26,6 +26,7 @@ type BuoyInstance struct {
 	Latitude      float64   `json:"latitude" db:"latitude"`
 	Longitude     float64   `json:"longitude" db:"longitude"`
 	DateCreated   time.Time `json:"dateCreated" db:"date_created"`
+	PollRate      int       `json:"pollRate" db:"poll_rate"`
 }
 
 // Wrap the Buoy Instance methods to allow for testing with dependency injection.
@@ -118,12 +119,12 @@ func (db *DB) GetActiveBuoyInstance(buoyGuid string) (*BuoyInstance, error) {
 
 // Create a new Buoy Instance - ie. Add a Buoy to a Buoy Group
 func (db *DB) CreateBuoyInstance(buoyInstance *BuoyInstance) error {
-	stmt, err := db.Preparex("INSERT INTO buoy_instance (name, buoy_id, buoy_group_id) VALUES (?, ?, ?);")
+	stmt, err := db.Preparex("INSERT INTO buoy_instance (name, poll_rate, buoy_id, buoy_group_id) VALUES (?, ?, ?, ?);")
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(buoyInstance.Name, buoyInstance.BuoyId, buoyInstance.BuoyGroupId)
+	_, err = stmt.Exec(buoyInstance.Name, buoyInstance.PollRate, buoyInstance.BuoyId, buoyInstance.BuoyGroupId)
 	if err != nil {
 		return err
 	}
@@ -150,12 +151,12 @@ func (db *DB) DeleteBuoyInstanceWithId(id int) error {
 // Only its name and buoy group can be changed.
 // When a Buoy Instance is updated, the active_buoy_instance_id for the parent buoy is updated
 func (db *DB) UpdateBuoyInstance(updatedBuoyInstance *BuoyInstance) error {
-	stmt, err := db.Preparex(`UPDATE buoy_instance SET name=?, buoy_group_id=? WHERE id=?;`)
+	stmt, err := db.Preparex(`UPDATE buoy_instance SET name=?, poll_rate=?, buoy_group_id=? WHERE id=?;`)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(updatedBuoyInstance.Name, updatedBuoyInstance.BuoyGroupId, updatedBuoyInstance.Id)
+	_, err = stmt.Exec(updatedBuoyInstance.Name, updatedBuoyInstance.PollRate, updatedBuoyInstance.BuoyGroupId, updatedBuoyInstance.Id)
 	if err != nil {
 		return err
 	}

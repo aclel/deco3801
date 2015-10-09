@@ -64,7 +64,7 @@
     UILabel *errorLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 50)];
     errorLabel.textAlignment = NSTextAlignmentCenter;
     errorLabel.font = [UIFont systemFontOfSize:18];
-    errorLabel.textColor = [UIColor colorWithRed:1 green:0.35 blue:0.35 alpha:1];;
+    errorLabel.textColor = [UIColor colorWithRed:1 green:0.35 blue:0.35 alpha:1];
     errorLabel.text = @"The error text for the current error message goes here";
     errorLabel.lineBreakMode = NSLineBreakByWordWrapping;
     errorLabel.numberOfLines = 1;

@@ -84,7 +84,7 @@ $block-grid-max-size: 6 !default;
   }
   @else {
     flex-wrap: nowrap;
-    align-items: stretch;
+    aln-items: stretch;
   }
 }
 /*

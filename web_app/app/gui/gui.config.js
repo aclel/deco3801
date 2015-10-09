@@ -24,8 +24,8 @@
 			// default settings for datepicker
 			angular.extend($datepickerProvider.defaults, {
 				autoclose: true,
-				dateFormat: 'd/M/yy',
-				modelDateFormat: 'd/M/yy',
+				dateFormat: 'dd/MM/yy',
+				modelDateFormat: 'dd/MM/yy',
 				dateType: 'string',
 				startWeek: 1
 			});

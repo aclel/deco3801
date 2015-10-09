@@ -1,15 +1,18 @@
-<ul style="list-style-type: none;">
-    <li><a
+<ol class="no-list-bullet no-indent">
+    <li>
+        <a class="no-link-col"
             ng-click="vm.selectAll()">
-            <strong>All Buoys</strong>
-    </a></li>
-    <li class="tree-node"
+            <span class="glyphicon glyphicon-asterisk"></span>
+            <strong>Select All Buoys</strong>
+        </a>
+    </li>
+    <li class="tree-node pointer"
         ng-repeat="buoyInstance in vm.buoyInstances"
         ng-click="vm.selectBuoyInstance(buoyInstance)">
-        <a><strong>
-            <span ng-if="buoyInstance.name != ''">{{ buoyInstance.name }}</span>
-            <span ng-if="buoyInstance.name == ''" class="red">(no name)</span>
+        <span>
+            <strong ng-if="buoyInstance.name != ''">{{ buoyInstance.name }}</strong>
+            <strong ng-if="buoyInstance.name == ''" class="red">(no name)</strong>
             ({{ buoyInstance.buoyGroupName }})
-        </strong></a>
+        </span>
     </li>
-</ul>
+</ol>

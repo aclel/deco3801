@@ -29,10 +29,12 @@
 		var vm = this;
 		
 		/** Internal variables */
-		var dateFormat = "D/M/YY";
+		var dateFormat = "DD/MM/YY";
 		var timeFormat = "h:mm A";
 			
 		/** Variables and methods bound to viewmodel */
+		vm.loading = false;
+		vm.showGraphs = false;
 		vm.buoys = dashboard.buoys();
 		vm.times = dashboard.times();
 		vm.sensors = dashboard.sensors();
@@ -43,31 +45,40 @@
 		vm.selectBuoyGroup = selectBuoyGroup;
 		vm.selectBuoyInstance = selectBuoyInstance;
 		vm.exportData = exportData;
-		
+		vm.toggleGraphs = toggleGraphs;
 
 		
 		activate();
 		
 		/** Called when controller is instantiated (dashboard page is loaded) */
 		function activate() {
+			vm.loading = true;
+			var resolved = 0;
 			dashboard.queryReadings().then(function() {
 				map.updateReadings();
+				if (++resolved == 2) {
+					vm.loading = false;
+				}
 			});
 			
 			dashboard.querySensors().then(function() {
 				vm.sensors = dashboard.sensors();
+				if (++resolved == 2) {
+					vm.loading = false;
+				}
 			});
-			
-			setupChart();
 		}
 		
-		function setupChart() {
-			vm.labels = ["January", "February", "March", "April", "May", "June", "July"];
-			vm.series = ['Series A', 'Series B'];
-			vm.data = [
-				[65, 59, 80, 81, 56, 55, 40],
-				[28, 48, 40, 19, 86, 27, 90]
-			];
+		function toggleGraphs() {
+			var center = map.getCenter();
+			console.log(center);
+			vm.showGraphs = !vm.showGraphs;
+			angular.element(
+				document.getElementsByClassName('dashboard-panel'))
+				.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+					map.setCenter(center);
+					console.log(center);
+			});
 		}
 			
 		/** Initialise google map when document is loaded */
@@ -78,6 +89,8 @@
 		/** Toggle buoy group in list */
 		function toggleBuoyGroup(buoyGroup) {
 			buoyGroup.collapsed = !buoyGroup.collapsed;
+
+			vm.showGraphs = !vm.showGraphs;
 		}
 		
 		/** Update whether buoy group filter is enabled */
@@ -144,7 +157,9 @@
 						+ " " + vm.times.inputs.point.time, momentFormat);
 				}
 				
+				vm.loading = true;
 				dashboard.updateTimes().then(function() {
+					vm.loading = false;
 					map.updateReadings();
 				});
 			}

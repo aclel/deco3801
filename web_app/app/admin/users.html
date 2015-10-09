@@ -1,5 +1,5 @@
 <h3>Users</h3>
-<table>
+<table class="data-table">
     <thead>
         <tr>
             <th>Email</th>
@@ -14,15 +14,15 @@
         <tr ng-repeat="user in vm.users">
             <td>
                 <span ng-if="user.id != -2">{{ user.email }}</span>
-                <input ng-if="user.id == -2" type="text" ng-model="vm.editUser.email" placeholder="johndoe@aol.com">
+                <input ng-if="user.id == -2" type="text" class="form-control" ng-model="vm.editUser.email" placeholder="johndoe@aol.com">
             </td>
             <td>
                 <span ng-if="vm.editUserId != user.id">{{ user.firstName }}</span>
-                <input ng-if="vm.editUserId == user.id" type="text" ng-model="vm.editUser.firstName" placeholder="John">
+                <input ng-if="vm.editUserId == user.id" type="text" class="form-control" ng-model="vm.editUser.firstName" placeholder="John">
             </td>
             <td>
                 <span ng-if="vm.editUserId != user.id">{{ user.lastName }}</span>
-                <input ng-if="vm.editUserId == user.id" type="text" ng-model="vm.editUser.lastName" placeholder="Doe">
+                <input ng-if="vm.editUserId == user.id" type="text" class="form-control" ng-model="vm.editUser.lastName" placeholder="Doe">
             </td>
             <td>
                 <span ng-if="vm.editUserId != user.id">{{ user.role }}</span>
@@ -36,13 +36,24 @@
             <td>
                 {{ user.lastLogin.text }}
             </td>
-            <td>
-                <button class="small button" ng-if="vm.editUserId == -1" ng-click="vm.startEditingUser(user)">Edit</button>
-                <button class="small button" ng-if="vm.editUserId == user.id" ng-click="vm.finishEditingUser()">Save</button>
-                <button class="small info button" ng-if="vm.editUserId == user.id" ng-click="vm.cancelEditingUser()">Cancel</button>
-                <button class="small alert button" ng-if="vm.showDeleteButton(user)" ng-click="vm.deleteUser(user)">Delete</button>
+            <td class="button-cell">
+                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.showDeleteButton(user)" ng-click="vm.deleteUser(user)">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editUserId == -1" ng-click="vm.startEditingUser(user)">
+                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editUserId == user.id" ng-click="vm.cancelEditingUser()">
+                    <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editUserId == user.id" ng-click="vm.finishEditingUser()">
+                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                </button>
             </td>
         </tr>
     </tbody>
 </table>
-<button class="small button" ng-if="vm.editUserId == -1" ng-click="vm.startAddingUser()">Add User</button>
+<button type="button" class="btn btn-default" ng-if="vm.editUserId == -1" ng-click="vm.startAddingUser()">
+    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+    <small>Add User</small>
+</button>

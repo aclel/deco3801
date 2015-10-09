@@ -1,115 +1,136 @@
-<div class="grid-block wrap">
-	<div class="small-12 medium-4 large-3 grid-content">
-		<div class="filterPane">
+<div class="grid-block">
+	<div class="small-12 medium-3 grid-content dashboard-panel">
+		<div class="filter-section separator-bottom">
+			<div class="right" ng-include="'/app/gui/loading.html'"></div>
 			<h3>Times</h3>
-			
-			<div class="btn-group" ng-model="vm.times.type" bs-radio-group>
+			<div class="btn-group btn-group-justified" ng-model="vm.times.type" bs-radio-group>
 				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="since" ng-change="vm.updateTimesFilter()">Since</label>
 				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="range" ng-change="vm.updateTimesFilter()">Range</label>
 				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="point" ng-change="vm.updateTimesFilter()">Point</label>
 			</div>
-			<div class="timefilters">
-				<div ng-if="vm.times.type=='since'" id="since">
-					<label><i class="fa fa-calendar"></i>Since</label>
-					<input type="text" ng-model="vm.times.inputs.since.value" ng-change="vm.updateTimesFilter()" name="value">
-					
+			<div ng-if="vm.times.type=='since'" id="since">
+				<form class="form-inline">
+					<!-- <div class="form-group"> -->
+						<span class="span-label">Since</span>
+						<input type="text" class="form-control ti-xs" ng-model="vm.times.inputs.since.value" ng-change="vm.updateTimesFilter()">
+					<!-- </div> -->
 					<button type="button" class="btn btn-default" 
 								ng-model="vm.times.inputs.since.quantifier" 
 								bs-options="opt for opt in vm.times.inputs.since.options"
 								ng-change="vm.updateSensorsFilter()" bs-select>
 					</button>
-				</div>
-				
-				
-				<div ng-if="vm.times.type == 'range'">
-					<!--<div class="form-group" ng-class="{'has-error': datepickerForm.date.$invalid}">-->
-					<div>
-					    <label><i class="fa fa-calendar"></i>From</label>
-					    <input type="text" ng-model="vm.times.inputs.range.from.date" ng-change="vm.updateTimesFilter()" name="date" placeholder="dd/mm/yy" bs-datepicker>
+				</form>
+			</div>
+			<div ng-if="vm.times.type == 'range'">
+				<table class="filter-table">
+					<tbody>
+						<form class="form-inline">
+							<tr>
+								<!-- <div class="form-group" ng-class="{'has-error': datepickerForm.date.$invalid}"> -->
+								    <td><span class="span-label">From</span></td>
+								    <td><input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.range.from.date" ng-change="vm.updateTimesFilter()" placeholder="DD/MM/YY" bs-datepicker></td>
+							  	<!-- </div> -->
+								<!-- <div class="form-group" ng-class="{'has-error': timepickerForm.time.$invalid}"> -->
+								    <td><input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.range.from.time" ng-change="vm.updateTimesFilter()" placeholder="HH:MM" bs-timepicker></td>
+								<!-- </div>	   -->
+							</tr>
+							<tr>
+								<!-- <div class="form-group" ng-class="{'has-error': datepickerForm.date.$invalid}"> -->
+								    <td><span class="span-label">To</span></td>
+								    <td><input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.range.to.date" ng-change="vm.updateTimesFilter()" placeholder="DD/MM/YY" bs-datepicker></td>
+							  	<!--</div>-->
+								<!--<div class="form-group" ng-class="{'has-error': timepickerForm.time.$invalid}">-->
+								    <td><input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.range.to.time" ng-change="vm.updateTimesFilter()" placeholder="HH:MM" bs-timepicker></td>
+								<!-- </div> -->
+							</tr>
+						</form>
+					</tbody>
+				</table>
+			</div>
+			<div ng-if="vm.times.type == 'point'">
+				<form class="form-inline">
+					<!-- <div class="form-group"> -->
+					    <span class="span-label">Point</span>
+					    <input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.point.date" ng-change="vm.updateTimesFilter()" placeholder="DD/MM/YY" bs-datepicker>
 				  	<!--</div>-->
-					  
-					 <!--<div class="form-group" ng-class="{'has-error': timepickerForm.time.$invalid}">-->
-					    <!--<label><i class="fa fa-clock-o"></i> To </label>-->
-					    <input type="text" size="8" ng-model="vm.times.inputs.range.from.time" ng-change="vm.updateTimesFilter()" name="time" placeholder="hh:mm" bs-timepicker>
-					  <!--</div>-->
-					</div>	  
-					  
-					<div>		  
-					 <!--<div class="form-group" ng-class="{'has-error': datepickerForm.date.$invalid}">-->
-					    <label><i class="fa fa-calendar"></i>To</label>
-					    <input type="text" ng-model="vm.times.inputs.range.to.date" ng-change="vm.updateTimesFilter()" name="date" placeholder="dd/mm/yy" bs-datepicker>
-				  	<!--</div>-->
-					  
-					 <!--<div class="form-group" ng-class="{'has-error': timepickerForm.time.$invalid}">-->
-					    <!--<label><i class="fa fa-clock-o"></i> To </label>-->
-					    <input type="text" size="8" ng-model="vm.times.inputs.range.to.time" ng-change="vm.updateTimesFilter()" name="time" placeholder="hh:mm" bs-timepicker>
-					  <!--</div>-->
-					</div>
-				</div>
-				<div ng-if="vm.times.type == 'point'">
-					<div>
-					    <label><i class="fa fa-calendar"></i>From</label>
-					    <input type="text" ng-model="vm.times.inputs.point.date" ng-change="vm.updateTimesFilter()" name="date" placeholder="dd/mm/yy" bs-datepicker>
-				  	<!--</div>-->
-					  
-					 <!--<div class="form-group" ng-class="{'has-error': timepickerForm.time.$invalid}">-->
-					    <!--<label><i class="fa fa-clock-o"></i> To </label>-->
-					    <input type="text" size="8" ng-model="vm.times.inputs.point.time" ng-change="vm.updateTimesFilter()" name="time" placeholder="hh:mm" bs-timepicker>
-					  <!--</div>-->
-					</div>	  
-				</div>
+					<!--<div class="form-group" ng-class="{'has-error': timepickerForm.time.$invalid}">-->
+					    <input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.point.time" ng-change="vm.updateTimesFilter()" placeholder="HH:MM" bs-timepicker>
+					<!-- </div>	   -->
+				</form>
 			</div>
 		</div>
-		<div class="filterPane">
+		<div class="filter-section separator-bottom">
 			<h3>Buoys</h3>
-
-			<div ng-repeat="buoyGroup in vm.buoys" class="buoyGroup">
-				<a class="btn btn-xs" ng-if="buoyGroup.buoyInstances && buoyGroup.buoyInstances.length > 0" ng-click="vm.toggleBuoyGroup(buoyGroup)"><span
+			<div ng-repeat="buoyGroup in vm.buoys" class="filter-buoy-group">
+				<span class="btn btn-xs" ng-if="buoyGroup.buoyInstances && buoyGroup.buoyInstances.length > 0" ng-click="vm.toggleBuoyGroup(buoyGroup)">
+					<span
 						class="glyphicon"
 						ng-class="{
 						'glyphicon-chevron-right': buoyGroup.collapsed,
 						'glyphicon-chevron-down': !buoyGroup.collapsed
-						}"></span></a>
-				<input type="checkbox" ng-model="buoyGroup.enabled" ui-indeterminate="buoyGroup.indeterminate" ng-change="vm.selectBuoyGroup(buoyGroup)">
-				{{ buoyGroup.name }}
-				<div ng-if="!buoyGroup.collapsed" ng-repeat="buoyInstance in buoyGroup.buoyInstances" class="buoyInstance">
-					<input type="checkbox" ng-model="buoyInstance.enabled" ng-change="vm.selectBuoyInstance(buoyGroup)">
-					{{ buoyInstance.name }}
+						}">
+					</span>
+				</span>
+				<span>
+					<input type="checkbox" ng-model="buoyGroup.enabled" ui-indeterminate="buoyGroup.indeterminate" ng-change="vm.selectBuoyGroup(buoyGroup)">
+					{{ buoyGroup.name }}
+				</span>
+				<div ng-if="!buoyGroup.collapsed" ng-repeat="buoyInstance in buoyGroup.buoyInstances" class="filter-buoy-instance">
+						<input type="checkbox" ng-model="buoyInstance.enabled" ng-change="vm.selectBuoyInstance(buoyGroup)">
+						{{ buoyInstance.name }}
 				</div>
 			</div>
 		</div>
-		<div class="filterPane">
-			<h3>Filters</h3>
-			<div class="sensorfilters">
-				<div ng-repeat="sensor in vm.sensors">
-					<div class="sensor-name">
-						<input type="checkbox" ng-model="sensor.inputs.enabled" ng-change="vm.updateSensorsFilter()">
-						{{ sensor.name }}
-					</div>
-					<div>
-						<button type="button" class="btn btn-default" 
-								ng-model="sensor.inputs.selected" 
-								bs-options="opt for opt in sensor.inputs.options"
-								ng-change="vm.updateSensorsFilter()" bs-select>
-						</button>
-						<input type="text" ng-model="sensor.inputs.value" ng-change="vm.updateSensorsFilter()"> {{ sensor.units }}
-						{{ sensor.unit }}
-					</div>
-					<br>
-				</div>
-			</div>
+		<div class="filter-section separator-bottom">
+			<h3>Sensors</h3>
+			<table class="filter-table">
+				<tbody>
+					<form class="form-inline">
+						<tr ng-repeat="sensor in vm.sensors">
+							<!-- <div class="form-group"> -->
+								<td><input type="checkbox" ng-model="sensor.inputs.enabled" ng-change="vm.updateSensorsFilter()"></td>
+								<td><span>{{ sensor.name }}</span></td>
+							<!-- </div> -->
+							<td><button type="button" class="btn btn-default" 
+						ang			ng-model="sensor.inputs.selected" 
+									bs-options="opt for opt in sensor.inputs.options"
+									ng-change="vm.updateSensorsFilter()" bs-select>
+							</button></td>
+							<!-- <div class="form-group"> -->
+								<td><input type="text" class="form-control ti-sm" ng-model="sensor.inputs.value" ng-change="vm.updateSensorsFilter()"></td>
+								<td><span>{{ sensor.unit }}</span></td>
+							<!-- </div> -->
+						</tr>
+					</form>
+				</tbody>
+			</table>
 		</div>
+		<div>
+			<button class="btn btn-default btn-lg export-btn"
+				ng-click="vm.exportData()">
+				Export Data
+			</button>
+		</div>
+		<div class="empty"><!-- Needed to show separator-bottom for above div --></div>
 	</div>
-	<div class="small-12 medium-8 large-5 grid-content no-overflow shadow-glow">
+	<div class="small-12 grid-content no-overflow separator-box dashboard-panel"
+		ng-class="vm.showGraphs ? 'medium-5' : 'medium-8'">
 		<div id="map-canvas"></div>
 		<div id="infoBox"></div>
-		<!--<div id="map-popover"></div>-->
 	</div>
 
-	<div class="small-12 medium-12 large-4 grid-content">
-		<button class="large button" style="margin: 10px"
-			ng-click="vm.exportData()">
-			Export Data
+	<div class="small-12 grid-content dashboard-panel"
+		ng-class="vm.showGraphs ? 'medium-4' : 'medium-1'">
+		
+		<button type="button" class="btn btn-default right graphs-btn"
+			ng-click="vm.toggleGraphs()">
+			<span
+				class="glyphicon glyphicon-left"
+				ng-class="{
+				'glyphicon-chevron-left': vm.showGraphs,
+				'glyphicon-chevron-down': !vm.showGraphs
+				}">
+			</span>		
 		</button>
 		
 		<!-- <canvas id="sensorChart" class="chart chart-line" chart-data="vm.data"

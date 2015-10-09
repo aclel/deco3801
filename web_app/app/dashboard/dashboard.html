@@ -121,7 +121,6 @@
 
 	<div class="small-12 grid-content dashboard-panel"
 		ng-class="vm.showGraphs ? 'medium-4' : 'medium-1'">
-		
 		<button type="button" class="btn btn-default right graphs-btn"
 			ng-click="vm.toggleGraphs()">
 			<span
@@ -132,9 +131,9 @@
 				}">
 			</span>		
 		</button>
-		
-		<!-- <canvas id="sensorChart" class="chart chart-line" chart-data="vm.data"
-			chart-labels="vm.labels" chart-series="vm.series" chart-legend="true" >
-		</canvas> -->
+		<h3>Charts</h3>
+		<canvas id="line" class="chart chart-line" data="vm.chart.data"
+			labels="vm.chart.labels" series="vm.chart.series" legend="true" >
+		</canvas>
 	</div>
 </div>

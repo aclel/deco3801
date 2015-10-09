@@ -31,24 +31,28 @@
 		var sensors = {};
 		var buoys = [];
 		var times = {};
+		var chart = {};
 
 		var dateFormat = "D/M/YY";
 		var timeFormat = "h:mm A";
 
 		initialiseTimes();
+		initialiseChart();
 
 		/** The service methods to expose */
 		return {
 			buoys: getBuoys,
 			times: getTimes,
 			sensors: getSensors,
+			chart: getChart,
 			queryReadings: queryReadings,
 			querySensors: querySensors,
 			selectBuoyGroup: selectBuoyGroup,
 			selectBuoyInstance: selectBuoyInstance,
 			updateTimes: updateTimes,
 			updateSensors: updateSensors,
-			exportData: exportData
+			exportData: exportData,
+			displayChartInstance: displayChartInstance
 		};
 
 		/**
@@ -73,6 +77,14 @@
 		 */
 		function getSensors() {
 			return sensors;
+		}
+
+		/**
+		 * Return chart data structure
+		 * @return {object} chart data
+		 */
+		function getChart() {
+			return chart;
 		}
 		
 		/**
@@ -131,6 +143,15 @@
 					point: { date: "", time: "" },
 				}
 			}
+		}
+
+		/** Initialise charts */
+		function initialiseChart() {
+			chart.series = [];
+			chart.labels = [];
+			chart.data = [
+				[null]
+			];
 		}
 		
 		/** Populate buoys filter */
@@ -716,6 +737,102 @@
 				});
 			});
 			map.hideDisabledMarkers(enabledMarkers);
+		}
+
+
+		function setupReadings() {
+
+			var chartArray = [];
+			
+			var readingsList = filteredReadings;
+
+			for (var p = 0; p < readingsList.length; p++) {
+				for (var i = 0; i < readingsList[p].buoyInstances.length; i++) {
+					var chartData = {};
+
+					chartData.name = readingsList[p].buoyInstances[i].name;
+					var chartReadings = [];
+					for(var q = 0; q < readingsList[p].buoyInstances[i].readings.length; q ++){
+						
+						for (var z = 0; z < readingsList[p].buoyInstances[i].readings[q].sensorReadings.length; z ++){
+							
+							if (readingsList[p].buoyInstances[i].readings[q].sensorReadings[z].sensorTypeId == 1){
+								
+
+
+								var timeStamp = readingsList[p].buoyInstances[i].readings[q].timestamp;
+								
+								var niceTime = moment.unix(timeStamp).format("D/M h:mma")
+								var turbidity = readingsList[p].buoyInstances[i].readings[q].sensorReadings[z].value;
+								//sets a max value on turbidity due to chart limitations 
+								if (turbidity > 200){
+									turbidity = 200;
+								}
+								chartReadings.push({timeStamp: niceTime,turbidity: turbidity});
+
+							}
+
+						}
+						
+					}
+				
+				chartData.readings = chartReadings;
+
+				chartArray.push(chartData);
+
+				}
+			
+			}
+			console.log(chartArray);
+			return chartArray;
+			
+		}
+
+		function displayChartInstance(instanceName){
+			
+			var instanceReadings = setupReadings();
+
+			var tempData = [];
+			var tempLabels = [];
+			var tempName;
+			for (var i = 0; i < instanceReadings.length; i++){
+				if (instanceReadings[i].name == instanceName){
+
+					tempName = [instanceReadings[i].name ];
+					// var date = new Date();
+					for(var q = 0; q < instanceReadings[i].readings.length; q++){
+					
+
+
+						// date = instanceReadings[i].readings[q].timeStamp
+						tempLabels.push(instanceReadings[i].readings[q].timeStamp);
+						tempData.push(instanceReadings[i].readings[q].turbidity);
+					}
+				}
+
+			}
+			if (tempLabels.length > 100){
+				tempLabels = tempLabels.slice(0,101);
+				var division = Math.floor(tempLabels.length/10);
+				console.log(division);
+				chart.labels.unshift("");
+				for (var i = 1; i < tempLabels.length; i++){
+					if (i % division != 0){
+						tempLabels[i] = "";
+					}
+				console.log(tempLabels);
+
+				}
+			} 
+			chart.series = tempName;
+			chart.labels = tempLabels;
+			chart.labels.unshift("");
+			chart.data = [tempData];
+
+			chart.data[0].unshift(tempData[0]);
+
+			
+
 		}
 	}
 })();

@@ -24,11 +24,12 @@
 		* @requires dashboard
 		* @requires map
 	**/	
-	function DashboardController($log, $document, dashboard, map) {
+	function DashboardController($log, $document, $scope, dashboard, map) {
 		var vm = this;
 		
 		/** Used to determine when initial requests have returned */
 		var resolved = 0;
+		var chartObj;
 
 		/** Variables and methods bound to viewmodel */
 		vm.loading = false;
@@ -36,6 +37,7 @@
 		vm.buoys = dashboard.buoys(); // binds reference
 		vm.times = dashboard.times(); // binds reference
 		vm.sensors = dashboard.sensors(); // binds reference
+		vm.chart = dashboard.chart(); // binds reference
 		vm.selectBuoyGroup = dashboard.selectBuoyGroup;
 		vm.selectBuoyInstance = dashboard.selectBuoyInstance;
 		vm.updateSensors = dashboard.updateSensors;
@@ -44,7 +46,7 @@
 		vm.toggleGraphs = toggleGraphs;
 		
 		activate();
-		
+
 		/** Called when controller is instantiated (dashboard page is loaded) */
 		function activate() {
 			vm.loading = true;
@@ -52,6 +54,19 @@
 
 			queryReadings();
 			querySensors();
+
+			// set up chart listeners
+			$scope.$on('displayChartInstance', function(event, buoyInstance) {
+				$scope.$apply(function() {
+					if (!vm.showGraphs) {
+						toggleGraphs();
+					}
+					dashboard.displayChartInstance(buoyInstance.name);
+				});
+			});
+			$scope.$on('create', function(event, chart) {
+				chartObj = chart;
+			});
 		}
 
 		/** Query readings and update display */
@@ -92,6 +107,7 @@
 				document.getElementsByClassName('dashboard-panel'))
 				.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
 					map.setCenter(center);
+					chartObj.resize(chartObj.render)
 			});
 		}
 			

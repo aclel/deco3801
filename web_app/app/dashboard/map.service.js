@@ -21,7 +21,7 @@
 		* @name app.dashboard.map
 		* @requires google
 	**/
-	function map($log, google) {
+	function map($rootScope, $log, google) {
 			
 		/** Internal variables */
 		var map;
@@ -200,6 +200,9 @@
 					return;
 				}
 			}
+
+			// update charts
+			$rootScope.$broadcast('displayChartInstance', buoyInstance);
 			
 			infoBox = new InfoBox({
 				content: content,

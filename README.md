@@ -49,6 +49,7 @@ Several environment variables need to be configured for the server to run.
 - `FMS_SMTP_PASSWORD` - Ask Andrew C for this
 - `FMS_SMTP_SERVER` - smtp.gmail.com
 - `FMS_SMTP_PORT` - 587
+- `FMS_SECRET_KEY` - This should be a 32 character random string
 - `FMS_PRIVATE_KEY` - This is used to sign Json Web Tokens
 - `FMS_PUBLIC_KEY` - This is used to decode Json Web Tokens
 

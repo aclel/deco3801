@@ -144,10 +144,10 @@ func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 
 	// Parse the token from the Authorization header of the request
 	token, err := jwt.ParseFromRequest(r, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		} else {
-			return jwtAuth.PublicKey, nil
+			return jwtAuth.SecretKey, nil
 		}
 	})
 

@@ -13,8 +13,10 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"time"
@@ -259,9 +261,10 @@ func UsersForgotPassword(env *models.Env, w http.ResponseWriter, r *http.Request
 	}
 
 	// Generate one-use token to facilitate password reset
-	token := passwordreset.NewToken(user.Email, 12*time.Hour, []byte(user.Password), []byte("secret123"))
+	token := passwordreset.NewToken(user.Email, 24*time.Hour, []byte(user.Password), []byte(os.Getenv("FMS_SECRET_KEY")))
 
-	link := "http://teamneptune.co/#/reset_password?token=" + token
+	link := "http://teamneptune.co/#/reset_password?token=" + url.QueryEscape(token)
+	fmt.Println(link)
 
 	// Send email to user with link (with token) to reset password
 	err = env.DB.SendPasswordResetEmail(user, link, &env.EmailUser)
@@ -300,7 +303,7 @@ func UsersResetPassword(env *models.Env, w http.ResponseWriter, r *http.Request)
 	}
 
 	// Check token validity
-	email, err := passwordreset.VerifyToken(token, env.DB.GetPasswordHash, []byte("secret123"))
+	email, err := passwordreset.VerifyToken(token, env.DB.GetPasswordHash, []byte(os.Getenv("FMS_SECRET_KEY")))
 	if err != nil {
 		return &AppError{err, "Password reset token is not valid", http.StatusForbidden}
 	}

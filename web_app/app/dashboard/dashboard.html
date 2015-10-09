@@ -4,20 +4,20 @@
 			<div class="right" ng-include="'/app/gui/loading.html'"></div>
 			<h3>Times</h3>
 			<div class="btn-group btn-group-justified" ng-model="vm.times.type" bs-radio-group>
-				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="since" ng-change="vm.updateTimesFilter()">Since</label>
-				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="range" ng-change="vm.updateTimesFilter()">Range</label>
-				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="point" ng-change="vm.updateTimesFilter()">Point</label>
+				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="since" ng-change="vm.updateTimes()">Since</label>
+				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="range" ng-change="vm.updateTimes()">Range</label>
+				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="point" ng-change="vm.updateTimes()">Point</label>
 			</div>
 			<div ng-if="vm.times.type=='since'" id="since">
 				<form class="form-inline">
 					<!-- <div class="form-group"> -->
 						<span class="span-label">Since</span>
-						<input type="text" class="form-control ti-xs" ng-model="vm.times.inputs.since.value" ng-change="vm.updateTimesFilter()">
+						<input type="text" class="form-control ti-xs" ng-model="vm.times.inputs.since.value" ng-change="vm.updateTimes()">
 					<!-- </div> -->
 					<button type="button" class="btn btn-default" 
 								ng-model="vm.times.inputs.since.quantifier" 
 								bs-options="opt for opt in vm.times.inputs.since.options"
-								ng-change="vm.updateSensorsFilter()" bs-select>
+								ng-change="vm.updateSensors()" bs-select>
 					</button>
 				</form>
 			</div>
@@ -28,19 +28,19 @@
 							<tr>
 								<!-- <div class="form-group" ng-class="{'has-error': datepickerForm.date.$invalid}"> -->
 								    <td><span class="span-label">From</span></td>
-								    <td><input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.range.from.date" ng-change="vm.updateTimesFilter()" placeholder="DD/MM/YY" bs-datepicker></td>
+								    <td><input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.range.from.date" ng-change="vm.updateTimes()" placeholder="DD/MM/YY" bs-datepicker></td>
 							  	<!-- </div> -->
 								<!-- <div class="form-group" ng-class="{'has-error': timepickerForm.time.$invalid}"> -->
-								    <td><input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.range.from.time" ng-change="vm.updateTimesFilter()" placeholder="HH:MM" bs-timepicker></td>
+								    <td><input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.range.from.time" ng-change="vm.updateTimes()" placeholder="HH:MM" bs-timepicker></td>
 								<!-- </div>	   -->
 							</tr>
 							<tr>
 								<!-- <div class="form-group" ng-class="{'has-error': datepickerForm.date.$invalid}"> -->
 								    <td><span class="span-label">To</span></td>
-								    <td><input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.range.to.date" ng-change="vm.updateTimesFilter()" placeholder="DD/MM/YY" bs-datepicker></td>
+								    <td><input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.range.to.date" ng-change="vm.updateTimes()" placeholder="DD/MM/YY" bs-datepicker></td>
 							  	<!--</div>-->
 								<!--<div class="form-group" ng-class="{'has-error': timepickerForm.time.$invalid}">-->
-								    <td><input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.range.to.time" ng-change="vm.updateTimesFilter()" placeholder="HH:MM" bs-timepicker></td>
+								    <td><input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.range.to.time" ng-change="vm.updateTimes()" placeholder="HH:MM" bs-timepicker></td>
 								<!-- </div> -->
 							</tr>
 						</form>
@@ -51,10 +51,10 @@
 				<form class="form-inline">
 					<!-- <div class="form-group"> -->
 					    <span class="span-label">Point</span>
-					    <input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.point.date" ng-change="vm.updateTimesFilter()" placeholder="DD/MM/YY" bs-datepicker>
+					    <input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.point.date" ng-change="vm.updateTimes()" placeholder="DD/MM/YY" bs-datepicker>
 				  	<!--</div>-->
 					<!--<div class="form-group" ng-class="{'has-error': timepickerForm.time.$invalid}">-->
-					    <input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.point.time" ng-change="vm.updateTimesFilter()" placeholder="HH:MM" bs-timepicker>
+					    <input type="text" class="form-control ti-sm" ng-model="vm.times.inputs.point.time" ng-change="vm.updateTimes()" placeholder="HH:MM" bs-timepicker>
 					<!-- </div>	   -->
 				</form>
 			</div>
@@ -62,7 +62,7 @@
 		<div class="filter-section separator-bottom">
 			<h3>Buoys</h3>
 			<div ng-repeat="buoyGroup in vm.buoys" class="filter-buoy-group">
-				<span class="btn btn-xs" ng-if="buoyGroup.buoyInstances && buoyGroup.buoyInstances.length > 0" ng-click="vm.toggleBuoyGroup(buoyGroup)">
+				<span class="btn btn-xs" ng-if="buoyGroup.buoyInstances && buoyGroup.buoyInstances.length > 0" ng-click="buoyGroup.collapsed = !buoyGroup.collapsed">
 					<span
 						class="glyphicon"
 						ng-class="{
@@ -92,9 +92,9 @@
 								<td><span>{{ sensor.name }}</span></td>
 							<!-- </div> -->
 							<td><button type="button" class="btn btn-default" 
-						ang			ng-model="sensor.inputs.selected" 
+									ng-model="sensor.inputs.selected" 
 									bs-options="opt for opt in sensor.inputs.options"
-									ng-change="vm.updateSensorsFilter()" bs-select>
+									ng-change="vm.updateSensors()" bs-select>
 							</button></td>
 							<!-- <div class="form-group"> -->
 								<td><input type="text" class="form-control ti-sm" ng-model="sensor.inputs.value" ng-change="vm.updateSensorsFilter()"></td>

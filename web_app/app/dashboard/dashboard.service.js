@@ -100,7 +100,7 @@
 				point: null,
 				pointReadings: [], // contains list of closest readings to point
 				inputs: {
-					since: { value: 2, quantifier: "weeks", options: [
+					since: { value: 4, quantifier: "weeks", options: [
 						"hours", "days", "weeks", "months"
 					] },
 					range: {
@@ -624,18 +624,19 @@
 										.format('D MMMM h:mm A');
 										
 			var content = "<div>" +
-				"<h5 style='color: white'>" + buoyInstance.name + "</h5>" +
-				formattedTime + 
-				"<br>---";
+				"<h5><strong>" + buoyInstance.name + "</strong></h5>" +
+				"<em>" + formattedTime + "</em><br>" +
+				"<table class='popup-table'><tbody>" +
+				reading.latitude + ", " + reading.longitude;
 			
 			reading.sensorReadings.forEach(function(sensorReading) {
-				content += "<br>" + 
+				content += "<tr><td>" + 
 					sensors[sensorReading.sensorTypeId].name +
-					": " + sensorReading.value + " " +
-					sensors[sensorReading.sensorTypeId].unit;
+					": </td><td class='right'>" + sensorReading.value + " " +
+					sensors[sensorReading.sensorTypeId].unit + "</td></tr>";
 			});			
 				
-			content += "</div>";
+			content += "</tbody></table></div>";
 				
 			return content;
 		}

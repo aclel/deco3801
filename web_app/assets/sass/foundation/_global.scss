@@ -74,7 +74,7 @@ $foundation-colors: (
   // Make extra sure we're using the whole window
   html, body {
     height: 100%;
-    font-size: $base-font-size;
+    // font-size: $base-font-size;
   }
   // Set box-sizing globally to handle padding and border widths
   html {
@@ -86,15 +86,15 @@ $foundation-colors: (
 
   // Default body styles
   body {
-    background: $body-background;
-    color: $body-font-color;
+    // background: $body-background;
+    // color: $body-font-color;
     padding: 0;
     margin: 0;
-    font-family: $body-font-family;
-    font-weight: $body-font-weight;
-    font-style: $body-font-style;
-    line-height: 1;
-    position: relative;
+    // font-family: $body-font-family;
+    // font-weight: $body-font-weight;
+    // font-style: $body-font-style;
+    // line-height: 1;
+    // position: relative;
 
     @if $body-antialiased {
       -webkit-font-smoothing: antialiased;
@@ -119,7 +119,8 @@ $foundation-colors: (
   }
 
   #map_canvas,
-  .map_canvas {
+  .map_canvas,
+  #map-canvas {
     img,
     embed,
     object { max-width: none !important; }

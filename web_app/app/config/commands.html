@@ -1,5 +1,5 @@
 <h3>Commands</h3>
-<table>
+<table class="data-table">
     <thead>
         <tr>
             <th>Buoy</th>
@@ -13,18 +13,29 @@
             <td>{{ command.buoyName }}</td>
             <td>{{ command.commandName }}</td>
             <td>{{ command.value }}</td>
-            <td>
-                <!--<button class="small alert button"
-                    ng-click="vm.deleteCommand(command)">
-                    Delete
-                </button>-->
+            <td class="button-cell">
+                <button type="button" class="btn btn-default btn-sm right">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-sm right">
+                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-sm right invisible">
+                    <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-sm right invisible">
+                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                </button>
             </td>
         </tr>
     </tbody>
 </table>
-<button class="button small"
-        ng-click="vm.newCommand = true"
-        ng-if="!vm.editing()">New Command</button>
+<button type="button" class="btn btn-default"
+    ng-click="vm.newCommand = true"
+    ng-if="!vm.editing()">
+    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+        <small>New Command</small>
+</button>
 <form ng-if="vm.newCommand == true">
     <h4>New Command</h4>
     <select type="button" class="btn btn-default" 

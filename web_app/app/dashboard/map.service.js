@@ -22,7 +22,7 @@
 		* @requires dashboard
 		* @requires google
 	**/
-	function map($log, dashboard, google) {
+	function map($window, $log, dashboard, google) {
 			
 		/** Internal variables */
 		var map;
@@ -36,11 +36,14 @@
 		var infoBox;
 		var infoBoxOpen = false;
 		var currentMarkerId = -1;
+		var mapCenter;
 		
 		/** The service methods to expose */
 		return {
 			initialiseMap: initialiseMap,
-			updateReadings: updateReadings
+			updateReadings: updateReadings,
+			getCenter: getCenter,
+			setCenter, setCenter
 		};
 
 		/** Setup google map, set styles and listeners */
@@ -171,6 +174,23 @@
 		    markers = {};
 			disabledMarkers = [];
 		}
+
+		/**
+		 * Get the current center of the map
+		 * @return {object} center of the map
+		 */
+		function getCenter() {
+			return map.getCenter();
+		}
+
+		/**
+		 * Set the center of the map
+		 * @param {object} center new center
+		 */
+		function setCenter(center) {
+			google.maps.event.trigger(map, "resize");
+			map.setCenter(center);
+		}
 		
 		/** Update map markers based on filtered readings */
 		function updateReadings() {
@@ -220,8 +240,11 @@
 		 * @param {object} buoyInstance buoyInstance the reading is from
 		 */
 		function addMarker(reading, buoyInstance) {
+			var lat = randomisePos(reading.latitude);
+			var long = randomisePos(reading.longitude);
+
 			var marker = new google.maps.Marker({
-				position: new google.maps.LatLng(reading.latitude, reading.longitude),
+				position: new google.maps.LatLng(lat, long),
 				map: map,
 				// title: 'Buoy ' + reading.buoy + ': reading ' + reading.id,
 			});
@@ -231,6 +254,16 @@
 			});
 			
 			markers[reading.id] = marker;
+		}
+
+		function randomisePos(pos) {
+			var magnitude = 100000;
+			if (Math.random() < 0.5) {
+				pos += Math.round(Math.random() * 100) / magnitude;
+			} else {
+				pos -= Math.round(Math.random() * 100) / magnitude;
+			}
+			return pos;
 		}
 
 		/**
@@ -371,16 +404,8 @@
 							
 			infoBox = new InfoBox({
 				content: content,
-				pixelOffset: new google.maps.Size(-60, 0),
+				pixelOffset: new google.maps.Size(-90, 0),
 	            zIndex: null,
-	            boxStyle: {
-	                // "background": "url('http://google-maps-utility-library-v3.googlecode.com/svn/trunk/infobox/examples/tipbox.gif') no-repeat",
-					"color": "white",
-					"background-color": "rgb(40, 40, 40)",
-					"width": "150px",
-					"padding": "10px",
-					"border-radius": "10px"
-	            },
 	            closeBoxMargin: "-6px -6px 2px 2px"
 			});
 			

@@ -65,7 +65,8 @@ gulp.task('css', function() {
 });
 
 gulp.task('css-prod', ['sass'], function() {
-  gulp.src('assets/css/*.css')
+  gulp.src(['assets/css/**/!(styles)*.css',
+            'assets/css/styles.css'])
     .pipe(plumber())
     .pipe(concat('app.min.css'))
     .pipe(minifyCss())

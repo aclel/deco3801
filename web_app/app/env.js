@@ -15,5 +15,5 @@
     
     /** Define environment variables here */
     angular.module('app')
-        .constant('SERVER_ADDRESS', 'http://teamneptune.co');
+        .constant('SERVER_ADDRESS', 'http://teamneptune.co/dev');
 })();

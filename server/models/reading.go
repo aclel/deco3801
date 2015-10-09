@@ -11,6 +11,7 @@
 package models
 
 import (
+	"sort"
 	"strconv"
 	"time"
 
@@ -252,12 +253,28 @@ func buildReadingsIndexData(mapReadings []DbMapReading) (*MapReadingBuoyGroupsWr
 			for _, reading := range buoyInstance.ReadingMap {
 				buoyInstance.Readings = append(buoyInstance.Readings, *reading)
 			}
+			sort.Sort(byTimestamp(buoyInstance.Readings))
 			buoyGroup.BuoyInstances = append(buoyGroup.BuoyInstances, *buoyInstance)
 		}
 		buoyGroupsWrapper.BuoyGroups = append(buoyGroupsWrapper.BuoyGroups, *buoyGroup)
 	}
 
 	return buoyGroupsWrapper, nil
+}
+
+// Custom sorter for map readings
+type byTimestamp []MapReading
+
+func (readings byTimestamp) Len() int {
+	return len(readings)
+}
+
+func (readings byTimestamp) Swap(i, j int) {
+	readings[i], readings[j] = readings[j], readings[i]
+}
+
+func (readings byTimestamp) Less(i, j int) bool {
+	return readings[i].Timestamp < readings[j].Timestamp
 }
 
 // Get all Readings with ids that are in the given slice of integers.

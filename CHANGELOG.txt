@@ -7,6 +7,12 @@ Legend:
 * Changed
 ! Fixed
 
+v0.4 - Week 10 8/10
+
+iOS App:
++ More info dialog when buoys are pressed, containing specific data and buoy commands
+! Some minor interface issues
+
 v0.3 - Week 9 6/10
 Server:
 + Add Apache logging for web requests

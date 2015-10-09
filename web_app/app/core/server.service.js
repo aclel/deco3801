@@ -275,9 +275,12 @@
 			var config = addToken(headers());
 			config.responseType = 'arraybuffer';
 			config.headers['Accept'] = 'text/csv';
+			var data = {
+				readings: readings
+			};
 			
-			var promise = $http.get(SERVER_ADDRESS + '/api/export?readings=' +
-				readings.join(), config);
+			var promise = $http.post(SERVER_ADDRESS + '/api/readings/export', 
+				JSON.stringify(data), config);
 				
 			promise.then(function(res) {
 				var time = moment().format("DD-MM-YY-HHmmss");

@@ -10,23 +10,26 @@
 // @link       https://github.com/aclel/deco3801
 package models
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 // A buoy instance is an abstraction of a physical buoy which represents
 // the state of a buoy during a particular deployment. Each buoy instance
 // has its own set of sensors and readings. Only one buoy instance for a buoy
 // is active at one time.
 type BuoyInstance struct {
-	Id            int       `json:"id" db:"id"`
-	Name          string    `json:"name" db:"name"`
-	BuoyId        int       `json:"buoyId" db:"buoy_id"`
-	BuoyGuid      string    `json:"buoyGuid" db:"buoy_guid"`
-	BuoyGroupId   int       `json:"buoyGroupId" db:"buoy_group_id"`
-	BuoyGroupName string    `json:"buoyGroupName" db:"buoy_group_name"`
-	Latitude      float64   `json:"latitude" db:"latitude"`
-	Longitude     float64   `json:"longitude" db:"longitude"`
-	DateCreated   time.Time `json:"dateCreated" db:"date_created"`
-	PollRate      int       `json:"pollRate" db:"poll_rate"`
+	Id            int             `json:"id" db:"id"`
+	Name          string          `json:"name" db:"name"`
+	BuoyId        int             `json:"buoyId" db:"buoy_id"`
+	BuoyGuid      string          `json:"buoyGuid" db:"buoy_guid"`
+	BuoyGroupId   int             `json:"buoyGroupId" db:"buoy_group_id"`
+	BuoyGroupName string          `json:"buoyGroupName" db:"buoy_group_name"`
+	Latitude      sql.NullFloat64 `json:"latitude" db:"latitude"`
+	Longitude     sql.NullFloat64 `json:"longitude" db:"longitude"`
+	DateCreated   time.Time       `json:"dateCreated" db:"date_created"`
+	PollRate      int             `json:"pollRate" db:"poll_rate"`
 }
 
 // Wrap the Buoy Instance methods to allow for testing with dependency injection.

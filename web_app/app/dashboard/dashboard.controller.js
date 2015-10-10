@@ -17,175 +17,103 @@
 		.controller('DashboardController', DashboardController);
 	
 	/**
-			* @ngdoc object
-			* @name app.dashboard.controller:DashboardController
-			* @description Provides viewmodel for dashboard view
-			* @requires $document
-			* @requires dashboard
-			* @requires map
-			* @requires moment
-		**/	
-	function DashboardController($log, $document, dashboard, map, moment) {
+		* @ngdoc object
+		* @name app.dashboard.controller:DashboardController
+		* @description Provides viewmodel for dashboard view
+		* @requires $document
+		* @requires dashboard
+		* @requires map
+	**/	
+	function DashboardController($log, $document, $scope, dashboard, map) {
 		var vm = this;
 		
-		/** Internal variables */
-		var dateFormat = "D/M/YY";
-		var timeFormat = "h:mm A";
-			
-		/** Variables and methods bound to viewmodel */
-		vm.buoys = dashboard.buoys();
-		vm.times = dashboard.times();
-		vm.sensors = dashboard.sensors();
-		vm.updateBuoysFilter = updateBuoysFilter;
-		vm.updateTimesFilter = updateTimesFilter;
-		vm.updateSensorsFilter = updateSensorsFilter;
-		vm.toggleBuoyGroup = toggleBuoyGroup;
-		vm.selectBuoyGroup = selectBuoyGroup;
-		vm.selectBuoyInstance = selectBuoyInstance;
-		vm.exportData = exportData;
-		
+		/** Used to determine when initial requests have returned */
+		var resolved = 0;
+		var chartObj;
 
+		/** Variables and methods bound to viewmodel */
+		vm.loading = false;
+		vm.showGraphs = false;
+		vm.buoys = dashboard.buoys(); // binds reference
+		vm.times = dashboard.times(); // binds reference
+		vm.sensors = dashboard.sensors(); // binds reference
+		vm.chart = dashboard.chart(); // binds reference
+		vm.selectBuoyGroup = dashboard.selectBuoyGroup;
+		vm.selectBuoyInstance = dashboard.selectBuoyInstance;
+		vm.updateSensors = dashboard.updateSensors;
+		vm.updateTimes = updateTimes;
+		vm.exportData = dashboard.exportData;
+		vm.toggleGraphs = toggleGraphs;
 		
 		activate();
-		
+
 		/** Called when controller is instantiated (dashboard page is loaded) */
 		function activate() {
-			dashboard.queryReadings().then(function() {
-				map.updateReadings();
+			vm.loading = true;
+			resolved = 0;
+
+			queryReadings();
+			querySensors();
+
+			// set up chart listeners
+			$scope.$on('displayChartInstance', function(event, buoyInstance) {
+				$scope.$apply(function() {
+					if (!vm.showGraphs) {
+						toggleGraphs();
+					}
+					dashboard.displayChartInstance(buoyInstance.name);
+				});
 			});
-			
+			$scope.$on('create', function(event, chart) {
+				chartObj = chart;
+			});
+		}
+
+		/** Query readings and update display */
+		function queryReadings() {
+			dashboard.queryReadings().then(function() {
+				checkLoaded();
+			});
+		}
+
+		/** Bind sensor information to vm */
+		function querySensors() {
 			dashboard.querySensors().then(function() {
 				vm.sensors = dashboard.sensors();
+				checkLoaded();
 			});
-			
-			setupChart();
 		}
 		
-		function setupChart() {
-			vm.labels = ["January", "February", "March", "April", "May", "June", "July"];
-			vm.series = ['Series A', 'Series B'];
-			vm.data = [
-				[65, 59, 80, 81, 56, 55, 40],
-				[28, 48, 40, 19, 86, 27, 90]
-			];
+		/** Update time filters, handle loading */
+		function updateTimes() {
+			vm.loading = true;
+			dashboard.updateTimes().then(function() {
+				vm.loading = false;
+			});
+		}
+		
+		/** Check whether the dashboard has finished loading */
+		function checkLoaded() {
+			if (++resolved == 2) {
+				vm.loading = false;
+			}
+		}
+		
+		/** Expand/contract graphs pane and update map */
+		function toggleGraphs() {
+			vm.showGraphs = !vm.showGraphs;
+			var center = map.getCenter();
+			angular.element(
+				document.getElementsByClassName('dashboard-panel'))
+				.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+					map.setCenter(center);
+					chartObj.resize(chartObj.render)
+			});
 		}
 			
 		/** Initialise google map when document is loaded */
 		$document.ready(function() {
 			map.initialiseMap();
 		});
-		
-		/** Toggle buoy group in list */
-		function toggleBuoyGroup(buoyGroup) {
-			buoyGroup.collapsed = !buoyGroup.collapsed;
-		}
-		
-		/** Update whether buoy group filter is enabled */
-		function selectBuoyGroup(buoyGroup) {
-			buoyGroup.buoyInstances.forEach(function(buoyInstance) {
-				buoyInstance.enabled = buoyGroup.enabled;
-			});
-			
-			updateBuoysFilter();
-		}
-		
-		/** Update whether buoy instance filter is enabled,
-		 *  Also handle display of indeterminate checkbox for group	
-		 */
-		function selectBuoyInstance(buoyGroup, buoyInstance) {
-			var allTrue = true;
-			var allFalse = true;
-			
-			buoyGroup.buoyInstances.forEach(function(instance) {
-				if (instance.enabled) {
-					allFalse = false;
-				} else {
-					allTrue = false;
-				}
-			});
-			
-			if (allFalse) {
-				buoyGroup.enabled = false;
-			} else {
-				buoyGroup.enabled = true;
-			}
-			
-			if (allFalse || allTrue) {
-				buoyGroup.indeterminate = false;
-			} else {
-				buoyGroup.indeterminate = true;
-			}
-			
-			updateBuoysFilter();
-		}
-		
-		/** Update filters and map when buoy filters are changed */
-		function updateBuoysFilter() {
-			dashboard.updateBuoys();
-			map.updateReadings();
-		}
-		
-		/** Update filters and map when time filters are changed */
-		function updateTimesFilter() {
-			// convert input strings to moments 
-			// and update vm.times, which updates reference in dashboard service
-			if (timesInputsValid()) {
-				var momentFormat = dateFormat + " " + timeFormat;
-				
-				if (vm.times.type == 'range') {
-					vm.times.range.from = moment(vm.times.inputs.range.from.date
-						+ " " + vm.times.inputs.range.from.time, momentFormat);
-					vm.times.range.to = moment(vm.times.inputs.range.to.date
-						+ " " + vm.times.inputs.range.to.time, momentFormat);
-				}
-				
-				else if (vm.times.type == 'point') {
-					vm.times.point = moment(vm.times.inputs.point.date
-						+ " " + vm.times.inputs.point.time, momentFormat);
-				}
-				
-				dashboard.updateTimes().then(function() {
-					map.updateReadings();
-				});
-			}
-		}
-		
-		/** Basic validation of times inputs */
-		function timesInputsValid() {
-			if (vm.times.type == 'since') {
-				if (vm.times.inputs.since.value) {
-					return true;
-				}
-			}
-			if (vm.times.type == 'range') {
-				// valid combinations: all filled, dates filled, times filled
-				var fromDate = vm.times.inputs.range.from.date;
-				var fromTime = vm.times.inputs.range.from.time;
-				var toDate = vm.times.inputs.range.to.date;
-				var toTime = vm.times.inputs.range.to.time;
-				
-				if (fromDate && fromTime && toDate && toTime) return true;
-				if (fromDate && !fromTime && toDate && !toTime) return true;
-			}
-			if (vm.times.type == 'point') {
-				// must have date, time is optional
-				if (vm.times.inputs.point.date) {
-					return true;
-				}
-			}
-			
-			return false;
-		}
-		
-		/** Update filters and map when sensor filters are changed */
-		function updateSensorsFilter() {
-			dashboard.updateSensors();
-			map.updateReadings();
-		}
-		
-		/** Export data when button is clicked */
-		function exportData() {
-			dashboard.exportData();
-		}
 	}
 })();

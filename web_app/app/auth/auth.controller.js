@@ -57,6 +57,7 @@
 				vm.forgotResponse = -1;
 				vm.waiting = false;
 				resetPasswordForm();
+				resetLoginForm();
 			}
 		}
 		
@@ -116,17 +117,15 @@
 			vm.waiting = true;
 			server.forgotPassword(vm.email).then(function(res) {
 				vm.forgotResponse = 0;
-				resetLoginForm();
 			}, function(res) {
 				vm.forgotResponse = 1;
-				resetLoginForm();
 			});
 		}
 		
 		/** Reset login form */
 		function resetLoginForm() {
-			vm.email = "andrew@dyergroup.com.au"; // placeholder
-			vm.password = "D9mEpnvx";
+			vm.email = ""; // placeholder
+			vm.password = "";
 		}
 
 		/** Reset change password form */

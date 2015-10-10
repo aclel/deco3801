@@ -20,14 +20,17 @@
         * @ngdoc service
         * @name app.gui.gui
         * @requires $alert
+        * @requires $modal
+        * @requires $log
     **/
-	function gui($alert, $log) {
+	function gui($alert, $modal, $log) {
 		
 		/** The service methods to expose */
 		return {
 			alertSuccess: alertSuccess,
             alertError: alertError,
-            alertBadResponse: alertBadResponse
+            alertBadResponse: alertBadResponse,
+            confirmDelete: confirmDelete
 		};
 		
         /**
@@ -53,6 +56,19 @@
         function alertBadResponse(res) {
             $log.error(res); // for debugging purposes
             alertError(res.data + '(' + res.status + ')');
+        }
+
+        /**
+         * Show a modal which confirms deletion. Uses vm variables from
+         * the calling controller.
+         * @param  {object} scope scope to bind to the modal
+         */
+        function confirmDelete(scope) {
+            $modal({
+                scope: scope,
+                templateUrl: '/app/gui/delete.modal.html',
+                show: true
+            });
         }
 	}
 })();

@@ -21,38 +21,71 @@
 		* @name app.dashboard.dashboard
 		* @requires $log
 		* @requires server
+		* @requires map
 		* @requires moment
 	**/
-	function dashboard($log, server, moment) {
+	function dashboard($log, $q, server, map, moment) {
 		/** Internal variables. These are preserved until page refresh. */
-		// var data = [];
-		var filteredReadings = [];
-		// var filters = {};
-
 		var readings = [];
+		var filteredReadings = [];
 		var sensors = {};
 		var buoys = [];
 		var times = {};
+		var chart = {};
+
+		var dateFormat = "D/M/YY";
+		var timeFormat = "h:mm A";
 
 		initialiseTimes();
+		initialiseChart();
 
 		/** The service methods to expose */
 		return {
-			queryReadings: queryReadings,
-			querySensors: querySensors,
-			readings: getReadings,
 			buoys: getBuoys,
 			times: getTimes,
 			sensors: getSensors,
-			updateBuoys: updateBuoys,
+			chart: getChart,
+			queryReadings: queryReadings,
+			querySensors: querySensors,
+			selectBuoyGroup: selectBuoyGroup,
+			selectBuoyInstance: selectBuoyInstance,
 			updateTimes: updateTimes,
-			updateFilters: updateFilters,
 			updateSensors: updateSensors,
-			getOldestReading: getOldestReading,
-			getRelativeAge: getRelativeAge,
 			exportData: exportData,
-			popupContent: popupContent
+			displayChartInstance: displayChartInstance
 		};
+
+		/**
+		 * Return buoy input data structures
+		 * @return {object} buoys filters and inputs
+		 */
+		function getBuoys() {
+			return buoys;
+		}
+		
+		/**
+		 * Return time input data structures
+		 * @return {object} time inputs
+		 */
+		function getTimes() {
+			return times;
+		}
+		
+		/**
+		 * Return sensor input data structures
+		 * @return {object} sensor inputs and filters
+		 */
+		function getSensors() {
+			return sensors;
+		}
+
+		/**
+		 * Return chart data structure
+		 * @return {object} chart data
+		 */
+		function getChart() {
+			return chart;
+		}
 		
 		/**
 		 * Query readings from server and update internal data structures
@@ -100,7 +133,7 @@
 				point: null,
 				pointReadings: [], // contains list of closest readings to point
 				inputs: {
-					since: { value: 2, quantifier: "weeks", options: [
+					since: { value: 4, quantifier: "weeks", options: [
 						"hours", "days", "weeks", "months"
 					] },
 					range: {
@@ -110,6 +143,15 @@
 					point: { date: "", time: "" },
 				}
 			}
+		}
+
+		/** Initialise charts */
+		function initialiseChart() {
+			chart.series = [];
+			chart.labels = [];
+			chart.data = [
+				[null]
+			];
 		}
 		
 		/** Populate buoys filter */
@@ -123,19 +165,37 @@
 			for (var i = 0; i < readings.length; i++) {
 				var buoyGroup = readings[i];
 				groups.push(buoyGroup.id);
-				var group = addBuoyGroupFilter(buoyGroup);
+				var group = buoysFilterAddGroup(buoyGroup);
 
 				// add instances
 				for (var j = 0; j < buoyGroup.buoyInstances.length; j++) {
 					var buoyInstance = buoyGroup.buoyInstances[j];
 					instances.push(buoyInstance.id);
-					addBuoyInstanceFilter(buoyInstance, group);
+					buoysFilterAddInstance(buoyInstance, group);
 				}
 			}		
 
 			// remove old buoys
-			removeOldBuoyGroups(groups);
-			removeOldBuoyInstances(instances);
+			buoysFilterRemoveOldGroups(groups);
+			buoysFilterRemoveOldInstances(instances);
+		}
+
+		/** Populate sensor input data */
+		function populateSensors(data) {
+			for (var i = 0; i < data.length; i++) {
+				var sensor = data[i];
+				
+				if (sensors.hasOwnProperty(sensor.id)) continue;
+
+				sensor.inputs = {
+					enabled: false,
+					options: [">", "<", "="],
+					selected: ">",
+					value: ""
+				};
+
+				sensors[sensor.id] = sensor;	
+			}
 		}
 
 		/**
@@ -144,9 +204,9 @@
 		 * @param {object} buoyGroup buoyGroup to add
 		 * @return {object} reference to added group
 		 */
-		function addBuoyGroupFilter(buoyGroup) {
+		function buoysFilterAddGroup(buoyGroup) {
 			var group = {};
-			var gIndex = buoyGroupIndex(buoyGroup.id);
+			var gIndex = buoysFilterGroupIndex(buoyGroup.id);
 			if (gIndex != -1) {
 				group = buoys[gIndex];
 			} else {
@@ -168,10 +228,10 @@
 		 * @param {object} group        buoyGroup to add the instance to
 		 * @return {object} reference to added instance
 		 */
-		function addBuoyInstanceFilter(buoyInstance, group) {
+		function buoysFilterAddInstance(buoyInstance, group) {
 			var instance = {};
-			var gIndex = buoyGroupIndex(group.id);
-			var iIndex = buoyInstanceIndex(buoyInstance.id, group.id);
+			var gIndex = buoysFilterGroupIndex(group.id);
+			var iIndex = buoysFilterInstanceIndex(buoyInstance.id, group.id);
 			if (iIndex != -1) {
 				instance = buoys[gIndex].buoyInstances[iIndex];
 			} else {
@@ -188,7 +248,7 @@
 		 * @param  {int} id id of buoyGroup
 		 * @return {int}    index or -1 if not found
 		 */
-		function buoyGroupIndex(id) {
+		function buoysFilterGroupIndex(id) {
 			for (var i = 0; i < buoys.length; i++) {
 				if (buoys[i].id == id) {
 					return i;
@@ -203,8 +263,8 @@
 		 * @param  {int} gId id of buoyGroup
 		 * @return {int}     index of buoyInstance or -1 if not found
 		 */
-		function buoyInstanceIndex(id, gId) {
-			var gIndex = buoyGroupIndex(gId);
+		function buoysFilterInstanceIndex(id, gId) {
+			var gIndex = buoysFilterGroupIndex(gId);
 			if (gIndex == -1) return -1;
 			for (var i = 0; i < buoys[gIndex].buoyInstances.length; i++) {
 				if (buoys[gIndex].buoyInstances[i].id == id) {
@@ -218,7 +278,7 @@
 		 * Remove buoyGroup from buoys list
 		 * @param  {int[]} keep array of buoyGroup IDs not to remove
 		 */
-		function removeOldBuoyGroups(keep) {
+		function buoysFilterRemoveOldGroups(keep) {
 			var remove = [];
 			for (var i = 0; i < buoys.length; i++) {
 				var group = buoys[i];
@@ -235,7 +295,8 @@
 		 * Remove buoyInstance from buoys list
 		 * @param  {int[]} keep array of buoyInstance IDs not to remove
 		 */
-		function removeOldBuoyInstances(keep) {
+		function buoysFilterRemoveOldInstances(keep) {
+			// if (!buoys.length) return; doesn't do anything?
 			var remove = [];
 			for (var i = 0; i < buoys.length; i++) {
 				var group = buoys[i];
@@ -251,45 +312,105 @@
 			}
 		}
 
-		/**
-		 * Return filtered readings
-		 * @return {object array} filtered readings
-		 */
-		function getReadings() {
-			return filteredReadings;
-		}
-		
-		/**
-		 * Return buoy input data structures
-		 * @return {object} buoys filters and inputs
-		 */
-		function getBuoys() {
-			return buoys;
-		}
-		
-		/**
-		 * Return time input data structures
-		 * @return {object} time inputs
-		 */
-		function getTimes() {
-			return times;
-		}
-		
-		/**
-		 * Return sensor input data structures
-		 * @return {object} sensor inputs and filters
-		 */
-		function getSensors() {
-			return sensors;
-		}
-		
-		/** Update internal filtered readings when buoy filters changed */
-		function updateBuoys() {
+
+		/** Update whether buoy group filter is enabled */
+		function selectBuoyGroup(buoyGroup) {
+			buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+				buoyInstance.enabled = buoyGroup.enabled;
+			});
 			updateFilters();
+		}
+
+		/** Update whether buoy instance filter is enabled */
+		function selectBuoyInstance(buoyGroup) {
+			updateBuoyGroupSelectState(buoyGroup);			
+			updateFilters();
+		}
+
+		/** Also handle display of indeterminate checkbox for group */
+		function updateBuoyGroupSelectState(buoyGroup) {
+			var allTrue = true;
+			var allFalse = true;
+			
+			buoyGroup.buoyInstances.forEach(function(instance) {
+				if (instance.enabled) {
+					allFalse = false;
+				} else {
+					allTrue = false;
+				}
+			});
+			
+			if (allFalse) {
+				buoyGroup.enabled = false;
+			} else {
+				buoyGroup.enabled = true;
+			}
+			
+			if (allFalse || allTrue) {
+				buoyGroup.indeterminate = false;
+			} else {
+				buoyGroup.indeterminate = true;
+			}
+		}
+
+		/** Update filters and map when time filters are changed */
+		function updateTimes() {
+			var defer = $q.defer();
+			// convert input strings to moments 
+			// and update vm.times, which updates reference in dashboard service
+			if (timesInputsValid()) {
+				var momentFormat = dateFormat + " " + timeFormat;
+				
+				if (times.type == 'range') {
+					times.range.from = moment(times.inputs.range.from.date
+						+ " " + times.inputs.range.from.time, momentFormat);
+					times.range.to = moment(times.inputs.range.to.date
+						+ " " + times.inputs.range.to.time, momentFormat);
+				}
+				
+				else if (times.type == 'point') {
+					times.point = moment(times.inputs.point.date
+						+ " " + times.inputs.point.time, momentFormat);
+				}
+				
+				queryReadingTimes().then(function() {
+					defer.resolve();	
+				}, function() {
+					defer.reject();
+				});
+			}
+			return defer.promise;
+		}
+
+		/** Basic validation of times inputs */
+		function timesInputsValid() {
+			if (times.type == 'since') {
+				if (times.inputs.since.value) {
+					return true;
+				}
+			}
+			if (times.type == 'range') {
+				// valid combinations: all filled, dates filled, times filled
+				var fromDate = times.inputs.range.from.date;
+				var fromTime = times.inputs.range.from.time;
+				var toDate = times.inputs.range.to.date;
+				var toTime = times.inputs.range.to.time;
+				
+				if (fromDate && fromTime && toDate && toTime) return true;
+				if (fromDate && !fromTime && toDate && !toTime) return true;
+			}
+			if (times.type == 'point') {
+				// must have date, time is optional
+				if (times.inputs.point.date) {
+					return true;
+				}
+			}
+			
+			return false;
 		}
 		
 		/** Update internal filtered readings when time filters changes */
-		function updateTimes() {
+		function queryReadingTimes() {
 			// query server for new times
 			var from, to;
 			
@@ -313,7 +434,6 @@
 				if (times.type == 'point') {
 					calculatePointReadings();
 				}
-				updateFilters();
 			});
 			return promise;
 		}
@@ -321,39 +441,6 @@
 		/** Update internal filtered readings when sensor filters changed */
 		function updateSensors() {
 			updateFilters();
-		}
-		
-		/** Populate sensor input data */
-		function populateSensors(data) {
-			for (var i = 0; i < data.length; i++) {
-				var sensor = data[i];
-				
-				if (sensors.hasOwnProperty(sensor.id)) continue;
-
-				sensor.inputs = {
-					enabled: false,
-					options: [">", "<", "="],
-					selected: ">",
-					value: ""
-				};
-
-				sensors[sensor.id] = sensor;	
-			}
-		}
-		
-		/**
-		 * Return the oldest reading from filtered readings
-		 * @return {object} oldest reading
-		 */
-		function getOldestReading() {
-			var readings = filteredReadings;
-			var oldest = moment.unix(readings[0].timestamp);
-			for (var i = 1; i < readings.length; i++) {
-				if (moment.unix(readings[i].timestamp).isBefore(oldest)) {
-					oldest = moment.unix(readings[i].timestamp);
-				}
-			}
-			return oldest;
 		}
 		
 		/** Calculate readings closest to specified time */
@@ -383,7 +470,7 @@
 		/** Re-filter readings based on updated filters */
 		function updateFilters() {
 			filteredReadings = [];
-			if (!readings) return;
+			if (!readings.length || !Object.keys(sensors).length) return;
 
 			for (var i = 0; i < readings.length; i++) {
 				var buoyGroup = readings[i];
@@ -402,6 +489,7 @@
 					}
 				}
 			}
+			updateMap();
 		}
 
 		/**
@@ -410,7 +498,7 @@
 		 * @return {bool}    true if it should be shown, false if not
 		 */
 		function buoyGroupEnabled(id) {
-			return buoys[buoyGroupIndex(id)].enabled;
+			return buoys[buoysFilterGroupIndex(id)].enabled;
 		}
 
 		/**
@@ -420,8 +508,8 @@
 		 * @return {bool}    true if it should be shown, false if not
 		 */
 		function buoyInstanceEnabled(id, gId) {
-			var gIndex = buoyGroupIndex(gId);
-			var iIndex = buoyInstanceIndex(id, gId);
+			var gIndex = buoysFilterGroupIndex(gId);
+			var iIndex = buoysFilterInstanceIndex(id, gId);
 			return buoys[gIndex].buoyInstances[iIndex].enabled;
 		}
 
@@ -462,18 +550,6 @@
 		function showReading(reading) {
 			if (!filterTimes(reading)) return false;
 			if (!filterSensors(reading)) return false;
-			return true;
-		}
-		
-		/**
-		 * Filter buoys from readings
-		 * @param  {object} reading reading
-		 * @return {bool}         include reading
-		 */
-		function filterBuoys(reading) {
-			if (!buoys[reading.buoy]) {
-				return false;
-			}
 			return true;
 		}
 		
@@ -624,20 +700,139 @@
 										.format('D MMMM h:mm A');
 										
 			var content = "<div>" +
-				"<h5 style='color: white'>" + buoyInstance.name + "</h5>" +
-				formattedTime + 
-				"<br>---";
+				"<h5><strong>" + buoyInstance.name + "</strong></h5>" +
+				"<em>" + formattedTime + "</em><br>" +
+				"<table class='popup-table'><tbody>";
 			
+
 			reading.sensorReadings.forEach(function(sensorReading) {
-				content += "<br>" + 
+				content += "<tr><td>" + 
 					sensors[sensorReading.sensorTypeId].name +
-					": " + sensorReading.value + " " +
-					sensors[sensorReading.sensorTypeId].unit;
+					": </td><td class='right'>" + sensorReading.value + " " +
+					sensors[sensorReading.sensorTypeId].unit + "</td></tr>";
 			});			
 				
-			content += "</div>";
+			content += "</tbody></table></div>";
 				
 			return content;
+		}
+
+		/**
+		 * Update the map to show markers for filtered readings
+		 */
+		function updateMap() {
+			var enabledMarkers = [];
+			var insNum = 0;
+
+			// show a marker for every reading
+			filteredReadings.forEach(function(buoyGroup) {
+				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+					buoyInstance.readings.forEach(function(reading) {
+						enabledMarkers.push(reading.id);
+						map.showMarker(reading, buoyInstance,
+							insNum, getRelativeAge(reading),
+							popupContent(reading, buoyInstance));
+					});
+					insNum++;
+				});
+			});
+			map.hideDisabledMarkers(enabledMarkers);
+		}
+
+
+		function setupReadings() {
+
+			var chartArray = [];
+			
+			var readingsList = filteredReadings;
+
+			for (var p = 0; p < readingsList.length; p++) {
+				for (var i = 0; i < readingsList[p].buoyInstances.length; i++) {
+					var chartData = {};
+
+					chartData.name = readingsList[p].buoyInstances[i].name;
+					var chartReadings = [];
+					for(var q = 0; q < readingsList[p].buoyInstances[i].readings.length; q ++){
+						
+						for (var z = 0; z < readingsList[p].buoyInstances[i].readings[q].sensorReadings.length; z ++){
+							
+							if (readingsList[p].buoyInstances[i].readings[q].sensorReadings[z].sensorTypeId == 1){
+								
+
+
+								var timeStamp = readingsList[p].buoyInstances[i].readings[q].timestamp;
+								
+								var niceTime = moment.unix(timeStamp).format("D/M h:mma")
+								var turbidity = readingsList[p].buoyInstances[i].readings[q].sensorReadings[z].value;
+								//sets a max value on turbidity due to chart limitations 
+								if (turbidity > 200){
+									turbidity = 200;
+								}
+								chartReadings.push({timeStamp: niceTime,turbidity: turbidity});
+
+							}
+
+						}
+						
+					}
+				
+				chartData.readings = chartReadings;
+
+				chartArray.push(chartData);
+
+				}
+			
+			}
+			console.log(chartArray);
+			return chartArray;
+			
+		}
+
+		function displayChartInstance(instanceName){
+			
+			var instanceReadings = setupReadings();
+
+			var tempData = [];
+			var tempLabels = [];
+			var tempName;
+			for (var i = 0; i < instanceReadings.length; i++){
+				if (instanceReadings[i].name == instanceName){
+
+					tempName = [instanceReadings[i].name ];
+					// var date = new Date();
+					for(var q = 0; q < instanceReadings[i].readings.length; q++){
+					
+
+
+						// date = instanceReadings[i].readings[q].timeStamp
+						tempLabels.push(instanceReadings[i].readings[q].timeStamp);
+						tempData.push(instanceReadings[i].readings[q].turbidity);
+					}
+				}
+
+			}
+			if (tempLabels.length > 100){
+				tempLabels = tempLabels.slice(0,101);
+				var division = Math.floor(tempLabels.length/10);
+				console.log(division);
+				chart.labels.unshift("");
+				for (var i = 1; i < tempLabels.length; i++){
+					if (i % division != 0){
+						tempLabels[i] = "";
+					}
+				console.log(tempLabels);
+
+				}
+			} 
+			chart.series = tempName;
+			chart.labels = tempLabels;
+			chart.labels.unshift("");
+			chart.data = [tempData];
+
+			chart.data[0].unshift(tempData[0]);
+
+			
+
 		}
 	}
 })();

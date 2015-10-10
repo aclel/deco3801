@@ -11,6 +11,8 @@ v0.4 - Week 10 8/10
 
 iOS App:
 + More info dialog when buoys are pressed, containing specific data and buoy commands
++ Filters for buoy groups, allowing users to narrow the overall list of results.
+* Updated JSON handling to future-proof against server changes.
 ! Some minor interface issues
 
 v0.3 - Week 9 6/10

@@ -311,11 +311,7 @@
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    
-    NSLog(@"%f", self.moreInfoDialog.center.x);
-    NSLog(@"%f", self.moreInfoDialog.center.y);
     [self.moreInfoDialog setHidden:NO];
-    NSLog(@"%@", self.moreInfoDialog.isHidden ? @"yes" : @"no");
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -532,6 +528,15 @@
     // Get buoy information from list of buoys/groups
     NSMutableArray *allBuoys = [[NSMutableArray alloc] init];
     for (BuoyGroup *g in buoyGroups) {
+        for (Buoy *b in g.buoys) {
+            // Get buoys with valid coordinates
+            if (b.validCoordinate) {
+                [allBuoys addObject:b];
+            } else {
+                NSLog(@"Buoy %@ with id %d has invalid coord - skipping", b, b.buoyId);
+            }
+        }
+        
         // Get all buoys
         [allBuoys addObjectsFromArray:g.buoys];
     }

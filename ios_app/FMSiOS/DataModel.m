@@ -17,6 +17,7 @@
     if (self) {
         _group = nil;
         _coordinate = CLLocationCoordinate2DMake(0, 0);
+        _validCoordinate = NO;
         _title = @"Unknown";
         _subtitle = @"Unknown";
         _dateCreated = [NSDate dateWithTimeIntervalSince1970:0];
@@ -32,6 +33,7 @@
     self = [self init];
     if (self) {
         _coordinate = coord;
+        _validCoordinate = YES;
     }
     return self;
 }
@@ -115,13 +117,23 @@
     NSMutableArray *parsed = [[NSMutableArray alloc] initWithCapacity:buoyDictList.count];
     for (NSDictionary *buoyInfo in buoyDictList) {
         // Get lat, long
-        NSNumber *lat = [buoyInfo objectForKey:@"latitude"];
-        NSNumber *lon = [buoyInfo objectForKey:@"longitude"];
+        NSObject *latInfo = [buoyInfo objectForKey:@"latitude"];
+        NSObject *lonInfo = [buoyInfo objectForKey:@"longitude"];
         
         // Create buoy
         Buoy *b;
-        if (lat != nil && lon != nil) {
+        if ([latInfo isKindOfClass:[NSNumber class]] && [lonInfo isKindOfClass:[NSNumber class]]) {
+            NSNumber *lat = (NSNumber *)latInfo;
+            NSNumber *lon = (NSNumber *)lonInfo;
             b = [[Buoy alloc] initWithCoord:CLLocationCoordinate2DMake(lat.doubleValue, lon.doubleValue)];
+        } else if ([latInfo isKindOfClass:[NSDictionary class]] && [lonInfo isKindOfClass:[NSDictionary class]]) {
+            NSDictionary *latDict = (NSDictionary *)latInfo;
+            NSDictionary *lonDict = (NSDictionary *)lonInfo;
+            NSNumber *lat = [latDict objectForKey:@"Float64"];
+            NSNumber *lon = [lonDict objectForKey:@"Fload64"];
+            if (lat != nil && lon != nil && [latDict objectForKey:@"Valid"] && [lonDict objectForKey:@"Valid"] && [[latDict objectForKey:@"Valid"] boolValue] && [[lonDict objectForKey:@"Valid"] boolValue]) {
+                b = [[Buoy alloc] initWithCoord:CLLocationCoordinate2DMake(lat.doubleValue, lon.doubleValue)];
+            }
         } else {
             b = [[Buoy alloc] init];
         }

@@ -28,6 +28,7 @@
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *subtitle;
 @property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
+@property BOOL validCoordinate;
 @property (nonatomic, strong) NSDate *dateCreated;
 @property (nonatomic, strong) NSString *buoyName;
 @property (nonatomic, strong) NSString *buoyGuid; //ids for different purposes

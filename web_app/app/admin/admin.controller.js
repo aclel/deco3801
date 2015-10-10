@@ -22,7 +22,7 @@
 		* @description Provides viewmodel for admin view
 		* @requires server
 	**/
-	function AdminController(server, gui) {
+	function AdminController($scope, server, gui) {
 		var vm = this;
 		
 		/** Variables and methods bound to viewmodel */
@@ -30,6 +30,7 @@
 		vm.editUserId = -1;
 		vm.newBuoyName = '';
 		vm.roles = ['user', 'power_user', 'system_admin'];
+		vm.confirmDelete  = confirmDeleteUser;
 		vm.startEditingUser = startEditingUser;
 		vm.finishEditingUser = finishEditingUser;
 		vm.deleteUser = deleteUser;
@@ -119,16 +120,27 @@
 		}
 		
 		/**
-		 * User is deleted, called on Delete button click
-		 * @param  {object} user
+		 * User is deleted, called on Confirm button click in delete modal
+		 * @param  {object} user user to delete
 		 */
-		function deleteUser(user) {
+		function confirmDeleteUser(user) {
 			server.deleteUser(user.id).then(function(res) {
 				queryUsers();
 				gui.alertSuccess('User deleted.');
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});
+		}
+
+		/**
+		 * Shows a delete confirmation, called on Delete button click
+		 * @param  {object} user user to delete
+		 */
+		function deleteUser(user) {
+			vm.deleteObject = user;
+			vm.deleteType = 'user';
+			vm.deleteName = user.email;
+			gui.confirmDelete($scope);
 		}
 		
 		/**

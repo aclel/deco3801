@@ -30,6 +30,7 @@
 		var resolved = 0; // used to determine when data is received
 		
 		/** Variables and methods bound to viewmodel */
+		vm.loading = false;
 		vm.warnings = [];
 		vm.buoyInstances = [];
 		vm.sensorTypes = [];
@@ -38,6 +39,7 @@
 		
 		/** Called when controller is instantiated (warnings page is loaded) */
 		function activate() {
+			vm.loading = true;
 			queryWarnings();
 			queryBuoyInstances();
 			querySensorTypes();
@@ -79,6 +81,7 @@
 		/** Associate buoy, sensor and time info with warnings */
 		function parseWarnings() {
 			if (resolved < 3) return; // wait until all data has been received from server
+			vm.loading = false;
 
 			vm.warnings.forEach(function(warning) {
 				// parse time
@@ -100,6 +103,10 @@
 						break;
 					}
 				}
+				// format sensor, operator and value
+				warning.warning = warning.sensorName + " " +
+					warning.warningTrigger.operator + " " +
+					warning.warningTrigger.value;
 			});
 		}
 	}

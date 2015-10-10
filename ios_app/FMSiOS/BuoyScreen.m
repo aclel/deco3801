@@ -613,16 +613,40 @@
     Buoy *b = [self.allBuoys objectAtIndex:buttonPressed.tag];
     
     // Update and popup more info dialog
+    self.moreInfoDialogContainer.alpha = 0;
+    self.moreInfoDialog.transform = CGAffineTransformMakeScale(0, 0);
     [self.moreInfoDialogContainer setHidden:NO];
+    
+    // Animate popup
+    [UIView animateWithDuration:0.5 animations:^{
+        self.moreInfoDialogContainer.alpha = 1;
+        self.moreInfoDialog.transform = CGAffineTransformIdentity;
+    } completion:^(BOOL finished){
+        if (finished) {
+            [self.moreInfoDialogContainer setEnabled:YES];
+        }
+    }];
     
     // Start request for info
     //TODO
 }
 
 - (void)closeMoreInfoPressed {
+    [self.moreInfoDialogContainer setEnabled:NO];
+    
     // Done
     [self.moreInfoDialog reset];
-    [self.moreInfoDialogContainer setHidden:YES];
+    
+    // Animate close
+    self.moreInfoDialog.transform = CGAffineTransformIdentity;
+    [UIView animateWithDuration:0.5 animations:^{
+        self.moreInfoDialog.transform = CGAffineTransformMakeScale(0.001, 0.001);
+        self.moreInfoDialogContainer.alpha = 0;
+    } completion:^(BOOL finished){
+        if (finished) {
+            [self.moreInfoDialogContainer setHidden:YES];
+        }
+    }];
 }
 
 - (void)pingMoreInfoPressed {

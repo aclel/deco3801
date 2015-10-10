@@ -10,11 +10,13 @@
     <h3>All Buoys</h3>
 </div>
 <div ng-if="vm.selected.type == 'group'">
-    <h3 class="inline">{{ vm.selected.obj.name }}</h3>
+    <h3>
+        {{ vm.selected.obj.name }}
         <a><img src="/assets/img/edit.png"
               ng-if="!vm.editing()"
               ng-click="vm.startEditingName()"/>
         </a>
+    </h3>
     <form ng-if="vm.editName.on">
         <input type="text" ng-model="vm.selected.obj.name">
         <input type="submit" ng-click="vm.finishEditingName()"
@@ -23,13 +25,15 @@
     </form>
 </div>
 <div ng-if="vm.selected.type == 'instance'">
-    <h3 class="inline" ng-if="vm.selected.obj.name != ''">{{ vm.selected.obj.name }}</h3>
-    <h3 class="inline red" ng-if="vm.selected.obj.name == ''">(no name)</h3>
-    <a><img src="/assets/img/edit.png"
-              ng-if="!vm.editing()"
-              ng-click="vm.startEditingName()"/>
-    </a>
-    <h4 class="inline"> ({{ vm.selected.obj.buoyGroupName }})</h4>
+    <h3>
+        <span ng-if="vm.selected.obj.name != ''">{{ vm.selected.obj.name }}</span>
+        <span ng-if="vm.selected.obj.name == ''">(no name)</span>
+        <a><img src="/assets/img/edit.png"
+                  ng-if="!vm.editing()"
+                  ng-click="vm.startEditingName()"/>
+        </a>
+    </h3>
+    <h4 class="text-secondary">({{ vm.selected.obj.buoyGroupName }})</h4>
     <form ng-if="vm.editName.on">
         <input type="text" ng-model="vm.selected.obj.name">
         <input type="submit" ng-click="vm.finishEditingName()"

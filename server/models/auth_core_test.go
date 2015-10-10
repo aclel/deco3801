@@ -23,12 +23,8 @@ func TestMain(m *testing.M) {
 }
 
 func TestInitJWTAuth(t *testing.T) {
-	if jwtAuth.PublicKey == nil {
-		t.Errorf("Public key was nil")
-	}
-
-	if jwtAuth.privateKey == nil {
-		t.Errorf("Private key was nil")
+	if jwtAuth.SecretKey == nil {
+		t.Errorf("Secret key was empty")
 	}
 }
 
@@ -45,7 +41,7 @@ func TestGenerateToken(t *testing.T) {
 	}
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return jwtAuth.PublicKey, nil
+		return jwtAuth.SecretKey, nil
 	})
 
 	if err != nil {
@@ -116,8 +112,8 @@ func TestAuthenticateIncorrectEmail(t *testing.T) {
 	}
 }
 
-func TestGetPrivateKey(t *testing.T) {
-	_, err := getPrivateKey()
+func TestGetSecretKey(t *testing.T) {
+	_, err := getSecretKey()
 	if err != nil {
 		t.Error(err)
 	}

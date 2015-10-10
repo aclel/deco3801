@@ -24,6 +24,7 @@
     "angular-ui-indeterminate": "~1.0.0",
     "file-saver.js": "~1.20150507.2",
     "angular-motion": "~0.4.3",
-    "angular-ui-tree": "~2.9.0"
+    "angular-ui-tree": "~2.9.0",
+    "bootstrap-sass": "~3.3.5"
   }
 }

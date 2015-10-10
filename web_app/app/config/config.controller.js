@@ -267,7 +267,7 @@
 		function setBuoyInstanceGroup(buoyInstance) {
 			vm.buoyGroups.forEach(function(buoyGroup) {
 				if (buoyGroup.id == buoyInstance.buoyGroupId) {
-					buoyInstance.buoyGroupName = buoyGroup.name;
+					buoyInstance.buoyGroupName = removeEnclosingBrackets(buoyGroup.name);
 					buoyGroup.buoyInstances.push(buoyInstance);
 					return;
 				}
@@ -550,6 +550,21 @@
 				}
 			}
 			return false;
+		}
+
+		/**
+		 * Remove enclosing brackets from a string
+		 * @param  {str} str string to operate on
+		 * @return {str}     edited string
+		 */
+		function removeEnclosingBrackets(str) {
+			if (str[0] == '(') {
+				str = str.substr(1);
+			}
+			if (str[str.length - 1] == ')') {
+				str = str.substr(0, str.length - 1);
+			}
+			return str;
 		}
 	}
 })();

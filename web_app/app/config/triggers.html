@@ -1,5 +1,5 @@
 <h3>Warning Triggers</h3>
-<table>
+<table class="data-table">
     <thead>
         <tr>
             <th>Buoy</th>
@@ -7,6 +7,7 @@
             <th>Operator</th>
             <th>Value</th>
             <th>Message</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -16,12 +17,28 @@
             <td>{{ trigger.operator }}</td>
             <td>{{ trigger.value }}</td>
             <td>{{ trigger.message }}</td>
+            <td class="button-cell">
+                <button type="button" class="btn btn-default btn-sm right">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-sm right">
+                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-sm right invisible">
+                    <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-sm right invisible">
+                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                </button>
+            </td>
         </tr>
     </tbody>
 </table>
-<button class="button small"
-        ng-click="vm.newTrigger = true"
-        ng-if="!vm.editing()">New Warning Trigger
+<button type="button" class="btn btn-default"
+    ng-click="vm.newTrigger = true"
+    ng-if="!vm.editing()">
+        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+        <small>New Warning Trigger</small>
 </button>
 <form ng-if="vm.newTrigger == true">
     <h4>New Warning Trigger</h4>

@@ -8,11 +8,8 @@
 
 #import "AppDelegate.h"
 
-// TODO: test leaving and returning to app
+// TODO: some more styling
 
-@interface AppDelegate ()
-
-@end
 
 @implementation AppDelegate
 

@@ -8,8 +8,7 @@
 
 // TODO: pinging
 // TODO: more info content
-// TODO: animations
-// TODO: buoy distance from self
+// TODO: buoy distance line
 
 #import "BuoyScreen.h"
 

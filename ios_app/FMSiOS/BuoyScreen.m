@@ -129,7 +129,6 @@
 
 @end
 
-
 @interface BuoyScreen () <UIPopoverPresentationControllerDelegate, CLLocationManagerDelegate, MKMapViewDelegate>
 
 // Core UI elements
@@ -148,17 +147,20 @@
 // Data structures
 @property (strong, nonatomic) NSArray *allBuoys; // List of all buoys to display
 @property (strong, nonatomic) NSArray *buoyGroups; // List of buoy groups, containing the above
+@property (strong, nonatomic) NSMutableIndexSet *buoyGroupsToShow; // Buoys not to show, or show all if this is set to nil
 
 - (void)mapTypeButtonPressed:(UIControl *)c;
+- (void)updateMapToMatchSelection;
 
 @end
-
 
 // Popup controller used for the info button options settings
 @interface BuoySettingsPopup : UIViewController <UITableViewDataSource, UITableViewDelegate>
 
 @property (strong, nonatomic) UITableView *t;
 @property (weak, nonatomic) BuoyScreen *delegate;
+
+- (void)forceUpdate;
 
 @end
 
@@ -167,23 +169,37 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    self.preferredContentSize = CGSizeMake(320, 80);
+    self.preferredContentSize = CGSizeMake(320, 140);
     
     self.t = [[UITableView alloc] initWithFrame:self.view.frame style:UITableViewStyleGrouped];
     self.t.delegate = self;
     self.t.dataSource = self;
-    self.t.allowsSelection = NO;
-    self.t.tintColor = [UIColor blackColor];
+    self.t.tintColor = FMS_COLOUR_BAR;
     
     [self.view addSubview:self.t];
 }
 
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self.t reloadData];
+    self.preferredContentSize = CGSizeMake(320, 140 + 44 * [self.t numberOfRowsInSection:1]);
+}
+
 - (void)viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
     self.t.frame = self.view.frame;
 }
 
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
+    return 2;
+}
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    return 1;
+    if (section == 0 || self.delegate.buoyGroups.count == 0) {
+        return 1;
+    }
+    
+    return self.delegate.buoyGroups.count;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
@@ -191,20 +207,91 @@
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    return @"Settings";
+    return (section == 0) ? @"Settings" : @"Filters";
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-    UITableViewCell *c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Cell"];
-    c.textLabel.text = @"Map type:";
+    // Get new empty reusable table cell
+    UITableViewCell *c;
     
-    UISegmentedControl *typeChooser = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects:@"Map", @"Satellite", nil]];
-    typeChooser.frame = CGRectMake(c.frame.size.width/2, 5, c.frame.size.width/2 - 10, c.frame.size.height - 10);
-    typeChooser.selectedSegmentIndex = 0;
-    [typeChooser addTarget:self.delegate action:@selector(mapTypeButtonPressed:) forControlEvents:UIControlEventValueChanged];
-    [c addSubview:typeChooser];
-    
+    if (indexPath.section == 0) {// Settings
+        c = [self.t dequeueReusableCellWithIdentifier:@"SelectCell"];
+        if (c == nil) {
+            c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"SelectCell"];
+            
+            UISegmentedControl *typeChooser = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects:@"Map", @"Satellite", nil]];
+            typeChooser.frame = CGRectMake(c.frame.size.width/2, 5, c.frame.size.width/2 - 10, c.frame.size.height - 10);
+            typeChooser.selectedSegmentIndex = 0;
+            [typeChooser addTarget:self.delegate action:@selector(mapTypeButtonPressed:) forControlEvents:UIControlEventValueChanged];
+            [c addSubview:typeChooser];
+        }
+        c.textLabel.text = @"Map type:";
+        c.selectionStyle = UITableViewCellSelectionStyleNone;
+    } else if (indexPath.section == 1) { // Filters
+        c = [self.t dequeueReusableCellWithIdentifier:@"BlankCell"];
+        if (c == nil) {
+            c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"BlankCell"];
+            UIView *colourator = [[UIView alloc] initWithFrame:CGRectMake(10, 10, 20, 20)];
+            colourator.backgroundColor = [UIColor lightGrayColor];
+            colourator.layer.cornerRadius = 4;
+            colourator.tag = 1;
+            [c addSubview:colourator];
+            colourator.hidden = YES;
+        }
+        
+        if (self.delegate.buoyGroups.count == 0) { // No buoys loaded to filter
+            c.selectionStyle = UITableViewCellSelectionStyleNone;
+            c.textLabel.text = @"No buoys currently loaded.";
+        } else { // Show buoy at this index
+            BuoyGroup *g = [self.delegate.buoyGroups objectAtIndex:indexPath.row];
+            c.textLabel.text = (g.groupId == 0) ? @"Unassigned" : g.title;
+            c.selectionStyle = UITableViewCellSelectionStyleDefault;
+            
+            // Select if part of selected or none selected
+            if ([self.delegate.buoyGroupsToShow containsIndex:indexPath.row]) {
+                c.accessoryType = UITableViewCellAccessoryCheckmark;
+            } else {
+                c.accessoryType = UITableViewCellAccessoryNone;
+            }
+            
+            // Add colour view to match for ungrouped buoys
+            if (g.groupId != 0) { // Ungrouped
+                UIView *colourator = [c viewWithTag:1];
+                colourator.hidden = NO;
+                NSUInteger shift = ((BuoyGroup *)[self.delegate.buoyGroups objectAtIndex:0]).groupId == 0 ? 1 : 0;
+                double spacingForColour = 1.0/(self.delegate.buoyGroups.count - shift);
+                NSUInteger colourIndex = indexPath.row;
+                colourator.backgroundColor = [UIColor colorWithHue:(colourIndex * spacingForColour) saturation:0.9 brightness:0.9 alpha:1.0];
+            }
+            // Spacing fix for titles
+            c.textLabel.text = [NSString stringWithFormat:@"     %@", c.textLabel.text];
+        }
+    }
+
     return c;
+}
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    if (indexPath.section == 0 || self.delegate.buoyGroups.count == 0) {
+        return; //Ignore if nothing happens on selection
+    }
+    
+    // Otherwise, select
+    if ([self.delegate.buoyGroupsToShow containsIndex:indexPath.row]) {
+        [self.delegate.buoyGroupsToShow removeIndex:indexPath.row];
+    } else {
+        [self.delegate.buoyGroupsToShow addIndex:indexPath.row];
+    }
+    
+    // Refresh
+    [self.t reloadData];
+    [self.delegate updateMapToMatchSelection];
+}
+
+- (void)forceUpdate {
+    // Forces an update right at this moment for this popup view's info
+    [self.t reloadData];
+    self.preferredContentSize = CGSizeMake(320, 140 + 44 * [self.t numberOfRowsInSection:1]);
 }
 
 @end
@@ -221,6 +308,11 @@
     if ([self.l respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
         [self.l requestWhenInUseAuthorization];
     }
+    
+    // Data models
+    self.allBuoys = [NSArray array];
+    self.buoyGroups = [NSArray array];
+    self.buoyGroupsToShow = [NSMutableIndexSet indexSet];
     
     // Overall colours
     self.view.backgroundColor = [UIColor whiteColor];
@@ -514,16 +606,34 @@
     d.coreColour = [UIColor whiteColor];
 }
 
+- (void)updateMapToMatchSelection {
+    // Remove any annotations not selected, or add those which are
+    for (NSUInteger i = 0; i < self.buoyGroups.count; i++) {
+        BuoyGroup *g = [self.buoyGroups objectAtIndex:i];
+        if (self.buoyGroupsToShow.count == 0 || [self.buoyGroupsToShow containsIndex:i]) {
+            for (Buoy *b in g.buoys) {
+                if (b.validCoordinate && ![self.map.annotations containsObject:b]) {
+                    [self.map addAnnotation:b];
+                }
+            }
+        } else {
+            for (Buoy *b in g.buoys) {
+                if ([self.map.annotations containsObject:b]) {
+                    [self.map removeAnnotation:b];
+                }
+            }
+        }
+    }
+}
+
 #pragma mark - server comms
 
 - (void)didGetBuoyListFromServer:(NSArray *)buoyGroups {
     // Stop loading icon
     [self setRefreshIconRefresh];
     
-    // Remove all current map annotations
-    if (self.allBuoys != nil) {
-        [self.map removeAnnotations:self.allBuoys];
-    }
+    // Remove previous annotations
+    [self.map removeAnnotations:self.allBuoys];
     
     // Get buoy information from list of buoys/groups
     NSMutableArray *allBuoys = [[NSMutableArray alloc] init];
@@ -541,9 +651,6 @@
         [allBuoys addObjectsFromArray:g.buoys];
     }
     
-    // Add annotations for these buoys
-    [self.map addAnnotations:allBuoys];
-    
     // Update globals
     self.allBuoys = allBuoys;
     self.buoyGroups = [buoyGroups sortedArrayUsingComparator:^NSComparisonResult(id a, id b) {
@@ -557,6 +664,11 @@
             return NSOrderedSame;
         }
     }];
+    self.buoyGroupsToShow = [NSMutableIndexSet indexSet];
+    [(BuoySettingsPopup *)self.popup forceUpdate];
+    
+    // Reload map
+    [self.map addAnnotations:self.allBuoys];
 }
 
 - (void)didFailServerComms {

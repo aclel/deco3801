@@ -1,7 +1,0 @@
-image: go1.5.1
-script:
-	- ./.drone/build.sh
-deploy:
-	bash:
-		script:
-			- ./.drone/deploy.sh

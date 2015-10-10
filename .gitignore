@@ -39,5 +39,5 @@ web_app/dist
 web_app/typings
 
 # SSL files
-nginx/nginx.cert
+nginx/nginx.crt
 nginx/nginx.key

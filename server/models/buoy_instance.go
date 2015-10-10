@@ -62,7 +62,7 @@ func (db *DB) GetAllBuoyInstances() ([]BuoyInstance, error) {
 func (db *DB) GetAllActiveBuoyInstances() ([]BuoyInstance, error) {
 	buoyInstances := []BuoyInstance{}
 	err := db.Select(&buoyInstances, `SELECT 
-											buoy_instance.*,
+											buoy_instance.*, 
 											buoy.guid as buoy_guid, 
 											buoy_group.name AS buoy_group_name, 
 											latitude, 
@@ -71,7 +71,7 @@ func (db *DB) GetAllActiveBuoyInstances() ([]BuoyInstance, error) {
 											buoy_instance 
 											INNER JOIN buoy ON buoy_instance.id = buoy.active_buoy_instance_id 
 											INNER JOIN buoy_group ON buoy_instance.buoy_group_id = buoy_group.id 
-											INNER JOIN reading ON reading.buoy_instance_id = buoy.active_buoy_instance_id 
+											LEFT JOIN reading ON reading.buoy_instance_id = buoy.active_buoy_instance_id 
 										WHERE 
 											buoy_instance.id IN (
 												SELECT 
@@ -90,6 +90,12 @@ func (db *DB) GetAllActiveBuoyInstances() ([]BuoyInstance, error) {
 														GROUP BY 
 															reading.buoy_instance_id
 													)
+											) 
+											OR buoy_instance.id NOT IN (
+												SELECT 
+													buoy_instance_id 
+												from 
+													reading
 											) 
 										GROUP BY 
 											buoy_instance.id`)

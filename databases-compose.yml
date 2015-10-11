@@ -1,0 +1,14 @@
+data:
+  container_name: data
+  build: mysql
+  environment:
+   - MYSQL_ROOT_PASSWORD=secret123
+  volumes:
+   - /var/lib/mysql
+mysqldb:
+  container_name: mysqldb
+  image: mysql:5.6
+  environment:
+   - MYSQL_ROOT_PASSWORD=secret123
+  volumes_from:
+   - data

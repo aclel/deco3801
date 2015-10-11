@@ -1,5 +1,0 @@
-if [ -f "/usr/local/bin/mysql-firstrun" ];
-then
-	/usr/local/bin/mysql-firstrun
-	rm /usr/local/bin/mysql-firstrun
-fi

@@ -1,0 +1,6 @@
+#!/bin/bash
+/usr/bin/mysqld &
+sleep 5
+mysqladmin -u root -psecret123 status
+mysql -u root -psecret123 -e "CREATE DATABASE fms"
+mysql -u root -psecret123 fms < /tmp/dump.sql

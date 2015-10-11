@@ -10,10 +10,14 @@ Legend:
 v0.4 - Week 10 8/10
 
 iOS App:
-+ More info dialog when buoys are pressed, containing specific data and buoy commands
+* App is now called FlounderMobile, to be consistent with the web application.
++ More info dialog when buoys are pressed, containing specific data and buoy commands; window is able to size automatically to updates.
+* Significant changes to interface colours and shapes to be more consistent with the web app.
 + Filters for buoy groups, allowing users to narrow the overall list of results.
 * Updated JSON handling to future-proof against server changes.
-! Some minor interface issues
+! Some minor interface issues.
+! Colours being inverted for buoy marker groups.
+! Filters breaking interface when many groups are loaded at once.
 
 v0.3 - Week 9 6/10
 Server:

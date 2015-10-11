@@ -57,7 +57,7 @@
     topLabel.textAlignment = NSTextAlignmentCenter;
     topLabel.font = [UIFont fontWithName:@"Avenir Next" size:50];
     topLabel.textColor = [UIColor whiteColor];
-    topLabel.text = @"UQ FMS";
+    topLabel.text = @"Flounder";
     topLabel.center = CGPointMake(150, 40);
     
     // Error message

@@ -16,8 +16,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D45892BF1B98500100EB8DCC"
                BuildableName = "FMSiOS.app"
-               BlueprintName = "FMSiOS"
-               ReferencedContainer = "container:FMSiOS.xcodeproj">
+               BlueprintName = "FlounderMobile"
+               ReferencedContainer = "container:FlounderMobile.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,9 +29,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D45892D81B98500100EB8DCC"
-               BuildableName = "FMSiOSTests.xctest"
-               BlueprintName = "FMSiOSTests"
-               ReferencedContainer = "container:FMSiOS.xcodeproj">
+               BuildableName = "FlounderMobile.xctest"
+               BlueprintName = "FlounderMobileTests"
+               ReferencedContainer = "container:FlounderMobile.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -47,9 +47,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D45892D81B98500100EB8DCC"
-               BuildableName = "FMSiOSTests.xctest"
-               BlueprintName = "FMSiOSTests"
-               ReferencedContainer = "container:FMSiOS.xcodeproj">
+               BuildableName = "FlounderMobile.xctest"
+               BlueprintName = "FlounderMobileTests"
+               ReferencedContainer = "container:FlounderMobile.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -58,8 +58,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D45892BF1B98500100EB8DCC"
             BuildableName = "FMSiOS.app"
-            BlueprintName = "FMSiOS"
-            ReferencedContainer = "container:FMSiOS.xcodeproj">
+            BlueprintName = "FlounderMobile"
+            ReferencedContainer = "container:FlounderMobile.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -81,8 +81,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D45892BF1B98500100EB8DCC"
             BuildableName = "FMSiOS.app"
-            BlueprintName = "FMSiOS"
-            ReferencedContainer = "container:FMSiOS.xcodeproj">
+            BlueprintName = "FlounderMobile"
+            ReferencedContainer = "container:FlounderMobile.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -104,8 +104,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D45892BF1B98500100EB8DCC"
             BuildableName = "FMSiOS.app"
-            BlueprintName = "FMSiOS"
-            ReferencedContainer = "container:FMSiOS.xcodeproj">
+            BlueprintName = "FlounderMobile"
+            ReferencedContainer = "container:FlounderMobile.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

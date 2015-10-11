@@ -56,15 +56,15 @@
     UILabel *topLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 50)];
     topLabel.textAlignment = NSTextAlignmentCenter;
     topLabel.font = [UIFont fontWithName:@"Avenir Next" size:50];
-    topLabel.textColor = [UIColor whiteColor];
-    topLabel.text = @"UQ FMS";
+    topLabel.textColor = FMS_COLOUR_TEXT_LIGHT;
+    topLabel.text = @"Flounder";
     topLabel.center = CGPointMake(150, 40);
     
     // Error message
     UILabel *errorLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 50)];
     errorLabel.textAlignment = NSTextAlignmentCenter;
     errorLabel.font = [UIFont systemFontOfSize:18];
-    errorLabel.textColor = [UIColor colorWithRed:1 green:0.35 blue:0.35 alpha:1];
+    errorLabel.textColor = FMS_COLOUR_TEXT_ERROR;
     errorLabel.text = @"The error text for the current error message goes here";
     errorLabel.lineBreakMode = NSLineBreakByWordWrapping;
     errorLabel.numberOfLines = 1;
@@ -74,7 +74,7 @@
     // Text dialogs
     SpacedTextField *emailField = [[SpacedTextField alloc] initWithFrame:CGRectMake(0, 0, 280, 50)];
     emailField.edgeInsets = UIEdgeInsetsMake(0, 10, 0, 10);
-    emailField.backgroundColor = [UIColor whiteColor];
+    emailField.backgroundColor = FMS_COLOUR_BG_LIGHT;
     emailField.keyboardType = UIKeyboardTypeEmailAddress;
     emailField.autocapitalizationType = UITextAutocapitalizationTypeNone;
     emailField.autocorrectionType = UITextAutocorrectionTypeNo;
@@ -84,7 +84,7 @@
     emailField.delegate = self;
     SpacedTextField *passField = [[SpacedTextField alloc] initWithFrame:CGRectMake(0, 0, 280, 50)];
     passField.edgeInsets = UIEdgeInsetsMake(0, 10, 0, 10);
-    passField.backgroundColor = [UIColor whiteColor];
+    passField.backgroundColor = FMS_COLOUR_BG_LIGHT;
     passField.keyboardType = UIKeyboardTypeASCIICapable;
     passField.returnKeyType = UIReturnKeyDone;
     passField.autocorrectionType = UITextAutocorrectionTypeNo;
@@ -100,24 +100,24 @@
     // Save switch
     UISwitch *saveSwitch = [[UISwitch alloc] init];
     saveSwitch.center = CGPointMake(60, 265);
-    saveSwitch.backgroundColor = [UIColor colorWithWhite:1.0 alpha:0.7];
+    saveSwitch.backgroundColor = [FMS_COLOUR_BG_LIGHT colorWithAlphaComponent:0.7];
     saveSwitch.layer.cornerRadius = 16;
     
     UILabel *saveLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, 35)];
     saveLabel.textAlignment = NSTextAlignmentCenter;
     saveLabel.font = [UIFont systemFontOfSize:17];
-    saveLabel.textColor = [UIColor whiteColor];;
+    saveLabel.textColor = FMS_COLOUR_TEXT_LIGHT;
     saveLabel.text = @"Remember?";
     saveLabel.center = CGPointMake(60, 295);
     
     // Login button
     ShadowButton *loginButton = [ShadowButton buttonWithType:UIButtonTypeCustom];
-    loginButton.backgroundColor = FMS_COLOUR_BUTTON;
-    loginButton.normalColour = FMS_COLOUR_BUTTON;
-    loginButton.highlightColour = FMS_COLOUR_BUTTON_SEL;
-    loginButton.selectedColour = FMS_COLOUR_BUTTON;
+    loginButton.backgroundColor = FMS_COLOUR_BUTTON_DARK;
+    loginButton.normalColour = FMS_COLOUR_BUTTON_DARK;
+    loginButton.highlightColour = FMS_COLOUR_BUTTON_DARK_SEL;
+    loginButton.selectedColour = FMS_COLOUR_BUTTON_DARK;
     [loginButton setTitle:@"Login" forState:UIControlStateNormal];
-    [loginButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [loginButton setTitleColor:FMS_COLOUR_TEXT_LIGHT forState:UIControlStateNormal];
     [loginButton setTitle:@"" forState:UIControlStateDisabled];
     loginButton.titleLabel.font = [UIFont systemFontOfSize:20];
     loginButton.frame = CGRectMake(0, 0, 150, 50);
@@ -131,12 +131,12 @@
     self.loginInd.center = loginButton.center;
     
     // Round corners
-    UIBezierPath *topMaskPath = [UIBezierPath bezierPathWithRoundedRect:emailField.bounds byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight cornerRadii:CGSizeMake(10.0, 10.0)];
+    UIBezierPath *topMaskPath = [UIBezierPath bezierPathWithRoundedRect:emailField.bounds byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight cornerRadii:CGSizeMake(5.0, 5.0)];
     CAShapeLayer *topMaskLayer = [CAShapeLayer layer];
     topMaskLayer.frame = emailField.bounds;
     topMaskLayer.path = topMaskPath.CGPath;
     emailField.layer.mask = topMaskLayer;
-    UIBezierPath *bottomMaskPath = [UIBezierPath bezierPathWithRoundedRect:emailField.bounds byRoundingCorners:UIRectCornerBottomLeft | UIRectCornerBottomRight cornerRadii:CGSizeMake(10.0, 10.0)];
+    UIBezierPath *bottomMaskPath = [UIBezierPath bezierPathWithRoundedRect:emailField.bounds byRoundingCorners:UIRectCornerBottomLeft | UIRectCornerBottomRight cornerRadii:CGSizeMake(5.0, 5.0)];
     CAShapeLayer *bottomMaskLayer = [CAShapeLayer layer];
     bottomMaskLayer.frame = passField.bounds;
     bottomMaskLayer.path = bottomMaskPath.CGPath;
@@ -159,7 +159,7 @@
     // Settings icon
     UIButton *settingsButton = [UIButton buttonWithType:UIButtonTypeSystem];
     [settingsButton setTitle:@"\u2699" forState:UIControlStateNormal];
-    [settingsButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [settingsButton setTitleColor:FMS_COLOUR_TEXT_LIGHT forState:UIControlStateNormal];
     settingsButton.titleLabel.font = [UIFont fontWithName:@"Helvetica" size:45];
     settingsButton.frame = CGRectMake(0, self.view.frame.size.height - 80, 80, 80);
     [self.view addSubview:settingsButton];
@@ -255,11 +255,11 @@
 
 #pragma mark - text field selection
 - (void)textFieldDidBeginEditing:(UITextField *)textField {
-    textField.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1.0];
+    textField.backgroundColor = FMS_COLOUR_BG_SHADE;
 }
 
 - (void)textFieldDidEndEditing:(UITextField *)textField {
-    textField.backgroundColor = [UIColor whiteColor];
+    textField.backgroundColor = FMS_COLOUR_BG_LIGHT;
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {

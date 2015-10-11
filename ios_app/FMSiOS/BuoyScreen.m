@@ -8,6 +8,7 @@
 
 // TODO: pinging
 // TODO: more info content
+// TODO: tabbing
 // TODO: buoy distance line
 
 #import "BuoyScreen.h"
@@ -22,8 +23,7 @@
 @property (strong, nonatomic) UILabel *pingDetail;
 @property (strong, nonatomic) UIButton *cancelButton;
 
-- (void)reset;
-- (void)loadBuoyInfo:(NSString *)info;
+- (void)displayBuoyInfo:(NSDictionary *)info;
 
 - (void)startPinging;
 - (void)finishPingingSuccessWithTime:(NSUInteger)milliseconds;
@@ -37,18 +37,21 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        self.frame = CGRectMake(0, 0, 310, 250);
-        self.backgroundColor = [UIColor lightGrayColor];
-        self.backgroundColor = [UIColor colorWithWhite:0.85 alpha:0.95];
+        self.frame = CGRectMake(0, 0, 310, 10);
+        self.backgroundColor = [FMS_COLOUR_BG_SHADE colorWithAlphaComponent:0.95];
         self.layer.cornerRadius = 10;
+        self.tintColor = FMS_COLOUR_TEXT_BUTTON;
+        
         // Label
         _content = [[UILabel alloc] init];
-        [_content setHidden:YES];
+        _content.numberOfLines = 0;
+        _content.text = @" ";
+        _content.font = [UIFont systemFontOfSize:17];
         [self addSubview:_content];
         
         // Indicator for missing content
         _contentInd = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
-        _contentInd.color = FMS_COLOUR_BAR;
+        _contentInd.color = FMS_COLOUR_INDICATOR_DARK;
         _contentInd.hidesWhenStopped = YES;
         [_contentInd startAnimating];
         [self addSubview:_contentInd];
@@ -62,7 +65,7 @@
         
         // Ping indicator
         _pingInd = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhite];
-        _pingInd.color = FMS_COLOUR_BAR;
+        _pingInd.color = FMS_COLOUR_INDICATOR_DARK;
         _pingInd.hidesWhenStopped = YES;
         [_pingInd stopAnimating];
         [self addSubview:_pingInd];
@@ -82,26 +85,26 @@
         // End
         [_pingButton sizeToFit];
         [_cancelButton sizeToFit];
+        [self layoutSubviews];
+        float trueHeight = _content.frame.size.height + 70;
+        self.frame = CGRectMake(self.frame.origin.x, self.center.y - trueHeight/2, self.frame.size.width, trueHeight);
     }
     return self;
 }
 
 - (void)layoutSubviews {
     [super layoutSubviews];
-    
+    // Ping/cancel buttons
     _pingButton.frame = CGRectMake(15, 5, _pingButton.frame.size.width, _pingButton.frame.size.height);
     _pingDetail.frame = CGRectMake(30 + _pingButton.frame.size.width, 5, 200, _pingButton.frame.size.height);
-    
+    _pingInd.center = _pingButton.center;
     _cancelButton.frame = CGRectMake(self.frame.size.width - _cancelButton.frame.size.width - 15, 5, _cancelButton.frame.size.width, _cancelButton.frame.size.height);
     
-    _content = [[UILabel alloc] initWithFrame:CGRectMake(10, 40, self.frame.size.width - 20, self.frame.size.height - 70 - 10)];
-    
+    //Content
+    [_content sizeToFit];
+    float newHeight = (_content.frame.size.height < 50) ? 50 : _content.frame.size.height;
+    _content.frame = CGRectMake(10, 40, self.frame.size.width - 20, newHeight);
     _contentInd.center = _content.center;
-    _pingInd.center = _pingButton.center;
-}
-
-- (void)reset {
-    [self.pingDetail setHidden:YES];
 }
 
 - (void)startPinging {
@@ -112,7 +115,7 @@
 
 - (void)finishPingingFailure {
     [self.pingInd stopAnimating];
-    self.pingDetail.textColor = [UIColor colorWithRed:1 green:0.35 blue:0.35 alpha:1];
+    self.pingDetail.textColor = FMS_COLOUR_TEXT_ERROR;
     self.pingDetail.text = [NSString stringWithFormat:@"\u274C no response"];
     [self.pingDetail setHidden:NO];
     [self.pingButton setEnabled:YES];
@@ -120,10 +123,35 @@
 
 - (void)finishPingingSuccessWithTime:(NSUInteger)milliseconds {
     [self.pingInd stopAnimating];
-    self.pingDetail.textColor = [UIColor colorWithHue:121/256.0 saturation:0.85 brightness:0.55 alpha:1.0];
+    self.pingDetail.textColor = FMS_COLOUR_TEXT_SUCCESS;
     self.pingDetail.text = [NSString stringWithFormat:@"%dms \u2713", milliseconds];
     [self.pingDetail setHidden:NO];
     [self.pingButton setEnabled:YES];
+}
+
+- (void)displayBuoyInfo:(NSDictionary *)info {
+    // Pull out info in dictionary
+    NSMutableString *infoString = [[NSMutableString alloc] init];
+    for (NSString *key in info.allKeys) {
+        // Pad for spacing
+        NSString *formatKey = [NSString stringWithFormat:@"%@:", key];
+        [infoString appendFormat:@"%@\t\t%@\n", formatKey,  [info objectForKey:key]];
+    }
+    
+    // Display
+    self.content.text = infoString;
+    [self.contentInd stopAnimating];
+    [self.content setHidden:NO];
+    [self layoutSubviews];
+    
+    // Update size
+    float trueHeight = _content.frame.size.height + 70;
+    CGRect trueSize = CGRectMake(self.frame.origin.x, self.center.y - trueHeight/2, self.frame.size.width, trueHeight);
+    if (!CGRectEqualToRect(self.frame, trueSize)) {
+        [UIView animateWithDuration:0.4 animations:^{
+            self.frame = trueSize;
+        }];
+    }
 }
 
 @end
@@ -163,17 +191,21 @@
 
 @end
 
-@implementation BuoySettingsPopup
+@implementation BuoySettingsPopup {
+    NSUInteger maxFilterRows;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    maxFilterRows = 6;
     self.preferredContentSize = CGSizeMake(320, 140);
     
     self.t = [[UITableView alloc] initWithFrame:self.view.frame style:UITableViewStyleGrouped];
     self.t.delegate = self;
     self.t.dataSource = self;
-    self.t.tintColor = FMS_COLOUR_BAR;
+    self.t.tintColor = FMS_COLOUR_BUTTON_DARK;
+    self.t.backgroundColor = FMS_COLOUR_BG_LIGHT_SHADE;
     
     [self.view addSubview:self.t];
 }
@@ -181,7 +213,14 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.t reloadData];
-    self.preferredContentSize = CGSizeMake(320, 140 + 44 * [self.t numberOfRowsInSection:1]);
+    if ([self.t numberOfRowsInSection:1] > maxFilterRows) {
+        self.preferredContentSize = CGSizeMake(320, 140 + 44 * maxFilterRows);
+        self.t.scrollEnabled = YES;
+    } else {
+        self.preferredContentSize = CGSizeMake(320, 140 + 44 * [self.t numberOfRowsInSection:1]);
+        self.t.scrollEnabled = NO;
+    }
+    
 }
 
 - (void)viewWillLayoutSubviews {
@@ -217,6 +256,7 @@
         c = [self.t dequeueReusableCellWithIdentifier:@"SelectCell"];
         if (c == nil) {
             c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"SelectCell"];
+            c.backgroundColor = FMS_COLOUR_BG_LIGHT;
             
             UISegmentedControl *typeChooser = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects:@"Map", @"Satellite", nil]];
             typeChooser.frame = CGRectMake(c.frame.size.width/2, 5, c.frame.size.width/2 - 10, c.frame.size.height - 10);
@@ -230,6 +270,8 @@
         c = [self.t dequeueReusableCellWithIdentifier:@"BlankCell"];
         if (c == nil) {
             c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"BlankCell"];
+            c.backgroundColor = FMS_COLOUR_BG_LIGHT;
+            
             UIView *colourator = [[UIView alloc] initWithFrame:CGRectMake(10, 10, 20, 20)];
             colourator.backgroundColor = [UIColor lightGrayColor];
             colourator.layer.cornerRadius = 4;
@@ -258,9 +300,7 @@
                 UIView *colourator = [c viewWithTag:1];
                 colourator.hidden = NO;
                 NSUInteger shift = ((BuoyGroup *)[self.delegate.buoyGroups objectAtIndex:0]).groupId == 0 ? 1 : 0;
-                double spacingForColour = 1.0/(self.delegate.buoyGroups.count - shift);
-                NSUInteger colourIndex = indexPath.row;
-                colourator.backgroundColor = [UIColor colorWithHue:(colourIndex * spacingForColour) saturation:0.9 brightness:0.9 alpha:1.0];
+                colourator.backgroundColor = [MiscInterface colourForIndex:(indexPath.row - shift) outOfTotal:(self.delegate.buoyGroups.count - shift)];
             }
             // Spacing fix for titles
             c.textLabel.text = [NSString stringWithFormat:@"     %@", c.textLabel.text];
@@ -290,7 +330,13 @@
 - (void)forceUpdate {
     // Forces an update right at this moment for this popup view's info
     [self.t reloadData];
-    self.preferredContentSize = CGSizeMake(320, 140 + 44 * [self.t numberOfRowsInSection:1]);
+    if ([self.t numberOfRowsInSection:1] > maxFilterRows) {
+        self.preferredContentSize = CGSizeMake(320, 140 + 44 * maxFilterRows);
+        self.t.scrollEnabled = YES;
+    } else {
+        self.preferredContentSize = CGSizeMake(320, 140 + 44 * [self.t numberOfRowsInSection:1]);
+        self.t.scrollEnabled = NO;
+    }
 }
 
 @end
@@ -313,7 +359,7 @@
     self.buoyGroups = [NSArray array];
     self.buoyGroupsToShow = [NSMutableIndexSet indexSet];
     
-    // Overall colours
+    // Overall colour
     self.view.backgroundColor = [UIColor whiteColor];
     
     // Create map and fit to screen
@@ -333,7 +379,7 @@
     infoView.frame = CGRectMake(0, 0, 40, 32);
     [infoView setTitle:@"\u2699" forState:UIControlStateNormal];
     infoView.titleLabel.font = [UIFont systemFontOfSize:33];
-    [infoView setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    [infoView setTitleColor:FMS_COLOUR_TEXT_LIGHT forState:UIControlStateNormal];
     [infoView addTarget:self action:@selector(infoButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *infoIcon = [[UIBarButtonItem alloc] initWithCustomView:infoView];
     
@@ -368,17 +414,9 @@
     self.moreInfoDialogContainer.frame = self.view.bounds;
     [self.moreInfoDialogContainer addTarget:self action:@selector(closeMoreInfoPressed) forControlEvents:UIControlEventTouchUpInside];
     
-    // More info dialog
-    self.moreInfoDialog = [[MoreInfoDialog alloc] init];
-    self.moreInfoDialog.center = self.moreInfoDialogContainer.center;
-    [self.moreInfoDialog layoutSubviews];
-    [self.moreInfoDialog.pingButton addTarget:self action:@selector(pingMoreInfoPressed) forControlEvents:UIControlEventTouchUpInside];
-    [self.moreInfoDialog.cancelButton addTarget:self action:@selector(closeMoreInfoPressed) forControlEvents:UIControlEventTouchUpInside];
-    
     // Fin
     [self.view addSubview:self.map];
     [self.view addSubview:self.moreInfoDialogContainer];
-    [self.moreInfoDialogContainer addSubview:self.moreInfoDialog];
     [self.moreInfoDialogContainer setHidden:YES];
 }
 
@@ -386,8 +424,10 @@
     [super viewWillLayoutSubviews];
     self.map.frame = self.view.frame;
     self.moreInfoDialogContainer.frame = self.view.frame;
-    self.moreInfoDialog.center = self.moreInfoDialogContainer.center;
-    [self.moreInfoDialog layoutSubviews];
+    if (self.moreInfoDialog != nil) {
+        self.moreInfoDialog.center = self.moreInfoDialogContainer.center;
+        [self.moreInfoDialog layoutSubviews];
+    }
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -395,14 +435,12 @@
     
     [self.navigationController setNavigationBarHidden:NO animated:YES];
     self.d.dataDelegate = self;
-    [self.moreInfoDialog setHidden:YES];
     
     self.title = [self.d userDisplayName];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
-    [self.moreInfoDialog setHidden:NO];
 }
 
 - (void)viewDidDisappear:(BOOL)animated {
@@ -535,7 +573,7 @@
     // General properties
     Buoy *b = (Buoy *)annotation;
     UILabel *leftViewLabel = (UILabel *)v.leftCalloutAccessoryView;
-    leftViewLabel.text = [NSString stringWithFormat:@"%@\n%@", [DataModel stringForLatitude:b.coordinate.latitude], [DataModel stringForLongitude:b.coordinate.longitude]];
+    leftViewLabel.text = [NSString stringWithFormat:@"%@\n%@", [DataModel stringForLatitude:b.trueCoord.latitude], [DataModel stringForLongitude:b.trueCoord.longitude]];
     [leftViewLabel sizeToFit];
     UIButton *rightButton = (UIButton *)v.rightCalloutAccessoryView;
     rightButton.tag = [self.allBuoys indexOfObject:b];
@@ -545,9 +583,7 @@
         v.edgeColour = [UIColor lightGrayColor];
     } else { // Grouped buoy
         NSUInteger shift = ((BuoyGroup *)[self.buoyGroups objectAtIndex:0]).groupId == 0 ? 1 : 0;
-        double spacingForColour = 1.0/(self.buoyGroups.count - shift);
-        NSUInteger colourIndex = [self.buoyGroups indexOfObject:b.group];
-        v.edgeColour = [UIColor colorWithHue:(colourIndex * spacingForColour) saturation:0.9 brightness:0.9 alpha:1.0];
+        v.edgeColour = [MiscInterface colourForIndex:([self.buoyGroups indexOfObject:b.group] - shift) outOfTotal:(self.buoyGroups.count - shift)];
     }
     
     return v;
@@ -670,6 +706,13 @@
     [self.map addAnnotations:self.allBuoys];
 }
 
+- (void)didGetBuoyInfoFromServer:(NSDictionary *)buoyInfo {
+    // Update more info dialog to contain info
+    if (self.moreInfoDialog) {
+        [self.moreInfoDialog displayBuoyInfo:buoyInfo];
+    }
+}
+
 - (void)didFailServerComms {
     [self setRefreshIconRefresh];
     
@@ -723,7 +766,14 @@
     UIButton *buttonPressed = (UIButton *)c;
     Buoy *b = [self.allBuoys objectAtIndex:buttonPressed.tag];
     
-    // Update and popup more info dialog
+    // Create more info dialog
+    self.moreInfoDialog = [[MoreInfoDialog alloc] init];
+    self.moreInfoDialog.center = self.moreInfoDialogContainer.center;
+    [self.moreInfoDialog.pingButton addTarget:self action:@selector(pingMoreInfoPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.moreInfoDialog.cancelButton addTarget:self action:@selector(closeMoreInfoPressed) forControlEvents:UIControlEventTouchUpInside];
+    [self.moreInfoDialogContainer addSubview:self.moreInfoDialog];
+    
+    // Start settings for animation
     self.moreInfoDialogContainer.alpha = 0;
     self.moreInfoDialog.transform = CGAffineTransformMakeScale(0, 0);
     [self.moreInfoDialogContainer setHidden:NO];
@@ -739,14 +789,11 @@
     }];
     
     // Start request for info
-    //TODO
+    [self.d requestBuoyInfo:b];
 }
 
 - (void)closeMoreInfoPressed {
     [self.moreInfoDialogContainer setEnabled:NO];
-    
-    // Done
-    [self.moreInfoDialog reset];
     
     // Animate close
     self.moreInfoDialog.transform = CGAffineTransformIdentity;
@@ -756,6 +803,7 @@
     } completion:^(BOOL finished){
         if (finished) {
             [self.moreInfoDialogContainer setHidden:YES];
+            self.moreInfoDialog = nil;
         }
     }];
 }

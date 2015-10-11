@@ -17,6 +17,7 @@
     if (self) {
         _group = nil;
         _coordinate = CLLocationCoordinate2DMake(0, 0);
+        _trueCoord = CLLocationCoordinate2DMake(0, 0);
         _validCoordinate = NO;
         _title = @"Unknown";
         _subtitle = @"Unknown";
@@ -32,7 +33,8 @@
 - (instancetype)initWithCoord:(CLLocationCoordinate2D)coord {
     self = [self init];
     if (self) {
-        _coordinate = coord;
+        _coordinate = CLLocationCoordinate2DMake([DataModel addJitter:coord.latitude withMax:0.005], [DataModel addJitter:coord.longitude withMax:0.005]);
+        _trueCoord = coord;
         _validCoordinate = YES;
     }
     return self;
@@ -113,7 +115,6 @@
 - (NSArray *)parseJSONForCurrentBuoys:(NSArray *)buoyDictList {
     // Given a list of buoy dictionaries retrieved from the server, generates buoy and buoy group objects and returns an array of these buoy group objects
     // Buoys and BuoyGroups are mixed in the results; any buoys not in a group are by themselves, while those which are are inserted into the buoy groups arrays.
-    
     NSMutableArray *parsed = [[NSMutableArray alloc] initWithCapacity:buoyDictList.count];
     for (NSDictionary *buoyInfo in buoyDictList) {
         // Get lat, long
@@ -278,6 +279,21 @@
      }];
 }
 
+- (void)requestBuoyInfo:(Buoy *)buoy {
+    //For now, just use dummy data
+    //TODO
+    
+    [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(dummybuoyinfo) userInfo:nil repeats:NO];
+}
+
+- (void)dummybuoyinfo {
+    [self.dataDelegate didGetBuoyInfoFromServer:@{
+       @"Temperature" : @"20°C",
+       @"Turbidity" : @"33 NTU",
+       @"Battery" : @"85\%",
+    }];
+}
+
 - (void)disconnect {
     self.jwt = self.email = self.firstName = self.lastName = self.role = nil;
 }
@@ -331,6 +347,11 @@
     } else {
         return @"0°";
     }
+}
+
++ (double)addJitter:(double)val withMax:(double)maxVal{
+    NSInteger jitter = arc4random() % 10000;
+    return val + (jitter - 5000)/10000.0*maxVal;
 }
 
 @end

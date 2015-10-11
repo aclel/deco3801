@@ -11,9 +11,27 @@
 #import <MapKit/MapKit.h>
 
 // Default colours
-#define FMS_COLOUR_BAR [UIColor colorWithRed:0.008 green:0.494 blue:0.573 alpha:1.0]
-#define FMS_COLOUR_BUTTON [UIColor colorWithRed:0 green:0.332 blue:0.542 alpha:1.0]
-#define FMS_COLOUR_BUTTON_SEL [UIColor colorWithRed:0 green:0.281 blue:0.461 alpha:1.0]
+#define FMS_COLOUR_BG_DARK [UIColor colorWithRed:0.008 green:0.494 blue:0.573 alpha:1.0]
+#define FMS_COLOUR_BG_LIGHT [UIColor whiteColor]
+#define FMS_COLOUR_BG_SHADE [UIColor colorWithWhite:0.85 alpha:1.0]
+#define FMS_COLOUR_BG_LIGHT_SHADE [UIColor colorWithWhite:0.97 alpha:1.0]
+#define FMS_COLOUR_BUTTON_DARK [UIColor colorWithRed:0 green:0.332 blue:0.542 alpha:1.0]
+#define FMS_COLOUR_BUTTON_DARK_SEL [UIColor colorWithRed:0 green:0.281 blue:0.461 alpha:1.0]
+#define FMS_COLOUR_TEXT_LIGHT [UIColor whiteColor]
+#define FMS_COLOUR_TEXT_DARK [UIColor blackColor]
+#define FMS_COLOUR_TEXT_BUTTON [UIColor colorWithRed:0.2 green:0.478 blue:0.718 alpha:1.0]
+#define FMS_COLOUR_TEXT_ERROR [UIColor colorWithRed:1 green:0.35 blue:0.35 alpha:1]
+#define FMS_COLOUR_TEXT_SUCCESS [UIColor colorWithHue:121/256.0 saturation:0.85 brightness:0.55 alpha:1.0]
+#define FMS_COLOUR_INDICATOR_DARK [UIColor darkGrayColor]
+#define FMS_COLOUR_INDICATOR_LIGHT [UIColor whiteColor]
+
+// Misc interface static methods
+@interface MiscInterface : NSObject
+
+// Gets the colour for an object of index i out of a number of indexes, split evenly
++ (UIColor *)colourForIndex:(NSUInteger)i outOfTotal:(NSUInteger)total;
+
+@end
 
 // Special text field used to pad text from edges
 @interface SpacedTextField : UITextField

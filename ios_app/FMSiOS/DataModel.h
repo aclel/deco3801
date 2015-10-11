@@ -27,7 +27,8 @@
 
 @property (nonatomic, copy) NSString *title;
 @property (nonatomic, copy) NSString *subtitle;
-@property (nonatomic, readonly) CLLocationCoordinate2D coordinate;
+@property (nonatomic, readonly) CLLocationCoordinate2D coordinate; //Coordinate shown on map
+@property (nonatomic) CLLocationCoordinate2D trueCoord; //Actual coordinate given
 @property BOOL validCoordinate;
 @property (nonatomic, strong) NSDate *dateCreated;
 @property (nonatomic, strong) NSString *buoyName;
@@ -55,6 +56,7 @@
 - (void)didFailServerComms;
 
 - (void)didGetBuoyListFromServer:(NSArray *)buoyGroups;
+- (void)didGetBuoyInfoFromServer:(NSDictionary *)buoyInfo;
 
 @end
 
@@ -67,6 +69,7 @@
 // Server connection stuff
 - (void)connectToServerWithEmail:(NSString *)email andPass:(NSString *)password;
 - (void)updateBuoyListingFromServer;
+- (void)requestBuoyInfo:(Buoy *)buoy;
 - (void)disconnect;
 
 // Info methods after connecting to server (DO NOT USE WHEN DISCONNECTED)
@@ -76,6 +79,6 @@
 + (BOOL)NSStringIsValidEmail:(NSString *)s; // Returns whether the given string is a valid email
 + (NSString *)stringForLatitude:(CLLocationDegrees)latitude;
 + (NSString *)stringForLongitude:(CLLocationDegrees)longitude;
-
++ (double)addJitter:(double)val withMax:(double)maxVal;
 
 @end

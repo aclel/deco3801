@@ -8,6 +8,15 @@
 
 #import "Interface.h"
 
+@implementation MiscInterface
+
++ (UIColor *)colourForIndex:(NSUInteger)i outOfTotal:(NSUInteger)total {
+    double spacingForColour = 1.0/total;
+    return [UIColor colorWithHue:(i * spacingForColour) saturation:0.9 brightness:0.9 alpha:1.0];
+}
+
+@end
+
 @implementation SpacedTextField
 
 - (instancetype)initWithFrame:(CGRect)frame {

@@ -2,7 +2,7 @@
   "name": "FMS_web_app",
   "version": "0.1.0",
   "description": "Flood Monitoring System",
-  "repository": { 
+  "repository": {
     "type": "git",
     "url": "https://github.com/aclel/deco3801"
   },

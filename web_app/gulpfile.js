@@ -38,6 +38,11 @@ gulp.task('env-prod', function(cb) {
     cb();
 });
 
+gulp.task('fonts', function() {
+  gulp.src('assets/fonts/**/*')
+    .pipe(gulp.dest('dist/fonts'));
+})
+
 gulp.task('html', function() {
   gulp.src('app/**/*.html')
     // .pipe(templateCache({ module: 'app.templates', standalone: true }))
@@ -49,7 +54,7 @@ gulp.task('sass', function(cb) {
   gulp.src('assets/sass/**/*.scss')
     .pipe(plumber())
     .pipe(sass())
-    .pipe(gulp.dest('assets/css'));
+    .pipe(gulp.dest('assets/css/_built'));
     cb();
 });
 
@@ -110,5 +115,5 @@ gulp.task('watch', ['env-dev', 'html', 'sass', 'css', 'js'], function() {
   gulp.watch('app/**/*.js', ['js']);
 });
 
-gulp.task('build', ['env-dev', 'html', 'sass', 'css', 'js']);
-gulp.task('build-prod', ['env-prod', 'html', 'sass', 'css-prod', 'js-prod']);
+gulp.task('build', ['env-dev', 'fonts', 'html', 'css', 'js']);
+gulp.task('build-prod', ['env-prod', 'fonts', 'html', 'sass', 'css-prod', 'js-prod']);

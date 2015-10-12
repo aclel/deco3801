@@ -51,6 +51,10 @@ func (mdb *MockDB) AddCommandToBuoy(command *Command) error {
 	return nil
 }
 
+func (mdb *MockDB) GetBuoyCommands(guid string, sent bool) ([]Command, error) {
+	return nil, nil
+}
+
 // BUOY INSTANCES
 func (mdb *MockDB) GetActiveBuoyInstance(guid string) (*BuoyInstance, error) {
 	return &BuoyInstance{}, nil
@@ -166,12 +170,20 @@ func (mdb *MockDB) GetAllCommandTypes() ([]CommandType, error) {
 }
 
 // COMMANDS
+func (mdb *MockDB) GetCommandWithId(id int) (*Command, error) {
+	return nil, nil
+}
+
 func (mdb *MockDB) GetAllCommands() ([]Command, error) {
 	return nil, nil
 }
 
 func (mdb *MockDB) GetAllCommandsWithSent(sent bool) ([]Command, error) {
 	return nil, nil
+}
+
+func (mdb *MockDB) UpdateCommandSentStatus(id int, sent bool) error {
+	return nil
 }
 
 func (mdb *MockDB) DeleteCommandWithId(id int) error {

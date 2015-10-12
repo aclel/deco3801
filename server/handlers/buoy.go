@@ -11,8 +11,11 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/aclel/deco3801/server/models"
@@ -197,5 +200,84 @@ func BuoyCommandsCreate(env *models.Env, w http.ResponseWriter, r *http.Request)
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	return nil
+}
+
+func BuoyCommandsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	// Parse query parameters
+	u, err := url.Parse(r.URL.String())
+	params, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return &AppError{err, "Error parsing query parameters", http.StatusInternalServerError}
+	}
+
+	if params["guid"] == nil {
+		return &AppError{err, "Buoy guid is missing from url parameters", http.StatusBadRequest}
+	}
+
+	// Retrieve all unsent commands for buoy with guid
+	guid := params["guid"][0]
+	commands, err := env.DB.GetBuoyCommands(guid, false)
+	if err != nil {
+		return &AppError{err, "Error retrieving commands from database", http.StatusInternalServerError}
+	}
+
+	// Construct custom comma separated response in the following format:
+	// COMMAND_TYPE_ID,COMMAND_ID,COMMAND_VALUE;
+	var buffer bytes.Buffer
+	for _, command := range commands {
+		commandTypeId := strconv.Itoa(command.CommandTypeId)
+		commandId := strconv.Itoa(command.Id)
+		commandValue := strconv.Itoa(command.Value)
+		buffer.WriteString(commandTypeId + "," + commandId + "," + commandValue + `;`)
+	}
+
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(buffer.String()))
+
+	return nil
+}
+
+type BuoyCommandAcknowledgement struct {
+	Guid       string `json:"guid"`
+	CommandIds []int  `json:"ids"`
+}
+
+// POST /buoys/api/commands/ack
+// Buoy sends a request to this route to acknowledge that all commands were received and applied.
+// Sets the "sent" field in the buoy_command table for each command id in the ids array.
+// Example request body:
+//	{
+//		"guid": "e9528b5e-1d8f-4960-91ae-8b21ecc0bcab",
+//		"ids": [1,2,3,4]
+//	}
+func BuoyCommandsAcknowledge(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	ack := new(BuoyCommandAcknowledgement)
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&ack)
+
+	fmt.Println(r.ContentLength)
+
+	// Check if Acknowledgement JSON is valid
+	if err != nil {
+		return &AppError{err, "Invalid JSON for Acknowledgement", http.StatusInternalServerError}
+	}
+
+	// Update commands in database to "sent"
+	for _, id := range ack.CommandIds {
+		command, err := env.DB.GetCommandWithId(id)
+		if command == nil {
+			return &AppError{err, "No command with id: " + strconv.Itoa(id), http.StatusInternalServerError}
+		}
+
+		err = env.DB.UpdateCommandSentStatus(id, true)
+		if err != nil {
+			return &AppError{err, "Error while updating the command to 'sent' in the database", http.StatusInternalServerError}
+		}
+	}
+
+	w.WriteHeader(http.StatusOK)
+
 	return nil
 }

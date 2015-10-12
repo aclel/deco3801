@@ -15,18 +15,32 @@ package models
 // a buoy wakes up it sends a request to the server for all commands
 // that have not yet been sent to that buoy.
 type Command struct {
-	Id            int     `json:"id" db:"id"`
-	BuoyId        int     `json:"buoyId" db:"buoy_id"`
-	CommandTypeId int     `json:"commandTypeId" db:"command_type_id"`
-	Value         float64 `json:"value" db:"value"`
-	Sent          bool    `json:"sent" db:"sent"`
+	Id            int  `json:"id" db:"id"`
+	BuoyId        int  `json:"buoyId" db:"buoy_id"`
+	CommandTypeId int  `json:"commandTypeId" db:"command_type_id"`
+	Value         int  `json:"value" db:"value"`
+	Sent          bool `json:"sent" db:"sent"`
 }
 
 // Wraps Command methods to allow for testing with dependency injection.
 type CommandRepository interface {
+	GetCommandWithId(int) (*Command, error)
 	DeleteCommandWithId(int) error
 	GetAllCommands() ([]Command, error)
 	GetAllCommandsWithSent(bool) ([]Command, error)
+	UpdateCommandSentStatus(int, bool) error
+}
+
+func (db *DB) GetCommandWithId(id int) (*Command, error) {
+	command := Command{}
+	err := db.Get(&command, "SELECT * FROM buoy_command WHERE id=?", id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Assume that the id is unique and that one row was retrieved.
+	return &command, nil
 }
 
 // Delete Command from the database with the given id.
@@ -64,4 +78,19 @@ func (db *DB) GetAllCommandsWithSent(sent bool) ([]Command, error) {
 	}
 
 	return commands, nil
+}
+
+// Update the sent status of the Command with the given id
+func (db *DB) UpdateCommandSentStatus(id int, sent bool) error {
+	stmt, err := db.Preparex("UPDATE buoy_command SET sent=? WHERE id=?;")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(sent, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -9,7 +9,7 @@
         </li>
         <li ng-repeat="buoyGroup in vm.buoyGroups" ui-tree-node>
             <div>
-                <div ui-tree-handle class="tree-node">
+                <div ui-tree-handle class="tree-node tree-group" data-nodrag>
                     <a class="btn btn-xs" ng-click="toggle(this)" data-nodrag
                         ng-if="buoyGroup.buoyInstances && buoyGroup.buoyInstances.length > 0">
                             <span class="glyphicon"

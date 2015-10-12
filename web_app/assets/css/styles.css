@@ -412,6 +412,10 @@ input.ti-xl {
   margin: 5px 0;
 }
 
+.tree-group:hover {
+  cursor: default;
+}
+
 
 /************************ SEPARATORS *************************/
 

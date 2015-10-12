@@ -85,8 +85,9 @@
 					// if (dest.nodropEnabled) return false;
 
 					if (source.$modelValue.type != "instance") {
+						return false;
 						// prevent groups from being moved into groups
-						if (dest.depth() > 0) return false;
+						// if (dest.depth() > 0) return false;
 					} else {
 						// prevent instances from being moved out of a group
 						if (dest.depth() != 1) return false;

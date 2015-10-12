@@ -41,3 +41,5 @@ web_app/typings
 # SSL files
 nginx/nginx.crt
 nginx/nginx.key
+
+cleanup.sh

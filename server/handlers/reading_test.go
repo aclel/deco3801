@@ -10,15 +10,7 @@
 // @link       https://github.com/aclel/deco3801
 package handlers
 
-import (
-	"bytes"
-	"net/http"
-	"net/http/httptest"
-	"testing"
-
-	"github.com/aclel/deco3801/server/models"
-)
-
+/*
 func TestReadingsCreate(t *testing.T) {
 	env := &models.Env{DB: &models.MockDB{}}
 
@@ -176,3 +168,4 @@ var readingCreateTests = []struct {
 	// Invalid JSON
 	{"Invalid JSON", `asdfasd`, http.StatusBadRequest},
 }
+*/

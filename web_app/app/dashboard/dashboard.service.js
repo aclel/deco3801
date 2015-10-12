@@ -307,8 +307,11 @@
 					}
 				}
 			}
+			console.log(buoys);
 			for (var i = 0; i < remove.length; i++) {
-				buoys[remove[i].group].splice(remove[i].instance, 1);
+				console.log(remove[i]);
+				console.log(buoys[remove[i].group]);
+				buoys[remove[i].group].buoyInstances.splice(remove[i].instance, 1);
 			}
 		}
 
@@ -736,6 +739,7 @@
 					insNum++;
 				});
 			});
+			console.log(enabledMarkers);
 			map.hideDisabledMarkers(enabledMarkers);
 		}
 

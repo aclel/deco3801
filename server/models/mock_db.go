@@ -170,12 +170,20 @@ func (mdb *MockDB) GetAllCommandTypes() ([]CommandType, error) {
 }
 
 // COMMANDS
+func (mdb *MockDB) GetCommandWithId(id int) (*Command, error) {
+	return nil, nil
+}
+
 func (mdb *MockDB) GetAllCommands() ([]Command, error) {
 	return nil, nil
 }
 
 func (mdb *MockDB) GetAllCommandsWithSent(sent bool) ([]Command, error) {
 	return nil, nil
+}
+
+func (mdb *MockDB) UpdateCommandSentStatus(id int, sent bool) error {
+	return nil
 }
 
 func (mdb *MockDB) DeleteCommandWithId(id int) error {

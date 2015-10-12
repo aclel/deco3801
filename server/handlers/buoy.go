@@ -236,5 +236,45 @@ func BuoyCommandsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) 
 	w.Write([]byte(buffer.String()))
 
 	return nil
+}
 
+type BuoyCommandAcknowledgement struct {
+	Guid       string `json:"guid"`
+	CommandIds []int  `json:"ids"`
+}
+
+// POST /buoys/api/commands/ack
+// Buoy sends a request to this route to acknowledge that all commands were received and applied.
+// Sets the "sent" field in the buoy_command table for each command id in the ids array.
+// Example request body:
+//	{
+//		"guid": "e9528b5e-1d8f-4960-91ae-8b21ecc0bcab",
+//		"ids": [1,2,3,4]
+//	}
+func BuoyCommandsAcknowledge(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	ack := new(BuoyCommandAcknowledgement)
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&ack)
+
+	// Check if Acknowledgement JSON is valid
+	if err != nil {
+		return &AppError{err, "Invalid JSON for Acknowledgement", http.StatusInternalServerError}
+	}
+
+	// Update commands in database to "sent"
+	for _, id := range ack.CommandIds {
+		command, err := env.DB.GetCommandWithId(id)
+		if command == nil {
+			return &AppError{err, "No command with id: " + strconv.Itoa(id), http.StatusInternalServerError}
+		}
+
+		err = env.DB.UpdateCommandSentStatus(id, true)
+		if err != nil {
+			return &AppError{err, "Error while updating the command to 'sent' in the database", http.StatusInternalServerError}
+		}
+	}
+
+	w.WriteHeader(http.StatusOK)
+
+	return nil
 }

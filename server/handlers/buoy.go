@@ -11,8 +11,10 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/aclel/deco3801/server/models"
@@ -198,4 +200,41 @@ func BuoyCommandsCreate(env *models.Env, w http.ResponseWriter, r *http.Request)
 
 	w.WriteHeader(http.StatusCreated)
 	return nil
+}
+
+func BuoyCommandsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	// Parse query parameters
+	u, err := url.Parse(r.URL.String())
+	params, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return &AppError{err, "Error parsing query parameters", http.StatusInternalServerError}
+	}
+
+	if params["guid"] == nil {
+		return &AppError{err, "Buoy guid is missing from url parameters", http.StatusBadRequest}
+	}
+
+	// Retrieve all unsent commands for buoy with guid
+	guid := params["guid"][0]
+	commands, err := env.DB.GetBuoyCommands(guid, false)
+	if err != nil {
+		return &AppError{err, "Error retrieving commands from database", http.StatusInternalServerError}
+	}
+
+	// Construct custom comma separated response in the following format:
+	// COMMAND_TYPE_ID,COMMAND_ID,COMMAND_VALUE\n\0
+	var buffer bytes.Buffer
+	for _, command := range commands {
+		commandTypeId := strconv.Itoa(command.CommandTypeId)
+		commandId := strconv.Itoa(command.Id)
+		commandValue := strconv.Itoa(command.Value)
+		buffer.WriteString(commandTypeId + "," + commandId + "," + commandValue + `\n`)
+	}
+
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(buffer.String()))
+
+	return nil
+
 }

@@ -15,11 +15,11 @@ package models
 // a buoy wakes up it sends a request to the server for all commands
 // that have not yet been sent to that buoy.
 type Command struct {
-	Id            int     `json:"id" db:"id"`
-	BuoyId        int     `json:"buoyId" db:"buoy_id"`
-	CommandTypeId int     `json:"commandTypeId" db:"command_type_id"`
-	Value         float64 `json:"value" db:"value"`
-	Sent          bool    `json:"sent" db:"sent"`
+	Id            int  `json:"id" db:"id"`
+	BuoyId        int  `json:"buoyId" db:"buoy_id"`
+	CommandTypeId int  `json:"commandTypeId" db:"command_type_id"`
+	Value         int  `json:"value" db:"value"`
+	Sent          bool `json:"sent" db:"sent"`
 }
 
 // Wraps Command methods to allow for testing with dependency injection.

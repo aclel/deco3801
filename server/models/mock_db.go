@@ -51,6 +51,10 @@ func (mdb *MockDB) AddCommandToBuoy(command *Command) error {
 	return nil
 }
 
+func (mdb *MockDB) GetBuoyCommands(guid string, sent bool) ([]Command, error) {
+	return nil, nil
+}
+
 // BUOY INSTANCES
 func (mdb *MockDB) GetActiveBuoyInstance(guid string) (*BuoyInstance, error) {
 	return &BuoyInstance{}, nil

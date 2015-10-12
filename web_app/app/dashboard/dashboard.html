@@ -2,7 +2,7 @@
 	<div class="small-12 medium-3 grid-content dashboard-panel">
 		<div class="filter-section">
 			<div class="right" ng-include="'/app/gui/loading.html'"></div>
-			<h4 class="well well-sm text-center">Times</h4>
+			<h4 class="well well-sm">Times</h4>
 			<div class="btn-group btn-group-justified" ng-model="vm.times.type" bs-radio-group>
 				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="since" ng-change="vm.updateTimes()">Since</label>
 				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="range" ng-change="vm.updateTimes()">Range</label>
@@ -60,7 +60,7 @@
 			</div>
 		</div>
 		<div class="filter-section">
-			<h4 class="well well-sm text-center">Buoys</h4>
+			<h4 class="well well-sm">Buoys</h4>
 			<div ng-repeat="buoyGroup in vm.buoys" class="filter-buoy-group">
 				<span class="btn btn-xs" ng-if="buoyGroup.buoyInstances && buoyGroup.buoyInstances.length > 0" ng-click="buoyGroup.collapsed = !buoyGroup.collapsed">
 					<span
@@ -82,7 +82,7 @@
 			</div>
 		</div>
 		<div class="filter-section">
-			<h4 class="well well-sm text-center">Sensors</h4>
+			<h4 class="well well-sm">Sensors</h4>
 			<table class="filter-table">
 				<tbody>
 					<form class="form-inline">

@@ -129,7 +129,7 @@ func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 	return nil
 }
 
-// Constructs Readings from the JSON which was in the request body of a /api/readings POST request.
+// Constructs Readings from the JSON which was in the request body of a /buoys/api/readings POST request.
 func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContainer) (*[]*models.Reading, *AppError) {
 	// Get most recent buoy instance for buoy with guid
 	buoyInstance, err := env.DB.GetActiveBuoyInstance(readingsContainer.BuoyGuid)
@@ -140,19 +140,11 @@ func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContain
 	// Go through each reading in the request and build
 	// a Reading object for each individual sensor reading
 	for _, reading := range *readingsContainer.Readings {
-		for _, sensorReading := range reading.SensorReadings {
-			// Get sensor type for the reading
-			sensorType, err := env.DB.GetSensorTypeWithName(sensorReading.SensorTypeName)
-			if err != nil {
-				return nil, &AppError{err, "Could not find a sensor type with the specified name", http.StatusBadRequest}
-			}
-			sensorReading.SensorTypeId = sensorType.Id
-		}
 		reading.BuoyInstanceId = buoyInstance.Id
 		reading.BuoyGuid = readingsContainer.BuoyGuid
 		reading.Timestamp = time.Unix(reading.UnixTimestamp, 0).UTC()
 
-		if e := validateReading(reading); e != nil {
+		if e := validateReading(env, reading); e != nil {
 			return nil, e
 		}
 	}
@@ -161,7 +153,7 @@ func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContain
 }
 
 // Ensure the reading has a buoy guid and valid latitude and longitude.
-func validateReading(reading *models.Reading) *AppError {
+func validateReading(env *models.Env, reading *models.Reading) *AppError {
 	// Check if guid is present
 	if reading.BuoyGuid == "" {
 		return &AppError{errors.New("Reading: "), "No guid", http.StatusBadRequest}
@@ -175,6 +167,15 @@ func validateReading(reading *models.Reading) *AppError {
 	// Check if longitude is valid
 	if reading.Longitude < -180.0 || reading.Longitude > 180 {
 		return &AppError{errors.New("Reading: "), "Invalid longitude", http.StatusBadRequest}
+	}
+
+	// Check if all the sensor readings have sensor types which exist in the db
+	for _, sensorReading := range reading.SensorReadings {
+		// Get sensor type for the reading
+		_, err := env.DB.GetSensorTypeWithId(sensorReading.SensorTypeId)
+		if err != nil {
+			return &AppError{err, "Could not find a sensor type with the specified id", http.StatusBadRequest}
+		}
 	}
 
 	return nil

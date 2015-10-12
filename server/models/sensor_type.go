@@ -23,10 +23,23 @@ type SensorType struct {
 
 // Wraps Sensor Types methods to allow for testing with dependency injection.
 type SensorTypeRepository interface {
+	GetSensorTypeWithId(int) (*SensorType, error)
 	GetSensorTypeWithName(string) (*SensorType, error)
 	GetAllSensorTypes() ([]SensorType, error)
 	UpdateSensorType(*SensorType) error
 	CreateSensorType(*SensorType) error
+}
+
+// Get the sensor type from the database with the given id.
+func (db *DB) GetSensorTypeWithId(id int) (*SensorType, error) {
+	dbSensorType := SensorType{}
+	err := db.Get(&dbSensorType, "SELECT * FROM sensor_type WHERE id=?;", id)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &dbSensorType, nil
 }
 
 // Get the sensor type from the database with the given unique name.

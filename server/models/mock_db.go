@@ -140,6 +140,10 @@ func (mdb *MockDB) GetReadingsIn(readingsIds []int) ([][]string, error) {
 }
 
 // SENSOR TYPES
+func (mdb *MockDB) GetSensorTypeWithId(id int) (*SensorType, error) {
+	return nil, nil
+}
+
 func (mdb *MockDB) GetSensorTypeWithName(name string) (*SensorType, error) {
 	return &SensorType{}, nil
 }

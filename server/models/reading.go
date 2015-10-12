@@ -22,11 +22,11 @@ import (
 // Has a sensor reading for each sensor that was recorded.
 type Reading struct {
 	Id             int64            `db:"reading_id"`
-	Latitude       float64          `json:"latitude" db:"latitude"`
-	Longitude      float64          `json:"longitude" db:"longitude"`
+	Latitude       float64          `json:"lat" db:"latitude"`
+	Longitude      float64          `json:"lng" db:"longitude"`
 	Timestamp      time.Time        `db:"timestamp"`
-	UnixTimestamp  int64            `json:"timestamp"`
-	SensorReadings []*SensorReading `json:"sensorReadings"`
+	UnixTimestamp  int64            `json:"ut"`
+	SensorReadings []*SensorReading `json:"sR"`
 	BuoyInstanceId int              `db:"buoy_instance_id"`
 	BuoyGuid       string           `json:"guid" db:"guid"`
 	MessageNumber  int              `db:"message_number"`
@@ -35,11 +35,10 @@ type Reading struct {
 // Represents a reading for a particular sensor at a certain time.
 // This is a child of a Reading.
 type SensorReading struct {
-	Id             int     `db:"id"`
-	ReadingId      int64   `db:"reading_id"`
-	SensorTypeId   int     `db:"sensor_type_id"`
-	SensorTypeName string  `json:"sensorName"`
-	Value          float64 `json:"value" db:"value"`
+	Id           int     `db:"id"`
+	ReadingId    int64   `db:"reading_id"`
+	SensorTypeId int     `json:"type" db:"sensor_type_id"`
+	Value        float64 `json:"val" db:"value"`
 }
 
 // Wraps Buoy Groups array for json response

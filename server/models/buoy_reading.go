@@ -38,7 +38,7 @@ package models
 // so there's no point in repeating it.
 type BuoyReadingContainer struct {
 	BuoyGuid string      `json:"guid"`
-	Readings *[]*Reading `json:"readings"`
+	Readings *[]*Reading `json:"r"`
 }
 
 // Stores the data for multiple sensor readings.

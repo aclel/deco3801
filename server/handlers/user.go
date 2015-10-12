@@ -263,7 +263,7 @@ func UsersForgotPassword(env *models.Env, w http.ResponseWriter, r *http.Request
 	// Generate one-use token to facilitate password reset
 	token := passwordreset.NewToken(user.Email, 24*time.Hour, []byte(user.Password), []byte(os.Getenv("FMS_SECRET_KEY")))
 
-	link := "http://teamneptune.co/#/reset_password?token=" + url.QueryEscape(token)
+	link := "https://teamneptune.co/#/reset_password?token=" + url.QueryEscape(token)
 	fmt.Println(link)
 
 	// Send email to user with link (with token) to reset password

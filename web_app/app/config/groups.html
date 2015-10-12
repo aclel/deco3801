@@ -9,7 +9,7 @@
         </li>
         <li ng-repeat="buoyGroup in vm.buoyGroups" ui-tree-node>
             <div>
-                <div ui-tree-handle class="tree-node tree-group" data-nodrag>
+                <div ui-tree-handle class="tree-node" data-nodrag>
                     <a class="btn btn-xs" ng-click="toggle(this)" data-nodrag
                         ng-if="buoyGroup.buoyInstances && buoyGroup.buoyInstances.length > 0">
                             <span class="glyphicon"
@@ -23,7 +23,8 @@
                 </div>
                 <ol ui-tree-nodes="" ng-model="buoyGroup.buoyInstances">
                     <li ng-if="!collapsed" ng-repeat="buoyInstance in buoyGroup.buoyInstances" ui-tree-node>
-                        <div ui-tree-handle class="tree-node">
+                        <div class="tree-node">
+                            <span ui-tree-handle class="glyphicon glyphicon-menu-hamburger"></span> 
                             <span>{{ buoyInstance.name }}</span>
                         </div>
                     </li>

@@ -1,8 +1,8 @@
 <div class="grid-block">
 	<div class="small-12 medium-3 grid-content dashboard-panel">
-		<div class="filter-section separator-bottom">
+		<div class="filter-section">
 			<div class="right" ng-include="'/app/gui/loading.html'"></div>
-			<h3>Times</h3>
+			<h4 class="well well-sm text-center">Times</h4>
 			<div class="btn-group btn-group-justified" ng-model="vm.times.type" bs-radio-group>
 				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="since" ng-change="vm.updateTimes()">Since</label>
 				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="range" ng-change="vm.updateTimes()">Range</label>
@@ -59,8 +59,8 @@
 				</form>
 			</div>
 		</div>
-		<div class="filter-section separator-bottom">
-			<h3>Buoys</h3>
+		<div class="filter-section">
+			<h4 class="well well-sm text-center">Buoys</h4>
 			<div ng-repeat="buoyGroup in vm.buoys" class="filter-buoy-group">
 				<span class="btn btn-xs" ng-if="buoyGroup.buoyInstances && buoyGroup.buoyInstances.length > 0" ng-click="buoyGroup.collapsed = !buoyGroup.collapsed">
 					<span
@@ -81,8 +81,8 @@
 				</div>
 			</div>
 		</div>
-		<div class="filter-section separator-bottom">
-			<h3>Sensors</h3>
+		<div class="filter-section">
+			<h4 class="well well-sm text-center">Sensors</h4>
 			<table class="filter-table">
 				<tbody>
 					<form class="form-inline">
@@ -105,7 +105,7 @@
 				</tbody>
 			</table>
 		</div>
-		<div>
+		<div class="separator-top">
 			<button class="btn btn-default btn-lg export-btn"
 				ng-click="vm.exportData()">
 				Export Data

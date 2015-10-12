@@ -106,7 +106,7 @@ gulp.task('js-prod', function () {
     .pipe(livereload());
 });
 
-gulp.task('watch', ['env-dev', 'html', 'sass', 'css', 'js'], function() {
+gulp.task('watch', ['env-dev', 'fonts', 'html', 'sass', 'css', 'js'], function() {
   livereload.listen();
   gulp.watch('env/**/*', ['env-dev']);
   gulp.watch('app/**/*.html', ['html']);

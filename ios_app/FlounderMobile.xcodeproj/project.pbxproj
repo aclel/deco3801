@@ -166,6 +166,7 @@
 				TargetAttributes = {
 					D45892BF1B98500100EB8DCC = {
 						CreatedOnToolsVersion = 6.4;
+						DevelopmentTeam = DKE33T42WH;
 					};
 					D45892D81B98500100EB8DCC = {
 						CreatedOnToolsVersion = 6.4;
@@ -331,10 +332,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = "$(SRCROOT)/FMSiOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "teamneptune.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = FlounderMobile;
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -342,10 +346,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = "$(SRCROOT)/FMSiOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "teamneptune.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = FlounderMobile;
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};

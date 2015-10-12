@@ -13,6 +13,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -222,7 +223,7 @@ func BuoyCommandsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Construct custom comma separated response in the following format:
-	// COMMAND_TYPE_ID,COMMAND_ID,COMMAND_VALUE\n\0
+	// COMMAND_TYPE_ID,COMMAND_ID,COMMAND_VALUE;
 	var buffer bytes.Buffer
 	for _, command := range commands {
 		commandTypeId := strconv.Itoa(command.CommandTypeId)
@@ -255,6 +256,8 @@ func BuoyCommandsAcknowledge(env *models.Env, w http.ResponseWriter, r *http.Req
 	ack := new(BuoyCommandAcknowledgement)
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&ack)
+
+	fmt.Println(r.ContentLength)
 
 	// Check if Acknowledgement JSON is valid
 	if err != nil {

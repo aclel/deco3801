@@ -101,7 +101,7 @@
 		function resetPassword() {
 			vm.waiting = true;
 			if (vm.newPassword != "" && vm.newPassword == vm.confirmPassword) {
-				server.resetPassword($stateParams.token + "=", vm.newPassword).then(function(res) {
+				server.resetPassword($stateParams.token, vm.newPassword).then(function(res) {
 					vm.changePasswordResponse = 0;
 					vm.firstLogin = false;
 				}, function(res) {

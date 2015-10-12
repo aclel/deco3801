@@ -228,7 +228,7 @@ func BuoyCommandsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) 
 		commandTypeId := strconv.Itoa(command.CommandTypeId)
 		commandId := strconv.Itoa(command.Id)
 		commandValue := strconv.Itoa(command.Value)
-		buffer.WriteString(commandTypeId + "," + commandId + "," + commandValue + `\n`)
+		buffer.WriteString(commandTypeId + "," + commandId + "," + commandValue + `;`)
 	}
 
 	w.Header().Set("Content-Type", "text/plain")

@@ -14,6 +14,8 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+
+	"github.com/go-sql-driver/mysql"
 )
 
 // Wraps Auth methods to allow testing with dependency injection
@@ -37,6 +39,9 @@ func (db *DB) Login(user *User) (*User, error) {
 		return nil, err
 	}
 
+	// Check if this is the first time a use is logging in
+	firstLogin := dbUser.LastLogin.Valid == false
+
 	if dbUser == nil {
 		return nil, errors.New("User with that email does not exist")
 	}
@@ -56,6 +61,10 @@ func (db *DB) Login(user *User) (*User, error) {
 			err = db.UpdateUserExcludePassword(dbUser)
 			if err != nil {
 				return nil, err
+			}
+
+			if !firstLogin {
+				dbUser.LastLogin = mysql.NullTime{}
 			}
 
 			log.Println("Authenticated " + dbUser.Email)

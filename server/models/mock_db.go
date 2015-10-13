@@ -182,6 +182,10 @@ func (mdb *MockDB) GetAllCommandsWithSent(sent bool) ([]Command, error) {
 	return nil, nil
 }
 
+func (mdb *MockDB) UpdateCommand(updatedCommand *Command) error {
+	return nil
+}
+
 func (mdb *MockDB) UpdateCommandSentStatus(id int, sent bool) error {
 	return nil
 }

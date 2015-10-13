@@ -83,6 +83,8 @@ func NewAppRouter(env *models.Env) *mux.Router {
 
 	r.Handle("/api/commands", defaultChain.Then(AuthHandler{env, CommandsCreate, "researcher"})).Methods("POST", "OPTIONS")
 	r.Handle("/api/commands", defaultChain.Then(AuthHandler{env, CommandsIndex, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/commands", defaultChain.Then(AuthHandler{env, CommandsBatchUpdate, "researcher"})).Methods("PUT", "OPTIONS")
+	r.Handle("/api/commands/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, CommandsUpdate, "researcher"})).Methods("PUT", "OPTIONS")
 	r.Handle("/api/commands/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, CommandsDelete, "researcher"})).Methods("DELETE", "OPTIONS")
 
 	r.Handle("/api/warning_triggers", defaultChain.Then(AuthHandler{env, WarningTriggersIndex, "researcher"})).Methods("GET", "OPTIONS")

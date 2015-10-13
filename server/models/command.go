@@ -28,6 +28,7 @@ type CommandRepository interface {
 	DeleteCommandWithId(int) error
 	GetAllCommands() ([]Command, error)
 	GetAllCommandsWithSent(bool) ([]Command, error)
+	UpdateCommand(updatedCommand *Command) error
 	UpdateCommandSentStatus(int, bool) error
 }
 
@@ -78,6 +79,22 @@ func (db *DB) GetAllCommandsWithSent(sent bool) ([]Command, error) {
 	}
 
 	return commands, nil
+}
+
+// Updates the old Command record with the new one
+func (db *DB) UpdateCommand(updatedCommand *Command) error {
+	stmt, err := db.Preparex(`UPDATE buoy_command SET buoy_id=?, command_type_id=?, value=? WHERE id=?;`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(updatedCommand.BuoyId, updatedCommand.CommandTypeId,
+		updatedCommand.Value, updatedCommand.Id)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Update the sent status of the Command with the given id

@@ -24,7 +24,13 @@ Server:
 + Add POST /buoys/commands/ack for the Buoy to tell the server which commands have been applied
 
 Web App:
-! Fix password reset submit form
+* Major styling changes - spacing, font sizes, colours, inputs, buttons, popups, etc.
+! Fix password reset submit form.
+! Fix bugs when updating filters and displaying markers.
+* Charts pane can be minimised.
++ Implement basic chart functionality.
++ Implement sensor type configuration on Admin page.
+* Allow editing of buoys on Admin page.
 
 iOS App:
 * App is now called FlounderMobile, to be consistent with the web application.

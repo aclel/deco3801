@@ -116,3 +116,21 @@ func SensorTypeUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *
 	w.WriteHeader(http.StatusOK)
 	return nil
 }
+
+// DELETE /api/sensor_types/id
+// Responds with HTTP 200 if successful. Response body empty.
+func SensorTypesDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing sensor type id", http.StatusInternalServerError}
+	}
+
+	err = env.DB.ArchiveSensorTypeWithId(id)
+	if err != nil {
+		return &AppError{err, "Error deleting sensor type", http.StatusInternalServerError}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	return nil
+}

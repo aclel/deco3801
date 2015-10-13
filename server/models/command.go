@@ -10,16 +10,19 @@
 // @link       https://github.com/aclel/deco3801
 package models
 
+import "github.com/go-sql-driver/mysql"
+
 // Commands are sent to a buoy to invoke configuration of certain
 // behaviours. Multiple Commands can be queued up for a buoy. When
 // a buoy wakes up it sends a request to the server for all commands
 // that have not yet been sent to that buoy.
 type Command struct {
-	Id            int  `json:"id" db:"id"`
-	BuoyId        int  `json:"buoyId" db:"buoy_id"`
-	CommandTypeId int  `json:"commandTypeId" db:"command_type_id"`
-	Value         int  `json:"value" db:"value"`
-	Sent          bool `json:"sent" db:"sent"`
+	Id            int            `json:"id" db:"id"`
+	BuoyId        int            `json:"buoyId" db:"buoy_id"`
+	CommandTypeId int            `json:"commandTypeId" db:"command_type_id"`
+	Value         int            `json:"value" db:"value"`
+	Sent          bool           `json:"sent" db:"sent"`
+	SentAt        mysql.NullTime `json:"sentAt" db:"sent_at"`
 }
 
 // Wraps Command methods to allow for testing with dependency injection.
@@ -29,7 +32,7 @@ type CommandRepository interface {
 	GetAllCommands() ([]Command, error)
 	GetAllCommandsWithSent(bool) ([]Command, error)
 	UpdateCommand(updatedCommand *Command) error
-	UpdateCommandSentStatus(int, bool) error
+	UpdateCommandSentStatus(int, bool, mysql.NullTime) error
 }
 
 func (db *DB) GetCommandWithId(id int) (*Command, error) {
@@ -98,13 +101,13 @@ func (db *DB) UpdateCommand(updatedCommand *Command) error {
 }
 
 // Update the sent status of the Command with the given id
-func (db *DB) UpdateCommandSentStatus(id int, sent bool) error {
-	stmt, err := db.Preparex("UPDATE buoy_command SET sent=? WHERE id=?;")
+func (db *DB) UpdateCommandSentStatus(id int, sent bool, sentAt mysql.NullTime) error {
+	stmt, err := db.Preparex("UPDATE buoy_command SET sent=?, sent_at=? WHERE id=?;")
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(sent, id)
+	_, err = stmt.Exec(sent, sentAt, id)
 	if err != nil {
 		return err
 	}

@@ -13,7 +13,6 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -257,21 +256,20 @@ func BuoyCommandsAcknowledge(env *models.Env, w http.ResponseWriter, r *http.Req
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&ack)
 
-	fmt.Println(r.ContentLength)
-
 	// Check if Acknowledgement JSON is valid
 	if err != nil {
 		return &AppError{err, "Invalid JSON for Acknowledgement", http.StatusInternalServerError}
 	}
 
 	// Update commands in database to "sent"
+	sentTime := models.Now()
 	for _, id := range ack.CommandIds {
 		command, err := env.DB.GetCommandWithId(id)
 		if command == nil {
 			return &AppError{err, "No command with id: " + strconv.Itoa(id), http.StatusInternalServerError}
 		}
 
-		err = env.DB.UpdateCommandSentStatus(id, true)
+		err = env.DB.UpdateCommandSentStatus(id, true, sentTime)
 		if err != nil {
 			return &AppError{err, "Error while updating the command to 'sent' in the database", http.StatusInternalServerError}
 		}

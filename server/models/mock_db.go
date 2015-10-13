@@ -10,7 +10,11 @@
 // @link       https://github.com/aclel/deco3801
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/go-sql-driver/mysql"
+)
 
 // Implements all model methods to allow for unit testing with dependency injection.
 type MockDB struct {
@@ -190,7 +194,7 @@ func (mdb *MockDB) UpdateCommand(updatedCommand *Command) error {
 	return nil
 }
 
-func (mdb *MockDB) UpdateCommandSentStatus(id int, sent bool) error {
+func (mdb *MockDB) UpdateCommandSentStatus(id int, sent bool, sentAt mysql.NullTime) error {
 	return nil
 }
 

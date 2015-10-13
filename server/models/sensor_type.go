@@ -19,6 +19,7 @@ type SensorType struct {
 	Name        string  `json:"name" db:"name"`
 	LowerBound  float64 `json:"lowerBound" db:"lower_bound"`
 	UpperBound  float64 `json:"upperBound" db:"upper_bound"`
+	Archived    bool    `json:"archived" db:"archived"`
 }
 
 // Wraps Sensor Types methods to allow for testing with dependency injection.
@@ -28,6 +29,7 @@ type SensorTypeRepository interface {
 	GetAllSensorTypes() ([]SensorType, error)
 	UpdateSensorType(*SensorType) error
 	CreateSensorType(*SensorType) error
+	ArchiveSensorTypeWithId(id int) error
 }
 
 // Get the sensor type from the database with the given id.
@@ -82,13 +84,28 @@ func (db *DB) CreateSensorType(sensorType *SensorType) error {
 
 // Replace a Sensor Type with the given updated Sensor Type.
 func (db *DB) UpdateSensorType(updatedSensorType *SensorType) error {
-	stmt, err := db.Preparex(`UPDATE sensor_type SET name=?, description=?, unit=?, lower_bound=?, upper_bound=? WHERE id=?;`)
+	stmt, err := db.Preparex(`UPDATE sensor_type SET name=?, description=?, unit=?, lower_bound=?, upper_bound=?, archived=? WHERE id=?;`)
 	if err != nil {
 		return err
 	}
 
 	_, err = stmt.Exec(updatedSensorType.Name, updatedSensorType.Description, updatedSensorType.Unit,
-		updatedSensorType.LowerBound, updatedSensorType.UpperBound, updatedSensorType.Id)
+		updatedSensorType.LowerBound, updatedSensorType.UpperBound, updatedSensorType.Archived, updatedSensorType.Id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Archive Sensor Type with the given id.
+func (db *DB) ArchiveSensorTypeWithId(id int) error {
+	stmt, err := db.Preparex("UPDATE sensor_type SET archived=true WHERE id=?")
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(id)
 	if err != nil {
 		return err
 	}

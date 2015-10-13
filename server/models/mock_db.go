@@ -10,7 +10,11 @@
 // @link       https://github.com/aclel/deco3801
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/go-sql-driver/mysql"
+)
 
 // Implements all model methods to allow for unit testing with dependency injection.
 type MockDB struct {
@@ -35,7 +39,7 @@ func (mdb *MockDB) UpdateBuoy(buoy *Buoy) error {
 	return nil
 }
 
-func (mdb *MockDB) DeleteBuoyWithId(id int) error {
+func (mdb *MockDB) ArchiveBuoyWithId(id int) error {
 	return nil
 }
 
@@ -121,7 +125,7 @@ func (mdb *MockDB) UpdateBuoyGroup(buoyGroup *BuoyGroup) error {
 	return nil
 }
 
-func (mdb *MockDB) DeleteBuoyGroupWithId(id int) error {
+func (mdb *MockDB) ArchiveBuoyGroupWithId(id int) error {
 	return nil
 }
 
@@ -164,6 +168,10 @@ func (mdb *MockDB) UpdateSensorType(updatedSensorType *SensorType) error {
 	return nil
 }
 
+func (mdb *MockDB) ArchiveSensorTypeWithId(id int) error {
+	return nil
+}
+
 // COMMAND TYPES
 func (mdb *MockDB) GetAllCommandTypes() ([]CommandType, error) {
 	return nil, nil
@@ -182,7 +190,11 @@ func (mdb *MockDB) GetAllCommandsWithSent(sent bool) ([]Command, error) {
 	return nil, nil
 }
 
-func (mdb *MockDB) UpdateCommandSentStatus(id int, sent bool) error {
+func (mdb *MockDB) UpdateCommand(updatedCommand *Command) error {
+	return nil
+}
+
+func (mdb *MockDB) UpdateCommandSentStatus(id int, sent bool, sentAt mysql.NullTime) error {
 	return nil
 }
 

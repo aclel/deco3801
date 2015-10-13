@@ -16,6 +16,7 @@ type Buoy struct {
 	Guid                 string `json:"guid" db:"guid"`
 	Name                 string `json:"name"` // This field is only used when a new buoy is created to add a name for buoy instance
 	ActiveBuoyInstanceId int    `json:"activeBuoyInstanceId" db:"active_buoy_instance_id"`
+	Archived             bool   `json:"archived" db:"archived"`
 }
 
 // Wraps Buoy methods to allow for testing with dependency injection
@@ -24,7 +25,7 @@ type BuoyRepository interface {
 	GetBuoyById(id int) (*Buoy, error)
 	CreateBuoy(buoy *Buoy) (int64, error)
 	UpdateBuoy(buoy *Buoy) error
-	DeleteBuoyWithId(id int) error
+	ArchiveBuoyWithId(id int) error
 	AddCommandToBuoy(command *Command) error
 	GetBuoyCommands(string, bool) ([]Command, error)
 }
@@ -76,12 +77,12 @@ func (db *DB) CreateBuoy(buoy *Buoy) (int64, error) {
 
 // Updates the given buoy in the database.
 func (db *DB) UpdateBuoy(buoy *Buoy) error {
-	stmt, err := db.Preparex("UPDATE buoy SET guid=? WHERE id=?;")
+	stmt, err := db.Preparex("UPDATE buoy SET guid=?, archived=? WHERE id=?;")
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(buoy.Guid, buoy.Id)
+	_, err = stmt.Exec(buoy.Guid, buoy.Archived, buoy.Id)
 	if err != nil {
 		return err
 	}
@@ -89,9 +90,9 @@ func (db *DB) UpdateBuoy(buoy *Buoy) error {
 	return nil
 }
 
-// Delete Buoy from the database with the given id.
-func (db *DB) DeleteBuoyWithId(id int) error {
-	stmt, err := db.Preparex("DELETE FROM buoy WHERE id=?")
+// Archive Buoy with the given id.
+func (db *DB) ArchiveBuoyWithId(id int) error {
+	stmt, err := db.Preparex("UPDATE buoy SET archived=true WHERE id=?")
 	if err != nil {
 		return err
 	}

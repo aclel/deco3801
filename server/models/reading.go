@@ -246,7 +246,7 @@ func buildReadingsIndexData(mapReadings []DbMapReading) (*MapReadingBuoyGroupsWr
 	}
 
 	// All Buoy Groups which will be returned to the client
-	buoyGroupsWrapper := &MapReadingBuoyGroupsWrapper{}
+	buoyGroupsWrapper := &MapReadingBuoyGroupsWrapper{BuoyGroups: make([]MapReadingBuoyGroup, 0)}
 	for _, buoyGroup := range buoyGroups {
 		for _, buoyInstance := range buoyGroup.BuoyInstanceMap {
 			for _, reading := range buoyInstance.ReadingMap {

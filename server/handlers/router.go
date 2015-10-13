@@ -78,11 +78,14 @@ func NewAppRouter(env *models.Env) *mux.Router {
 	r.Handle("/api/sensor_types", defaultChain.Then(AuthHandler{env, SensorTypesIndex, "researcher"})).Methods("GET", "OPTIONS")
 	r.Handle("/api/sensor_types", defaultChain.Then(AuthHandler{env, SensorTypesCreate, "researcher"})).Methods("POST", "OPTIONS")
 	r.Handle("/api/sensor_types/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, SensorTypeUpdate, "researcher"})).Methods("PUT", "OPTIONS")
+	r.Handle("/api/sensor_types/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, SensorTypesDelete, "researcher"})).Methods("DELETE", "OPTIONS")
 
 	r.Handle("/api/command_types", defaultChain.Then(AuthHandler{env, CommandTypesIndex, "researcher"})).Methods("GET", "OPTIONS")
 
 	r.Handle("/api/commands", defaultChain.Then(AuthHandler{env, CommandsCreate, "researcher"})).Methods("POST", "OPTIONS")
 	r.Handle("/api/commands", defaultChain.Then(AuthHandler{env, CommandsIndex, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/commands", defaultChain.Then(AuthHandler{env, CommandsBatchUpdate, "researcher"})).Methods("PUT", "OPTIONS")
+	r.Handle("/api/commands/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, CommandsUpdate, "researcher"})).Methods("PUT", "OPTIONS")
 	r.Handle("/api/commands/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, CommandsDelete, "researcher"})).Methods("DELETE", "OPTIONS")
 
 	r.Handle("/api/warning_triggers", defaultChain.Then(AuthHandler{env, WarningTriggersIndex, "researcher"})).Methods("GET", "OPTIONS")
@@ -97,6 +100,7 @@ func NewAppRouter(env *models.Env) *mux.Router {
 	r.Handle("/api/readings/export", defaultChain.Then(AuthHandler{env, ReadingsExport, "researcher"})).Methods("POST", "OPTIONS")
 
 	r.Handle("/api/users", defaultChain.Then(AuthHandler{env, UsersIndex, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/user", defaultChain.Then(AuthHandler{env, UsersShowWithEmail, "researcher"})).Methods("GET", "OPTIONS")
 	r.Handle("/api/users/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, UsersUpdate, "researcher"})).Methods("PUT", "OPTIONS")
 	r.Handle("/api/users/{id:[0-9]+}/change_password", defaultChain.Then(AuthHandler{env, UsersUpdatePassword, "researcher"})).Methods("PUT", "OPTIONS")
 	r.Handle("/api/users/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, UsersDelete, "researcher"})).Methods("DELETE", "OPTIONS")

@@ -110,6 +110,83 @@ func CommandsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 	return nil
 }
 
+// PUT /api/commands/id
+// Responds with HTTP 200 if successful. Response body empty.
+// Example request body:
+// {
+//     "buoyId": 1,
+//     "commandTypeId": 1,
+//     "value": 77,
+// }
+func CommandsUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing command id", http.StatusInternalServerError}
+	}
+
+	command := new(models.Command)
+	decoder := json.NewDecoder(r.Body)
+	err = decoder.Decode(&command)
+
+	// Check if Command JSON is valid
+	if err != nil {
+		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+	}
+	command.Id = id
+
+	err = env.DB.UpdateCommand(command)
+	if err != nil {
+		return &AppError{err, "Error updating command", http.StatusInternalServerError}
+	}
+
+	w.WriteHeader(http.StatusOK)
+	return nil
+}
+
+// PUT /api/commands
+// Accepts an array of commands which are to be replaced.
+// Example request body:
+// {
+// 		"commands": [
+//         {
+//			   "id": 1,
+//             "buoyId": 1,
+//             "commandTypeId": 1,
+//             "value": 66
+//         },
+//         {
+//			   "id": 2,
+//             "buoyId": 1,
+//             "commandTypeId": 1,
+//             "value": 77
+//         }
+//     ]
+// }
+func CommandsBatchUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	commandsWrapper := new(CommandsWrapper)
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&commandsWrapper)
+
+	// Check if the request body is valid
+	if err != nil {
+		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
+	}
+
+	// Update each command into db
+	for _, command := range commandsWrapper.Commands {
+		err = env.DB.UpdateCommand(&command)
+		if err != nil {
+			return &AppError{err, "Error updating the command in the database", http.StatusInternalServerError}
+		}
+	}
+
+	// Respond with 200 OK if successful
+	w.WriteHeader(http.StatusOK)
+
+	return nil
+}
+
 // DELETE /api/commands/id
 // Responds with HTTP 200 if successful. Response body empty.
 func CommandsDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {

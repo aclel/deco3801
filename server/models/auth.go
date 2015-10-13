@@ -13,6 +13,7 @@ package models
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/go-sql-driver/mysql"
@@ -42,6 +43,8 @@ func (db *DB) Login(user *User) (*User, error) {
 	// Check if this is the first time a use is logging in
 	firstLogin := dbUser.LastLogin.Valid == false
 
+	fmt.Println(dbUser.LastLogin)
+
 	if dbUser == nil {
 		return nil, errors.New("User with that email does not exist")
 	}
@@ -63,7 +66,7 @@ func (db *DB) Login(user *User) (*User, error) {
 				return nil, err
 			}
 
-			if !firstLogin {
+			if firstLogin {
 				dbUser.LastLogin = mysql.NullTime{}
 			}
 

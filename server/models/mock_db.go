@@ -35,7 +35,7 @@ func (mdb *MockDB) UpdateBuoy(buoy *Buoy) error {
 	return nil
 }
 
-func (mdb *MockDB) DeleteBuoyWithId(id int) error {
+func (mdb *MockDB) ArchiveBuoyWithId(id int) error {
 	return nil
 }
 
@@ -121,7 +121,7 @@ func (mdb *MockDB) UpdateBuoyGroup(buoyGroup *BuoyGroup) error {
 	return nil
 }
 
-func (mdb *MockDB) DeleteBuoyGroupWithId(id int) error {
+func (mdb *MockDB) ArchiveBuoyGroupWithId(id int) error {
 	return nil
 }
 

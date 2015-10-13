@@ -158,7 +158,7 @@ func BuoysDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 		return &AppError{err, "Error parsing buoy id", http.StatusInternalServerError}
 	}
 
-	err = env.DB.DeleteBuoyWithId(id)
+	err = env.DB.ArchiveBuoyWithId(id)
 	if err != nil {
 		return &AppError{err, "Error deleting buoy", http.StatusInternalServerError}
 	}

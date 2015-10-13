@@ -14,8 +14,9 @@ package models
 // table between buoy and buoy_group. A buoy group can only have one
 // buoy instance of a certain buoy at any time.
 type BuoyGroup struct {
-	Id   int    `json:"id" db:"id"`
-	Name string `json:"name" db:"name"`
+	Id       int    `json:"id" db:"id"`
+	Name     string `json:"name" db:"name"`
+	Archived bool   `json:"archived" db:"archived"`
 }
 
 // Wraps Buoy Group methods to allow for testing with dependency injection.
@@ -24,7 +25,7 @@ type BuoyGroupRepository interface {
 	GetBuoyGroupById(int) (*BuoyGroup, error)
 	CreateBuoyGroup(*BuoyGroup) error
 	UpdateBuoyGroup(*BuoyGroup) error
-	DeleteBuoyGroupWithId(int) error
+	ArchiveBuoyGroupWithId(int) error
 	GetBuoysForBuoyGroup(int) ([]Buoy, error)
 	GetBuoyInstancesForBuoyGroup(int) ([]BuoyInstance, error)
 }
@@ -70,12 +71,12 @@ func (db *DB) CreateBuoyGroup(buoyGroup *BuoyGroup) error {
 
 // Updates the given Buoy Group in the database.
 func (db *DB) UpdateBuoyGroup(buoyGroup *BuoyGroup) error {
-	stmt, err := db.Preparex("UPDATE buoy_group SET name=? WHERE id=?;")
+	stmt, err := db.Preparex("UPDATE buoy_group SET name=?, archived=? WHERE id=?;")
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(buoyGroup.Name, buoyGroup.Id)
+	_, err = stmt.Exec(buoyGroup.Name, buoyGroup.Archived, buoyGroup.Id)
 	if err != nil {
 		return err
 	}
@@ -83,9 +84,9 @@ func (db *DB) UpdateBuoyGroup(buoyGroup *BuoyGroup) error {
 	return nil
 }
 
-// Delete Buoy Group from the database with the given id.
-func (db *DB) DeleteBuoyGroupWithId(id int) error {
-	stmt, err := db.Preparex("DELETE FROM buoy_group WHERE id=?")
+// Archive Buoy with the given id.
+func (db *DB) ArchiveBuoyGroupWithId(id int) error {
+	stmt, err := db.Preparex("UPDATE buoy_group SET archived=true WHERE id=?")
 	if err != nil {
 		return err
 	}
@@ -101,7 +102,7 @@ func (db *DB) DeleteBuoyGroupWithId(id int) error {
 // Get all Buoys for the Buoy Group with the given id.
 func (db *DB) GetBuoysForBuoyGroup(id int) ([]Buoy, error) {
 	buoys := []Buoy{}
-	err := db.Select(&buoys, `SELECT buoy.id, buoy.name, buoy.guid FROM buoy 
+	err := db.Select(&buoys, `SELECT buoy.id, buoy.guid, buoy.archived FROM buoy 
 							 INNER JOIN buoy_instance ON buoy_instance.id=buoy.id
 							 INNER JOIN buoy_group ON buoy_instance.buoy_group_id=buoy_group.id
 							 WHERE buoy_group.id=?`, id)
@@ -115,7 +116,7 @@ func (db *DB) GetBuoysForBuoyGroup(id int) ([]Buoy, error) {
 // Get all Buoy Instances for the Buoy Group with the given id.
 func (db *DB) GetBuoyInstancesForBuoyGroup(id int) ([]BuoyInstance, error) {
 	buoyInstances := []BuoyInstance{}
-	err := db.Select(&buoyInstances, `SELECT buoy.id, buoy.name AS buoy_name, 
+	err := db.Select(&buoyInstances, `SELECT buoy.id, 
 							 buoy.guid AS buoy_guid, 
 							 buoy_group.name AS buoy_group_name,
 							 buoy_instance.id FROM buoy 

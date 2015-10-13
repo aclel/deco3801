@@ -151,7 +151,7 @@ func BuoyGroupsDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *
 		return &AppError{err, "Error parsing buoy group id", http.StatusInternalServerError}
 	}
 
-	err = env.DB.DeleteBuoyGroupWithId(id)
+	err = env.DB.ArchiveBuoyGroupWithId(id)
 	if err != nil {
 		return &AppError{err, "Error deleting buoy group", http.StatusInternalServerError}
 	}

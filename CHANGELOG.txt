@@ -7,6 +7,13 @@ Legend:
 * Changed
 ! Fixed
 
+v0.5 - Week 11 
+
+Server:
+! Fix GET /api/buoy_groups/id/buoy_instances and GET /api/buoys/id/buoy_instances HTTP error 500
+* Buoys and Buoy Groups are now archived instead of delete. This removes them from the interface but they remain in the database.
+
+
 v0.4 - Week 10 8/10
 
 Deployment:

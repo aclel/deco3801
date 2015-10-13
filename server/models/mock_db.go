@@ -164,6 +164,10 @@ func (mdb *MockDB) UpdateSensorType(updatedSensorType *SensorType) error {
 	return nil
 }
 
+func (mdb *MockDB) ArchiveSensorTypeWithId(id int) error {
+	return nil
+}
+
 // COMMAND TYPES
 func (mdb *MockDB) GetAllCommandTypes() ([]CommandType, error) {
 	return nil, nil

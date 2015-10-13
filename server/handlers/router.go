@@ -97,6 +97,7 @@ func NewAppRouter(env *models.Env) *mux.Router {
 	r.Handle("/api/readings/export", defaultChain.Then(AuthHandler{env, ReadingsExport, "researcher"})).Methods("POST", "OPTIONS")
 
 	r.Handle("/api/users", defaultChain.Then(AuthHandler{env, UsersIndex, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/user", defaultChain.Then(AuthHandler{env, UsersShowWithEmail, "researcher"})).Methods("GET", "OPTIONS")
 	r.Handle("/api/users/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, UsersUpdate, "researcher"})).Methods("PUT", "OPTIONS")
 	r.Handle("/api/users/{id:[0-9]+}/change_password", defaultChain.Then(AuthHandler{env, UsersUpdatePassword, "researcher"})).Methods("PUT", "OPTIONS")
 	r.Handle("/api/users/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, UsersDelete, "researcher"})).Methods("DELETE", "OPTIONS")

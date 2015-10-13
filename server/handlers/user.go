@@ -57,6 +57,43 @@ func UsersIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppErr
 	return nil
 }
 
+// GET /api/user?email=test@email.com
+// Get the user with the given email. Responds with HTTP 200. User is returned as JSON in response body.
+func UsersShowWithEmail(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	// Parse query parameters
+	u, err := url.Parse(r.URL.String())
+	params, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return &AppError{err, "Error parsing query parameters", http.StatusInternalServerError}
+	}
+
+	if _, ok := params["email"]; !ok {
+		return &AppError{errors.New("User show error"), "Email is missing from url parameters", http.StatusBadRequest}
+	}
+
+	// Retrieve user with email
+	email := params["email"][0]
+	user, err := env.DB.GetUserWithEmail(email)
+	if err != nil {
+		return &AppError{err, "Error retrieving user from database", http.StatusInternalServerError}
+	}
+
+	if user == nil {
+		return &AppError{errors.New("User show error"), "No user with that email exists", http.StatusBadRequest}
+	}
+
+	response, err := json.Marshal(user)
+	if err != nil {
+		return &AppError{err, "Error marshalling user json", http.StatusInternalServerError}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(response)
+
+	return nil
+}
+
 // POST /api/users
 // Create a User. Generate a temporary password, then hash the password and store the User in the database.
 // An email is sent to the user with their temporary password. They are prompted to change it when they login

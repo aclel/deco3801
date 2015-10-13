@@ -9,6 +9,23 @@ Legend:
 
 v0.4 - Week 10 8/10
 
+Deployment:
++ A new VPS can now be setup very easily. Docker is being used for deployment. After cloning the source and copying the SSL certificates onto the VPS, it's just a matter of running one command in terminal. This runs the Go server, mysql database, and phpmyadmin, all behind an NGINX reverse proxy.
++ HTTPS is live, and it only applies to some routes. Buoys will be communicating over HTTP, while the web app and iOS app will be communicating over HTTPS.
+
+Server:
+! Change GET /api/export?readings to POST /api/readings/export to fix "request url is too long" bug
++ The Go server now runs two HTTP servers, one for the web app and iOS app, and another for all requests that come from the buoy
+! GET /api/readings now properly returns readings with timestamp in ascending order, within a buoy instance, within a buoy group
+* Json Web Token authentication now uses HMAC instead of RSA. FMS_PUBLIC_KEY and FMS_PRIVATE key are no longer needed.
+* GET /api/buoy_instances?active=true now also return buoy instances that have no readings
+* Condense JSON on POST /buoys/api/readings to reduce memory load on buoy microcontroller
++ Add GET/buoys/api/commands?guid=test for the Buoy to retrieve "unsent" commands. This returns a lightweight custom CSV format instead of JSON to reduce memory load on the buoy microcontrolelr
++ Add POST /buoys/commands/ack for the Buoy to tell the server which commands have been applied
+
+Web App:
+! Fix password reset submit form
+
 iOS App:
 * App is now called FlounderMobile, to be consistent with the web application.
 + More info dialog when buoys are pressed, containing specific data and buoy commands; window is able to size automatically to updates.

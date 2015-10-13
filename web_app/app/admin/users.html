@@ -1,4 +1,3 @@
-<h3>Users</h3>
 <table class="data-table">
     <thead>
         <tr>
@@ -14,21 +13,21 @@
         <tr ng-repeat="user in vm.users">
             <td>
                 <span ng-if="user.id != -2">{{ user.email }}</span>
-                <input ng-if="user.id == -2" type="text" class="form-control" ng-model="vm.editUser.email" placeholder="johndoe@aol.com">
+                <input ng-if="user.id == -2" type="text" class="form-control" ng-model="vm.editObj.email" placeholder="johndoe@aol.com">
             </td>
             <td>
-                <span ng-if="vm.editUserId != user.id">{{ user.firstName }}</span>
-                <input ng-if="vm.editUserId == user.id" type="text" class="form-control" ng-model="vm.editUser.firstName" placeholder="John">
+                <span ng-if="vm.editId != user.id">{{ user.firstName }}</span>
+                <input ng-if="vm.editId == user.id" type="text" class="form-control" ng-model="vm.editObj.firstName" placeholder="John">
             </td>
             <td>
-                <span ng-if="vm.editUserId != user.id">{{ user.lastName }}</span>
-                <input ng-if="vm.editUserId == user.id" type="text" class="form-control" ng-model="vm.editUser.lastName" placeholder="Doe">
+                <span ng-if="vm.editId != user.id">{{ user.lastName }}</span>
+                <input ng-if="vm.editId == user.id" type="text" class="form-control" ng-model="vm.editObj.lastName" placeholder="Doe">
             </td>
             <td>
-                <span ng-if="vm.editUserId != user.id">{{ user.role }}</span>
-                <select ng-if="vm.editUserId == user.id"
+                <span ng-if="vm.editId != user.id">{{ user.role }}</span>
+                <select ng-if="vm.editId == user.id"
                     type="button" class="btn btn-default" 
-                    ng-model="vm.editUser.role" 
+                    ng-model="vm.editObj.role" 
                     bs-options="opt for opt in vm.roles"
                     bs-select>
                 </select>
@@ -37,23 +36,23 @@
                 {{ user.lastLogin.text }}
             </td>
             <td class="button-cell">
-                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.showDeleteButton(user)" ng-click="vm.deleteUser(user)">
+                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.showDeleteButton(user)" ng-click="vm.editDelete(user)">
                     <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                 </button>
-                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editUserId == -1" ng-click="vm.startEditingUser(user)">
+                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == -1" ng-click="vm.editExisting(user)">
                     <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                 </button>
-                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editUserId == user.id" ng-click="vm.cancelEditingUser()">
+                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == user.id" ng-click="vm.editCancel()">
                     <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
                 </button>
-                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editUserId == user.id" ng-click="vm.finishEditingUser()">
+                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == user.id" ng-click="vm.editSave()">
                     <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
                 </button>
             </td>
         </tr>
     </tbody>
 </table>
-<button type="button" class="btn btn-default" ng-if="vm.editUserId == -1" ng-click="vm.startAddingUser()">
+<button type="button" class="btn btn-default" ng-if="vm.editId == -1" ng-click="vm.editNew()">
     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
     <small>Add User</small>
 </button>

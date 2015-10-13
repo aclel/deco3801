@@ -412,6 +412,10 @@ input.ti-xl {
   margin: 5px 0;
 }
 
+.tree-node:hover {
+  cursor: default;
+}
+
 
 /************************ SEPARATORS *************************/
 
@@ -432,7 +436,7 @@ input.ti-xl {
 
 .separator-bottom {
   /*border-bottom: 1px solid #CCC;*/
-  box-shadow: 0 2px 3px -2px #888;
+  /*box-shadow: 0 2px 3px -2px #888;*/
 }
 
 .separator-box {

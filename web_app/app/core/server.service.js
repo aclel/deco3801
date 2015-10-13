@@ -50,6 +50,9 @@
 			addWarningTriggers: addWarningTriggers,
 			getWarnings: getWarnings,
 			getSensorTypes: getSensorTypes,
+			addSensorType: addSensorType,
+			updateSensorType: updateSensorType,
+			deleteSensorType: deleteSensorType,
 			getUsers: getUsers,
 			addUser: addUser,
 			updateUser: updateUser,
@@ -387,6 +390,55 @@
 		function getSensorTypes() {
 			var config = addToken(headers());
 			return $http.get(SERVER_ADDRESS + '/api/sensor_types', config);
+		}
+
+		/**
+		 * Request create sensor type
+		 * POST /api/sensor_types
+		 * @param {object} sensor type new sensor type
+		 * @return {promise} request promise
+		 */
+		function addSensorType(sensorType) {
+			var config = setJson(addToken(headers()));
+			var data = {
+				name: sensorType.name,
+				description: sensorType.description,
+				unit: sensorType.unit,
+				lowerBound: parseInt(sensorType.lowerBound, 10),
+				upperBound: parseInt(sensorType.upperBound, 10)
+			};
+			return $http.post(SERVER_ADDRESS + '/api/sensor_types', 
+				JSON.stringify(data), config);
+		}
+		
+		/**
+		 * Request update sensor type
+		 * PUT /api/sensor_types/:id
+		 * @param  {object} sensor type updated sensor type
+		 * @return {promise}      request promise
+		 */
+		function updateSensorType(sensorType) {
+			var config = setJson(addToken(headers()));
+			var data = {
+				name: sensorType.name,
+				description: sensorType.description,
+				unit: sensorType.unit,
+				lowerBound: sensorType.lowerBound,
+				upperBound: sensorType.upperBound
+			};
+			return $http.put(SERVER_ADDRESS + '/api/sensor_types/' + sensorType.id, 
+				JSON.stringify(data), config);
+		}
+		
+		/**
+		 * Request delete sensor type
+		 * DELETE /api/sensor_types/:id
+		 * @param  {int} id sensor type Id
+		 * @return {promise}    request promise
+		 */
+		function deleteSensorType(id) {
+			var config = addToken(headers());
+			return $http.delete(SERVER_ADDRESS + '/api/sensor_types/' + id, config);
 		}
 		
 		/**

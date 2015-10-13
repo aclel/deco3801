@@ -26,17 +26,7 @@
 		var vm = this;
 		
 		/** Variables and methods bound to viewmodel */
-		vm.users = [];
-		vm.editUserId = -1;
 		vm.newBuoyName = '';
-		vm.roles = ['user', 'power_user', 'system_admin'];
-		vm.confirmDelete  = confirmDeleteUser;
-		vm.startEditingUser = startEditingUser;
-		vm.finishEditingUser = finishEditingUser;
-		vm.deleteUser = deleteUser;
-		vm.cancelEditingUser = cancelEditingUser;
-		vm.startAddingUser = startAddingUser;
-		vm.showDeleteButton = showDeleteButton;
 		vm.addBuoy = addBuoy;
 		
 		// vm.sensors = server.getSensorTypes();
@@ -48,121 +38,8 @@
 		
 		/** Called when controller is instantiated (admin page is loaded) */
 		function activate() {
-			queryUsers();
 		}
 
-		/**
-		 * Query users from the server
-		 */
-		function queryUsers() {
-			server.getUsers().then(function(res) {
-				vm.users = res.data.users;
-				formatLastLogin();
-			}, function(res) {
-				gui.alertBadResponse(res);
-			});
-		}
-		
-		/**
-		 * Format last login time and add it to users array
-		 */
-		function formatLastLogin() {
-			vm.users.forEach(function(user) {
-				if (!user.lastLogin.Valid) {
-					user.lastLogin.text = 'Never';
-				} else {
-					user.lastLogin.text = moment(user.lastLogin.Time).fromNow();
-				}
-			});
-		}
-		
-		/**
-		 * Start editing a user, called on Edit button click
-		 * @param  {object} user 
-		 */
-		function startEditingUser(user) {
-			vm.editUserId = user.id;
-			vm.editUser = user;
-		}
-
-		/**
-		 * User edits are saved, and server is updated, 
-		 * called on Save button click
-		 */
-		function finishEditingUser() {
-			if (vm.editUserId != -2) {
-				server.updateUser(vm.editUser).then(function(res) {
-					queryUsers();
-					gui.alertSuccess('User updated.');
-				}, function(res) {
-					gui.alertBadResponse(res);
-				});
-			} else {
-				server.addUser(vm.editUser).then(function(res) {
-					queryUsers();
-					gui.alertSuccess('User added.');
-				}, function(res) {
-					gui.alertBadResponse(res);
-				});
-				vm.users.splice(vm.users.length - 1, 1);
-			}
-			vm.editUserId = -1;
-		}
-		
-		/**
-		 * User edits are discarded, called on Cancel button click
-		 */
-		function cancelEditingUser() {
-			if (vm.editUserId == -2) {
-				vm.users.splice(vm.users.length - 1, 1);
-			}
-			vm.editUserId = -1;
-		}
-		
-		/**
-		 * User is deleted, called on Confirm button click in delete modal
-		 * @param  {object} user user to delete
-		 */
-		function confirmDeleteUser(user) {
-			server.deleteUser(user.id).then(function(res) {
-				queryUsers();
-				gui.alertSuccess('User deleted.');
-			}, function(res) {
-				gui.alertBadResponse(res);
-			});
-		}
-
-		/**
-		 * Shows a delete confirmation, called on Delete button click
-		 * @param  {object} user user to delete
-		 */
-		function deleteUser(user) {
-			vm.deleteObject = user;
-			vm.deleteType = 'user';
-			vm.deleteName = user.email;
-			gui.confirmDelete($scope);
-		}
-		
-		/**
-		 * Determines whether to show delete button for each user row
-		 * @param  {object} user
-		 * @return {bool}      whether to show delete button
-		 */
-		function showDeleteButton(user) {
-			return ((vm.editUserId == -1 || vm.editUserId == user.id) &&
-				user.id != -2);
-		}
-		
-		/**
-		 * Add new row to users table and start editing, 
-		 * called on Add User button click
-		 */
-		function startAddingUser() {
-			var tempUser = { id: -2, role: vm.roles[0] };
-			vm.users.push(tempUser);
-			startEditingUser(tempUser);
-		}
-		
 		/**
 		 * Add new Buoy, update server, called on Add button click
 		 */

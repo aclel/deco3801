@@ -1,0 +1,58 @@
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Units</th>
+            <th>Lower Bound</th>
+            <th>Upper Bound</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="sensorType in vm.sensorTypes">
+            <td>
+                <span ng-if="sensorType.id != -2">{{ sensorType.id }}</span>
+            </td>
+            <td>
+                <span ng-if="vm.editId != sensorType.id">{{ sensorType.name }}</span>
+                <input ng-if="vm.editId == sensorType.id" type="text" class="form-control" ng-model="vm.editObj.name" placeholder="Turbidity">
+            </td>
+            <td>
+                <span ng-if="vm.editId != sensorType.id">{{ sensorType.description }}</span>
+                <input ng-if="vm.editId == sensorType.id" type="text" class="form-control" ng-model="vm.editObj.description" placeholder="Amount of light that can pass through the water">
+            </td>
+            <td>
+                <span ng-if="vm.editId != sensorType.id">{{ sensorType.unit }}</span>
+                <input ng-if="vm.editId == sensorType.id" type="text" class="form-control" ng-model="vm.editObj.unit" placeholder="NTU">
+            </td>
+            <td>
+                <span ng-if="vm.editId != sensorType.id">{{ sensorType.lowerBound }}</span>
+                <input ng-if="vm.editId == sensorType.id" type="text" class="form-control" ng-model="vm.editObj.lowerBound" placeholder="0">
+            </td>
+            <td>
+                <span ng-if="vm.editId != sensorType.id">{{ sensorType.upperBound }}</span>
+                <input ng-if="vm.editId == sensorType.id" type="text" class="form-control" ng-model="vm.editObj.upperBound" placeholder="100">
+            </td>
+            <td class="button-cell">
+                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.showDeleteButton(sensorType)" ng-click="vm.editDelete(sensorType)">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == -1" ng-click="vm.editExisting(sensorType)">
+                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == sensorType.id" ng-click="vm.editCancel()">
+                    <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == sensorType.id" ng-click="vm.editSave()">
+                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                </button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<button type="button" class="btn btn-default" ng-if="vm.editId == -1" ng-click="vm.editNew()">
+    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+    <small>Add Sensor Type</small>
+</button>

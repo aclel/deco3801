@@ -106,8 +106,9 @@
 			angular.element(
 				document.getElementsByClassName('dashboard-panel'))
 				.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+					// finish expanding/contracting
 					map.setCenter(center);
-					chartObj.resize(chartObj.render)
+					chartObj.resize(chartObj.render, true);
 			});
 		}
 			

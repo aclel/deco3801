@@ -176,9 +176,8 @@ func (db *DB) UpdateBuoyInstance(updatedBuoyInstance *BuoyInstance) error {
 // Get all Sensors for the Buoy Instance with the given Id
 func (db *DB) GetSensorsForBuoyInstance(id int) ([]BuoyInstanceSensor, error) {
 	sensors := []BuoyInstanceSensor{}
-	err := db.Select(&sensors, `SELECT buoy_instance_sensor.id, sensor_type.id AS sensor_type_id
+	err := db.Select(&sensors, `SELECT *
 							   FROM buoy_instance_sensor 
-							   INNER JOIN sensor_type ON buoy_instance_sensor.sensor_type_id=sensor_type.id 
 							   WHERE buoy_instance_sensor.buoy_instance_id=?`, id)
 	if err != nil {
 		return nil, err

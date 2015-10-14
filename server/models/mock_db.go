@@ -172,6 +172,11 @@ func (mdb *MockDB) ArchiveSensorTypeWithId(id int) error {
 	return nil
 }
 
+// BUOY INSTANCE SENSORS
+func (mdb *MockDB) UpdateBuoyInstanceSensorDisabledStatus(buoyInstanceId int, sensorTypeId int, status bool) error {
+	return nil
+}
+
 // COMMAND TYPES
 func (mdb *MockDB) GetAllCommandTypes() ([]CommandType, error) {
 	return nil, nil

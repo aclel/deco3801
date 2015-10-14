@@ -15,6 +15,7 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -79,17 +80,25 @@ func ReadingsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 // Example request body:
 //
 // {
-// 	"guid":"test",
-// 	"readings": [{
-// 	    "latitude": -27.425676,
-// 	    "longitude": 153.147055,
-// 	    "sensorReadings": [{
-// 	        "sensorName": "Turbidity",
-// 	        "value": 100
-// 	    }],
-// 	    "timestamp": 1442115887,
-// 	    "messageNumber": 1
-// 	}]
+//     "guid": "e9528b5e-1d8f-4960-91ae-8b21ecc0bcab",
+//     "r": [
+//         {
+//             "lat": -27.425676,
+//             "lng": 153.147055,
+//             "sR": [
+//                 {
+//                     "type": 1,
+//                     "val": 100
+//                 },
+//                 {
+//                     "type": 2,
+//                     "val": 30
+//                 }
+//             ],
+//             "ut": 1442115887,
+//             "msgNo": 1
+//         }
+//     ]
 // }
 func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	readingsContainer := new(models.BuoyReadingContainer)
@@ -101,32 +110,32 @@ func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
 	}
 
+	var e *AppError
 	// Constructs the Readings from the data
 	readings, e := buildReadings(env, readingsContainer)
-	if e != nil {
-		return e
-	}
 
 	// Insert each reading into db
 	for _, reading := range *readings {
 		id, err := env.DB.CreateReading(reading)
 		if err != nil {
-			return &AppError{err, "Error inserting the reading into the database", http.StatusInternalServerError}
+			e = &AppError{err, "Error inserting the reading into the database", http.StatusInternalServerError}
 		}
-		reading.Id = id
+
 		for _, sensorReading := range reading.SensorReadings {
 			sensorReading.ReadingId = id
 			err = env.DB.CreateSensorReading(sensorReading)
 			if err != nil {
-				return &AppError{err, "Error inserting the sensor reading into the database", http.StatusInternalServerError}
+				e = &AppError{err, "Error inserting the sensor reading into the database", http.StatusInternalServerError}
 			}
 		}
 	}
 
-	// Respond with 201 Created if successful
-	w.WriteHeader(http.StatusCreated)
+	// Respond with 201 Created if everything was successful
+	if e == nil {
+		w.WriteHeader(http.StatusCreated)
+	}
 
-	return nil
+	return e
 }
 
 // Constructs Readings from the JSON which was in the request body of a /buoys/api/readings POST request.
@@ -137,19 +146,105 @@ func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContain
 		return nil, &AppError{err, "Could not get the most recent buoy instance for a buoy with the specified guid", http.StatusBadRequest}
 	}
 
-	// Go through each reading in the request and build
-	// a Reading object for each individual sensor reading
+	var validReadings []*models.Reading
+	var e *AppError
+	// Go through each reading in the request. Add metadata to readings (buoy instance id, timestamp)
+	// Update sensor configuration for buoy instance.
 	for _, reading := range *readingsContainer.Readings {
 		reading.BuoyInstanceId = buoyInstance.Id
 		reading.BuoyGuid = readingsContainer.BuoyGuid
 		reading.Timestamp = time.Unix(reading.UnixTimestamp, 0).UTC()
 
-		if e := validateReading(env, reading); e != nil {
-			return nil, e
+		if e = validateReading(env, reading); e != nil {
+			continue
+		}
+		validReadings = append(validReadings, reading)
+
+		// Delete warning triggers as well?
+		// Add new sensors, disable removed sensors, re-enable old sensors
+		updateBuoyInstanceSensorConfiguration(env, buoyInstance.Id, &reading.SensorReadings)
+	}
+
+	return &validReadings, e
+}
+
+// Check if a sensor on the buoy has been added, removed, or re-enabled.
+// If it's been added, add a new buoy instance sensor.
+// If it's been removed, set the 'disabled' field to 'true'.
+// If it's been re-enabled, set the 'disabled' field to 'false'.
+func updateBuoyInstanceSensorConfiguration(env *models.Env, buoyInstanceId int, sensorReadings *[]*models.SensorReading) *AppError {
+	dbSensors, err := env.DB.GetSensorsForBuoyInstance(buoyInstanceId)
+	if err != nil {
+		return &AppError{err, "Error retrieving sensors for buoy instance " + strconv.Itoa(buoyInstanceId), http.StatusInternalServerError}
+	}
+
+	// Go through each sensor reading and check what's changed
+	var foundSensors []int
+	for _, sensorReading := range *sensorReadings {
+
+		foundSensors = append(foundSensors, sensorReading.SensorTypeId)
+
+		err = configureSensor(env, dbSensors, buoyInstanceId, sensorReading.SensorTypeId)
+		if err != nil {
+			return &AppError{err, "Error updating buoy instance sensors", http.StatusInternalServerError}
 		}
 	}
 
-	return readingsContainer.Readings, nil
+	// One or more sensors have been disabled or removed on the buoy, disable them in the db
+	for _, s := range dbSensors {
+		if !sensorExists(s.SensorTypeId, foundSensors) && !s.Disabled {
+			fmt.Println("Disabling sensor type " + strconv.Itoa(s.SensorTypeId))
+			err = env.DB.UpdateBuoyInstanceSensorDisabledStatus(buoyInstanceId, s.SensorTypeId, true)
+			if err != nil {
+				return &AppError{err, "Error disabling buoy instance sensors", http.StatusInternalServerError}
+			}
+		}
+	}
+
+	return nil
+}
+
+// Updates the status of the sensor. If it's part of the buoy instance's sensors and it's enabled, nothing
+// needs to be done. If it's part of the buoy instance's but it's disabled, it needs to be re-enabled.
+// If it isn't part of the buoy instance's sensors, it needs to be added.
+func configureSensor(env *models.Env, dbSensors []models.BuoyInstanceSensor, buoyInstanceId int, sensorTypeId int) error {
+	for _, sensor := range dbSensors {
+		if sensor.SensorTypeId == sensorTypeId {
+			if sensor.Disabled == false {
+				// Sensor is enabled, nothing needs updating
+				return nil
+			} else {
+				// Sensor is disabled, it needs to be re-enabled
+				fmt.Println("Re-enabling sensor type " + strconv.Itoa(sensorTypeId))
+				return env.DB.UpdateBuoyInstanceSensorDisabledStatus(buoyInstanceId, sensorTypeId, false)
+			}
+		}
+	}
+
+	fmt.Println("Adding sensor type " + strconv.Itoa(sensorTypeId))
+	// A new physical sensor has been added to the buoy, a new buoy instance sensor needs to be created
+	return env.DB.AddSensorToBuoyInstance(buoyInstanceId, sensorTypeId)
+}
+
+// Check if a given Sensor Type Id exists in the db
+func sensorTypeExists(sensorTypeId int, sensorTypes []models.SensorType) bool {
+	for _, sensorType := range sensorTypes {
+		if sensorType.Id == sensorTypeId {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Check if a sensor exists in the given slice of sensors
+func sensorExists(sensorTypeId int, sensors []int) bool {
+	for _, sensor := range sensors {
+		if sensor == sensorTypeId {
+			return true
+		}
+	}
+	return false
 }
 
 // Ensure the reading has a buoy guid and valid latitude and longitude.
@@ -169,12 +264,17 @@ func validateReading(env *models.Env, reading *models.Reading) *AppError {
 		return &AppError{errors.New("Reading: "), "Invalid longitude", http.StatusBadRequest}
 	}
 
+	if len(reading.SensorReadings) == 0 {
+		return &AppError{errors.New("Reading error"), "No sensor readings", http.StatusBadRequest}
+	}
+
 	// Check if all the sensor readings have sensor types which exist in the db
 	for _, sensorReading := range reading.SensorReadings {
 		// Get sensor type for the reading
 		_, err := env.DB.GetSensorTypeWithId(sensorReading.SensorTypeId)
 		if err != nil {
-			return &AppError{err, "Could not find a sensor type with the specified id", http.StatusBadRequest}
+			return &AppError{err, "Could not find a sensor type with the specified id: " + strconv.Itoa(sensorReading.SensorTypeId),
+				http.StatusBadRequest}
 		}
 	}
 

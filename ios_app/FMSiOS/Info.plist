@@ -22,13 +22,8 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NSAppTransportSecurity</key>
-	<dict>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/>
-	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Need to pinpoint your current location</string>
+	<string>Flounder needs your current location to find you.</string>
 	<key>NSMainNibFile</key>
 	<string>Launch</string>
 	<key>UILaunchStoryboardName</key>

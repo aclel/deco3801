@@ -8,7 +8,6 @@
 
 // TODO: pinging
 // TODO: more info content
-// TODO: tabbing
 // TODO: buoy distance line
 
 #import "BuoyScreen.h"
@@ -86,7 +85,7 @@
         [_pingButton sizeToFit];
         [_cancelButton sizeToFit];
         [self layoutSubviews];
-        float trueHeight = _content.frame.size.height + 70;
+        float trueHeight = _content.frame.size.height + 50;
         self.frame = CGRectMake(self.frame.origin.x, self.center.y - trueHeight/2, self.frame.size.width, trueHeight);
     }
     return self;
@@ -102,7 +101,7 @@
     
     //Content
     [_content sizeToFit];
-    float newHeight = (_content.frame.size.height < 50) ? 50 : _content.frame.size.height;
+    float newHeight = (_content.frame.size.height < 70) ? 70 : _content.frame.size.height;
     _content.frame = CGRectMake(10, 40, self.frame.size.width - 20, newHeight);
     _contentInd.center = _content.center;
 }
@@ -145,7 +144,7 @@
     [self layoutSubviews];
     
     // Update size
-    float trueHeight = _content.frame.size.height + 70;
+    float trueHeight = _content.frame.size.height + 50;
     CGRect trueSize = CGRectMake(self.frame.origin.x, self.center.y - trueHeight/2, self.frame.size.width, trueHeight);
     if (!CGRectEqualToRect(self.frame, trueSize)) {
         [UIView animateWithDuration:0.4 animations:^{
@@ -198,14 +197,15 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    maxFilterRows = 6;
-    self.preferredContentSize = CGSizeMake(320, 140);
+    maxFilterRows = [[UIApplication sharedApplication] keyWindow].frame.size.width/44 - 4;
+    self.preferredContentSize = CGSizeMake(300, 140);
     
     self.t = [[UITableView alloc] initWithFrame:self.view.frame style:UITableViewStyleGrouped];
     self.t.delegate = self;
     self.t.dataSource = self;
     self.t.tintColor = FMS_COLOUR_BUTTON_DARK;
     self.t.backgroundColor = FMS_COLOUR_BG_LIGHT_SHADE;
+    self.t.scrollEnabled = YES;
     
     [self.view addSubview:self.t];
 }
@@ -214,11 +214,9 @@
     [super viewWillAppear:animated];
     [self.t reloadData];
     if ([self.t numberOfRowsInSection:1] > maxFilterRows) {
-        self.preferredContentSize = CGSizeMake(320, 140 + 44 * maxFilterRows);
-        self.t.scrollEnabled = YES;
+        self.preferredContentSize = CGSizeMake(300, 140 + 44 * maxFilterRows);
     } else {
-        self.preferredContentSize = CGSizeMake(320, 140 + 44 * [self.t numberOfRowsInSection:1]);
-        self.t.scrollEnabled = NO;
+        self.preferredContentSize = CGSizeMake(300, 140 + 44 * [self.t numberOfRowsInSection:1]);
     }
     
 }
@@ -259,7 +257,7 @@
             c.backgroundColor = FMS_COLOUR_BG_LIGHT;
             
             UISegmentedControl *typeChooser = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects:@"Map", @"Satellite", nil]];
-            typeChooser.frame = CGRectMake(c.frame.size.width/2, 5, c.frame.size.width/2 - 10, c.frame.size.height - 10);
+            typeChooser.frame = CGRectMake(c.frame.size.width/2 - 10, 5, c.frame.size.width/2 - 20, c.frame.size.height - 10);
             typeChooser.selectedSegmentIndex = 0;
             [typeChooser addTarget:self.delegate action:@selector(mapTypeButtonPressed:) forControlEvents:UIControlEventValueChanged];
             [c addSubview:typeChooser];
@@ -331,11 +329,9 @@
     // Forces an update right at this moment for this popup view's info
     [self.t reloadData];
     if ([self.t numberOfRowsInSection:1] > maxFilterRows) {
-        self.preferredContentSize = CGSizeMake(320, 140 + 44 * maxFilterRows);
-        self.t.scrollEnabled = YES;
+        self.preferredContentSize = CGSizeMake(300, 140 + 44 * maxFilterRows);
     } else {
-        self.preferredContentSize = CGSizeMake(320, 140 + 44 * [self.t numberOfRowsInSection:1]);
-        self.t.scrollEnabled = NO;
+        self.preferredContentSize = CGSizeMake(300, 140 + 44 * [self.t numberOfRowsInSection:1]);
     }
 }
 
@@ -361,6 +357,7 @@
     
     // Overall colour
     self.view.backgroundColor = [UIColor whiteColor];
+    self.view.tintColor = FMS_COLOUR_BUTTON_DARK;
     
     // Create map and fit to screen
     self.map = [[MKMapView alloc] initWithFrame:self.view.frame];
@@ -376,12 +373,14 @@
     // Navigation bar settings
     // Info gear button
     UIButton *infoView = [UIButton buttonWithType:UIButtonTypeSystem];
-    infoView.frame = CGRectMake(0, 0, 40, 32);
+    infoView.frame = CGRectMake(0, 0, 30, 30);
     [infoView setTitle:@"\u2699" forState:UIControlStateNormal];
-    infoView.titleLabel.font = [UIFont systemFontOfSize:33];
+    infoView.titleLabel.font = [UIFont systemFontOfSize:26];
+    infoView.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
     [infoView setTitleColor:FMS_COLOUR_TEXT_LIGHT forState:UIControlStateNormal];
     [infoView addTarget:self action:@selector(infoButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *infoIcon = [[UIBarButtonItem alloc] initWithCustomView:infoView];
+    infoIcon.width = 30;
     
     // Position icon
     UIBarButtonItem *posIcon = [[MKUserTrackingBarButtonItem alloc] initWithMapView:self.map];
@@ -393,7 +392,6 @@
     [refreshInd startAnimating];
     refreshInd.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     UIBarButtonItem *refreshIndIcon = [[UIBarButtonItem alloc] initWithCustomView:refreshInd];
-    refreshIndIcon.width = refreshIcon.width;
     
     self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:infoIcon, posIcon, refreshIcon, nil];
     
@@ -557,7 +555,7 @@
         // Label containing lat/long
         UILabel *leftViewLabel = [[UILabel alloc] init];
         leftViewLabel.font = [UIFont systemFontOfSize:12];
-        leftViewLabel.numberOfLines = 0;
+        leftViewLabel.numberOfLines = 2;
         leftViewLabel.textAlignment = NSTextAlignmentRight;
         v.leftCalloutAccessoryView = leftViewLabel;
         
@@ -575,6 +573,7 @@
     UILabel *leftViewLabel = (UILabel *)v.leftCalloutAccessoryView;
     leftViewLabel.text = [NSString stringWithFormat:@"%@\n%@", [DataModel stringForLatitude:b.trueCoord.latitude], [DataModel stringForLongitude:b.trueCoord.longitude]];
     [leftViewLabel sizeToFit];
+    v.leftCalloutAccessoryView = leftViewLabel;
     UIButton *rightButton = (UIButton *)v.rightCalloutAccessoryView;
     rightButton.tag = [self.allBuoys indexOfObject:b];
     

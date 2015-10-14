@@ -131,9 +131,13 @@
             NSDictionary *latDict = (NSDictionary *)latInfo;
             NSDictionary *lonDict = (NSDictionary *)lonInfo;
             NSNumber *lat = [latDict objectForKey:@"Float64"];
-            NSNumber *lon = [lonDict objectForKey:@"Fload64"];
-            if (lat != nil && lon != nil && [latDict objectForKey:@"Valid"] && [lonDict objectForKey:@"Valid"] && [[latDict objectForKey:@"Valid"] boolValue] && [[lonDict objectForKey:@"Valid"] boolValue]) {
+            NSNumber *lon = [lonDict objectForKey:@"Float64"];
+            NSNumber *latValid = [latDict objectForKey:@"Valid"];
+            NSNumber *lonValid = [lonDict objectForKey:@"Valid"];
+            if (lat != nil && lon != nil && latValid != nil && lonValid != nil && latValid.intValue == 1 && lonValid.intValue == 1) {
                 b = [[Buoy alloc] initWithCoord:CLLocationCoordinate2DMake(lat.doubleValue, lon.doubleValue)];
+            } else {
+                b = [[Buoy alloc] init];
             }
         } else {
             b = [[Buoy alloc] init];
@@ -195,7 +199,7 @@
         NSLog(@"Saved server address could not be found; using default");
         address = FMS_DEFAULT_SERVER_ADDRESS;
     }
-    return [NSURL URLWithString:[NSString stringWithFormat:@"http://%@", address]];
+    return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@", address]];
 }
 
 - (void)sendRequestToServerUrl:(NSString *)relPath textData:(NSString *)requestString method:(NSString *)method authorization:(BOOL)authorization handler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))handler {

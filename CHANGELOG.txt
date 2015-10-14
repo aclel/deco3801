@@ -42,6 +42,8 @@ Web App:
 
 iOS App:
 * App is now called FlounderMobile, to be consistent with the web application.
+* New icon.
+* Uses HTTPS communications with server, removing need for insecure workaround key.
 + More info dialog when buoys are pressed, containing specific data and buoy commands; window is able to size automatically to updates.
 * Significant changes to interface colours and shapes to be more consistent with the web app.
 + Filters for buoy groups, allowing users to narrow the overall list of results.

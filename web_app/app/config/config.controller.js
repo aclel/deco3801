@@ -86,8 +86,6 @@
 
 					if (source.$modelValue.type != "instance") {
 						return false;
-						// prevent groups from being moved into groups
-						// if (dest.depth() > 0) return false;
 					} else {
 						// prevent instances from being moved out of a group
 						if (dest.depth() != 1) return false;
@@ -100,16 +98,6 @@
 				},
 				dropped: function(event) {
 					// console.log(event);
-				},
-				dragStart: function(event) {
-					// select buoy group/instance when it's clicked
-					//  (dragging overrides ng-click event)
-					var source = event.source.nodeScope;
-					if (source.$modelValue.type == "group") {
-						selectBuoyGroup(source.$modelValue);
-					} else {
-						selectBuoyInstance(source.$modelValue);
-					}
 				}
 			};
 		}

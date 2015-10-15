@@ -7,7 +7,12 @@ Legend:
 * Changed
 ! Fixed
 
-v0.4 - Week 10 8/10
+v0.5 - Week 11 20/10
+
+iOS App:
++ 'Unlisted Buoys' section.
+
+v0.4 - Week 10 13/10
 
 iOS App:
 * App is now called FlounderMobile, to be consistent with the web application.

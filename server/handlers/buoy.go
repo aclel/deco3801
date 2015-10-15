@@ -100,6 +100,7 @@ func BuoysCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 	if err != nil {
 		return &AppError{err, "Error inserting buoy into the database", http.StatusInternalServerError}
 	}
+	buoy.Id = newId
 
 	// Insert an initial Buoy Instance for the Buoy. Buoy group 0 is "Unassigned"
 	buoyInstance := &models.BuoyInstance{BuoyId: int(newId), Name: buoy.Name, BuoyGroupId: 0}
@@ -108,7 +109,15 @@ func BuoysCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 		return &AppError{err, "Error inserting buoy instance into the database", http.StatusInternalServerError}
 	}
 
+	response, err := json.Marshal(buoy)
+	if err != nil {
+		return &AppError{err, "Error marshalling buoy json", http.StatusInternalServerError}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	w.Write(response)
+
 	return nil
 }
 
@@ -123,7 +132,7 @@ func BuoysCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 // }
 func BuoysUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+	id, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
 		return &AppError{err, "Error parsing buoy id", http.StatusInternalServerError}
 	}

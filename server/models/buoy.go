@@ -12,7 +12,7 @@ package models
 
 // Represents a physical buoy
 type Buoy struct {
-	Id                   int    `json:"id" db:"id"`
+	Id                   int64  `json:"id" db:"id"`
 	Guid                 string `json:"guid" db:"guid"`
 	Name                 string `json:"name"` // This field is only used when a new buoy is created to add a name for buoy instance
 	ActiveBuoyInstanceId int    `json:"activeBuoyInstanceId" db:"active_buoy_instance_id"`

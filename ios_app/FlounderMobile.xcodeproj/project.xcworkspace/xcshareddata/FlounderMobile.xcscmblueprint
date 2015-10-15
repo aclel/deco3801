@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "7B6A8FCF99CF362CC39822A13839F0191EDF3EF2",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "7B6A8FCF99CF362CC39822A13839F0191EDF3EF2" : 0,
+    "C37DE17198C573F484F8C28CFD810AE7F5C4704B" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "1F97F0F3-52A1-4050-B727-3467BD6458DE",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "7B6A8FCF99CF362CC39822A13839F0191EDF3EF2" : "deco3801\/",
+    "C37DE17198C573F484F8C28CFD810AE7F5C4704B" : "..\/..\/.."
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "FlounderMobile",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "ios_app\/FlounderMobile.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/aclel\/deco3801",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "7B6A8FCF99CF362CC39822A13839F0191EDF3EF2"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/aclel\/gocode.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "C37DE17198C573F484F8C28CFD810AE7F5C4704B"
+    }
+  ]
+}

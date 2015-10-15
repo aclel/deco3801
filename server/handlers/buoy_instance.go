@@ -221,7 +221,8 @@ func BuoyInstancesSensorsCreate(env *models.Env, w http.ResponseWriter, r *http.
 	decoder := json.NewDecoder(r.Body)
 	err = decoder.Decode(&sensorType)
 
-	err = env.DB.AddSensorToBuoyInstance(id, sensorType.Id)
+	newSensor := models.BuoyInstanceSensor{BuoyInstanceId: id, SensorTypeId: sensorType.Id}
+	err = env.DB.AddSensorToBuoyInstance(&newSensor)
 	if err != nil {
 		return &AppError{err, "Error adding sensor type to buoy instance", http.StatusInternalServerError}
 	}

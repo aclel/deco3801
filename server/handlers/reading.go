@@ -15,7 +15,6 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -23,6 +22,7 @@ import (
 	"time"
 
 	"github.com/aclel/deco3801/server/models"
+	"github.com/go-sql-driver/mysql"
 )
 
 // GET /api/readings
@@ -160,43 +160,44 @@ func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContain
 		}
 		validReadings = append(validReadings, reading)
 
-		// Delete warning triggers as well?
-		// Add new sensors, disable removed sensors, re-enable old sensors
-		updateBuoyInstanceSensorConfiguration(env, buoyInstance.Id, &reading.SensorReadings)
+		// Add new sensors, update last received
+		updateBuoyInstanceSensorConfiguration(env, buoyInstance.Id, mysql.NullTime{reading.Timestamp, true}, &reading.SensorReadings)
 	}
 
 	return &validReadings, e
 }
 
-// Check if a sensor on the buoy has been added, removed, or re-enabled.
-// If it's been added, add a new buoy instance sensor.
-// If it's been removed, set the 'disabled' field to 'true'.
-// If it's been re-enabled, set the 'disabled' field to 'false'.
-func updateBuoyInstanceSensorConfiguration(env *models.Env, buoyInstanceId int, sensorReadings *[]*models.SensorReading) *AppError {
+// Add new sensors and update the "last recorded" time of the other sensors with sensor readings.
+func updateBuoyInstanceSensorConfiguration(env *models.Env, buoyInstanceId int, readingTimestamp mysql.NullTime, sensorReadings *[]*models.SensorReading) *AppError {
 	dbSensors, err := env.DB.GetSensorsForBuoyInstance(buoyInstanceId)
 	if err != nil {
 		return &AppError{err, "Error retrieving sensors for buoy instance " + strconv.Itoa(buoyInstanceId), http.StatusInternalServerError}
 	}
 
-	// Go through each sensor reading and check what's changed
-	var foundSensors []int
+	// Add new sensors, update last received of all
 	for _, sensorReading := range *sensorReadings {
-
-		foundSensors = append(foundSensors, sensorReading.SensorTypeId)
-
-		err = configureSensor(env, dbSensors, buoyInstanceId, sensorReading.SensorTypeId)
-		if err != nil {
-			return &AppError{err, "Error updating buoy instance sensors", http.StatusInternalServerError}
-		}
-	}
-
-	// One or more sensors have been disabled or removed on the buoy, disable them in the db
-	for _, s := range dbSensors {
-		if !sensorExists(s.SensorTypeId, foundSensors) && !s.Disabled {
-			fmt.Println("Disabling sensor type " + strconv.Itoa(s.SensorTypeId))
-			err = env.DB.UpdateBuoyInstanceSensorDisabledStatus(buoyInstanceId, s.SensorTypeId, true)
+		// Buoy instance doesn't have the sensor, add it
+		if !sensorExists(sensorReading.SensorTypeId, dbSensors) {
+			newSensor := models.BuoyInstanceSensor{
+				BuoyInstanceId: buoyInstanceId,
+				SensorTypeId:   sensorReading.SensorTypeId,
+				LastRecorded:   readingTimestamp,
+			}
+			err = env.DB.AddSensorToBuoyInstance(&newSensor)
 			if err != nil {
-				return &AppError{err, "Error disabling buoy instance sensors", http.StatusInternalServerError}
+				return &AppError{err, "Error adding buoy instance sensor", http.StatusInternalServerError}
+			}
+		} else {
+			// Update the last received time
+			for _, sensor := range dbSensors {
+				if sensor.SensorTypeId == sensorReading.SensorTypeId {
+					sensor.LastRecorded = readingTimestamp
+					err = env.DB.UpdateBuoyInstanceSensor(&sensor)
+					if err != nil {
+						return &AppError{err, "Error updating buoy instance sensor", http.StatusInternalServerError}
+					}
+					break
+				}
 			}
 		}
 	}
@@ -204,43 +205,10 @@ func updateBuoyInstanceSensorConfiguration(env *models.Env, buoyInstanceId int, 
 	return nil
 }
 
-// Updates the status of the sensor. If it's part of the buoy instance's sensors and it's enabled, nothing
-// needs to be done. If it's part of the buoy instance's but it's disabled, it needs to be re-enabled.
-// If it isn't part of the buoy instance's sensors, it needs to be added.
-func configureSensor(env *models.Env, dbSensors []models.BuoyInstanceSensor, buoyInstanceId int, sensorTypeId int) error {
-	for _, sensor := range dbSensors {
-		if sensor.SensorTypeId == sensorTypeId {
-			if sensor.Disabled == false {
-				// Sensor is enabled, nothing needs updating
-				return nil
-			} else {
-				// Sensor is disabled, it needs to be re-enabled
-				fmt.Println("Re-enabling sensor type " + strconv.Itoa(sensorTypeId))
-				return env.DB.UpdateBuoyInstanceSensorDisabledStatus(buoyInstanceId, sensorTypeId, false)
-			}
-		}
-	}
-
-	fmt.Println("Adding sensor type " + strconv.Itoa(sensorTypeId))
-	// A new physical sensor has been added to the buoy, a new buoy instance sensor needs to be created
-	return env.DB.AddSensorToBuoyInstance(buoyInstanceId, sensorTypeId)
-}
-
-// Check if a given Sensor Type Id exists in the db
-func sensorTypeExists(sensorTypeId int, sensorTypes []models.SensorType) bool {
-	for _, sensorType := range sensorTypes {
-		if sensorType.Id == sensorTypeId {
-			return true
-		}
-	}
-
-	return false
-}
-
 // Check if a sensor exists in the given slice of sensors
-func sensorExists(sensorTypeId int, sensors []int) bool {
+func sensorExists(sensorTypeId int, sensors []models.BuoyInstanceSensor) bool {
 	for _, sensor := range sensors {
-		if sensor == sensorTypeId {
+		if sensor.SensorTypeId == sensorTypeId {
 			return true
 		}
 	}

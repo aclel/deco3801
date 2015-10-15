@@ -41,7 +41,7 @@ type BuoyInstanceRepository interface {
 	UpdateBuoyInstance(*BuoyInstance) error
 	DeleteBuoyInstanceWithId(int) error
 	GetSensorsForBuoyInstance(int) ([]BuoyInstanceSensor, error)
-	AddSensorToBuoyInstance(int, int) error
+	AddSensorToBuoyInstance(*BuoyInstanceSensor) error
 	DeleteBuoyInstanceSensor(int, int) error
 	GetWarningTriggersForBuoyInstance(int) ([]WarningTrigger, error)
 	GetMostRecentReadingsForActiveBuoyInstances() ([]DbMapReading, error)
@@ -187,13 +187,13 @@ func (db *DB) GetSensorsForBuoyInstance(id int) ([]BuoyInstanceSensor, error) {
 }
 
 // Add a Sensor Type to a Buoy Instance
-func (db *DB) AddSensorToBuoyInstance(buoyInstanceId int, sensorTypeId int) error {
-	stmt, err := db.Preparex("INSERT INTO buoy_instance_sensor (buoy_instance_id, sensor_type_id) VALUES (?,?);")
+func (db *DB) AddSensorToBuoyInstance(sensor *BuoyInstanceSensor) error {
+	stmt, err := db.Preparex("INSERT INTO buoy_instance_sensor (buoy_instance_id, sensor_type_id, last_recorded) VALUES (?,?,?);")
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(buoyInstanceId, sensorTypeId)
+	_, err = stmt.Exec(sensor.BuoyInstanceId, sensor.SensorTypeId, sensor.LastRecorded)
 	if err != nil {
 		return err
 	}

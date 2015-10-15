@@ -88,7 +88,7 @@ func (mdb *MockDB) GetSensorsForBuoyInstance(id int) ([]BuoyInstanceSensor, erro
 	return nil, nil
 }
 
-func (db *MockDB) AddSensorToBuoyInstance(buoyId int, sensorTypeId int) error {
+func (db *MockDB) AddSensorToBuoyInstance(*BuoyInstanceSensor) error {
 	return nil
 }
 
@@ -173,7 +173,7 @@ func (mdb *MockDB) ArchiveSensorTypeWithId(id int) error {
 }
 
 // BUOY INSTANCE SENSORS
-func (mdb *MockDB) UpdateBuoyInstanceSensorDisabledStatus(buoyInstanceId int, sensorTypeId int, status bool) error {
+func (mdb *MockDB) UpdateBuoyInstanceSensor(updatedSensor *BuoyInstanceSensor) error {
 	return nil
 }
 

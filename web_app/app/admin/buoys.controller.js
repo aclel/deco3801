@@ -141,6 +141,7 @@
             vm.deleteObject = buoy;
             vm.deleteType = 'buoy';
             vm.deleteName = buoy.guid;
+            vm.deletePostscript = "(This won't affect old readings.)";
             gui.confirmDelete($scope);
         }
         

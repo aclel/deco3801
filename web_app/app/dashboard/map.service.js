@@ -135,11 +135,8 @@
 		 * @param {object} buoyInstance buoyInstance the reading is from
 		 */
 		function addMarker(reading, buoyInstance, content) {
-			var lat = randomisePos(reading.latitude);
-			var long = randomisePos(reading.longitude);
-
 			var marker = new google.maps.Marker({
-				position: new google.maps.LatLng(lat, long),
+				position: new google.maps.LatLng(reading.latitude, reading.longitude),
 				map: map,
 				// title: 'Buoy ' + reading.buoy + ': reading ' + reading.id,
 			});

@@ -202,7 +202,7 @@
 			}
 
 			// update charts
-			$rootScope.$broadcast('displayChartInstance', buoyInstance);
+			$rootScope.$broadcast('clickMapMarker', buoyInstance);
 			
 			infoBox = new InfoBox({
 				content: content,

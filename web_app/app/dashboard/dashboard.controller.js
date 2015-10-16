@@ -30,6 +30,7 @@
 		/** Used to determine when initial requests have returned */
 		var resolved = 0;
 		var chartObj;
+		
 
 		/** Variables and methods bound to viewmodel */
 		vm.loading = false;
@@ -44,6 +45,7 @@
 		vm.updateTimes = updateTimes;
 		vm.exportData = dashboard.exportData;
 		vm.toggleGraphs = toggleGraphs;
+		vm.charts = {}
 		
 		activate();
 
@@ -56,12 +58,13 @@
 			querySensors();
 
 			// set up chart listeners
-			$scope.$on('displayChartInstance', function(event, buoyInstance) {
+			$scope.$on('clickMapMarker', function(event, buoyInstance) {
+				vm.charts = dashboard.calculateChartData(buoyInstance);
 				$scope.$apply(function() {
 					if (!vm.showGraphs) {
 						toggleGraphs();
 					}
-					dashboard.displayChartInstance(buoyInstance.name);
+					// dashboard.displayChartInstance(buoyInstance.name);
 				});
 			});
 			$scope.$on('create', function(event, chart) {
@@ -107,7 +110,7 @@
 				document.getElementsByClassName('dashboard-panel'))
 				.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
 					map.setCenter(center);
-					chartObj.resize(chartObj.render)
+					chartObj.resize(chartObj.render);
 			});
 		}
 			

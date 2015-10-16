@@ -31,7 +31,9 @@
 			getToken: getToken,
 			saveToken: saveToken,
 			currentUser: currentUser,
-			checkUser: checkUser
+			checkUser: checkUser,
+			saveUser: saveUser,
+			currentUserId: currentUserId
 		};
 		
 		/** Logout by removing user token from localStorage */
@@ -67,6 +69,22 @@
 		 */
 		function getToken() {
 			return $window.localStorage['token'];
+		}
+
+		/**
+		 * Save User ID to localStorage
+		 * @param  {object} user user who just logged in
+		 */
+		function saveUser(user) {
+			$window.localStorage['user_id'] = user.id;
+		}
+
+		/**
+		 * Returns ID of the currently logged in user
+		 * @return {int} user id
+		 */
+		function currentUserId() {
+			return $window.localStorage['user_id'];
 		}
 		
 		/**

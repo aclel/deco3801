@@ -104,7 +104,11 @@
 				email: email,
 				password: password
 			};
-			return $http.post(SERVER_ADDRESS + '/api/login', JSON.stringify(data));
+			var promise = $http.post(SERVER_ADDRESS + '/api/login', JSON.stringify(data));
+			promise.then(function(res) {
+				auth.saveUser(res.data);
+			});
+			return promise;
 		}
 		
 		/** Logout */
@@ -124,9 +128,9 @@
 				currentPassword: currentPassword,
 				newPassword: newPassword
 			};
-			var email = auth.currentUser();
+			var id = auth.currentUserId();
 			return $http.put(SERVER_ADDRESS + '/api/users/' +
-				email + '/change_password', JSON.stringify(data), config);
+				id + '/change_password', JSON.stringify(data), config);
 		}
 
 		function resetPassword(token, newPassword) {

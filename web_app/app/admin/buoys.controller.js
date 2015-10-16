@@ -163,6 +163,7 @@
             var temp = { id: -2, guid: generateGuid(), archived: false };
             vm.buoys.push(temp);
             editExisting(temp);
+            gui.focus('editNew');
         }
 
         /** Returns a randomly generated GUID */

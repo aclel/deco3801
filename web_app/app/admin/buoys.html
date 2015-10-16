@@ -1,38 +1,40 @@
-<table class="data-table">
-    <thead>
-        <tr>
-            <th>GUID</th>
-            <th>Name</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr ng-repeat="buoy in vm.buoys | filter: { archived: false }">
-            <td>
-                <span ng-if="vm.editId != buoy.id">{{ buoy.guid }}</span>
-                <input ng-if="vm.editId == buoy.id" type="text" class="form-control" ng-model="vm.editObj.guid">
-            </td>
-            <td>
-                <span ng-if="vm.editId != buoy.id">{{ buoy.name }}</span>
-                <input ng-if="vm.editId == buoy.id" type="text" class="form-control" ng-model="vm.editObj.name">
-            </td>
-            <td class="button-cell">
-                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.showDeleteButton(buoy)" ng-click="vm.editDelete(buoy)">
-                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                </button>
-                <!-- <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == -1" ng-click="vm.editExisting(buoy)">
-                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                </button> -->
-                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == buoy.id" ng-click="vm.editCancel()">
-                    <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
-                </button>
-                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == buoy.id" ng-click="vm.editSave()">
-                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
-                </button>
-            </td>
-        </tr>
-    </tbody>
-</table>
+<form ng-submit="vm.editSave()">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>GUID</th>
+                <th>Name</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="buoy in vm.buoys | filter: { archived: false }">
+                <td>
+                    <span ng-if="vm.editId != buoy.id">{{ buoy.guid }}</span>
+                    <input ng-if="vm.editId == buoy.id" type="text" class="form-control" ng-model="vm.editObj.guid">
+                </td>
+                <td>
+                    <span ng-if="vm.editId != buoy.id">{{ buoy.name }}</span>
+                    <input ng-if="vm.editId == buoy.id" type="text" class="form-control" ng-model="vm.editObj.name" focus-on="editNew">
+                </td>
+                <td class="button-cell">
+                    <button type="button" class="btn btn-default btn-sm right" ng-if="vm.showDeleteButton(buoy)" ng-click="vm.editDelete(buoy)">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    </button>
+                    <!-- <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == -1" ng-click="vm.editExisting(buoy)">
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                    </button> -->
+                    <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == buoy.id" ng-click="vm.editCancel()">
+                        <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+                    </button>
+                    <button type="submit" class="btn btn-default btn-sm right" ng-if="vm.editId == buoy.id">
+                        <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
 <button type="button" class="btn btn-default" ng-if="vm.editId == -1" ng-click="vm.editNew()">
     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
     <small>Add Buoy</small>

@@ -192,7 +192,8 @@
 		function populateSensors(data) {
 			for (var i = 0; i < data.length; i++) {
 				var sensor = data[i];
-				
+
+				if (sensor.archived) continue;
 				if (sensors.hasOwnProperty(sensor.id)) continue;
 
 				sensor.inputs = {

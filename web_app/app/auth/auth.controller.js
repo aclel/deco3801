@@ -29,6 +29,8 @@
 	**/
 	function AuthController($scope, $state, $stateParams, auth, server, routerHelper) {
 		var vm = this;
+
+		var savePassword = ""; // used to save password for first login
 		
 		/** Variables and methods bound to viewmodel */
 		vm.firstLogin = false;
@@ -68,8 +70,9 @@
 				console.log(res);
 				if (auth.loggedIn()) {
 					if (!res.data.lastLogin.Valid) {
-						$state.go('reset_password');
 						vm.firstLogin = true;
+						savePassword = vm.password;
+						$state.go('change_password');
 					} else {
 						$state.go('dashboard');
 					}
@@ -85,15 +88,22 @@
 		/** Send change password request to server */
 		function changePassword() {
 			vm.waiting = true;
+			if (savePassword != "") {
+				// password carried over from first login
+				vm.currentPassword = savePassword;
+				savePassword = "";
+			}
 			// need to validate input
 			if (vm.newPassword != "" && vm.newPassword == vm.confirmPassword) {
 				server.changePassword(vm.currentPassword, vm.newPassword).then(function(res) {
 					vm.changePasswordResponse = 0;
+					vm.firstLogin = false;
 				}, function(res) {
 					vm.changePasswordResponse = 1;
 				});
 			} else {
 				alert("Invalid password");
+				vm.waiting = false;
 			}
 		}
 
@@ -103,12 +113,12 @@
 			if (vm.newPassword != "" && vm.newPassword == vm.confirmPassword) {
 				server.resetPassword($stateParams.token, vm.newPassword).then(function(res) {
 					vm.changePasswordResponse = 0;
-					vm.firstLogin = false;
 				}, function(res) {
 					vm.changePasswordResponse = 1;
 				});
 			} else {
 				alert("Invalid password");
+				vm.waiting = false;
 			}
 		}
 		

@@ -32,6 +32,7 @@
 		var buoys = [];
 		var times = {};
 		var chart = {};
+		var readingMetadata = {};
 
 		var dateFormat = "D/M/YY";
 		var timeFormat = "h:mm A";
@@ -54,7 +55,8 @@
 			updateSensors: updateSensors,
 			exportData: exportData,
 			displayChartInstance: displayChartInstance,
-			calculateChartData: calculateChartData
+			calculateChartData: calculateChartData,
+			readingMetadata: getReadingMetadata
 		};
 
 		/**
@@ -87,6 +89,10 @@
 		 */
 		function getChart() {
 			return chart;
+		}
+
+		function getReadingMetadata() {
+			return readingMetadata;
 		}
 		
 		/**
@@ -481,6 +487,7 @@
 		/** Re-filter readings based on updated filters */
 		function updateFilters() {
 			filteredReadings = [];
+			var numInstances = 0, numReadings = 0;
 			if (!readings.length || !Object.keys(sensors).length) return;
 
 			for (var i = 0; i < readings.length; i++) {
@@ -491,15 +498,19 @@
 				for (var j = 0; j < buoyGroup.buoyInstances.length; j++) {
 					var buoyInstance = buoyGroup.buoyInstances[j];
 					if (!buoyInstanceEnabled(buoyInstance.id, buoyGroup.id)) continue;
+					numInstances++;
 					var instance = addBuoyInstance(buoyInstance, group);
 
 					for (var k = 0; k < buoyInstance.readings.length; k++) {
 						var reading = buoyInstance.readings[k];
 						if (!showReading(reading)) continue;
+						numReadings++;
 						instance.readings.push(reading);
 					}
 				}
 			}
+			readingMetadata.numInstances = numInstances;
+			readingMetadata.numReadings = numReadings;
 			updateMap();
 		}
 

@@ -39,6 +39,7 @@
 		vm.sensors = dashboard.sensors(); // binds reference
 		vm.charts = {};
 		vm.chart = dashboard.chart(); // binds reference
+		vm.readingMetadata = dashboard.readingMetadata(); // binds reference
 		vm.selectBuoyGroup = dashboard.selectBuoyGroup;
 		vm.selectBuoyInstance = dashboard.selectBuoyInstance;
 		vm.updateSensors = dashboard.updateSensors;

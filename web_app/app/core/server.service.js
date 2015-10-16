@@ -58,7 +58,10 @@
 			updateUser: updateUser,
 			deleteUser: deleteUser,
 			deleteBuoyCommand: deleteBuoyCommand,
-			addBuoy: addBuoy
+			getBuoys: getBuoys,
+			addBuoy: addBuoy,
+			updateBuoy: updateBuoy,
+			deleteBuoy: deleteBuoy
 		};
 		
 		/** 
@@ -172,7 +175,7 @@
 		
 		/**
 		 * Request active buoy instances
-		 * GET /api/buoyinstances?active=true
+		 * GET /api/buoy_instances?active=true
 		 * @return {[type]} [description]
 		 */
 		function getBuoyInstances() {
@@ -496,21 +499,58 @@
 			var config = addToken(headers());
 			return $http.delete(SERVER_ADDRESS + '/api/users/' + id, config);
 		}
+
+		/**
+		 * Request buoys
+		 * GET /api/buoys
+		 * @return {promise} request promise
+		 */
+		function getBuoys() {
+			var config = addToken(headers());
+			return $http.get(SERVER_ADDRESS + '/api/buoys', config);
+		}
 		
 		/**
 		 * Request create buoy
-		 * @param {string} name buoy name
-		 * @param {string} guid buoy GUID
+		 * POST /api/buoys
+		 * @param {object} buoy new buoy
 		 * @return {promise} request promise
 		 */
-		function addBuoy(name, guid) {
+		function addBuoy(buoy) {
 			var config = setJson(addToken(headers()));
 			var data = {
-				guid: guid,
-				name: name
+				name: buoy.name,
+				guid: buoy.guid
 			};
 			return $http.post(SERVER_ADDRESS + '/api/buoys', 
 				JSON.stringify(data), config);
+		}
+		
+		/**
+		 * Request update buoy (NOT USED)
+		 * PUT /api/buoys/:id
+		 * @param  {object} buoy updated buoy
+		 * @return {promise}      request promise
+		 */
+		function updateBuoy(buoy) {
+			var config = setJson(addToken(headers()));
+			var data = {
+				name: buoy.name,
+				guid: buoy.guid
+			};
+			return $http.put(SERVER_ADDRESS + '/api/buoys/' + buoy.id, 
+				JSON.stringify(data), config);
+		}
+		
+		/**
+		 * Request delete buoy
+		 * DELETE /api/buoys/:id
+		 * @param  {int} id buoy Id
+		 * @return {promise}    request promise
+		 */
+		function deleteBuoy(id) {
+			var config = addToken(headers());
+			return $http.delete(SERVER_ADDRESS + '/api/buoys/' + id, config);
 		}
 	}
 })();

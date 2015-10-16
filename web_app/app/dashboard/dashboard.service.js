@@ -52,7 +52,8 @@
 			updateTimes: updateTimes,
 			updateSensors: updateSensors,
 			exportData: exportData,
-			displayChartInstance: displayChartInstance
+			displayChartInstance: displayChartInstance,
+			calculateChartData: calculateChartData
 		};
 
 		/**
@@ -307,7 +308,6 @@
 					}
 				}
 			}
-			console.log(buoys);
 			for (var i = 0; i < remove.length; i++) {
 				console.log(remove[i]);
 				console.log(buoys[remove[i].group]);
@@ -739,7 +739,6 @@
 					insNum++;
 				});
 			});
-			console.log(enabledMarkers);
 			map.hideDisabledMarkers(enabledMarkers);
 		}
 
@@ -787,7 +786,7 @@
 				}
 			
 			}
-			console.log(chartArray);
+			// console.log(chartArray);
 			return chartArray;
 			
 		}
@@ -837,6 +836,23 @@
 
 			
 
+		}
+
+
+		function calculateChartData(buoyInstance) {
+			var charts = {};
+			buoyInstance.readings.forEach(function(reading) {
+				reading.sensorReadings.forEach(function(sReading) {
+					var sensorName = sensors[sReading.sensorTypeId].name;
+					if (!charts.hasOwnProperty(sensorName)) {
+						charts[sensorName] = { timestamps: [], data: [[]] };
+					}
+					charts[sensorName].timestamps.push(reading.timestamp);
+					charts[sensorName].data[0].push(sReading.value);
+				});
+			});
+			console.log(charts);
+			return charts;
 		}
 	}
 })();

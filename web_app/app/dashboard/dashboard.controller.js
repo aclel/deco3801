@@ -37,6 +37,7 @@
 		vm.buoys = dashboard.buoys(); // binds reference
 		vm.times = dashboard.times(); // binds reference
 		vm.sensors = dashboard.sensors(); // binds reference
+		vm.charts = {};
 		vm.chart = dashboard.chart(); // binds reference
 		vm.selectBuoyGroup = dashboard.selectBuoyGroup;
 		vm.selectBuoyInstance = dashboard.selectBuoyInstance;
@@ -57,15 +58,18 @@
 
 			// set up chart listeners
 			$scope.$on('displayChartInstance', function(event, buoyInstance) {
+				console.log(buoyInstance);
+				vm.charts = dashboard.calculateChartData(buoyInstance);
 				$scope.$apply(function() {
 					if (!vm.showGraphs) {
 						toggleGraphs();
 					}
-					dashboard.displayChartInstance(buoyInstance.name);
+					// dashboard.displayChartInstance(buoyInstance.name);
 				});
 			});
 			$scope.$on('create', function(event, chart) {
 				chartObj = chart;
+				console.log(chart);
 			});
 		}
 

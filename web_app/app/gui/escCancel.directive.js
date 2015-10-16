@@ -14,13 +14,14 @@
     'use strict';
     
     angular.module('app.gui')
-        .directive('focusOn', focusOn);
+        .directive('escCancel', escCancel);
     
-    function focusOn() {
+    function escCancel() {
         return function(scope, elem, attrs) {
-            scope.$on('focusOn', function(e, name) {
-                if (name === attrs.focusOn) {
-                    elem[0].focus();
+            elem.bind("keydown keypress", function (event) {
+                if (event.which === 27) { // esc
+                    scope.$apply(attrs.escCancel);
+                    event.preventDefault();
                 }
             });
         }

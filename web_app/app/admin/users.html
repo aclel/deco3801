@@ -14,15 +14,15 @@
             <tr ng-repeat="user in vm.users">
                 <td>
                     <span ng-if="user.id != -2">{{ user.email }}</span>
-                    <input ng-if="user.id == -2" type="text" class="form-control" ng-model="vm.editObj.email" placeholder="johndoe@aol.com" focus-on="editNew">
+                    <input ng-if="user.id == -2" type="text" class="form-control" ng-model="vm.editObj.email" placeholder="johndoe@aol.com" focus-on="editNew" esc-cancel="vm.editCancel()">
                 </td>
                 <td>
                     <span ng-if="vm.editId != user.id">{{ user.firstName }}</span>
-                    <input ng-if="vm.editId == user.id" type="text" class="form-control" ng-model="vm.editObj.firstName" placeholder="John" focus-on="editExisting">
+                    <input ng-if="vm.editId == user.id" type="text" class="form-control" ng-model="vm.editObj.firstName" placeholder="John" focus-on="editExisting" esc-cancel="vm.editCancel()">
                 </td>
                 <td>
                     <span ng-if="vm.editId != user.id">{{ user.lastName }}</span>
-                    <input ng-if="vm.editId == user.id" type="text" class="form-control" ng-model="vm.editObj.lastName" placeholder="Doe">
+                    <input ng-if="vm.editId == user.id" type="text" class="form-control" ng-model="vm.editObj.lastName" placeholder="Doe" esc-cancel="vm.editCancel()">
                 </td>
                 <td>
                     <span ng-if="vm.editId != user.id">{{ user.role }}</span>

@@ -11,11 +11,11 @@
             <tr ng-repeat="buoy in vm.buoys | filter: { archived: false }">
                 <td>
                     <span ng-if="vm.editId != buoy.id">{{ buoy.guid }}</span>
-                    <input ng-if="vm.editId == buoy.id" type="text" class="form-control" ng-model="vm.editObj.guid">
+                    <input ng-if="vm.editId == buoy.id" type="text" class="form-control" ng-model="vm.editObj.guid" esc-cancel="vm.editCancel()">
                 </td>
                 <td>
                     <span ng-if="vm.editId != buoy.id">{{ buoy.name }}</span>
-                    <input ng-if="vm.editId == buoy.id" type="text" class="form-control" ng-model="vm.editObj.name" focus-on="editNew">
+                    <input ng-if="vm.editId == buoy.id" type="text" class="form-control" ng-model="vm.editObj.name" focus-on="editNew" esc-cancel="vm.editCancel()">
                 </td>
                 <td class="button-cell">
                     <button type="button" class="btn btn-default btn-sm right" ng-if="vm.showDeleteButton(buoy)" ng-click="vm.editDelete(buoy)">

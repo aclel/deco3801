@@ -17,6 +17,7 @@ Server:
 
 iOS App:
 + 'Unlisted Buoys' section.
+* Updated app name.
 
 v0.4 - Week 10 13/10
 

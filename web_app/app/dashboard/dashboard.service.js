@@ -323,8 +323,6 @@
 				}
 			}
 			for (var i = 0; i < remove.length; i++) {
-				console.log(remove[i]);
-				console.log(buoys[remove[i].group]);
 				buoys[remove[i].group].buoyInstances.splice(remove[i].instance, 1);
 			}
 		}
@@ -864,13 +862,13 @@
 			if (tempLabels.length > 100){
 				tempLabels = tempLabels.slice(0,101);
 				var division = Math.floor(tempLabels.length/10);
-				console.log(division);
+				// console.log(division);
 				chart.labels.unshift("");
 				for (var i = 1; i < tempLabels.length; i++){
 					if (i % division != 0){
 						tempLabels[i] = "";
 					}
-				console.log(tempLabels);
+				// console.log(tempLabels);
 
 				}
 			} 
@@ -898,7 +896,7 @@
 					charts[sensorName].data[0].push(sReading.value);
 				});
 			});
-			console.log(charts);
+			// console.log(charts);
 			return charts;
 		}
 	}

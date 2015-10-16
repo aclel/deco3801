@@ -67,7 +67,6 @@
 		function login() {
 			server.login(vm.email, vm.password).then(
 			function(res) {
-				console.log(res);
 				if (auth.loggedIn()) {
 					if (!res.data.lastLogin.Valid) {
 						vm.firstLogin = true;

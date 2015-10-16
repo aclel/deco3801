@@ -59,7 +59,6 @@
 
 			// set up chart listeners
 			$scope.$on('mapMarkerSelected', function(event, buoyInstance) {
-				console.log(buoyInstance);
 				vm.charts = dashboard.calculateChartData(buoyInstance);
 				$scope.$apply(function() {
 					if (!vm.showGraphs) {
@@ -70,7 +69,6 @@
 			});
 			$scope.$on('create', function(event, chart) {
 				chartObj = chart;
-				console.log(chart);
 			});
 		}
 

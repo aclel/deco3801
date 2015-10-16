@@ -24,7 +24,7 @@
 		* @requires map
 		* @requires moment
 	**/
-	function dashboard($log, $q, server, map, moment) {
+	function dashboard($log, $q, $rootScope, server, map, moment) {
 		/** Internal variables. These are preserved until page refresh. */
 		var readings = [];
 		var filteredReadings = [];
@@ -38,6 +38,7 @@
 
 		initialiseTimes();
 		initialiseChart();
+		initialiseListeners();
 
 		/** The service methods to expose */
 		return {
@@ -153,6 +154,12 @@
 			chart.data = [
 				[null]
 			];
+		}
+
+		function initialiseListeners() {
+			$rootScope.$on('mapMarkerSelected', function(event, buoyInstance) {
+				updateMap(buoyInstance);
+			});
 		}
 		
 		/** Populate buoys filter */
@@ -723,22 +730,50 @@
 		/**
 		 * Update the map to show markers for filtered readings
 		 */
-		function updateMap() {
+		function updateMap(selectedInstance) {
 			var enabledMarkers = [];
 			var insNum = 0;
 
 			// show a marker for every reading
+			// filteredReadings.forEach(function(buoyGroup) {
+			// 	buoyGroup.buoyInstances.forEach(function(buoyInstance) {
+			// 		buoyInstance.readings.forEach(function(reading) {
+			// 			enabledMarkers.push(reading.id);
+			// 			map.showMarker(reading, buoyInstance,
+			// 				insNum, getRelativeAge(reading),
+			// 				popupContent(reading, buoyInstance));
+			// 		});
+			// 		insNum++;
+			// 	});
+			// });
+
+			// if a marker has been selected, display all readings for that instance
+			if (selectedInstance) {
+				// map.hideDisabledMarkers([]); // hide all markers
+				selectedInstance.readings.forEach(function(reading) {
+					enabledMarkers.push(reading.id);
+					map.showMarker(reading, selectedInstance,
+						insNum, getRelativeAge(reading),
+						popupContent(reading, selectedInstance));
+				});
+			}
+
+			// show a marker for the most recent reading for every buoy instance
 			filteredReadings.forEach(function(buoyGroup) {
 				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
-					buoyInstance.readings.forEach(function(reading) {
-						enabledMarkers.push(reading.id);
-						map.showMarker(reading, buoyInstance,
-							insNum, getRelativeAge(reading),
-							popupContent(reading, buoyInstance));
-					});
+					if (selectedInstance) {
+						if (selectedInstance.id == buoyInstance.id) return;
+					}
+
+					var reading = buoyInstance.readings[buoyInstance.readings.length - 1];
+					enabledMarkers.push(reading.id);
+					map.showMarker(reading, buoyInstance,
+						insNum, getRelativeAge(reading),
+						popupContent(reading, buoyInstance));
 					insNum++;
 				});
 			});
+
 			map.hideDisabledMarkers(enabledMarkers);
 		}
 

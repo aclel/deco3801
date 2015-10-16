@@ -57,7 +57,7 @@
 			querySensors();
 
 			// set up chart listeners
-			$scope.$on('displayChartInstance', function(event, buoyInstance) {
+			$scope.$on('mapMarkerSelected', function(event, buoyInstance) {
 				console.log(buoyInstance);
 				vm.charts = dashboard.calculateChartData(buoyInstance);
 				$scope.$apply(function() {

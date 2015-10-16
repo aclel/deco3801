@@ -12,7 +12,7 @@ package models
 
 // Represents a physical buoy
 type Buoy struct {
-	Id                   int    `json:"id" db:"id"`
+	Id                   int64  `json:"id" db:"id"`
 	Guid                 string `json:"guid" db:"guid"`
 	Name                 string `json:"name"` // This field is only used when a new buoy is created to add a name for buoy instance
 	ActiveBuoyInstanceId int    `json:"activeBuoyInstanceId" db:"active_buoy_instance_id"`
@@ -57,12 +57,12 @@ func (db *DB) GetBuoyById(id int) (*Buoy, error) {
 
 // Insert a new Buoy into the database.
 func (db *DB) CreateBuoy(buoy *Buoy) (int64, error) {
-	query, err := db.Preparex("INSERT INTO buoy (guid) VALUES(?);")
+	query, err := db.Preparex("INSERT INTO buoy (guid, active_buoy_instance_id, archived) VALUES(?, ?, ?);")
 	if err != nil {
 		return -1, err
 	}
 
-	result, err := query.Exec(buoy.Guid)
+	result, err := query.Exec(buoy.Guid, 0, 0)
 	if err != nil {
 		return -1, err
 	}

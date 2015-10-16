@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/aclel/deco3801/server/models"
+	"github.com/go-sql-driver/mysql"
 )
 
 // GET /api/readings
@@ -79,17 +80,25 @@ func ReadingsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 // Example request body:
 //
 // {
-// 	"guid":"test",
-// 	"readings": [{
-// 	    "latitude": -27.425676,
-// 	    "longitude": 153.147055,
-// 	    "sensorReadings": [{
-// 	        "sensorName": "Turbidity",
-// 	        "value": 100
-// 	    }],
-// 	    "timestamp": 1442115887,
-// 	    "messageNumber": 1
-// 	}]
+//     "guid": "e9528b5e-1d8f-4960-91ae-8b21ecc0bcab",
+//     "r": [
+//         {
+//             "lat": -27.425676,
+//             "lng": 153.147055,
+//             "sR": [
+//                 {
+//                     "type": 1,
+//                     "val": 100
+//                 },
+//                 {
+//                     "type": 2,
+//                     "val": 30
+//                 }
+//             ],
+//             "ut": 1442115887,
+//             "msgNo": 1
+//         }
+//     ]
 // }
 func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	readingsContainer := new(models.BuoyReadingContainer)
@@ -101,32 +110,32 @@ func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
 	}
 
+	var e *AppError
 	// Constructs the Readings from the data
 	readings, e := buildReadings(env, readingsContainer)
-	if e != nil {
-		return e
-	}
 
 	// Insert each reading into db
 	for _, reading := range *readings {
 		id, err := env.DB.CreateReading(reading)
 		if err != nil {
-			return &AppError{err, "Error inserting the reading into the database", http.StatusInternalServerError}
+			e = &AppError{err, "Error inserting the reading into the database", http.StatusInternalServerError}
 		}
-		reading.Id = id
+
 		for _, sensorReading := range reading.SensorReadings {
 			sensorReading.ReadingId = id
 			err = env.DB.CreateSensorReading(sensorReading)
 			if err != nil {
-				return &AppError{err, "Error inserting the sensor reading into the database", http.StatusInternalServerError}
+				e = &AppError{err, "Error inserting the sensor reading into the database", http.StatusInternalServerError}
 			}
 		}
 	}
 
-	// Respond with 201 Created if successful
-	w.WriteHeader(http.StatusCreated)
+	// Respond with 201 Created if everything was successful
+	if e == nil {
+		w.WriteHeader(http.StatusCreated)
+	}
 
-	return nil
+	return e
 }
 
 // Constructs Readings from the JSON which was in the request body of a /buoys/api/readings POST request.
@@ -137,19 +146,73 @@ func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContain
 		return nil, &AppError{err, "Could not get the most recent buoy instance for a buoy with the specified guid", http.StatusBadRequest}
 	}
 
-	// Go through each reading in the request and build
-	// a Reading object for each individual sensor reading
+	var validReadings []*models.Reading
+	var e *AppError
+	// Go through each reading in the request. Add metadata to readings (buoy instance id, timestamp)
+	// Update sensor configuration for buoy instance.
 	for _, reading := range *readingsContainer.Readings {
 		reading.BuoyInstanceId = buoyInstance.Id
 		reading.BuoyGuid = readingsContainer.BuoyGuid
 		reading.Timestamp = time.Unix(reading.UnixTimestamp, 0).UTC()
 
-		if e := validateReading(env, reading); e != nil {
-			return nil, e
+		if e = validateReading(env, reading); e != nil {
+			continue
+		}
+		validReadings = append(validReadings, reading)
+
+		// Add new sensors, update last received
+		updateBuoyInstanceSensorConfiguration(env, buoyInstance.Id, mysql.NullTime{reading.Timestamp, true}, &reading.SensorReadings)
+	}
+
+	return &validReadings, e
+}
+
+// Add new sensors and update the "last recorded" time of the other sensors with sensor readings.
+func updateBuoyInstanceSensorConfiguration(env *models.Env, buoyInstanceId int, readingTimestamp mysql.NullTime, sensorReadings *[]*models.SensorReading) *AppError {
+	dbSensors, err := env.DB.GetSensorsForBuoyInstance(buoyInstanceId)
+	if err != nil {
+		return &AppError{err, "Error retrieving sensors for buoy instance " + strconv.Itoa(buoyInstanceId), http.StatusInternalServerError}
+	}
+
+	// Add new sensors, update last received of all
+	for _, sensorReading := range *sensorReadings {
+		// Buoy instance doesn't have the sensor, add it
+		if !sensorExists(sensorReading.SensorTypeId, dbSensors) {
+			newSensor := models.BuoyInstanceSensor{
+				BuoyInstanceId: buoyInstanceId,
+				SensorTypeId:   sensorReading.SensorTypeId,
+				LastRecorded:   readingTimestamp,
+			}
+			err = env.DB.AddSensorToBuoyInstance(&newSensor)
+			if err != nil {
+				return &AppError{err, "Error adding buoy instance sensor", http.StatusInternalServerError}
+			}
+		} else {
+			// Update the last received time
+			for _, sensor := range dbSensors {
+				if sensor.SensorTypeId == sensorReading.SensorTypeId {
+					sensor.LastRecorded = readingTimestamp
+					err = env.DB.UpdateBuoyInstanceSensor(&sensor)
+					if err != nil {
+						return &AppError{err, "Error updating buoy instance sensor", http.StatusInternalServerError}
+					}
+					break
+				}
+			}
 		}
 	}
 
-	return readingsContainer.Readings, nil
+	return nil
+}
+
+// Check if a sensor exists in the given slice of sensors
+func sensorExists(sensorTypeId int, sensors []models.BuoyInstanceSensor) bool {
+	for _, sensor := range sensors {
+		if sensor.SensorTypeId == sensorTypeId {
+			return true
+		}
+	}
+	return false
 }
 
 // Ensure the reading has a buoy guid and valid latitude and longitude.
@@ -169,12 +232,17 @@ func validateReading(env *models.Env, reading *models.Reading) *AppError {
 		return &AppError{errors.New("Reading: "), "Invalid longitude", http.StatusBadRequest}
 	}
 
+	if len(reading.SensorReadings) == 0 {
+		return &AppError{errors.New("Reading error"), "No sensor readings", http.StatusBadRequest}
+	}
+
 	// Check if all the sensor readings have sensor types which exist in the db
 	for _, sensorReading := range reading.SensorReadings {
 		// Get sensor type for the reading
 		_, err := env.DB.GetSensorTypeWithId(sensorReading.SensorTypeId)
 		if err != nil {
-			return &AppError{err, "Could not find a sensor type with the specified id", http.StatusBadRequest}
+			return &AppError{err, "Could not find a sensor type with the specified id: " + strconv.Itoa(sensorReading.SensorTypeId),
+				http.StatusBadRequest}
 		}
 	}
 

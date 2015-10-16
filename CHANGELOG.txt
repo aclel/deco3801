@@ -7,15 +7,20 @@ Legend:
 * Changed
 ! Fixed
 
-v0.5 - Week 11 
+v0.5 - Week 11 20/10
 
 Server:
 ! Fix GET /api/buoy_groups/id/buoy_instances and GET /api/buoys/id/buoy_instances HTTP error 500
-* Buoys and Buoy Groups are now archived instead of delete. This removes them from the interface but they remain in the database.
+* Buoys and Buoy Groups are now archived instead of deleted. This removes them from the interface but they remain in the database.
 + Add DELETE /api/sensor_types/id - just archives, doesn't do a hard delete
++ When a Buoy acknowledges a set of commands, each command is marked as "sent" and the current time is now recorded as well
+
+iOS App:
++ 'Unlisted Buoys' section.
+* Updated app name.
 
 
-v0.4 - Week 10 8/10
+v0.4 - Week 10 13/10
 
 Deployment:
 + A new VPS can now be setup very easily. Docker is being used for deployment. After cloning the source and copying the SSL certificates onto the VPS, it's just a matter of running one command in terminal. This runs the Go server, mysql database, and phpmyadmin, all behind an NGINX reverse proxy.
@@ -42,6 +47,8 @@ Web App:
 
 iOS App:
 * App is now called FlounderMobile, to be consistent with the web application.
+* New icon.
+* Uses HTTPS communications with server, removing need for insecure workaround key.
 + More info dialog when buoys are pressed, containing specific data and buoy commands; window is able to size automatically to updates.
 * Significant changes to interface colours and shapes to be more consistent with the web app.
 + Filters for buoy groups, allowing users to narrow the overall list of results.

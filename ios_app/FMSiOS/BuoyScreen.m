@@ -8,8 +8,6 @@
 
 // TODO: pinging
 // TODO: more info content
-// TODO: tabbing
-// TODO: buoy distance line
 
 #import "BuoyScreen.h"
 
@@ -28,6 +26,44 @@
 - (void)startPinging;
 - (void)finishPingingSuccessWithTime:(NSUInteger)milliseconds;
 - (void)finishPingingFailure;
+
+@end
+
+// Main buoy screen
+@interface BuoyScreen () <UIPopoverPresentationControllerDelegate, CLLocationManagerDelegate, MKMapViewDelegate>
+
+// Core UI elements
+@property (strong, nonatomic) MKMapView *map;
+@property (strong, nonatomic) CLLocationManager *l;
+@property (strong, nonatomic) UIBarButtonItem *pButton; //info popup
+@property (strong, nonatomic) UIBarButtonItem *rButton; //refresh button
+@property (strong, nonatomic) UIActivityIndicatorView *rInd;
+@property (strong, nonatomic) UIBarButtonItem *rIndButton;
+@property (strong, nonatomic) UIViewController *popup;
+
+// Hidden elements
+@property (strong, nonatomic) UIButton *moreInfoDialogContainer; //More info dialog is in the content view for this
+@property (strong, nonatomic) MoreInfoDialog *moreInfoDialog;
+
+// Data structures
+@property (strong, nonatomic) NSArray *allBuoys; // List of all buoys to display
+@property (strong, nonatomic) NSArray *unlistedBuoys; // All buoys to not display
+@property (strong, nonatomic) NSArray *buoyGroups; // List of buoy groups, containing the above two arrays
+@property (strong, nonatomic) NSMutableIndexSet *buoyGroupsToShow; // Buoys not to show, or show all if this is set to nil
+
+- (void)mapTypeButtonPressed:(UIControl *)c;
+- (void)updateMapToMatchSelection;
+- (void)moreInfoOpenedForBuoy:(Buoy *)b;
+
+@end
+
+// Popup controller used for the info button options settings
+@interface BuoySettingsPopup : UIViewController <UITableViewDataSource, UITableViewDelegate>
+
+@property (strong, nonatomic) UITableView *t;
+@property (weak, nonatomic) BuoyScreen *delegate;
+
+- (void)forceUpdate;
 
 @end
 
@@ -86,7 +122,7 @@
         [_pingButton sizeToFit];
         [_cancelButton sizeToFit];
         [self layoutSubviews];
-        float trueHeight = _content.frame.size.height + 70;
+        float trueHeight = _content.frame.size.height + 50;
         self.frame = CGRectMake(self.frame.origin.x, self.center.y - trueHeight/2, self.frame.size.width, trueHeight);
     }
     return self;
@@ -102,7 +138,7 @@
     
     //Content
     [_content sizeToFit];
-    float newHeight = (_content.frame.size.height < 50) ? 50 : _content.frame.size.height;
+    float newHeight = (_content.frame.size.height < 70) ? 70 : _content.frame.size.height;
     _content.frame = CGRectMake(10, 40, self.frame.size.width - 20, newHeight);
     _contentInd.center = _content.center;
 }
@@ -145,7 +181,7 @@
     [self layoutSubviews];
     
     // Update size
-    float trueHeight = _content.frame.size.height + 70;
+    float trueHeight = _content.frame.size.height + 50;
     CGRect trueSize = CGRectMake(self.frame.origin.x, self.center.y - trueHeight/2, self.frame.size.width, trueHeight);
     if (!CGRectEqualToRect(self.frame, trueSize)) {
         [UIView animateWithDuration:0.4 animations:^{
@@ -156,40 +192,7 @@
 
 @end
 
-@interface BuoyScreen () <UIPopoverPresentationControllerDelegate, CLLocationManagerDelegate, MKMapViewDelegate>
 
-// Core UI elements
-@property (strong, nonatomic) MKMapView *map;
-@property (strong, nonatomic) CLLocationManager *l;
-@property (strong, nonatomic) UIBarButtonItem *pButton; //info popup
-@property (strong, nonatomic) UIBarButtonItem *rButton; //refresh button
-@property (strong, nonatomic) UIActivityIndicatorView *rInd;
-@property (strong, nonatomic) UIBarButtonItem *rIndButton;
-@property (strong, nonatomic) UIViewController *popup;
-
-// Hidden elements
-@property (strong, nonatomic) UIButton *moreInfoDialogContainer; //More info dialog is in the content view for this
-@property (strong, nonatomic) MoreInfoDialog *moreInfoDialog;
-
-// Data structures
-@property (strong, nonatomic) NSArray *allBuoys; // List of all buoys to display
-@property (strong, nonatomic) NSArray *buoyGroups; // List of buoy groups, containing the above
-@property (strong, nonatomic) NSMutableIndexSet *buoyGroupsToShow; // Buoys not to show, or show all if this is set to nil
-
-- (void)mapTypeButtonPressed:(UIControl *)c;
-- (void)updateMapToMatchSelection;
-
-@end
-
-// Popup controller used for the info button options settings
-@interface BuoySettingsPopup : UIViewController <UITableViewDataSource, UITableViewDelegate>
-
-@property (strong, nonatomic) UITableView *t;
-@property (weak, nonatomic) BuoyScreen *delegate;
-
-- (void)forceUpdate;
-
-@end
 
 @implementation BuoySettingsPopup {
     NSUInteger maxFilterRows;
@@ -198,14 +201,15 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    maxFilterRows = 6;
-    self.preferredContentSize = CGSizeMake(320, 140);
+    maxFilterRows = [[UIApplication sharedApplication] keyWindow].frame.size.width/44 - 4;
+    self.preferredContentSize = CGSizeMake(300, 190);
     
     self.t = [[UITableView alloc] initWithFrame:self.view.frame style:UITableViewStyleGrouped];
     self.t.delegate = self;
     self.t.dataSource = self;
     self.t.tintColor = FMS_COLOUR_BUTTON_DARK;
     self.t.backgroundColor = FMS_COLOUR_BG_LIGHT_SHADE;
+    self.t.scrollEnabled = YES;
     
     [self.view addSubview:self.t];
 }
@@ -213,12 +217,12 @@
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
     [self.t reloadData];
-    if ([self.t numberOfRowsInSection:1] > maxFilterRows) {
-        self.preferredContentSize = CGSizeMake(320, 140 + 44 * maxFilterRows);
-        self.t.scrollEnabled = YES;
+    
+    NSUInteger rowCount = [self.t numberOfRowsInSection:1] + [self.t numberOfRowsInSection:2];
+    if (rowCount > maxFilterRows) {
+        self.preferredContentSize = CGSizeMake(300, 190 + 44 * maxFilterRows);
     } else {
-        self.preferredContentSize = CGSizeMake(320, 140 + 44 * [self.t numberOfRowsInSection:1]);
-        self.t.scrollEnabled = NO;
+        self.preferredContentSize = CGSizeMake(300, 190 + 44 * rowCount);
     }
     
 }
@@ -229,15 +233,20 @@
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
-    return 2;
+    return 3;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-    if (section == 0 || self.delegate.buoyGroups.count == 0) {
-        return 1;
+    switch (section) {
+        case 0:
+            return 1;
+        case 1:
+            return (self.delegate.unlistedBuoys.count == 0) ? 1 : self.delegate.unlistedBuoys.count;
+        case 2:
+            return (self.delegate.buoyGroups.count == 0) ? 1 : self.delegate.buoyGroups.count;
     }
     
-    return self.delegate.buoyGroups.count;
+    return 0;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section {
@@ -245,7 +254,16 @@
 }
 
 - (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section {
-    return (section == 0) ? @"Settings" : @"Filters";
+    switch (section) {
+        case 0:
+            return @"Settings";
+        case 1:
+            return @"Unlisted Buoys";
+        case 2:
+            return @"Filters";
+    }
+    
+    return @"";
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -259,14 +277,33 @@
             c.backgroundColor = FMS_COLOUR_BG_LIGHT;
             
             UISegmentedControl *typeChooser = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObjects:@"Map", @"Satellite", nil]];
-            typeChooser.frame = CGRectMake(c.frame.size.width/2, 5, c.frame.size.width/2 - 10, c.frame.size.height - 10);
+            typeChooser.frame = CGRectMake(c.frame.size.width/2 - 10, 5, c.frame.size.width/2 - 20, c.frame.size.height - 10);
             typeChooser.selectedSegmentIndex = 0;
             [typeChooser addTarget:self.delegate action:@selector(mapTypeButtonPressed:) forControlEvents:UIControlEventValueChanged];
             [c addSubview:typeChooser];
         }
         c.textLabel.text = @"Map type:";
         c.selectionStyle = UITableViewCellSelectionStyleNone;
-    } else if (indexPath.section == 1) { // Filters
+    } else if (indexPath.section == 1) { // Unlisted buoys
+        c = [self.t dequeueReusableCellWithIdentifier:@"ListCell"];
+        if (c == nil) {
+            c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"ListCell"];
+            c.backgroundColor = FMS_COLOUR_BG_LIGHT;
+        }
+        
+        if (self.delegate.unlistedBuoys.count == 0) { // No buoys unlisted
+            c.selectionStyle = UITableViewCellSelectionStyleNone;
+            c.textLabel.text = @"No unlisted buoys.";
+            c.detailTextLabel.text = nil;
+            c.accessoryType = UITableViewCellAccessoryNone;
+        } else { // Show buoy at this index
+            Buoy *b = [self.delegate.unlistedBuoys objectAtIndex:indexPath.row];
+            c.selectionStyle = UITableViewCellSelectionStyleDefault;
+            c.textLabel.text = b.title;
+            c.detailTextLabel.text = (b.group == nil || b.group.groupId == 0) ? nil : b.group.title;
+            c.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        }
+    } else if (indexPath.section == 2) { // Filters
         c = [self.t dequeueReusableCellWithIdentifier:@"BlankCell"];
         if (c == nil) {
             c = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"BlankCell"];
@@ -283,7 +320,7 @@
         if (self.delegate.buoyGroups.count == 0) { // No buoys loaded to filter
             c.selectionStyle = UITableViewCellSelectionStyleNone;
             c.textLabel.text = @"No buoys currently loaded.";
-        } else { // Show buoy at this index
+        } else { // Show buoy group at this index
             BuoyGroup *g = [self.delegate.buoyGroups objectAtIndex:indexPath.row];
             c.textLabel.text = (g.groupId == 0) ? @"Unassigned" : g.title;
             c.selectionStyle = UITableViewCellSelectionStyleDefault;
@@ -311,31 +348,47 @@
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    if (indexPath.section == 0 || self.delegate.buoyGroups.count == 0) {
-        return; //Ignore if nothing happens on selection
+    if (indexPath.section == 0 || self.delegate.moreInfoDialog != nil) {
+        return; //Ignore as nothing happens on selection
+    } else if (indexPath.section == 1) { // Unlisted buoys
+        if (self.delegate.unlistedBuoys.count == 0) {
+            return;
+        }
+        
+        // Deselect
+        [tableView deselectRowAtIndexPath:indexPath animated:YES];
+        NSLog(@"Selected row %d", indexPath.row);
+        
+        // Open more info
+        Buoy *b = [self.delegate.unlistedBuoys objectAtIndex:indexPath.row];
+        NSLog(@"Selected row %d", indexPath.row);
+        [self.delegate moreInfoOpenedForBuoy:b];
+    } else if (indexPath.section == 2) { // Filters
+        if (self.delegate.buoyGroups.count == 0) {
+            return;
+        }
+        
+        // Select
+        if ([self.delegate.buoyGroupsToShow containsIndex:indexPath.row]) {
+            [self.delegate.buoyGroupsToShow removeIndex:indexPath.row];
+        } else {
+            [self.delegate.buoyGroupsToShow addIndex:indexPath.row];
+        }
+        
+        // Refresh
+        [self.t reloadData];
+        [self.delegate updateMapToMatchSelection];
     }
-    
-    // Otherwise, select
-    if ([self.delegate.buoyGroupsToShow containsIndex:indexPath.row]) {
-        [self.delegate.buoyGroupsToShow removeIndex:indexPath.row];
-    } else {
-        [self.delegate.buoyGroupsToShow addIndex:indexPath.row];
-    }
-    
-    // Refresh
-    [self.t reloadData];
-    [self.delegate updateMapToMatchSelection];
 }
 
 - (void)forceUpdate {
     // Forces an update right at this moment for this popup view's info
     [self.t reloadData];
-    if ([self.t numberOfRowsInSection:1] > maxFilterRows) {
-        self.preferredContentSize = CGSizeMake(320, 140 + 44 * maxFilterRows);
-        self.t.scrollEnabled = YES;
+    NSUInteger rowCount = [self.t numberOfRowsInSection:1] + [self.t numberOfRowsInSection:2];
+    if (rowCount > maxFilterRows) {
+        self.preferredContentSize = CGSizeMake(300, 190 + 44 * maxFilterRows);
     } else {
-        self.preferredContentSize = CGSizeMake(320, 140 + 44 * [self.t numberOfRowsInSection:1]);
-        self.t.scrollEnabled = NO;
+        self.preferredContentSize = CGSizeMake(300, 190 + 44 * rowCount);
     }
 }
 
@@ -356,11 +409,13 @@
     
     // Data models
     self.allBuoys = [NSArray array];
+    self.unlistedBuoys = [NSArray array];
     self.buoyGroups = [NSArray array];
     self.buoyGroupsToShow = [NSMutableIndexSet indexSet];
     
     // Overall colour
     self.view.backgroundColor = [UIColor whiteColor];
+    self.view.tintColor = FMS_COLOUR_BUTTON_DARK;
     
     // Create map and fit to screen
     self.map = [[MKMapView alloc] initWithFrame:self.view.frame];
@@ -376,12 +431,14 @@
     // Navigation bar settings
     // Info gear button
     UIButton *infoView = [UIButton buttonWithType:UIButtonTypeSystem];
-    infoView.frame = CGRectMake(0, 0, 40, 32);
+    infoView.frame = CGRectMake(0, 0, 30, 30);
     [infoView setTitle:@"\u2699" forState:UIControlStateNormal];
-    infoView.titleLabel.font = [UIFont systemFontOfSize:33];
+    infoView.titleLabel.font = [UIFont systemFontOfSize:26];
+    infoView.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
     [infoView setTitleColor:FMS_COLOUR_TEXT_LIGHT forState:UIControlStateNormal];
     [infoView addTarget:self action:@selector(infoButtonPressed) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *infoIcon = [[UIBarButtonItem alloc] initWithCustomView:infoView];
+    infoIcon.width = 30;
     
     // Position icon
     UIBarButtonItem *posIcon = [[MKUserTrackingBarButtonItem alloc] initWithMapView:self.map];
@@ -393,7 +450,6 @@
     [refreshInd startAnimating];
     refreshInd.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     UIBarButtonItem *refreshIndIcon = [[UIBarButtonItem alloc] initWithCustomView:refreshInd];
-    refreshIndIcon.width = refreshIcon.width;
     
     self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:infoIcon, posIcon, refreshIcon, nil];
     
@@ -557,7 +613,7 @@
         // Label containing lat/long
         UILabel *leftViewLabel = [[UILabel alloc] init];
         leftViewLabel.font = [UIFont systemFontOfSize:12];
-        leftViewLabel.numberOfLines = 0;
+        leftViewLabel.numberOfLines = 2;
         leftViewLabel.textAlignment = NSTextAlignmentRight;
         v.leftCalloutAccessoryView = leftViewLabel;
         
@@ -575,6 +631,7 @@
     UILabel *leftViewLabel = (UILabel *)v.leftCalloutAccessoryView;
     leftViewLabel.text = [NSString stringWithFormat:@"%@\n%@", [DataModel stringForLatitude:b.trueCoord.latitude], [DataModel stringForLongitude:b.trueCoord.longitude]];
     [leftViewLabel sizeToFit];
+    v.leftCalloutAccessoryView = leftViewLabel;
     UIButton *rightButton = (UIButton *)v.rightCalloutAccessoryView;
     rightButton.tag = [self.allBuoys indexOfObject:b];
     
@@ -667,18 +724,25 @@
     // Stop loading icon
     [self setRefreshIconRefresh];
     
+    // Ensure not displaying more info, otherwise ignore
+    if (self.moreInfoDialog != nil) {
+        return;
+    }
+    
     // Remove previous annotations
     [self.map removeAnnotations:self.allBuoys];
     
     // Get buoy information from list of buoys/groups
     NSMutableArray *allBuoys = [[NSMutableArray alloc] init];
+    NSMutableArray *unlistedBuoys = [[NSMutableArray alloc] init];
     for (BuoyGroup *g in buoyGroups) {
         for (Buoy *b in g.buoys) {
             // Get buoys with valid coordinates
             if (b.validCoordinate) {
                 [allBuoys addObject:b];
             } else {
-                NSLog(@"Buoy %@ with id %d has invalid coord - skipping", b, b.buoyId);
+                NSLog(@"Buoy %@ with id %d has invalid coord - adding to unlisted list", b, b.buoyId);
+                [unlistedBuoys addObject:b];
             }
         }
         
@@ -688,6 +752,7 @@
     
     // Update globals
     self.allBuoys = allBuoys;
+    self.unlistedBuoys = unlistedBuoys;
     self.buoyGroups = [buoyGroups sortedArrayUsingComparator:^NSComparisonResult(id a, id b) {
         BuoyGroup *a2 = (BuoyGroup *)a;
         BuoyGroup *b2 = (BuoyGroup *)b;
@@ -707,6 +772,8 @@
 }
 
 - (void)didGetBuoyInfoFromServer:(NSDictionary *)buoyInfo {
+    //TODO: check if right buoy
+    
     // Update more info dialog to contain info
     if (self.moreInfoDialog) {
         [self.moreInfoDialog displayBuoyInfo:buoyInfo];
@@ -734,6 +801,11 @@
 }
 
 - (void)infoButtonPressed {
+    // Do nothing while more info is open
+    if (self.moreInfoDialog != nil) {
+        return;
+    }
+    
     self.popup.modalPresentationStyle = UIModalPresentationPopover;
     self.popup.popoverPresentationController.delegate = self;
     self.popup.popoverPresentationController.barButtonItem = self.pButton;
@@ -765,7 +837,23 @@
     // Get buoy to display
     UIButton *buttonPressed = (UIButton *)c;
     Buoy *b = [self.allBuoys objectAtIndex:buttonPressed.tag];
+    [self moreInfoOpenedForBuoy:b];
+}
+
+- (void)moreInfoOpenedForBuoy:(Buoy *)b {
+    NSLog(@"Opening more info...");
     
+    // Close popup, if present
+    if (self.presentedViewController) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            [self _moreInfoOpenedForBuoy:b];
+        }];
+    } else {
+        [self _moreInfoOpenedForBuoy:b];
+    }
+}
+
+- (void)_moreInfoOpenedForBuoy:(Buoy *)b {
     // Create more info dialog
     self.moreInfoDialog = [[MoreInfoDialog alloc] init];
     self.moreInfoDialog.center = self.moreInfoDialogContainer.center;

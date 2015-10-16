@@ -16,8 +16,8 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D45892BF1B98500100EB8DCC"
                BuildableName = "FlounderMobile.app"
-               BlueprintName = "FlounderMobile"
-               ReferencedContainer = "container:FlounderMobile.xcodeproj">
+               BlueprintName = "Water Watcher"
+               ReferencedContainer = "container:Water Watcher.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -29,9 +29,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D45892D81B98500100EB8DCC"
-               BuildableName = "FlounderMobile.xctest"
-               BlueprintName = "FlounderMobileTests"
-               ReferencedContainer = "container:FlounderMobile.xcodeproj">
+               BuildableName = "Water Watcher.xctest"
+               BlueprintName = "Water WatcherTests"
+               ReferencedContainer = "container:Water Watcher.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -47,9 +47,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D45892D81B98500100EB8DCC"
-               BuildableName = "FlounderMobile.xctest"
-               BlueprintName = "FlounderMobileTests"
-               ReferencedContainer = "container:FlounderMobile.xcodeproj">
+               BuildableName = "Water Watcher.xctest"
+               BlueprintName = "Water WatcherTests"
+               ReferencedContainer = "container:Water Watcher.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -58,8 +58,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D45892BF1B98500100EB8DCC"
             BuildableName = "FlounderMobile.app"
-            BlueprintName = "FlounderMobile"
-            ReferencedContainer = "container:FlounderMobile.xcodeproj">
+            BlueprintName = "Water Watcher"
+            ReferencedContainer = "container:Water Watcher.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -81,8 +81,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D45892BF1B98500100EB8DCC"
             BuildableName = "FlounderMobile.app"
-            BlueprintName = "FlounderMobile"
-            ReferencedContainer = "container:FlounderMobile.xcodeproj">
+            BlueprintName = "Water Watcher"
+            ReferencedContainer = "container:Water Watcher.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -104,8 +104,8 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D45892BF1B98500100EB8DCC"
             BuildableName = "FlounderMobile.app"
-            BlueprintName = "FlounderMobile"
-            ReferencedContainer = "container:FlounderMobile.xcodeproj">
+            BlueprintName = "Water Watcher"
+            ReferencedContainer = "container:Water Watcher.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

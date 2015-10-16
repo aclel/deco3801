@@ -118,6 +118,7 @@
             vm.deleteObject = sensorType;
             vm.deleteType = 'sensor type';
             vm.deleteName = sensorType.name;
+            vm.deletePostscript = "(This won't affect old readings.)";
             gui.confirmDelete($scope);
         }
         

@@ -426,8 +426,8 @@
 				name: sensorType.name,
 				description: sensorType.description,
 				unit: sensorType.unit,
-				lowerBound: sensorType.lowerBound,
-				upperBound: sensorType.upperBound
+				lowerBound: parseInt(sensorType.lowerBound, 10),
+				upperBound: parseInt(sensorType.upperBound, 10)
 			};
 			return $http.put(SERVER_ADDRESS + '/api/sensor_types/' + sensorType.id, 
 				JSON.stringify(data), config);

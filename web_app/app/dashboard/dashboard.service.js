@@ -156,8 +156,6 @@
 		
 		/** Populate buoys filter */
 		function populateBuoys() {	
-			if (!readings) return;
-
 			var groups = [];
 			var instances = [];
 
@@ -305,7 +303,7 @@
 					remove.push(i);
 				}
 			}
-			for (var i = 0; i < remove.length; i++) {
+			for (var i = remove.length - 1; i >= 0; i--) {
 				buoys.splice(remove[i], 1);
 			}
 		}
@@ -326,7 +324,7 @@
 					}
 				}
 			}
-			for (var i = 0; i < remove.length; i++) {
+			for (var i = remove.length - 1; i >= 0; i--) {
 				buoys[remove[i].group].buoyInstances.splice(remove[i].instance, 1);
 			}
 		}

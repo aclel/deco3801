@@ -176,8 +176,6 @@
 			// remove old buoys
 			buoysFilterRemoveOldGroups(groups);
 			buoysFilterRemoveOldInstances(instances);
-
-			console.log(readings);
 		}
 
 		/** Populate sensor input data */
@@ -640,33 +638,45 @@
 		 * @param  {object} reading reading
 		 * @return {float}         age (0 is old, 1 is new)
 		 */
-		function getRelativeAge(reading) {
+		function getRelativeAge(reading, buoyInstance) {
 			// returns age between 0 and 1, based on a range determined as seen below
 			var time = moment.unix(reading.timestamp);
-			
-			if (times.type == 'all') {
-				// range: from 2 weeks ago until now
-				var max = moment();
-				var min = max.clone().subtract(2, 'weeks');
-			
-			} else if (times.type == 'since') {
-				var max = moment();
-				var min = moment().subtract(times.inputs.since.value,
-					 times.inputs.since.quantifier);
-					
-			} else if (times.type == 'range') {
-				// range: range of time filters
-				var max = times.range.to;
-				var min = times.range.from;
-			
-			}  else if (times.type == 'point') {
-				// range: from two weeks before point until point
-				if (times.point === null) {
-					return 1.0;
+			var min, max;
+
+			// calculate age based on instance readings
+			if (buoyInstance) {
+				min = moment.unix(buoyInstance.readings[0].timestamp);
+				max = moment.unix(
+					buoyInstance.readings[buoyInstance.readings.length - 1].timestamp
+					);
+
+			// otherwise calculate age based on time filters
+			} else {
+				if (times.type == 'all') {
+					// range: from 2 weeks ago until now
+					max = moment();
+					min = max.clone().subtract(2, 'weeks');
+				
+				} else if (times.type == 'since') {
+					max = moment();
+					min = moment().subtract(times.inputs.since.value,
+						 times.inputs.since.quantifier);
+						
+				} else if (times.type == 'range') {
+					// range: range of time filters
+					max = times.range.to;
+					min = times.range.from;
+				
+				}  else if (times.type == 'point') {
+					// range: from two weeks before point until point
+					if (times.point === null) {
+						return 1.0;
+					}
+					max = times.point;
+					min = max.clone().subtract(2, 'weeks');
 				}
-				var max = times.point;
-				var min = max.clone().subtract(2, 'weeks');
 			}
+			
 			return calculateAgeInRange(time, min, max);
 		}
 		
@@ -751,9 +761,10 @@
 			if (selectedInstance) {
 				// map.hideDisabledMarkers([]); // hide all markers
 				selectedInstance.readings.forEach(function(reading) {
+					insNum++;
 					enabledMarkers.push(reading.id);
 					map.showMarker(reading, selectedInstance,
-						getRelativeAge(reading),
+						getRelativeAge(reading, selectedInstance),
 						popupContent(reading, selectedInstance));
 				});
 			}
@@ -766,13 +777,15 @@
 					}
 
 					var reading = buoyInstance.readings[buoyInstance.readings.length - 1];
+					insNum++;
 					enabledMarkers.push(reading.id);
 					map.showMarker(reading, buoyInstance,
-						getRelativeAge(reading),
+						1, //getRelativeAge(reading, buoyInstance),
 						popupContent(reading, buoyInstance));
-					insNum++;
 				});
 			});
+
+			console.log(insNum);
 
 			map.hideDisabledMarkers(enabledMarkers);
 		}

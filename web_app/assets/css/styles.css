@@ -453,67 +453,18 @@ input.ti-xl {
 
 /************************ NAVBAR *************************/
 
-header {
-    background: #027E92;
-    padding: 5px 20px;
+.navbar {
+  margin-bottom: 0;
 }
 
-header .title {
-    font-size: 1.5em;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    color: #fff;
-    text-transform: capitalize;
-    display: inline-block;
+.navbar-container {
+  margin-right: 20px;
+}
+.navbar-brand {
+  text-transform: capitalize;
+  margin-right: 20px;
 }
 
-header .menu {
-    display: inline-block;
-    margin-left: 10%;
-    vertical-align: middle;
-}
-
-header .menu li {
-  list-style-type: none;
-}
-
-header .menu li.menu-item {
-    display: inline-block;
-    /*float: left;*/
-    padding: 0px;
-    margin-left: 21px;
-    /*margin-bottom: 8px;*/
-}
-
-header .menu li.menu-item.active {
-    border-bottom: 2px solid #A4AF00;
-}
-
-header .menu li.menu-item a {
-    cursor: pointer;
-    text-transform: uppercase;
-    font-size: 0.85em;
-    font-weight: 600;
-    text-decoration: none;
-}
-
-header li.menu-item a,
-header li.menu-item a:hover {
-  color: white;
-}
-
-header .menu li.menu-item a:hover {
-    padding-bottom: 1px;
-    border-bottom: 2px solid rgba(255, 165, 0, 0.44);
-}
-
-header .menu li.menu-item.right {
-    /*float: right;*/
-}
-
-header .menu .glyphicon {
-  color: white;
-}
 
 
 /************************* DASHBOARD **********************/

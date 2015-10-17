@@ -140,7 +140,10 @@
 		<h3>Charts</h3>
 		<div class="chart" ng-if="vm.showGraphs">
 			<div ng-repeat="(sensor, chart) in vm.charts">
-				<h4>{{ sensor }}</h4>
+				<h4>
+					{{ sensor }}
+					<span ng-if="chart.averaged"> (Averaged)</span>
+				</h4>
 				<canvas id="line" class="chart chart-line" data="chart.data"
 					labels="chart.timestamps" options="chart.options" >
 				</canvas>

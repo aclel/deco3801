@@ -823,7 +823,7 @@
 		            var sensorName = sensors[sReading.sensorTypeId].name;
 		            //if no sensorReadings exist
 		            if (!charts.hasOwnProperty(sensorName)) {
-		                charts[sensorName] = {average:"Averaged Readings", timestamps: [], data: [[]], 
+		                charts[sensorName] = { timestamps: [], data: [[]], 
 		                	options: {
 		                		scaleOverride : true,
 		                		scaleStartValue: sensors[sReading.sensorTypeId].lowerBound,
@@ -837,7 +837,7 @@
 		            //then push to respective sensorReadings
 		            charts[sensorName].timestamps.push(moment.unix(reading.timestamp).format("h:mma D/M"));
 		            charts[sensorName].data[0].push(sReading.value);
-		            
+		            charts[sensorName].averaged = false;
 		        });
 		        
 		    });
@@ -877,6 +877,7 @@
 					}
 					charts[key].timestamps = averageRespectiveTime;
 					charts[key].data[0] = averageData;
+					charts[key].averaged = true;
 				}
 
 			}

@@ -254,6 +254,7 @@
 			} else {
 				instance.id = buoyInstance.id;
 				instance.enabled = true;
+				instance.colour = buoyInstance.colour;
 				group.buoyInstances.push(instance);
 			}
 			instance.name = buoyInstance.name; // always update name in case it was changed in config page

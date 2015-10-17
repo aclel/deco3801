@@ -35,6 +35,11 @@
 
 		var dateFormat = "D/M/YY";
 		var timeFormat = "h:mm A";
+		var colours = ["#84CBD1", "#CC4B30", "#BF54D0", "#70D84C", "#36362B",
+				"#CD4075", "#553264", "#CBCC92", "#D2983C", "#6B7AD0",
+				"#C78378", "#5A8A37", "#CCD446", "#72DA9E", "#598369",
+				"#6D292F", "#CAB3CC", "#785F2A", "#596C87", "#C471B4"
+		]; // palette generated from http://tools.medialab.sciences-po.fr/iwanthue/
 
 		initialiseTimes();
 		initialiseListeners();
@@ -171,6 +176,8 @@
 			// remove old buoys
 			buoysFilterRemoveOldGroups(groups);
 			buoysFilterRemoveOldInstances(instances);
+
+			console.log(readings);
 		}
 
 		/** Populate sensor input data */
@@ -231,8 +238,10 @@
 			} else {
 				instance.id = buoyInstance.id;
 				instance.enabled = true;
+				instance.colour = colours.pop(); // assign colour
 				group.buoyInstances.push(instance);
 			}
+			buoyInstance.colour = instance.colour; // assign colour to readings
 			instance.name = buoyInstance.name; // always update name in case it was changed in config page
 			return instance;
 		}
@@ -297,6 +306,7 @@
 				for (var j = 0; j < group.buoyInstances.length; j++) {
 					var instance = group.buoyInstances[j];
 					if (keep.indexOf(instance.id) == -1) {
+						colours.push(instance.colour); // unassign colour
 						remove.push({ group: i, instance: j });
 					}
 				}
@@ -537,9 +547,9 @@
 			group.buoyInstances.push(instance);
 			instance.id = buoyInstance.id;
 			instance.name = buoyInstance.name;
+			instance.colour = buoyInstance.colour;
 			instance.readings = [];
 			return instance;
-
 		}
 
 		/**
@@ -743,7 +753,7 @@
 				selectedInstance.readings.forEach(function(reading) {
 					enabledMarkers.push(reading.id);
 					map.showMarker(reading, selectedInstance,
-						insNum, getRelativeAge(reading),
+						getRelativeAge(reading),
 						popupContent(reading, selectedInstance));
 				});
 			}
@@ -758,7 +768,7 @@
 					var reading = buoyInstance.readings[buoyInstance.readings.length - 1];
 					enabledMarkers.push(reading.id);
 					map.showMarker(reading, buoyInstance,
-						insNum, getRelativeAge(reading),
+						getRelativeAge(reading),
 						popupContent(reading, buoyInstance));
 					insNum++;
 				});
@@ -843,7 +853,6 @@
 		    });
 		    
 
-			console.log(charts);
 			averageReadings(charts);
 		    return charts;
 		}

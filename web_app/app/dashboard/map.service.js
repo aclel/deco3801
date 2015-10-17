@@ -99,7 +99,7 @@
 		 * @param  {object} buoyInstance buoyInstance the reading is from
 		 * @param {string} colour hex colour of the marker
 		 */
-		function showMarker(reading, buoyInstance, colourIndex, age, content) {
+		function showMarker(reading, buoyInstance, age, content) {
 			var id = reading.id;
 			if (!markers.hasOwnProperty(id)) {
 				// create new marker if it doesn't exist
@@ -110,7 +110,7 @@
 					enableMarker(id);
 				}
 			}
-			markers[id].setIcon(markerColour(colorPalette(colourIndex)));
+			markers[id].setIcon(markerColour(buoyInstance.colour));
 			markers[id].setOpacity(calculateOpacity(age));
 		}
 		

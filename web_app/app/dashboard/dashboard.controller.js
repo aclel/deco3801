@@ -62,9 +62,9 @@
 				chartObjects = [];
 				vm.charts = dashboard.calculateChartData(buoyInstance);
 				$scope.$apply(function() {
-					if (!vm.showGraphs) {
-						toggleGraphs();
-					}
+					// if (!vm.showGraphs) {
+					// 	toggleGraphs();
+					// }
 				});
 			});
 			$scope.$on('create', function(event, chart) {

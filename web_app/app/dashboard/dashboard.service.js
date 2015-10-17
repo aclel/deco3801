@@ -35,11 +35,13 @@
 
 		var dateFormat = "D/M/YY";
 		var timeFormat = "h:mm A";
+		// palette generated from http://tools.medialab.sciences-po.fr/iwanthue/
 		var colours = ["#84CBD1", "#CC4B30", "#BF54D0", "#70D84C", "#36362B",
 				"#CD4075", "#553264", "#CBCC92", "#D2983C", "#6B7AD0",
 				"#C78378", "#5A8A37", "#CCD446", "#72DA9E", "#598369",
 				"#6D292F", "#CAB3CC", "#785F2A", "#596C87", "#C471B4"
-		]; // palette generated from http://tools.medialab.sciences-po.fr/iwanthue/
+		].reverse(); 
+		var instanceColours = {};
 
 		initialiseTimes();
 		initialiseListeners();
@@ -134,7 +136,7 @@
 				point: null,
 				pointReadings: [], // contains list of closest readings to point
 				inputs: {
-					since: { value: 200, quantifier: "weeks", options: [
+					since: { value: 20, quantifier: "weeks", options: [
 						"hours", "days", "weeks", "months"
 					] },
 					range: {
@@ -168,6 +170,7 @@
 				// add instances
 				for (var j = 0; j < buoyGroup.buoyInstances.length; j++) {
 					var buoyInstance = buoyGroup.buoyInstances[j];
+					assignInstanceColour(buoyInstance);
 					instances.push(buoyInstance.id);
 					buoysFilterAddInstance(buoyInstance, group);
 				}
@@ -176,6 +179,23 @@
 			// remove old buoys
 			buoysFilterRemoveOldGroups(groups);
 			buoysFilterRemoveOldInstances(instances);
+		}
+
+		/**
+		 * Assign a colour to a buoy instance.
+		 * Note colours are never unassigned.
+		 * @param  {object} buoyInstance buoyInstance to assign colour to
+		 */
+		function assignInstanceColour(buoyInstance) {
+			// note colours are never unassigned
+			if (!instanceColours.hasOwnProperty(buoyInstance.id)) {
+				if (colours.length) {
+					instanceColours[buoyInstance.id] = colours.pop();
+				} else {
+					instanceColours[buoyInstance.id] = "#FFFFFF";
+				}
+			}
+			buoyInstance.colour = instanceColours[buoyInstance.id];
 		}
 
 		/** Populate sensor input data */
@@ -236,10 +256,8 @@
 			} else {
 				instance.id = buoyInstance.id;
 				instance.enabled = true;
-				instance.colour = colours.pop(); // assign colour
 				group.buoyInstances.push(instance);
 			}
-			buoyInstance.colour = instance.colour; // assign colour to readings
 			instance.name = buoyInstance.name; // always update name in case it was changed in config page
 			return instance;
 		}
@@ -304,7 +322,6 @@
 				for (var j = 0; j < group.buoyInstances.length; j++) {
 					var instance = group.buoyInstances[j];
 					if (keep.indexOf(instance.id) == -1) {
-						colours.push(instance.colour); // unassign colour
 						remove.push({ group: i, instance: j });
 					}
 				}
@@ -473,7 +490,10 @@
 		function updateFilters() {
 			filteredReadings = [];
 			var numInstances = 0, numReadings = 0;
-			if (!readings.length || !Object.keys(sensors).length) return;
+			if (!readings.length || !Object.keys(sensors).length) {
+				map.hideDisabledMarkers([]); // hide all markers
+				return;
+			}
 
 			for (var i = 0; i < readings.length; i++) {
 				var buoyGroup = readings[i];
@@ -785,8 +805,6 @@
 				});
 			});
 
-			console.log(insNum);
-
 			map.hideDisabledMarkers(enabledMarkers);
 		}
 
@@ -887,12 +905,12 @@
 					for (var i = 0; i < charts[key].timestamps.length; i++){
 						if (i == 0 || i % division != 0){
 							var num = charts[key].data[0][i].valueOf();
-							console.log(i + "th element: reading = " +charts[key].data[0][i])
+							// console.log(i + "th element: reading = " +charts[key].data[0][i])
 							averagedReading += charts[key].data[0][i];
 						} else {
 							averagedReading /= division;
 							averageData.push(Math.floor(averagedReading));
-							console.log(averagedReading);
+							// console.log(averagedReading);
 							averagedReading = charts[key].data[0][i];
 							averageRespectiveTime.push(moment(charts[key].timestamps[i], "h:mma D/M").format( "h:00a D/M"));
 						}

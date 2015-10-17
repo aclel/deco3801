@@ -153,8 +153,8 @@
 					{{ sensor }}
 					<span ng-if="chart.averaged"> (Averaged)</span>
 				</h4>
-				<canvas id="line" class="chart chart-line" data="chart.data"
-					labels="chart.timestamps" options="chart.options" >
+				<canvas class="chart chart-base" chart-type="'Scatter'" data="chart.data"
+					options="chart.options" >
 				</canvas>
 			</div>
 		</div>

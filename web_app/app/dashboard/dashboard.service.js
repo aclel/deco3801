@@ -813,45 +813,52 @@
 		 * @param  {object} buoyInstance buoy instance
 		 */
 		function calculateChartData(buoyInstance) {
-		    var charts = {};
-		    console.log(filteredReadings);
-		    console.log(buoyInstance);
-		    buoyInstance.readings.forEach(function(reading) {
-		    	
-		        reading.sensorReadings.forEach(function(sReading) {
+			if (!buoyInstance) {
+				return {};
+			}
 
+			var found = false;
+			for (var i = 0; i < filteredReadings.length; i++) {
+				var buoyGroup = filteredReadings[i];
+				for (var j = 0; j < buoyGroup.buoyInstances.length; j++) {
+					var instance = buoyGroup.buoyInstances[j];
+					if (buoyInstance.id == instance.id) {
+						found = true;
+						buoyInstance = instance;
+						break;
+					}
+				}
+			}
+
+			if (!found) {
+				return {};
+			}
+
+		    var charts = {};
+		    buoyInstance.readings.forEach(function(reading) {
+		        reading.sensorReadings.forEach(function(sReading) {
 		            var sensorName = sensors[sReading.sensorTypeId].name;
 		            //if no sensorReadings exist
 		            if (!charts.hasOwnProperty(sensorName)) {
-		                charts[sensorName] = { timestamps: [], data: [[]], 
+		                charts[sensorName] = {
+		                	timestamps: [],
+		                	data: [[]], 
+		                	averaged: false,
 		                	options: {
 		                		scaleOverride : true,
 		                		scaleStartValue: sensors[sReading.sensorTypeId].lowerBound,
 		                		scaleSteps : 10,
 		                		scaleStepWidth : (sensors[sReading.sensorTypeId].upperBound)/10,
-		                		scaleIntegersOnly: true,
-		                		tooltipTemplate: "<%if (label){%><%=label%>: <%}%><%= value %>"
+		                		scaleIntegersOnly: true
 		                	}
 		            	};
 		            }
 		            //then push to respective sensorReadings
 		            charts[sensorName].timestamps.push(moment.unix(reading.timestamp).format("h:mma D/M"));
-		            
-		            //default chart not to display "Averaged" tag
-		            charts[sensorName].averaged = false;
-
-		            //prevents chart data point going above upperbound of chart 
-		            //TODO: refactor so data average doesnt get brought down in averageReadings
-		            if (sReading.value > sensors[sReading.sensorTypeId].upperBound){
-		        		charts[sensorName].data[0].push(sensors[sReading.sensorTypeId].upperBound);
-		            } else {
-		            	charts[sensorName].data[0].push(sReading.value);
-		            }
-		            
+		            charts[sensorName].data[0].push({ x: reading.timestamp, y: sReading.value });
 		        });
 		    });
 		    
-			
 			averageReadings(charts);
 		    return charts;
 		}
@@ -862,37 +869,37 @@
 		 * Does a moving average
 		 */
 		function averageReadings(charts){
-			
-			for (var key in charts){
-
-				//sets the maxamount of values in the Y-axis of the charts
-				var ymax = 15;
-
-				var division = Math.floor(charts[key].timestamps.length/ymax);
+			for (var key in charts) {
+				var chart = charts[key];
+				var data = chart.data[0];
+				var timestamps = chart.timestamps;
+				var xmax = 15; // maximum labels on x-axis, thus maximum data points
+				var division = Math.floor(chart.timestamps.length/xmax);
 				
 				var averageData = [];
 				var averageRespectiveTime = [];
 
-				if (charts[key].timestamps.length > 20){
-					var averagedReading = 0;
-					for (var i = 0; i < charts[key].timestamps.length; i++){
-						if (i == 0 || i % division != 0){
-							var num = charts[key].data[0][i].valueOf();
-							// console.log(i + "th element: reading = " +charts[key].data[0][i])
-							averagedReading += charts[key].data[0][i];
+				if (chart.timestamps.length > xmax) {
+					var averagedReading = 0, averagedTimes = 0;
+					for (var i = 0; i < data.length; i++) {
+						if (i == 0 || i % division != 0) {
+							// console.log(i + "th element: reading = " +data[i])
+							averagedReading += data[i].y;
+							// averagedTimes += moment(timestamps[i], "h:mma D/M").unix();
 						} else {
 							averagedReading /= division;
-							averageData.push(Math.floor(averagedReading));
+							averageData.push({ x: data[i].x, y: Math.floor(averagedReading) });
+							// averagedTimes /= division;
+							// averageRespectiveTime.push(moment.unix(averagedTimes).format("h:mma D/M"));
 							// console.log(averagedReading);
-							averagedReading = charts[key].data[0][i];
-							averageRespectiveTime.push(moment(charts[key].timestamps[i], "h:mma D/M").format( "h:00a D/M"));
+
+							averagedReading = data[i].y;
 						}
 					}
-					charts[key].timestamps = averageRespectiveTime;
-					charts[key].data[0] = averageData;
-					charts[key].averaged = true;
+					// chart.timestamps = averageRespectiveTime;
+					chart.data[0] = averageData;
+					chart.averaged = true;
 				}
-
 			}
 			return charts;
 		}

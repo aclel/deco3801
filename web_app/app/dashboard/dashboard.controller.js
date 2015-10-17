@@ -69,6 +69,7 @@
 				});
 			});
 			$scope.$on('create', function(event, chart) {
+				console.log(chart);
 				chartObjects.push(chart);
 			});
 		}
@@ -93,6 +94,7 @@
 			vm.loading = true;
 			dashboard.updateTimes().then(function() {
 				vm.loading = false;
+				vm.charts = dashboard.calculateChartData(vm.selectedBuoy);
 			});
 		}
 		
@@ -120,6 +122,7 @@
 		function resizeCharts() {
 			chartObjects.forEach(function(chart) {
 				chart.resize(chart.render, true);
+				chart.update();
 			});
 		}
 			

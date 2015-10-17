@@ -31,14 +31,12 @@
 		var sensors = {};
 		var buoys = [];
 		var times = {};
-		var chart = {};
 		var readingMetadata = {};
 
 		var dateFormat = "D/M/YY";
 		var timeFormat = "h:mm A";
 
 		initialiseTimes();
-		initialiseChart();
 		initialiseListeners();
 
 		/** The service methods to expose */
@@ -46,7 +44,6 @@
 			buoys: getBuoys,
 			times: getTimes,
 			sensors: getSensors,
-			chart: getChart,
 			queryReadings: queryReadings,
 			querySensors: querySensors,
 			selectBuoyGroup: selectBuoyGroup,
@@ -54,7 +51,6 @@
 			updateTimes: updateTimes,
 			updateSensors: updateSensors,
 			exportData: exportData,
-			displayChartInstance: displayChartInstance,
 			calculateChartData: calculateChartData,
 			readingMetadata: getReadingMetadata
 		};
@@ -81,14 +77,6 @@
 		 */
 		function getSensors() {
 			return sensors;
-		}
-
-		/**
-		 * Return chart data structure
-		 * @return {object} chart data
-		 */
-		function getChart() {
-			return chart;
 		}
 
 		function getReadingMetadata() {
@@ -141,7 +129,7 @@
 				point: null,
 				pointReadings: [], // contains list of closest readings to point
 				inputs: {
-					since: { value: 4, quantifier: "weeks", options: [
+					since: { value: 200, quantifier: "weeks", options: [
 						"hours", "days", "weeks", "months"
 					] },
 					range: {
@@ -151,15 +139,6 @@
 					point: { date: "", time: "" },
 				}
 			}
-		}
-
-		/** Initialise charts */
-		function initialiseChart() {
-			chart.series = [];
-			chart.labels = [];
-			chart.data = [
-				[null]
-			];
 		}
 
 		function initialiseListeners() {
@@ -560,6 +539,7 @@
 			instance.name = buoyInstance.name;
 			instance.readings = [];
 			return instance;
+
 		}
 
 		/**
@@ -787,7 +767,6 @@
 			map.hideDisabledMarkers(enabledMarkers);
 		}
 
-
 		function setupReadings() {
 
 			var chartArray = [];
@@ -835,68 +814,72 @@
 			return chartArray;
 			
 		}
+		
+		function calculateChartData(buoyInstance) {
+		    var charts = {};
 
-		function displayChartInstance(instanceName){
+		    buoyInstance.readings.forEach(function(reading) {
+		        reading.sensorReadings.forEach(function(sReading) {
+		            var sensorName = sensors[sReading.sensorTypeId].name;
+		            //if no sensorReadings exist
+		            if (!charts.hasOwnProperty(sensorName)) {
+		                charts[sensorName] = {average:"Averaged Readings", timestamps: [], data: [[]], 
+		                	options: {
+		                		scaleOverride : true,
+		                		scaleStartValue: sensors[sReading.sensorTypeId].lowerBound,
+		                		scaleSteps : 10,
+		                		scaleStepWidth : (sensors[sReading.sensorTypeId].upperBound)/10,
+		                		scaleIntegersOnly: true,
+		                		tooltipTemplate: "<%if (label){%><%=label%>: <%}%><%= value %>"
+		                	}
+		            	};
+		            }
+		            //then push to respective sensorReadings
+		            charts[sensorName].timestamps.push(moment.unix(reading.timestamp).format("h:mma D/M"));
+		            charts[sensorName].data[0].push(sReading.value);
+		            
+		        });
+		        
+		    });
+		    
+
+			console.log(charts);
+			averageReadings(charts);
+		    return charts;
+		}
+
+		function averageReadings(charts){
 			
-			var instanceReadings = setupReadings();
+			for (var key in charts){
 
-			var tempData = [];
-			var tempLabels = [];
-			var tempName;
-			for (var i = 0; i < instanceReadings.length; i++){
-				if (instanceReadings[i].name == instanceName){
+				//sets the maxamount of values in the Y-axis of the charts
+				var ymax = 15;
 
-					tempName = [instanceReadings[i].name ];
-					// var date = new Date();
-					for(var q = 0; q < instanceReadings[i].readings.length; q++){
-					
+				var division = Math.floor(charts[key].timestamps.length/ymax);
+				
+				var averageData = [];
+				var averageRespectiveTime = [];
 
-
-						// date = instanceReadings[i].readings[q].timeStamp
-						tempLabels.push(instanceReadings[i].readings[q].timeStamp);
-						tempData.push(instanceReadings[i].readings[q].turbidity);
+				if (charts[key].timestamps.length > 20){
+					var averagedReading = 0;
+					for (var i = 0; i < charts[key].timestamps.length; i++){
+						if (i == 0 || i % division != 0){
+							var num = charts[key].data[0][i].valueOf();
+							console.log(i + "th element: reading = " +charts[key].data[0][i])
+							averagedReading += charts[key].data[0][i];
+						} else {
+							averagedReading /= division;
+							averageData.push(Math.floor(averagedReading));
+							console.log(averagedReading);
+							averagedReading = charts[key].data[0][i];
+							averageRespectiveTime.push(moment(charts[key].timestamps[i], "h:mma D/M").format( "h:00a D/M"));
+						}
 					}
+					charts[key].timestamps = averageRespectiveTime;
+					charts[key].data[0] = averageData;
 				}
 
 			}
-			if (tempLabels.length > 100){
-				tempLabels = tempLabels.slice(0,101);
-				var division = Math.floor(tempLabels.length/10);
-				// console.log(division);
-				chart.labels.unshift("");
-				for (var i = 1; i < tempLabels.length; i++){
-					if (i % division != 0){
-						tempLabels[i] = "";
-					}
-				// console.log(tempLabels);
-
-				}
-			} 
-			chart.series = tempName;
-			chart.labels = tempLabels;
-			chart.labels.unshift("");
-			chart.data = [tempData];
-
-			chart.data[0].unshift(tempData[0]);
-
-			
-
-		}
-
-
-		function calculateChartData(buoyInstance) {
-			var charts = {};
-			buoyInstance.readings.forEach(function(reading) {
-				reading.sensorReadings.forEach(function(sReading) {
-					var sensorName = sensors[sReading.sensorTypeId].name;
-					if (!charts.hasOwnProperty(sensorName)) {
-						charts[sensorName] = { timestamps: [], data: [[]] };
-					}
-					charts[sensorName].timestamps.push(reading.timestamp);
-					charts[sensorName].data[0].push(sReading.value);
-				});
-			});
-			// console.log(charts);
 			return charts;
 		}
 	}

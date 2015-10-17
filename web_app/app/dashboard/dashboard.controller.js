@@ -30,6 +30,7 @@
 		/** Used to determine when initial requests have returned */
 		var resolved = 0;
 		var chartObj;
+		
 
 		/** Variables and methods bound to viewmodel */
 		vm.loading = false;
@@ -38,7 +39,6 @@
 		vm.times = dashboard.times(); // binds reference
 		vm.sensors = dashboard.sensors(); // binds reference
 		vm.charts = {};
-		vm.chart = dashboard.chart(); // binds reference
 		vm.readingMetadata = dashboard.readingMetadata(); // binds reference
 		vm.selectBuoyGroup = dashboard.selectBuoyGroup;
 		vm.selectBuoyInstance = dashboard.selectBuoyInstance;
@@ -59,12 +59,11 @@
 
 			// set up chart listeners
 			$scope.$on('mapMarkerSelected', function(event, buoyInstance) {
-				vm.charts = dashboard.calculateChartData(buoyInstance);
 				$scope.$apply(function() {
+					vm.charts = dashboard.calculateChartData(buoyInstance);
 					if (!vm.showGraphs) {
 						toggleGraphs();
 					}
-					// dashboard.displayChartInstance(buoyInstance.name);
 				});
 			});
 			$scope.$on('create', function(event, chart) {

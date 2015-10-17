@@ -138,11 +138,11 @@
 			</span>		
 		</button>
 		<h3>Charts</h3>
-		<div ng-if="vm.showGraphs">
+		<div class="chart" ng-if="vm.showGraphs">
 			<div ng-repeat="(sensor, chart) in vm.charts">
 				<h4>{{ sensor }}</h4>
 				<canvas id="line" class="chart chart-line" data="chart.data"
-					labels="chart.timestamps" legend="true" >
+					labels="chart.timestamps" options="chart.options" >
 				</canvas>
 			</div>
 		</div>

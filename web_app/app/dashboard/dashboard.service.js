@@ -807,59 +807,19 @@
 			map.hideDisabledMarkers(enabledMarkers);
 		}
 
-		function setupReadings() {
 
-			var chartArray = [];
-			
-			var readingsList = filteredReadings;
-
-			for (var p = 0; p < readingsList.length; p++) {
-				for (var i = 0; i < readingsList[p].buoyInstances.length; i++) {
-					var chartData = {};
-
-					chartData.name = readingsList[p].buoyInstances[i].name;
-					var chartReadings = [];
-					for(var q = 0; q < readingsList[p].buoyInstances[i].readings.length; q ++){
-						
-						for (var z = 0; z < readingsList[p].buoyInstances[i].readings[q].sensorReadings.length; z ++){
-							
-							if (readingsList[p].buoyInstances[i].readings[q].sensorReadings[z].sensorTypeId == 1){
-								
-
-
-								var timeStamp = readingsList[p].buoyInstances[i].readings[q].timestamp;
-								
-								var niceTime = moment.unix(timeStamp).format("D/M h:mma")
-								var turbidity = readingsList[p].buoyInstances[i].readings[q].sensorReadings[z].value;
-								//sets a max value on turbidity due to chart limitations 
-								if (turbidity > 200){
-									turbidity = 200;
-								}
-								chartReadings.push({timeStamp: niceTime,turbidity: turbidity});
-
-							}
-
-						}
-						
-					}
-				
-				chartData.readings = chartReadings;
-
-				chartArray.push(chartData);
-
-				}
-			
-			}
-			// console.log(chartArray);
-			return chartArray;
-			
-		}
-		
+		/**
+		 * Displays chart with given buoyInstance
+		 * @param  {object} buoyInstance buoy instance
+		 */
 		function calculateChartData(buoyInstance) {
 		    var charts = {};
-
+		    console.log(filteredReadings);
+		    console.log(buoyInstance);
 		    buoyInstance.readings.forEach(function(reading) {
+		    	
 		        reading.sensorReadings.forEach(function(sReading) {
+
 		            var sensorName = sensors[sReading.sensorTypeId].name;
 		            //if no sensorReadings exist
 		            if (!charts.hasOwnProperty(sensorName)) {
@@ -876,17 +836,31 @@
 		            }
 		            //then push to respective sensorReadings
 		            charts[sensorName].timestamps.push(moment.unix(reading.timestamp).format("h:mma D/M"));
-		            charts[sensorName].data[0].push(sReading.value);
+		            
+		            //default chart not to display "Averaged" tag
 		            charts[sensorName].averaged = false;
+
+		            //prevents chart data point going above upperbound of chart 
+		            //TODO: refactor so data average doesnt get brought down in averageReadings
+		            if (sReading.value > sensors[sReading.sensorTypeId].upperBound){
+		        		charts[sensorName].data[0].push(sensors[sReading.sensorTypeId].upperBound);
+		            } else {
+		            	charts[sensorName].data[0].push(sReading.value);
+		            }
+		            
 		        });
-		        
 		    });
 		    
-
+			
 			averageReadings(charts);
 		    return charts;
 		}
 
+		/**
+		 * Handles large data sets for the charts
+		 * ymax is the amount of labels in the y axis
+		 * Does a moving average
+		 */
 		function averageReadings(charts){
 			
 			for (var key in charts){

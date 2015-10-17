@@ -42,10 +42,10 @@ form {
 }
 
 .vertical-text {
-  transform: rotate(90deg);
+  /*transform: rotate(90deg);*/
   /*transform-origin: left top 0;*/
   /*float: left;*/
-  margin-top: 100px;
+  margin-top: 60px;
 }
 
 

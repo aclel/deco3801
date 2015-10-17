@@ -65,6 +65,7 @@
 					// if (!vm.showGraphs) {
 					// 	toggleGraphs();
 					// }
+					vm.selectedBuoy = buoyInstance;
 				});
 			});
 			$scope.$on('create', function(event, chart) {

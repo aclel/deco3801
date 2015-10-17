@@ -41,6 +41,13 @@ form {
   border-top: none;
 }
 
+.vertical-text {
+  transform: rotate(90deg);
+  /*transform-origin: left top 0;*/
+  /*float: left;*/
+  margin-top: 100px;
+}
+
 
 /************************** FONT **************************/
 
@@ -455,14 +462,52 @@ input.ti-xl {
 
 .navbar {
   margin-bottom: 0;
+  background-color: #073F64;
+  /*border-color: #6E8798;*/
+  border: none;
+}
+
+.navbar-default .navbar-brand,
+.navbar-default .navbar-brand:hover {
+  color: white;
+} {
+  color: white;
+}
+
+.navbar-default .navbar-nav li a {
+  color: #E2E2E2;
+}
+
+.navbar-default .navbar-nav li a:hover {
+  color: white;
+}
+
+.navbar-default .navbar-nav .active a,
+.navbar-default .navbar-nav .active a:hover,
+.navbar-default .navbar-nav .active a:focus {
+  color: #063858;
+  font-weight: 700;
 }
 
 .navbar-container {
   margin-right: 20px;
 }
 .navbar-brand {
-  text-transform: capitalize;
   margin-right: 20px;
+}
+
+.dropdown-menu > li > a {
+  /*color: #333 !important;*/
+}
+
+.navbar .dropdown-menu {
+  background-color: #073F64;
+  border: none;
+}
+
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus {
+  background-color: #1A608E; 
 }
 
 

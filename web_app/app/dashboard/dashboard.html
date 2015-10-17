@@ -138,8 +138,8 @@
 			</span>		
 		</button>
 		<h3 ng-if="vm.showGraphs && !vm.selectedBuoy">(No Buoy Selected)</h3>
-		<h3 class="vertical-text" ng-if="!vm.showGraphs && !vm.selectedBuoy">(No Buoy Selected)</h3>
-		<h3 class="vertical-text" ng-if="!vm.showGraphs && vm.selectedBuoy">{{ vm.selectedBuoy.name }}</h3>
+		<h3 class="buoy-title" ng-if="!vm.showGraphs && !vm.selectedBuoy">(No Buoy Selected)</h3>
+		<h3 class="buoy-title" ng-if="!vm.showGraphs && vm.selectedBuoy">{{ vm.selectedBuoy.name }}</h3>
 		<div ng-if="vm.showGraphs && vm.selectedBuoy">
 			<h3>{{ vm.selectedBuoy.name }}</h3>
 			<em>Readings: {{ vm.selectedBuoy.readings.length }}</em>

@@ -42,7 +42,7 @@ form {
 }
 
 .vertical-text {
-  /*transform: rotate(90deg);*/
+  transform: rotate(90deg);
   /*transform-origin: left top 0;*/
   /*float: left;*/
   margin-top: 60px;
@@ -470,8 +470,6 @@ input.ti-xl {
 .navbar-default .navbar-brand,
 .navbar-default .navbar-brand:hover {
   color: white;
-} {
-  color: white;
 }
 
 .navbar-default .navbar-nav li a {
@@ -587,6 +585,10 @@ input.ti-xl {
 
 .filter-table tr td {
   padding: 2px;
+}
+
+.buoy-title {
+  margin-top: 60px;
 }
 
 

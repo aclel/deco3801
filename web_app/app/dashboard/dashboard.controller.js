@@ -29,7 +29,7 @@
 		
 		/** Used to determine when initial requests have returned */
 		var resolved = 0;
-		var chartObj;
+		var chartObjects = [];
 		
 
 		/** Variables and methods bound to viewmodel */
@@ -59,15 +59,16 @@
 
 			// set up chart listeners
 			$scope.$on('mapMarkerSelected', function(event, buoyInstance) {
+				chartObjects = [];
+				vm.charts = dashboard.calculateChartData(buoyInstance);
 				$scope.$apply(function() {
-					vm.charts = dashboard.calculateChartData(buoyInstance);
 					if (!vm.showGraphs) {
 						toggleGraphs();
 					}
 				});
 			});
 			$scope.$on('create', function(event, chart) {
-				chartObj = chart;
+				chartObjects.push(chart);
 			});
 		}
 
@@ -110,7 +111,14 @@
 				.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
 					// finish expanding/contracting
 					map.setCenter(center);
-					chartObj.resize(chartObj.render, true);
+					resizeCharts();
+			});
+		}
+
+		/** Resize all charts */
+		function resizeCharts() {
+			chartObjects.forEach(function(chart) {
+				chart.resize(chart.render, true);
 			});
 		}
 			

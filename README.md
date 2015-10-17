@@ -1,11 +1,11 @@
-# Flood Monitoring System
+# WaterWatcher
 
-The Flood Monitoring System is a data management solution which is used to manage buoys that have been deployed to waterways.
+WaterWatcher is a data management solution which is used to manage and collect data from buoys that have been deployed to waterways throughout South-East Queensland and other regions throughout the world. 
 
-#####It has 3 main components:
-- Server
-- Web App
-- iOS App
+WaterWatcher has 3 main components:
+- Server  
+- Web App  
+- iOS App  
 
 ## Server
 
@@ -25,8 +25,10 @@ The web server is written in Go, meaning that the entire project needs to be clo
 #### Configuring the database
 
 1. Setup a MySQL server
-2. Create a database and import fms.sql
+2. Create a database and import mysql/fms.sql
 3. Create a user and give them access to the database
+
+Remember the name of the database, you will need it later. 
 
 #### Configuring SMTP Server
 
@@ -37,66 +39,29 @@ The web server is written in Go, meaning that the entire project needs to be clo
 
 Several environment variables need to be configured for the server to run.
 
-1. Open and edit `tools/env.sh` or `tools/env.bat` depending on your OS.
-2. Run the edited enviornment script.  
-3. Alternatively, you may manually add the following variables:
-- `FMS_DB_HOST` - The hostname of the database, for example "localhost"
-- `FMS_DB_PORT` - The port of the database at the hostname, for example "3306"
-- `FMS_DB_USERNAME` - The username of the user that has access to the database
-- `FMS_DB_PASSWORD` - The password of the user that has access to the database
-- `FMS_DB_NAME` - The name of the database
-- `FMS_SMTP_USERNAME` - Ask Andrew C for this
-- `FMS_SMTP_PASSWORD` - Ask Andrew C for this
-- `FMS_SMTP_SERVER` - smtp.gmail.com
-- `FMS_SMTP_PORT` - 587
-- `FMS_SECRET_KEY` - This should be a 32 character random string
-- `FMS_PRIVATE_KEY` - This is used to sign Json Web Tokens
-- `FMS_PUBLIC_KEY` - This is used to decode Json Web Tokens
+1. Open and edit `tools/env.sh` or `tools/env.bat` depending on your OS. Note this is where you will need to recall the database name and Gmail account.
+2. Run the edited environment script.  
 
-A private key can be generated with: `openssl genrsa -out mykey.pem 1024`  
-A public key can be generated with: `openssl rsa -in mykey.pem -pubout > mykey.pub`
+Alternatively, you may manually add the following variables:
+| Variable Name               | Value            | Description
+| ----------------------------|------------------|------------------------------
+| `FMS_DB_PORT_3306_TCP_ADDR` | "localhost"      | The hostname of the database
+| `FMS_DB_PORT_3306_TCP_PORT` | "3306"           | The port of the database
+| `FMS_DB_USERNAME`           | "username"       | Database user's username 
+| `FMS_DB_PASSWORD`           | "password"       | Database user's password 
+| `FMS_DB_NAME`               | "water"          | The name of the database  
+| `FMS_SECRET_KEY`            | "<ommited>"     | 32 character random string.  
+| `FMS_SMTP_USERNAME`         | "me@domain.com"  | Provide your own SMTP username
+| `FMS_SMTP_PASSWORD`         | "password"       | Provide your own SMTP password  
+| `FMS_SMTP_SERVER`           | "smtp.gmail.com" | SMTP server hostname
+| `FMS_SMTP_PORT`             | 587              | Remember not to add quotes.  
 
 On Mac OSX/Unix you can set environment variables in `~/.bash_profile`.
-On Windows you can set environment variables through a GUI, just search for them in start menu.
+On Windows you can set environment variables through a GUI, just search for it from the start menu: "environment variables".
 
 ### Running the server
 1. `cd` into `deco3801/server`
-2. Run go run main.go and if it was successful you should see the logs saying that the web service is running
-
-
-### Using Postman to test the API
-
-[Postman](https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop?hl=en) is an Chrome extension that we can use to send requests the the web service.
-
-1. Download, install and open Postman
-2. Import requests.postman_dump. You are able to run all of the teamneptune.co requests without having a local go server running
-3. Make sure that the server is running, either with the binary or by running `go run main.go` in the server directory
-
-#### Creating a User
-
-1. Click on the POST /api/users route in the users folder in Postman
-2. Click on the Body tab and modify the email to whatever you like
-3. Click the blue Send button
-
-You should get a response with Status 200 OK. An email will be sent the chosen email.
-
-#### Login
-
-Now that you have a User account you are able to login
-
-1. Click on the POST /api/login route in the auth folder
-2. Click on the Body tab and change the email to your own
-3. Click the blue Send button
-4. You should get a response with Status 200 OK. The request body contains a [JSON Web Token](http://jwt.io/) in the "token" field.
-5. Copy the token 
-
-#### Get all readings
-
-Now that you are logged in you are able to access the readings. If you try to do so without logging in you will get a 401 Unauthorized.
-
-1. Click on the GET /api/readings route in the buoys folder
-2. Click on the Headers tab and replace "{{token}}"" in the value of the Authorization field with the one that you copied. Note that "Bearer" must remain at the beginning of the field. The value field should look like: `Bearer eyJhbGciOiJSUzI1NiIsInR5...`
-3. Click the blue Send button
+2. Run `go run main.go` and if it was successful you should see the logs saying that the web service is running
 
 ## Web App
 

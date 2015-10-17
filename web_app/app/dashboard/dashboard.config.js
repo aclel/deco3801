@@ -17,7 +17,8 @@
     angular.module('app.dashboard')
         .config(function(ChartJsProvider) {
             ChartJsProvider.setOptions({
-                responsive: true
+                responsive: true,
+                animation: false
             });
         });
 })();

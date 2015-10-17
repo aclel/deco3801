@@ -148,9 +148,9 @@
 			<h3>{{ vm.selectedBuoy.name }}</h3>
 			<em>Readings: {{ vm.selectedBuoy.readings.length }}</em>
 			<br><br>
-			<div ng-repeat="(sensor, chart) in vm.charts">
+			<div ng-repeat="chart in vm.charts">
 				<h4>
-					{{ sensor }}
+					{{ chart.sensor }}
 					<span ng-if="chart.averaged"> (Averaged)</span>
 				</h4>
 				<canvas class="chart chart-base" chart-type="'Scatter'" data="chart.data"

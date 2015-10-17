@@ -841,26 +841,35 @@
 		            //if no sensorReadings exist
 		            if (!charts.hasOwnProperty(sensorName)) {
 		                charts[sensorName] = {
-		                	timestamps: [],
 		                	data: [[]], 
 		                	averaged: false,
+		                	sensor: sensorName,
 		                	options: {
-		                		scaleOverride : true,
+		                		scaleOverride: true,
 		                		scaleStartValue: sensors[sReading.sensorTypeId].lowerBound,
 		                		scaleSteps : 10,
 		                		scaleStepWidth : (sensors[sReading.sensorTypeId].upperBound)/10,
-		                		scaleIntegersOnly: true
+		         				scaleType: "date",
+		         				scaleDateTimeFormat: "mmm d, yyyy, hh:MM",
+		         				emptyDataMessage: "chart has no data",
+		                		
 		                	}
 		            	};
 		            }
 		            //then push to respective sensorReadings
-		            charts[sensorName].timestamps.push(moment.unix(reading.timestamp).format("h:mma D/M"));
-		            charts[sensorName].data[0].push({ x: reading.timestamp, y: sReading.value });
+		            charts[sensorName].data[0].push({x:new Date(reading.timestamp*1000), y: sReading.value });
 		        });
+
 		    });
-		    
+		    console.log(charts);
 			averageReadings(charts);
-		    return charts;
+			var arr = [];
+			for (var key in charts) {
+				arr.push(charts[key]);
+
+			}
+			return arr;
+		   
 		}
 
 		/**
@@ -872,31 +881,26 @@
 			for (var key in charts) {
 				var chart = charts[key];
 				var data = chart.data[0];
-				var timestamps = chart.timestamps;
+
 				var xmax = 15; // maximum labels on x-axis, thus maximum data points
-				var division = Math.floor(chart.timestamps.length/xmax);
+				var division = Math.floor(data.length/xmax);
 				
 				var averageData = [];
 				var averageRespectiveTime = [];
 
-				if (chart.timestamps.length > xmax) {
-					var averagedReading = 0, averagedTimes = 0;
+				if (data.length > xmax) {
+					var averagedReading = 0;
 					for (var i = 0; i < data.length; i++) {
 						if (i == 0 || i % division != 0) {
-							// console.log(i + "th element: reading = " +data[i])
+
 							averagedReading += data[i].y;
-							// averagedTimes += moment(timestamps[i], "h:mma D/M").unix();
 						} else {
 							averagedReading /= division;
-							averageData.push({ x: data[i].x, y: Math.floor(averagedReading) });
-							// averagedTimes /= division;
-							// averageRespectiveTime.push(moment.unix(averagedTimes).format("h:mma D/M"));
-							// console.log(averagedReading);
+							averageData.push({ x:data[i].x, y: Math.floor(averagedReading) });
 
 							averagedReading = data[i].y;
 						}
 					}
-					// chart.timestamps = averageRespectiveTime;
 					chart.data[0] = averageData;
 					chart.averaged = true;
 				}

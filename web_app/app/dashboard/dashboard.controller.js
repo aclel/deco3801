@@ -65,11 +65,12 @@
 					// if (!vm.showGraphs) {
 					// 	toggleGraphs();
 					// }
+					
 					vm.selectedBuoy = buoyInstance;
 				});
 			});
 			$scope.$on('create', function(event, chart) {
-				console.log(chart);
+				chart.update();
 				chartObjects.push(chart);
 			});
 		}
@@ -122,7 +123,6 @@
 		function resizeCharts() {
 			chartObjects.forEach(function(chart) {
 				chart.resize(chart.render, true);
-				chart.update();
 			});
 		}
 			

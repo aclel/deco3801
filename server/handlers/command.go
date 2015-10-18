@@ -25,7 +25,11 @@ type CommandsWrapper struct {
 	Commands []models.Command `json:"commands"`
 }
 
-// POST /api/warning_triggers
+type CommandIdsWrapper struct {
+	CommandIds []int64 `json:"commandIds"`
+}
+
+// POST /api/commands
 // Accepts an array of warning triggers which are to be created.
 // Example request body:
 // {
@@ -52,16 +56,26 @@ func CommandsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
 	}
 
+	addedIds := make([]int64, 0)
 	// Insert each command into db
 	for _, command := range commandsWrapper.Commands {
-		err = env.DB.AddCommandToBuoy(&command)
+		newId, err := env.DB.AddCommandToBuoy(&command)
 		if err != nil {
 			return &AppError{err, "Error inserting command into the database", http.StatusInternalServerError}
 		}
+		addedIds = append(addedIds, newId)
+	}
+
+	commandIdsWrapper := &CommandIdsWrapper{CommandIds: addedIds}
+	response, err := json.Marshal(commandIdsWrapper)
+	if err != nil {
+		return &AppError{err, "Error marshalling command ids json", http.StatusInternalServerError}
 	}
 
 	// Respond with 201 Created if successful
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	w.Write(response)
 
 	return nil
 }

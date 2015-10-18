@@ -179,9 +179,16 @@ func BuoysDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 // Responds with HTTP 200 if successful. Response body empty.
 // Example request body:
 // {
-//
-//     "commandTypeId": 1,
-//     "value": 30
+//		"commands":[
+//			{
+//				"commandTypeId": 1,
+//				"value": 20
+//			},
+//			{
+//				"commandTypeId": 2,
+//				"value": 30
+//			}
+//		]
 // }
 func BuoyCommandsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	vars := mux.Vars(r)
@@ -196,18 +203,30 @@ func BuoyCommandsCreate(env *models.Env, w http.ResponseWriter, r *http.Request)
 
 	// Check if Command JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+		return &AppError{err, "Invalid Commands JSON", http.StatusInternalServerError}
 	}
 
+	addedIds := make([]int64, 0)
 	for _, command := range commandsWrapper.Commands {
 		command.BuoyId = buoyId
-		err = env.DB.AddCommandToBuoy(&command)
+		newId, err := env.DB.AddCommandToBuoy(&command)
 		if err != nil {
 			return &AppError{err, "Error adding command to buoy", http.StatusInternalServerError}
 		}
+		addedIds = append(addedIds, newId)
 	}
 
+	commandIdsWrapper := &CommandIdsWrapper{CommandIds: addedIds}
+	response, err := json.Marshal(commandIdsWrapper)
+	if err != nil {
+		return &AppError{err, "Error marshalling command ids json", http.StatusInternalServerError}
+	}
+
+	// Respond with 201 Created if successful
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	w.Write(response)
+
 	return nil
 }
 

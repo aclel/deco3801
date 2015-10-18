@@ -29,6 +29,34 @@ type CommandIdsWrapper struct {
 	CommandIds []int64 `json:"commandIds"`
 }
 
+// GET /api/commands/id
+// Get a command with the given id
+// Responds with HTTP 200. Command sent in response body.
+func CommandsShow(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	// Parse Command id
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing command id", http.StatusInternalServerError}
+	}
+
+	command, err := env.DB.GetCommandWithId(id)
+	if err != nil {
+		return &AppError{err, "Error retrieving command", http.StatusInternalServerError}
+	}
+
+	response, err := json.Marshal(command)
+	if err != nil {
+		return &AppError{err, "Error marshalling command json", http.StatusInternalServerError}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(response)
+
+	return nil
+}
+
 // POST /api/commands
 // Accepts an array of warning triggers which are to be created.
 // Example request body:

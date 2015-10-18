@@ -153,7 +153,11 @@ func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContain
 	for _, reading := range *readingsContainer.Readings {
 		reading.BuoyInstanceId = buoyInstance.Id
 		reading.BuoyGuid = readingsContainer.BuoyGuid
-		reading.Timestamp = time.Unix(reading.UnixTimestamp, 0).UTC()
+		reading.Timestamp, err = parseDatetime(reading)
+		if err != nil {
+			e = &AppError{err, "Error parsing datetime", http.StatusInternalServerError}
+			continue
+		}
 
 		if e = validateReading(env, reading); e != nil {
 			continue
@@ -165,6 +169,17 @@ func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContain
 	}
 
 	return &validReadings, e
+}
+
+// Parses the date and time field in the reading
+func parseDatetime(reading *models.Reading) (time.Time, error) {
+	datetime := reading.Date + "T" + reading.Time
+	parsed, err := time.Parse("020106T150405.999999", datetime)
+	if err != nil {
+		return time.Now(), err
+	}
+
+	return parsed, nil
 }
 
 // Add new sensors and update the "last recorded" time of the other sensors with sensor readings.
@@ -219,17 +234,17 @@ func sensorExists(sensorTypeId int, sensors []models.BuoyInstanceSensor) bool {
 func validateReading(env *models.Env, reading *models.Reading) *AppError {
 	// Check if guid is present
 	if reading.BuoyGuid == "" {
-		return &AppError{errors.New("Reading: "), "No guid", http.StatusBadRequest}
+		return &AppError{errors.New("Reading error"), "No guid", http.StatusBadRequest}
 	}
 
 	// Check if latitute is valid
 	if reading.Latitude < -90.0 || reading.Latitude > 90.0 {
-		return &AppError{errors.New("Reading: "), "Invalid latitude", http.StatusBadRequest}
+		return &AppError{errors.New("Reading error "), "Invalid latitude", http.StatusBadRequest}
 	}
 
 	// Check if longitude is valid
 	if reading.Longitude < -180.0 || reading.Longitude > 180 {
-		return &AppError{errors.New("Reading: "), "Invalid longitude", http.StatusBadRequest}
+		return &AppError{errors.New("Reading error "), "Invalid longitude", http.StatusBadRequest}
 	}
 
 	if len(reading.SensorReadings) == 0 {

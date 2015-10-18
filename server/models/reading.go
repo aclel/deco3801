@@ -25,7 +25,8 @@ type Reading struct {
 	Latitude       float64          `json:"lat" db:"latitude"`
 	Longitude      float64          `json:"lng" db:"longitude"`
 	Timestamp      time.Time        `db:"timestamp"`
-	UnixTimestamp  int64            `json:"ut"`
+	Date           string           `json:"d"`
+	Time           string           `json:"t"`
 	SensorReadings []*SensorReading `json:"sR"`
 	BuoyInstanceId int              `db:"buoy_instance_id"`
 	BuoyGuid       string           `json:"guid" db:"guid"`

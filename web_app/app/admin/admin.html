@@ -1,7 +1,7 @@
 <div class="grid-content">
 	<div class="bs-tabs" bs-tabs>
 		<div class="bs-pane" title="Users" ng-controller="UsersController as vm" ng-include="'/app/admin/users.html'" bs-pane></div>
-		<div class="bs-pane" title="Buoys" ng-include="'/app/admin/buoys.html'" bs-pane></div>
+		<div class="bs-pane" title="Buoys" ng-controller="BuoysController as vm" ng-include="'/app/admin/buoys.html'" bs-pane></div>
 		<div class="bs-pane" title="Sensor Types" ng-controller="SensorTypesController as vm" ng-include="'/app/admin/sensor_types.html'" bs-pane></div>
 	</div>
 </div>

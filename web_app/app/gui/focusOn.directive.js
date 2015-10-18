@@ -13,12 +13,16 @@
 (function() {
     'use strict';
     
-    /** Set chart defaults */
-    angular.module('app.dashboard')
-        .config(function(ChartJsProvider) {
-            ChartJsProvider.setOptions({
-                responsive: true,
-                animation: false
+    angular.module('app.gui')
+        .directive('focusOn', focusOn);
+    
+    function focusOn() {
+        return function(scope, elem, attrs) {
+            scope.$on('focusOn', function(e, name) {
+                if (name === attrs.focusOn) {
+                    elem[0].focus();
+                }
             });
-        });
+        }
+    }
 })();

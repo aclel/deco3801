@@ -77,6 +77,7 @@
 				</span>
 				<div ng-if="!buoyGroup.collapsed" ng-repeat="buoyInstance in buoyGroup.buoyInstances" class="filter-buoy-instance">
 						<input type="checkbox" ng-model="buoyInstance.enabled" ng-change="vm.selectBuoyInstance(buoyGroup)">
+						<span class="glyphicon glyphicon-stop" ng-style="{ color: buoyInstance.colour }"></span>
 						{{ buoyInstance.name }}
 				</div>
 			</div>
@@ -88,7 +89,7 @@
 					<form class="form-inline">
 						<tr ng-repeat="sensor in vm.sensors">
 							<!-- <div class="form-group"> -->
-								<td><input type="checkbox" ng-model="sensor.inputs.enabled" ng-change="vm.updateSensorsFilter()"></td>
+								<td><input type="checkbox" ng-model="sensor.inputs.enabled" ng-change="vm.updateSensors()"></td>
 								<td><span>{{ sensor.name }}</span></td>
 							<!-- </div> -->
 							<td><button type="button" class="btn btn-default" 
@@ -97,7 +98,7 @@
 									ng-change="vm.updateSensors()" bs-select>
 							</button></td>
 							<!-- <div class="form-group"> -->
-								<td><input type="text" class="form-control ti-sm" ng-model="sensor.inputs.value" ng-change="vm.updateSensorsFilter()"></td>
+								<td><input type="text" class="form-control ti-sm" ng-model="sensor.inputs.value" ng-change="vm.updateSensors()"></td>
 								<td><span>{{ sensor.unit }}</span></td>
 							<!-- </div> -->
 						</tr>
@@ -107,8 +108,14 @@
 		</div>
 		<div class="separator-top">
 			<button class="btn btn-default btn-lg export-btn"
-				ng-click="vm.exportData()">
-				Export Data
+				ng-click="vm.exportData()"
+				ng-if="vm.readingMetadata.numReadings">
+				Export {{ vm.readingMetadata.numReadings }} 
+				<span ng-if="vm.readingMetadata.numReadings == 1">reading</span>
+				<span ng-if="vm.readingMetadata.numReadings != 1">readings</span>
+				<br>from {{ vm.readingMetadata.numInstances }}
+				<span ng-if="vm.readingMetadata.numInstances == 1">buoy</span>
+				<span ng-if="vm.readingMetadata.numInstances != 1">buoys</span>
 			</button>
 		</div>
 		<div class="empty"><!-- Needed to show separator-bottom for above div --></div>
@@ -131,11 +138,25 @@
 				}">
 			</span>		
 		</button>
-		<h3>Charts</h3>
-		<div class="chart" ng-if="vm.showGraphs">
-			<canvas id="line" class="chart chart-line" data="vm.chart.data"
-				labels="vm.chart.labels" series="vm.chart.series" legend="true" >
-			</canvas>
+		<div ng-if="vm.showGraphs && !vm.selectedBuoy">
+		<h3>Buoy Data</h3>
+		<em>Please Select a Buoy</em>
+		</div>
+		<h3 class="buoy-title" ng-if="!vm.showGraphs && !vm.selectedBuoy">Buoy Data</h3>
+		<h3 class="buoy-title" ng-if="!vm.showGraphs && vm.selectedBuoy">{{ vm.selectedBuoy.name }}</h3>
+		<div ng-if="vm.showGraphs && vm.selectedBuoy">
+			<h3>{{ vm.selectedBuoy.name }}</h3>
+			<em>Readings: {{ vm.selectedBuoy.readings.length }}</em>
+			<br><br>
+			<div ng-repeat="chart in vm.charts">
+				<h4>
+					{{ chart.sensor }}
+					<span ng-if="chart.averaged"> (Averaged)</span>
+				</h4>
+				<canvas class="chart chart-base" chart-type="'Scatter'" data="chart.data"
+					options="chart.options" >
+				</canvas>
+			</div>
 		</div>
 	</div>
 </div>

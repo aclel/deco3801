@@ -76,6 +76,7 @@
 		function editExisting(user) {
 			vm.editId = user.id;
 			vm.editObj = user;
+			gui.focus('editExisting');
 		}
 
 		/**
@@ -154,6 +155,7 @@
 			var tempUser = { id: -2, role: vm.roles[0] };
 			vm.users.push(tempUser);
 			editExisting(tempUser);
+			gui.focus('editNew');
 		}
 	}
 })();

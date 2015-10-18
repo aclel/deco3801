@@ -1,5 +1,5 @@
 <div class="grid-block">
-	<div class="small-12 medium-3 grid-content dashboard-panel">
+	<div class="small-12 medium-3 grid-content dashboard-panel" id="filter-panel">
 		<div class="filter-section">
 			<div class="right" ng-include="'/app/gui/loading.html'"></div>
 			<h4 class="well well-sm">Times</h4>
@@ -120,14 +120,13 @@
 		</div>
 		<div class="empty"><!-- Needed to show separator-bottom for above div --></div>
 	</div>
-	<div class="small-12 grid-content no-overflow separator-box dashboard-panel"
-		ng-class="vm.showGraphs ? 'medium-5' : 'medium-8'">
+	<div class="small-12 medium-12 grid-content no-overflow separator-box">
 		<div id="map-canvas"></div>
 		<div id="infoBox"></div>
 	</div>
 
 	<div class="small-12 grid-content dashboard-panel"
-		ng-class="vm.showGraphs ? 'medium-4' : 'medium-1'">
+		ng-class="vm.showGraphs ? 'medium-4' : 'medium-1'" id="chart-panel">
 		<button type="button" class="btn btn-default right graphs-btn"
 			ng-click="vm.toggleGraphs()">
 			<span

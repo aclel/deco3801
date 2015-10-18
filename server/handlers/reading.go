@@ -138,6 +138,31 @@ func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 	return e
 }
 
+// Same as ReadingsCreate except the readings aren't added to the database
+// Readings sent to this route are still validated and missing buoy instance sensors
+// are still created.
+func ReadingsTest(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	readingsContainer := new(models.BuoyReadingContainer)
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&readingsContainer)
+
+	// Check if the request is valid
+	if err != nil && err != io.EOF {
+		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
+	}
+
+	var e *AppError
+	// Validate the readings and add missing buoy instance sensors
+	_, e = buildReadings(env, readingsContainer)
+
+	// Respond with 200 OK if everything was successful
+	if e == nil {
+		w.WriteHeader(http.StatusOK)
+	}
+
+	return e
+}
+
 // Constructs Readings from the JSON which was in the request body of a /buoys/api/readings POST request.
 func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContainer) (*[]*models.Reading, *AppError) {
 	// Get most recent buoy instance for buoy with guid

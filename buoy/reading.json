@@ -1,37 +1,20 @@
 {
-	"guid": "974614e0-929a-42d5-8d18-db95ba9da803",
-	"readings": [
-		{
-			"latitude": -27.425676,
-			"longitude": 153.147055,
-			"sensorReadings": [
-				{
-			    "sensorName": "Turbidity",
-			    "value": 1337
-			}, 
-			{
-			    "sensorName": "Temperature",
-			    "value": 1337
-			}
-			],
-			"timestamp": "2015-09-04T03:36:17+00:00",
-			"messageNumber": 25 
-		},
-		{
-			"latitude": -29.537880,
-			"longitude": 155.258650,
-			"sensorReadings": [
-				{
-			    "sensorName": "Turbidity",
-			    "value": 420
-			}, 
-			{
-			    "sensorName": "Temperature",
-			    "value": 420
-			}
-			],
-			"timestamp": "2015-010-04T03:36:17+00:00",
-			"messageNumber": 26 
-		}
-	]
+    "guid": "dd32376b-c944-4501-9ec4-b834d4cd0337",
+    "r": [
+        {
+            "lat": -27.4470844268,
+            "lng": 153.0026550292,
+            "al": 257.00,
+            "sp": 0,
+            "co": 0,
+            "sR": [
+                {
+                    "type": 1,
+                    "val": 100
+                }
+            ],
+            "d": "020812",
+            "t": "083418.0"
+        }
+    ]
 }

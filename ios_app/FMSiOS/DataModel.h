@@ -11,6 +11,10 @@
 
 #define FMS_DEFAULT_SERVER_ADDRESS @"teamneptune.co"
 
+#define FMS_PING_COMMANDID 2
+#define FMS_PING_TRIES 7
+#define FMS_PING_SPACE_BETWEEN_TRIES 1.0
+
 // Data model for a buoy and the groups containing them
 @interface BuoyGroup : NSObject
 
@@ -54,9 +58,11 @@
 @protocol DataModelDataDelegate <NSObject>
 
 - (void)didFailServerComms;
+- (void)didTimeoutPing:(Buoy *)b;
 
 - (void)didGetBuoyListFromServer:(NSArray *)buoyGroups;
-- (void)didGetBuoyInfoFromServer:(NSDictionary *)buoyInfo;
+- (void)didGetBuoyInfoFromServer:(NSDictionary *)buoyInfo forBuoy:(Buoy *)b;
+- (void)didGetPingDataWithPing:(NSTimeInterval)ping forBuoy:(Buoy *)b;
 
 @end
 
@@ -70,6 +76,7 @@
 - (void)connectToServerWithEmail:(NSString *)email andPass:(NSString *)password;
 - (void)updateBuoyListingFromServer;
 - (void)requestBuoyInfo:(Buoy *)buoy;
+- (void)getPingDataFor:(Buoy *)buoy;
 - (void)disconnect;
 
 // Info methods after connecting to server (DO NOT USE WHEN DISCONNECTED)

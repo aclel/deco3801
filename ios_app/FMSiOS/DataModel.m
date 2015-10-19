@@ -8,7 +8,16 @@
 
 #import "DataModel.h"
 
-//TODO: handle first-time login
+@interface PingRequest : NSObject
+
+@property (nonatomic, strong) NSDate *startTime;
+@property NSUInteger timesRemaining;
+@property NSUInteger commandId;
+@property (nonatomic, weak) Buoy *buoy;
+
+@end
+@implementation PingRequest
+@end
 
 @implementation Buoy
 
@@ -190,6 +199,56 @@
     return parsed;
 }
 
+- (void)repeatPingDataReq:(PingRequest *)p {
+    p.timesRemaining--;
+    if (p.timesRemaining == 0) {
+        return;
+    }
+    
+    // Send a server api request for buoy info
+    NSString *addr = [NSString stringWithFormat:@"api/commands/%lu", (unsigned long)p.commandId];
+    [self sendRequestToServerUrl:addr textData:@"" method:@"GET" authorization:YES handler:
+     ^(NSData *data, NSURLResponse *response, NSError *error){
+         @try {
+             // Interpret their response
+             NSHTTPURLResponse *httpRes = (NSHTTPURLResponse *)response;
+             if (!error && httpRes.statusCode == 201) { //Success
+                 // Get buoy info
+                 NSDictionary *res = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                 
+                 // Get command ID array
+                 NSLog(@"%@", res);
+                 NSNumber *sent = [res objectForKey:@"sent"];
+                 NSDictionary *sentAt = [res objectForKey:@"sentAt"];
+                 if (sent == nil || sentAt == nil) {
+                     [NSException raise:@"Bad sent" format:@"sent is bad"];
+                 }
+                 
+                 // See if sent is true and get time
+                 if (sent.boolValue) {
+                     // Got value!
+                     NSString *timeStr = [sentAt objectForKey:@"Time"];
+                     if (timeStr == nil) {
+                         [NSException raise:@"Bad time" format:@""];
+                     }
+                     // Get time sent
+                     NSDate *timeSent = [_dateFormatter dateFromString:timeStr];
+                     NSTimeInterval timeTaken = [timeSent timeIntervalSinceDate:p.startTime];
+                     [self.dataDelegate didGetPingDataWithPing:timeTaken forBuoy:p.buoy];
+                 } else {
+                     // Resend after a delay
+                     [NSTimer scheduledTimerWithTimeInterval:FMS_PING_SPACE_BETWEEN_TRIES target:self selector:@selector(repeatPingDataReq:) userInfo:p repeats:NO];
+                 }
+             } else {
+                 [NSException raise:@"Failed request" format:@"%@", httpRes];
+             }
+         } @catch (NSException *e) {
+             NSLog(@"%@", e);
+             [self.dataDelegate performSelectorOnMainThread:@selector(didTimeoutPing:) withObject:p.buoy waitUntilDone:NO];
+         }
+     }];
+}
+
 #pragma mark - server connection
 
 - (NSURL *)getServerUrl {
@@ -227,6 +286,7 @@
     for (NSString *header in [[request allHTTPHeaderFields] allKeys]) {
         NSLog(@"header %@: %@", header, [request allHTTPHeaderFields][header]);
     }*/
+    
     [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:handler] resume];
 }
 
@@ -287,15 +347,60 @@
     //For now, just use dummy data
     //TODO
     
-    [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(dummybuoyinfo) userInfo:nil repeats:NO];
+    [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(dummybuoyinfo:) userInfo:buoy repeats:NO];
 }
 
-- (void)dummybuoyinfo {
+- (void)dummybuoyinfo:(NSTimer *)b {
     [self.dataDelegate didGetBuoyInfoFromServer:@{
        @"Temperature" : @"20°C",
        @"Turbidity" : @"33 NTU",
        @"Battery" : @"85\%",
-    }];
+    } forBuoy:b.userInfo];
+}
+
+- (void)getPingDataFor:(Buoy *)buoy {
+    // Create new ping request, and start polling for a ping response this many times
+    PingRequest *p = [[PingRequest alloc] init];
+    p.startTime = [NSDate date];
+    p.timesRemaining = FMS_PING_TRIES;
+    p.buoy = buoy;
+    
+    // Send a POST command to add a new ping command
+    NSString *addr = [NSString stringWithFormat:@"api/buoys/%lu/commands", (unsigned long)buoy.databaseId];
+    NSString *dataToSend = [NSString stringWithFormat:@" { \"commands\" : [ \"commandID\" : \"2\"] } "];
+    [self sendRequestToServerUrl:addr textData:dataToSend method:@"POST" authorization:YES handler:
+     ^(NSData *data, NSURLResponse *response, NSError *error){
+         @try {
+             // Interpret their response
+             NSHTTPURLResponse *httpRes = (NSHTTPURLResponse *)response;
+             if (!error && httpRes.statusCode == 201) { //Success
+                 // Get buoy info
+                 NSDictionary *res = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                 
+                 // Get command ID array
+                 NSLog(@"%@", res);
+                 NSArray *commandIds = [res objectForKey:@"commandIds"];
+                 if (commandIds == nil || commandIds.count != 1) {
+                     [NSException raise:@"Bad count" format:@"count is bad"];
+                 }
+                 
+                 // Get id we want
+                 NSNumber *commandId = [commandIds objectAtIndex:0];
+                 if (commandId == nil) {
+                     [NSException raise:@"Bad command ID" format:@""];
+                 }
+                 
+                 // Start sending for id
+                 p.commandId = commandId.integerValue;
+                 [self performSelectorOnMainThread:@selector(repeatPingDataReq:) withObject:p waitUntilDone:NO];
+             } else {
+                 [NSException raise:@"Failed request" format:@"%@", httpRes];
+             }
+         } @catch (NSException *e) {
+             NSLog(@"%@", e);
+             [self.dataDelegate performSelectorOnMainThread:@selector(didTimeoutPing:) withObject:p.buoy waitUntilDone:NO];
+         }
+     }];
 }
 
 - (void)disconnect {

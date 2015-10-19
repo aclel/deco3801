@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "D45892BF1B98500100EB8DCC"
-               BuildableName = "FlounderMobile.app"
+               BuildableName = "Water Watcher.app"
                BlueprintName = "Water Watcher"
                ReferencedContainer = "container:Water Watcher.xcodeproj">
             </BuildableReference>
@@ -57,7 +57,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D45892BF1B98500100EB8DCC"
-            BuildableName = "FlounderMobile.app"
+            BuildableName = "Water Watcher.app"
             BlueprintName = "Water Watcher"
             ReferencedContainer = "container:Water Watcher.xcodeproj">
          </BuildableReference>
@@ -80,7 +80,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D45892BF1B98500100EB8DCC"
-            BuildableName = "FlounderMobile.app"
+            BuildableName = "Water Watcher.app"
             BlueprintName = "Water Watcher"
             ReferencedContainer = "container:Water Watcher.xcodeproj">
          </BuildableReference>
@@ -103,7 +103,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "D45892BF1B98500100EB8DCC"
-            BuildableName = "FlounderMobile.app"
+            BuildableName = "Water Watcher.app"
             BlueprintName = "Water Watcher"
             ReferencedContainer = "container:Water Watcher.xcodeproj">
          </BuildableReference>

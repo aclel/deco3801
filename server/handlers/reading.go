@@ -473,7 +473,7 @@ func buildCsvFiles(readings []models.ExportedSensorReading) (map[int64]*CsvFile,
 }
 
 func formattedCsvFileName(buoyInstanceName string) string {
-	return "export_" + replaceCharsWithUnderscores(buoyInstanceName, "/\\?%*:|\"<>")
+	return "export_" + replaceCharsWithUnderscores(buoyInstanceName, "/\\?%*:|\"<> ")
 }
 
 // Replaces all characters in str that are present in chr with underscores

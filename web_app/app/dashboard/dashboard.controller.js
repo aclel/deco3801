@@ -29,7 +29,8 @@
 		
 		/** Used to determine when initial requests have returned */
 		var resolved = 0;
-		var chartObj;
+		var chartObjects = [];
+		
 
 		/** Variables and methods bound to viewmodel */
 		vm.loading = false;
@@ -37,7 +38,8 @@
 		vm.buoys = dashboard.buoys(); // binds reference
 		vm.times = dashboard.times(); // binds reference
 		vm.sensors = dashboard.sensors(); // binds reference
-		vm.chart = dashboard.chart(); // binds reference
+		vm.charts = {};
+		vm.readingMetadata = dashboard.readingMetadata(); // binds reference
 		vm.selectBuoyGroup = dashboard.selectBuoyGroup;
 		vm.selectBuoyInstance = dashboard.selectBuoyInstance;
 		vm.updateSensors = dashboard.updateSensors;
@@ -56,16 +58,20 @@
 			querySensors();
 
 			// set up chart listeners
-			$scope.$on('displayChartInstance', function(event, buoyInstance) {
+			$scope.$on('mapMarkerSelected', function(event, buoyInstance) {
+				chartObjects = [];
+				vm.charts = dashboard.calculateChartData(buoyInstance);
 				$scope.$apply(function() {
-					if (!vm.showGraphs) {
-						toggleGraphs();
-					}
-					dashboard.displayChartInstance(buoyInstance.name);
+					// if (!vm.showGraphs) {
+					// 	toggleGraphs();
+					// }
+					
+					vm.selectedBuoy = buoyInstance;
 				});
 			});
 			$scope.$on('create', function(event, chart) {
-				chartObj = chart;
+				chart.update();
+				chartObjects.push(chart);
 			});
 		}
 
@@ -89,6 +95,7 @@
 			vm.loading = true;
 			dashboard.updateTimes().then(function() {
 				vm.loading = false;
+				vm.charts = dashboard.calculateChartData(vm.selectedBuoy);
 			});
 		}
 		
@@ -108,7 +115,14 @@
 				.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
 					// finish expanding/contracting
 					map.setCenter(center);
-					chartObj.resize(chartObj.render, true);
+					resizeCharts();
+			});
+		}
+
+		/** Resize all charts */
+		function resizeCharts() {
+			chartObjects.forEach(function(chart) {
+				chart.resize(chart.render, true);
 			});
 		}
 			

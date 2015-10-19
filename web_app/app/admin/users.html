@@ -1,57 +1,59 @@
-<table class="data-table">
-    <thead>
-        <tr>
-            <th>Email</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Role</th>
-            <th>Last Login</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr ng-repeat="user in vm.users">
-            <td>
-                <span ng-if="user.id != -2">{{ user.email }}</span>
-                <input ng-if="user.id == -2" type="text" class="form-control" ng-model="vm.editObj.email" placeholder="johndoe@aol.com">
-            </td>
-            <td>
-                <span ng-if="vm.editId != user.id">{{ user.firstName }}</span>
-                <input ng-if="vm.editId == user.id" type="text" class="form-control" ng-model="vm.editObj.firstName" placeholder="John">
-            </td>
-            <td>
-                <span ng-if="vm.editId != user.id">{{ user.lastName }}</span>
-                <input ng-if="vm.editId == user.id" type="text" class="form-control" ng-model="vm.editObj.lastName" placeholder="Doe">
-            </td>
-            <td>
-                <span ng-if="vm.editId != user.id">{{ user.role }}</span>
-                <select ng-if="vm.editId == user.id"
-                    type="button" class="btn btn-default" 
-                    ng-model="vm.editObj.role" 
-                    bs-options="opt for opt in vm.roles"
-                    bs-select>
-                </select>
-            </td>
-            <td>
-                {{ user.lastLogin.text }}
-            </td>
-            <td class="button-cell">
-                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.showDeleteButton(user)" ng-click="vm.editDelete(user)">
-                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                </button>
-                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == -1" ng-click="vm.editExisting(user)">
-                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                </button>
-                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == user.id" ng-click="vm.editCancel()">
-                    <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
-                </button>
-                <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == user.id" ng-click="vm.editSave()">
-                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
-                </button>
-            </td>
-        </tr>
-    </tbody>
-</table>
+<form ng-submit="vm.editSave()">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Email</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Role</th>
+                <th>Last Login</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="user in vm.users">
+                <td>
+                    <span ng-if="user.id != -2">{{ user.email }}</span>
+                    <input ng-if="user.id == -2" type="text" class="form-control" ng-model="vm.editObj.email" placeholder="johndoe@aol.com" focus-on="editNew" esc-cancel="vm.editCancel()">
+                </td>
+                <td>
+                    <span ng-if="vm.editId != user.id">{{ user.firstName }}</span>
+                    <input ng-if="vm.editId == user.id" type="text" class="form-control" ng-model="vm.editObj.firstName" placeholder="John" focus-on="editExisting" esc-cancel="vm.editCancel()">
+                </td>
+                <td>
+                    <span ng-if="vm.editId != user.id">{{ user.lastName }}</span>
+                    <input ng-if="vm.editId == user.id" type="text" class="form-control" ng-model="vm.editObj.lastName" placeholder="Doe" esc-cancel="vm.editCancel()">
+                </td>
+                <td>
+                    <span ng-if="vm.editId != user.id">{{ user.role }}</span>
+                    <select ng-if="vm.editId == user.id"
+                        type="button" class="btn btn-default" 
+                        ng-model="vm.editObj.role" 
+                        bs-options="opt for opt in vm.roles"
+                        bs-select>
+                    </select>
+                </td>
+                <td>
+                    {{ user.lastLogin.text }}
+                </td>
+                <td class="button-cell">
+                    <button type="button" class="btn btn-default btn-sm right" ng-if="vm.showDeleteButton(user)" ng-click="vm.editDelete(user)">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    </button>
+                    <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == -1" ng-click="vm.editExisting(user)">
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                    </button>
+                    <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == user.id" ng-click="vm.editCancel()">
+                        <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+                    </button>
+                    <button type="submit" class="btn btn-default btn-sm right" ng-if="vm.editId == user.id">
+                        <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
 <button type="button" class="btn btn-default" ng-if="vm.editId == -1" ng-click="vm.editNew()">
     <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
     <small>Add User</small>

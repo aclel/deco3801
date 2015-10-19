@@ -58,7 +58,10 @@
 			updateUser: updateUser,
 			deleteUser: deleteUser,
 			deleteBuoyCommand: deleteBuoyCommand,
-			addBuoy: addBuoy
+			getBuoys: getBuoys,
+			addBuoy: addBuoy,
+			updateBuoy: updateBuoy,
+			deleteBuoy: deleteBuoy
 		};
 		
 		/** 
@@ -101,7 +104,11 @@
 				email: email,
 				password: password
 			};
-			return $http.post(SERVER_ADDRESS + '/api/login', JSON.stringify(data));
+			var promise = $http.post(SERVER_ADDRESS + '/api/login', JSON.stringify(data));
+			promise.then(function(res) {
+				auth.saveUser(res.data);
+			});
+			return promise;
 		}
 		
 		/** Logout */
@@ -121,9 +128,9 @@
 				currentPassword: currentPassword,
 				newPassword: newPassword
 			};
-			var email = auth.currentUser();
+			var id = auth.currentUserId();
 			return $http.put(SERVER_ADDRESS + '/api/users/' +
-				email + '/change_password', JSON.stringify(data), config);
+				id + '/change_password', JSON.stringify(data), config);
 		}
 
 		function resetPassword(token, newPassword) {
@@ -172,7 +179,7 @@
 		
 		/**
 		 * Request active buoy instances
-		 * GET /api/buoyinstances?active=true
+		 * GET /api/buoy_instances?active=true
 		 * @return {[type]} [description]
 		 */
 		function getBuoyInstances() {
@@ -423,8 +430,8 @@
 				name: sensorType.name,
 				description: sensorType.description,
 				unit: sensorType.unit,
-				lowerBound: sensorType.lowerBound,
-				upperBound: sensorType.upperBound
+				lowerBound: parseInt(sensorType.lowerBound, 10),
+				upperBound: parseInt(sensorType.upperBound, 10)
 			};
 			return $http.put(SERVER_ADDRESS + '/api/sensor_types/' + sensorType.id, 
 				JSON.stringify(data), config);
@@ -496,21 +503,58 @@
 			var config = addToken(headers());
 			return $http.delete(SERVER_ADDRESS + '/api/users/' + id, config);
 		}
+
+		/**
+		 * Request buoys
+		 * GET /api/buoys
+		 * @return {promise} request promise
+		 */
+		function getBuoys() {
+			var config = addToken(headers());
+			return $http.get(SERVER_ADDRESS + '/api/buoys', config);
+		}
 		
 		/**
 		 * Request create buoy
-		 * @param {string} name buoy name
-		 * @param {string} guid buoy GUID
+		 * POST /api/buoys
+		 * @param {object} buoy new buoy
 		 * @return {promise} request promise
 		 */
-		function addBuoy(name, guid) {
+		function addBuoy(buoy) {
 			var config = setJson(addToken(headers()));
 			var data = {
-				guid: guid,
-				name: name
+				name: buoy.name,
+				guid: buoy.guid
 			};
 			return $http.post(SERVER_ADDRESS + '/api/buoys', 
 				JSON.stringify(data), config);
+		}
+		
+		/**
+		 * Request update buoy (NOT USED)
+		 * PUT /api/buoys/:id
+		 * @param  {object} buoy updated buoy
+		 * @return {promise}      request promise
+		 */
+		function updateBuoy(buoy) {
+			var config = setJson(addToken(headers()));
+			var data = {
+				name: buoy.name,
+				guid: buoy.guid
+			};
+			return $http.put(SERVER_ADDRESS + '/api/buoys/' + buoy.id, 
+				JSON.stringify(data), config);
+		}
+		
+		/**
+		 * Request delete buoy
+		 * DELETE /api/buoys/:id
+		 * @param  {int} id buoy Id
+		 * @return {promise}    request promise
+		 */
+		function deleteBuoy(id) {
+			var config = addToken(headers());
+			return $http.delete(SERVER_ADDRESS + '/api/buoys/' + id, config);
 		}
 	}
 })();

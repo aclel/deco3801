@@ -12,7 +12,7 @@ package models
 
 // Represents a physical buoy
 type Buoy struct {
-	Id                   int    `json:"id" db:"id"`
+	Id                   int64  `json:"id" db:"id"`
 	Guid                 string `json:"guid" db:"guid"`
 	Name                 string `json:"name"` // This field is only used when a new buoy is created to add a name for buoy instance
 	ActiveBuoyInstanceId int    `json:"activeBuoyInstanceId" db:"active_buoy_instance_id"`
@@ -26,7 +26,7 @@ type BuoyRepository interface {
 	CreateBuoy(buoy *Buoy) (int64, error)
 	UpdateBuoy(buoy *Buoy) error
 	ArchiveBuoyWithId(id int) error
-	AddCommandToBuoy(command *Command) error
+	AddCommandToBuoy(command *Command) (int64, error)
 	GetBuoyCommands(string, bool) ([]Command, error)
 }
 
@@ -57,12 +57,12 @@ func (db *DB) GetBuoyById(id int) (*Buoy, error) {
 
 // Insert a new Buoy into the database.
 func (db *DB) CreateBuoy(buoy *Buoy) (int64, error) {
-	query, err := db.Preparex("INSERT INTO buoy (guid) VALUES(?);")
+	query, err := db.Preparex("INSERT INTO buoy (guid, active_buoy_instance_id, archived) VALUES(?, ?, ?);")
 	if err != nil {
 		return -1, err
 	}
 
-	result, err := query.Exec(buoy.Guid)
+	result, err := query.Exec(buoy.Guid, 0, 0)
 	if err != nil {
 		return -1, err
 	}
@@ -106,18 +106,23 @@ func (db *DB) ArchiveBuoyWithId(id int) error {
 }
 
 // Add the given Command to a Buoy
-func (db *DB) AddCommandToBuoy(command *Command) error {
+func (db *DB) AddCommandToBuoy(command *Command) (int64, error) {
 	stmt, err := db.Preparex("INSERT INTO buoy_command (buoy_id, command_type_id, value) VALUES(?, ?, ?);")
 	if err != nil {
-		return err
+		return -1, err
 	}
 
-	_, err = stmt.Exec(command.BuoyId, command.CommandTypeId, command.Value)
+	result, err := stmt.Exec(command.BuoyId, command.CommandTypeId, command.Value)
 	if err != nil {
-		return err
+		return -1, err
 	}
 
-	return nil
+	newId, err := result.LastInsertId()
+	if err != nil {
+		return -1, err
+	}
+
+	return newId, nil
 }
 
 // Get all commands for a buoy with the given guid and sent status

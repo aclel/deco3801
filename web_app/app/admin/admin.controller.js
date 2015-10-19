@@ -19,67 +19,12 @@
 	/**
 		* @ngdoc object
 		* @name app.admin.controller:AdminController
-		* @description Provides viewmodel for admin view
+		* @description Provides viewmodel for admin view.
+		*              Most functionaliy is delegated to tab subcontrollers.
 		* @requires server
 	**/
 	function AdminController($scope, server, gui) {
 		var vm = this;
 		
-		/** Variables and methods bound to viewmodel */
-		vm.newBuoyName = '';
-		vm.addBuoy = addBuoy;
-		
-		// vm.sensors = server.getSensorTypes();
-		// vm.sensorsEdit = [];
-		// vm.toggleEdit = toggleEdit;
-		// vm.sensorValid = sensorValid;
-		
-		activate();
-		
-		/** Called when controller is instantiated (admin page is loaded) */
-		function activate() {
-		}
-
-		/**
-		 * Add new Buoy, update server, called on Add button click
-		 */
-		function addBuoy() {
-			if (vm.newBuoyName == '') return;
-			var guid = generateGuid();
-			server.addBuoy(vm.newBuoyName, guid).then(function(res) {
-				gui.alertSuccess('Buoy created.');
-			}, function(res) {
-				gui.alertBadResponse(res);
-			});
-			vm.newBuoyName = '';
-		}
-		
-		/** Returns a GUID */
-		function generateGuid() {
-			return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-				var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
-				return v.toString(16);
-			});
-		}
-		
-		
-		
-		// for (var i = 0; i < vm.sensors.length; i++) {
-		// 	vm.sensorsEdit.push(false);
-		// }
-		
-		// function toggleEdit(index) {
-		// 	if (vm.sensorsEdit[index]) {
-		// 		vm.sensors[index].unconfigured = false;
-		// 	}
-		// 	vm.sensorsEdit[index] = !vm.sensorsEdit[index];
-		// }
-		
-		// function sensorValid(sensor) {
-		// 	if (!sensor.name || !sensor.units) {
-		// 		return false;
-		// 	}			
-		// 	return true;
-		// }
 	}
 })();

@@ -23,14 +23,15 @@
         * @requires $modal
         * @requires $log
     **/
-	function gui($alert, $modal, $log) {
+	function gui($alert, $modal, $log, $rootScope, $timeout) {
 		
 		/** The service methods to expose */
 		return {
 			alertSuccess: alertSuccess,
             alertError: alertError,
             alertBadResponse: alertBadResponse,
-            confirmDelete: confirmDelete
+            confirmDelete: confirmDelete,
+            focus: focus
 		};
 		
         /**
@@ -69,6 +70,12 @@
                 scope: scope,
                 templateUrl: '/app/gui/delete.modal.html',
                 show: true
+            });
+        }
+
+        function focus(name) {
+            $timeout(function() {
+                $rootScope.$broadcast('focusOn', name);
             });
         }
 	}

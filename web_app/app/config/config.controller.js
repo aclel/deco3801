@@ -391,7 +391,11 @@
 		
 		/** Prepare to send new command(s) to server */
 		function sendCommand() {
-			if (vm.command.id == -1 || vm.command.value == '') return;
+			if (vm.command.id == -1 || vm.command.value == '') {
+				gui.alertError('No command chosen.');
+				return;
+			}
+			if (!isValueFloat(vm.command.value)) return;
 			vm.newCommand = false;
 			var buoyIds = []; // buoys to send command for
 			if (vm.selected.type == 'instance') {
@@ -442,7 +446,11 @@
 		
 		/** Prepare to add new trigger warning for buoy or group */
 		function addTrigger() {
-			if (vm.trigger.sensorTypeId == -1 || vm.trigger.value == '') return;
+			if (vm.trigger.sensorTypeId == -1 || vm.trigger.value == '') {
+				gui.alertError('No sensor chosen.');
+				return;
+			}
+			if (!isValueFloat(vm.trigger.value)) return;
 			vm.newTrigger = false;
 			var buoyInstanceIds = []; // buoys instances to add trigger for
 			if (vm.selected.type == 'instance') {
@@ -555,5 +563,18 @@
 			}
 			return str;
 		}
+
+		/**
+		 * Return true if argument is a float. Otherwise make error
+		 * and return false
+		 */
+		function isValueFloat(value) {
+			if (isNaN(parseFloat(value))) {
+				gui.alertError('Value must be a number.');
+				return false;
+			} 
+			return true;				
+		}
+
 	}
 })();

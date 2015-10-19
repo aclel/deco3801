@@ -6,7 +6,7 @@
         <h4 class="modal-title">Confirm Delete</h4>
       </div>
       <div class="modal-body">
-          Are you sure you want to delete {{ vm.deleteType }} <em>{{ vm.deleteName }}</em> ?
+          Are you sure you want to delete {{ vm.deleteType }} <em>{{ vm.deleteName }}</em> ? {{ vm.deletePostscript }}
       </div>
       <div class="modal-footer">
           <button type="button" class="text-center btn btn-danger" ng-click="vm.confirmDelete(vm.deleteObject); $hide();">Delete</button>

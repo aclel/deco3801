@@ -61,6 +61,7 @@
         function editExisting(sensorType) {
             vm.editId = sensorType.id;
             vm.editObj = sensorType;
+            gui.focus('editExisting');
         }
 
         /**
@@ -118,6 +119,7 @@
             vm.deleteObject = sensorType;
             vm.deleteType = 'sensor type';
             vm.deleteName = sensorType.name;
+            vm.deletePostscript = "(This won't affect old readings.)";
             gui.confirmDelete($scope);
         }
         
@@ -136,7 +138,7 @@
          * called on Add button click
          */
         function editNew() {
-            var temp = { id: -2 };
+            var temp = { id: -2, archived: false };
             vm.sensorTypes.push(temp);
             editExisting(temp);
         }

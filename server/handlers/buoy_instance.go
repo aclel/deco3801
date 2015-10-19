@@ -210,20 +210,28 @@ func BuoyInstancesSensorsIndex(env *models.Env, w http.ResponseWriter, r *http.R
 
 // POST /api/buoy_instances/id/sensors
 // Responds with HTTP 200 if successful. Response body empty.
+// Example request body:
+// {
+// 	"sensors": [
+// 		{
+// 			"buoyInstanceId": 1,
+// 			"sensorTypeId": 1
+// 		}
+// 	]
+// }
 func BuoyInstancesSensorsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
-	vars := mux.Vars(r)
-	id, err := strconv.Atoi(vars["id"])
+	sensors := new(BuoyInstancesSensorWrapper)
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&sensors)
 	if err != nil {
-		return &AppError{err, "Error parsing buoy instance id", http.StatusInternalServerError}
+		return &AppError{err, "Invalid Buoy Instance Sensor JSON", http.StatusBadRequest}
 	}
 
-	sensorType := new(models.SensorType)
-	decoder := json.NewDecoder(r.Body)
-	err = decoder.Decode(&sensorType)
-
-	err = env.DB.AddSensorToBuoyInstance(id, sensorType.Id)
-	if err != nil {
-		return &AppError{err, "Error adding sensor type to buoy instance", http.StatusInternalServerError}
+	for _, sensor := range sensors.Sensors {
+		err = env.DB.AddSensorToBuoyInstance(&sensor)
+		if err != nil {
+			return &AppError{err, "Error adding sensor type to buoy instance", http.StatusInternalServerError}
+		}
 	}
 
 	w.WriteHeader(http.StatusOK)

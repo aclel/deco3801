@@ -7,17 +7,28 @@ Legend:
 * Changed
 ! Fixed
 
-<<<<<<< HEAD
 v0.5 - Week 11 20/10
 
 Server:
 ! Fix GET /api/buoy_groups/id/buoy_instances and GET /api/buoys/id/buoy_instances HTTP error 500
-* Buoys and Buoy Groups are now archived instead of delete. This removes them from the interface but they remain in the database.
+* Buoys and Buoy Groups are now archived instead of deleted. This removes them from the interface but they remain in the database.
 + Add DELETE /api/sensor_types/id - just archives, doesn't do a hard delete
++ When a Buoy acknowledges a set of commands, each command is marked as "sent" and the current time is now recorded as well
++ The time of the last recorded reading is stored in the 'last_recorded' field on a buoy instance sensor
+* POST /api/buoys returns the new Buoy in the response
+* POST /api/buoys/id/instances has been changed to a batch create
+* POST /api/commands and POST /api/buoys/id/commands return the ids of the new commands
+* Change format of datetime in POST /buoys/api/readings - date and time are now two separate fields
++ Add altitude, speed OG and course to readings
++ Add /buoys/api/readings/test to test sending readings to the server from a buoy. Missing buoy instance sensors are added. The reading is not stored.
+
+Web App:
+* Dashboard panels are now slightly transparent
 
 iOS App:
 + 'Unlisted Buoys' section.
 * Updated app name.
+
 
 v0.4 - Week 10 13/10
 

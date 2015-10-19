@@ -1,42 +1,35 @@
-<div ng-controller="NavController as vm"
-	 class="grid-content shrink no-padding">
-	<header>
-		<h1 class='title no-select'>WaterWatcher</h1>
-		<ul class="menu">
-			<li class="menu-item" ng-if="vm.checkShowNav('dashboard')" ng-cloak
+<nav class="navbar navbar-default" ng-controller="NavController as vm">
+	<div class="navbar-header">
+		<span class="navbar-brand no-select">WaterWatcher</span>
+	</div>
+	<div class="navbar-container" ng-cloak>
+		<ul class="nav navbar-nav">
+			<li ng-if="vm.checkShowNav('dashboard')"
 				ng-class="{ active: vm.stateActive('dashboard') }">
 				<a ui-sref="dashboard">Dashboard</a>
 			</li>
-			<li class="menu-item" ng-if="vm.checkShowNav('config')" ng-cloak
+			<li ng-if="vm.checkShowNav('config')"
 				ng-class="{ active: vm.stateActive('config') }">
 				<a ui-sref="config">Config</a>
 			</li>
-			<li class="menu-item" ng-if="vm.checkShowNav('warnings')" ng-cloak
+			<li ng-if="vm.checkShowNav('warnings')"
 				ng-class="{ active: vm.stateActive('warnings') }">
 				<a ui-sref="warnings">Warnings</a>
 			</li>
-			<li class="menu-item" ng-if="vm.checkShowNav('admin')" ng-cloak
+			<li ng-if="vm.checkShowNav('admin')"
 				ng-class="{ active: vm.stateActive('admin') }">
 				<a ui-sref="admin">Admin</a>
 			</li>
-			<!--<li class="menu-item" ng-if="!vm.checkShowNav('')" ng-cloak
-				class="login"
-				ng-class="{ active: vm.stateActive('login') }">
-				<a ui-sref="login">Login</a>
-			</li>-->
-			<!-- <li class="menu-item" class="menuItem" ng-if="vm.checkShowNav('logout')" ng-cloak
-				class="login">
-				<a href="" ng-click="vm.logout()">Logout</a>
-			</li> -->
-			<li class="menu-item" ng-if="vm.checkShowNav('account')" ng-cloak>
-				<a data-placement="bottom-right" data-container="#dropdown-container" bs-dropdown="vm.accountMenu">
+		</ul>
+		<ul class="nav navbar-nav navbar-right">
+			<li ng-if="vm.checkShowNav('account')" class="dropdown">
+				<a href="" data-placement="bottom-right" data-container="#dropdown-container" bs-dropdown="vm.accountMenu">
 					<!-- <span class="glyphicon glyphicon-cog"></span> -->
-					Account
-					<span class="caret"></span>
+					Account <span class="caret"></span>
 				</a>
 			</li>
 			<li id="dropdown-container"></li>
 		</ul>
-		<!-- <img id="dugong" src="/assets/img/dugong.gif" alt="dugong"> -->
-	</header>
-</div>
+	</div>
+	<!-- <img id="dugong" src="/assets/img/dugong.gif" alt="dugong"> -->
+</nav>

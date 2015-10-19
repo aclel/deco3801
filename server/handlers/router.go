@@ -84,6 +84,7 @@ func NewAppRouter(env *models.Env) *mux.Router {
 
 	r.Handle("/api/commands", defaultChain.Then(AuthHandler{env, CommandsCreate, "researcher"})).Methods("POST", "OPTIONS")
 	r.Handle("/api/commands", defaultChain.Then(AuthHandler{env, CommandsIndex, "researcher"})).Methods("GET", "OPTIONS")
+	r.Handle("/api/commands/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, CommandsShow, "researcher"})).Methods("GET", "OPTIONS")
 	r.Handle("/api/commands", defaultChain.Then(AuthHandler{env, CommandsBatchUpdate, "researcher"})).Methods("PUT", "OPTIONS")
 	r.Handle("/api/commands/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, CommandsUpdate, "researcher"})).Methods("PUT", "OPTIONS")
 	r.Handle("/api/commands/{id:[0-9]+}", defaultChain.Then(AuthHandler{env, CommandsDelete, "researcher"})).Methods("DELETE", "OPTIONS")
@@ -136,6 +137,7 @@ func NewBuoyRouter(env *models.Env) *mux.Router {
 	r.Handle("/buoys/api/commands", defaultChain.Then(AppHandler{env, BuoyCommandsIndex})).Methods("GET", "OPTIONS")
 	r.Handle("/buoys/api/commands/ack", defaultChain.Then(AppHandler{env, BuoyCommandsAcknowledge})).Methods("POST", "OPTIONS")
 	r.Handle("/buoys/api/readings", defaultChain.Then(AppHandler{env, ReadingsCreate})).Methods("POST", "OPTIONS")
+	r.Handle("/buoys/api/readings/test", defaultChain.Then(AppHandler{env, ReadingsTest})).Methods("POST", "OPTIONS")
 
 	return r
 }

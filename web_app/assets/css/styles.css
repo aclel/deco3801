@@ -41,6 +41,13 @@ form {
   border-top: none;
 }
 
+.vertical-text {
+  transform: rotate(90deg);
+  /*transform-origin: left top 0;*/
+  /*float: left;*/
+  margin-top: 60px;
+}
+
 
 /************************** FONT **************************/
 
@@ -135,7 +142,9 @@ html, body, h1, h2, h3, h4, h5, h6 {
 .sk-fading-circle {
   width: 1.75em;
   height: 1.75em;
-  position: relative; }
+  position: relative;
+  margin-top: 7px;
+  margin-right: 7px; }
   .sk-fading-circle .sk-circle {
     width: 100%;
     height: 100%;
@@ -453,67 +462,54 @@ input.ti-xl {
 
 /************************ NAVBAR *************************/
 
-header {
-    background: #027E92;
-    padding: 5px 20px;
+.navbar {
+  margin-bottom: 0;
+  background-color: #073F64;
+  /*border-color: #6E8798;*/
+  border: none;
 }
 
-header .title {
-    font-size: 1.5em;
-    margin-top: 5px;
-    margin-bottom: 5px;
-    color: #fff;
-    text-transform: capitalize;
-    display: inline-block;
-}
-
-header .menu {
-    display: inline-block;
-    margin-left: 10%;
-    vertical-align: middle;
-}
-
-header .menu li {
-  list-style-type: none;
-}
-
-header .menu li.menu-item {
-    display: inline-block;
-    /*float: left;*/
-    padding: 0px;
-    margin-left: 21px;
-    /*margin-bottom: 8px;*/
-}
-
-header .menu li.menu-item.active {
-    border-bottom: 2px solid #A4AF00;
-}
-
-header .menu li.menu-item a {
-    cursor: pointer;
-    text-transform: uppercase;
-    font-size: 0.85em;
-    font-weight: 600;
-    text-decoration: none;
-}
-
-header li.menu-item a,
-header li.menu-item a:hover {
+.navbar-default .navbar-brand,
+.navbar-default .navbar-brand:hover {
   color: white;
 }
 
-header .menu li.menu-item a:hover {
-    padding-bottom: 1px;
-    border-bottom: 2px solid rgba(255, 165, 0, 0.44);
+.navbar-default .navbar-nav li a {
+  color: #E2E2E2;
 }
 
-header .menu li.menu-item.right {
-    /*float: right;*/
-}
-
-header .menu .glyphicon {
+.navbar-default .navbar-nav li a:hover {
   color: white;
 }
+
+.navbar-default .navbar-nav .active a,
+.navbar-default .navbar-nav .active a:hover,
+.navbar-default .navbar-nav .active a:focus {
+  color: #063858;
+  font-weight: 700;
+}
+
+.navbar-container {
+  margin-right: 20px;
+}
+.navbar-brand {
+  margin-right: 20px;
+}
+
+.dropdown-menu > li > a {
+  /*color: #333 !important;*/
+}
+
+.navbar .dropdown-menu {
+  background-color: #073F64;
+  border: none;
+}
+
+.dropdown-menu > li > a:hover,
+.dropdown-menu > li > a:focus {
+  background-color: #1A608E; 
+}
+
 
 
 /************************* DASHBOARD **********************/
@@ -524,7 +520,25 @@ header .menu .glyphicon {
 }
 
 .dashboard-panel {
-    transition: all 0.5s linear 0s;
+  position: absolute;
+  transition: all 0.5s linear 0s;
+  background-color: #fff;
+  opacity: 0.96;
+  height: 100%;
+}
+
+#filter-panel {
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 400px;
+}
+
+#chart-panel {
+  top: 0;
+  right: 0;
+  z-index: 9998;
+  width: 450px;
 }
 
 .infoBox {
@@ -591,6 +605,10 @@ header .menu .glyphicon {
 
 .filter-table tr td {
   padding: 2px;
+}
+
+.buoy-title {
+  margin-top: 10px;
 }
 
 

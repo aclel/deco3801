@@ -14,6 +14,8 @@
 // View in the centre when clicking more info
 @interface MoreInfoDialog : UIView
 
+@property (weak, nonatomic) Buoy *buoy;
+
 @property (strong, nonatomic) UILabel *content;
 @property (strong, nonatomic) UIActivityIndicatorView *contentInd;
 @property (strong, nonatomic) UIButton *pingButton;
@@ -24,7 +26,7 @@
 - (void)displayBuoyInfo:(NSDictionary *)info;
 
 - (void)startPinging;
-- (void)finishPingingSuccessWithTime:(NSUInteger)milliseconds;
+- (void)finishPingingSuccessWithTime:(NSNumber *)seconds;
 - (void)finishPingingFailure;
 
 @end
@@ -77,6 +79,8 @@
         self.backgroundColor = [FMS_COLOUR_BG_SHADE colorWithAlphaComponent:0.95];
         self.layer.cornerRadius = 10;
         self.tintColor = FMS_COLOUR_TEXT_BUTTON;
+        
+        _buoy = nil;
         
         // Label
         _content = [[UILabel alloc] init];
@@ -157,12 +161,17 @@
     [self.pingButton setEnabled:YES];
 }
 
-- (void)finishPingingSuccessWithTime:(NSUInteger)milliseconds {
+- (void)finishPingingSuccessWithTime:(NSNumber *)seconds {
     [self.pingInd stopAnimating];
     self.pingDetail.textColor = FMS_COLOUR_TEXT_SUCCESS;
-    self.pingDetail.text = [NSString stringWithFormat:@"%dms \u2713", milliseconds];
+    self.pingDetail.text = [NSString stringWithFormat:@"%lus \u2713", seconds.integerValue];
     [self.pingDetail setHidden:NO];
     [self.pingButton setEnabled:YES];
+}
+
+- (void)setBuoy:(Buoy *)buoy {
+    _buoy = buoy;
+    //TODO
 }
 
 - (void)displayBuoyInfo:(NSDictionary *)info {
@@ -771,12 +780,40 @@
     [self.map addAnnotations:self.allBuoys];
 }
 
-- (void)didGetBuoyInfoFromServer:(NSDictionary *)buoyInfo {
-    //TODO: check if right buoy
-    
+- (void)didGetBuoyInfoFromServer:(NSDictionary *)buoyInfo forBuoy:(Buoy *)b {
     // Update more info dialog to contain info
     if (self.moreInfoDialog) {
+        // Check if right buoy
+        if (self.moreInfoDialog.buoy != b) {
+            return;
+        }
+        
         [self.moreInfoDialog displayBuoyInfo:buoyInfo];
+    }
+}
+
+- (void)didGetPingDataWithPing:(NSTimeInterval)ping forBuoy:(Buoy *)b {
+    // Update more info dialog to ping res
+    if (self.moreInfoDialog) {
+        // Check if right buoy
+        if (self.moreInfoDialog.buoy != b) {
+            return;
+        }
+        
+        // Do this to force onto main thread, as it likes to jump onto background thread sometimes.
+        [self.moreInfoDialog performSelectorOnMainThread:@selector(finishPingingSuccessWithTime:) withObject:[NSNumber numberWithInteger:ping] waitUntilDone:NO];
+    }
+}
+
+- (void)didTimeoutPing:(Buoy *)b {
+    // Update more info dialog to ping res
+    if (self.moreInfoDialog) {
+        // Check if right buoy
+        if (self.moreInfoDialog.buoy != b) {
+            return;
+        }
+        
+        [self.moreInfoDialog finishPingingFailure];
     }
 }
 
@@ -784,7 +821,7 @@
     [self setRefreshIconRefresh];
     
     // Create alert box informing user
-    UIAlertController *a = [UIAlertController alertControllerWithTitle:@"Couldn't load buoy locations" message:@"Could not establish connection with server" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertController *a = [UIAlertController alertControllerWithTitle:@"Couldn't load buoy info" message:@"Could not establish connection with server" preferredStyle:UIAlertControllerStyleAlert];
     
     // Add buttons for logging out or cancelling
     [a addAction:[UIAlertAction actionWithTitle:@"Logout" style:UIAlertActionStyleDefault handler:^(UIAlertAction *a) {
@@ -860,6 +897,7 @@
     [self.moreInfoDialog.pingButton addTarget:self action:@selector(pingMoreInfoPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.moreInfoDialog.cancelButton addTarget:self action:@selector(closeMoreInfoPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.moreInfoDialogContainer addSubview:self.moreInfoDialog];
+    self.moreInfoDialog.buoy = b;
     
     // Start settings for animation
     self.moreInfoDialogContainer.alpha = 0;
@@ -900,17 +938,8 @@
     // Update interface to start ping look
     [self.moreInfoDialog startPinging];
     
-    //for now just do dummy
-    [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(dummypingdone) userInfo:nil repeats:NO];
-}
-
-- (void)dummypingdone {
-    NSInteger success = arc4random() % 2;
-    if (success == 1) {
-        [self.moreInfoDialog finishPingingSuccessWithTime:23];
-    } else {
-        [self.moreInfoDialog finishPingingFailure];
-    }
+    // Send ping
+    [self.d getPingDataFor:self.moreInfoDialog.buoy];
 }
 
 @end

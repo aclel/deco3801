@@ -12,6 +12,8 @@ package models
 
 import (
 	"database/sql"
+	"errors"
+	"sort"
 	"time"
 )
 
@@ -46,6 +48,8 @@ type BuoyInstanceRepository interface {
 	GetWarningTriggersForBuoyInstance(int) ([]WarningTrigger, error)
 	GetMostRecentReadingsForActiveBuoyInstances() ([]DbMapReading, error)
 	GetWarningTriggersForActiveBuoyInstances() ([]WarningTrigger, error)
+	GetMostRecentReadingForBuoyInstance(id int) ([]MapReading, error)
+	GetAllReadingsForBuoyInstance(id int) ([]MapReading, error)
 }
 
 // Get all Buoy Instances (both active and inactive)
@@ -289,4 +293,108 @@ func (db *DB) GetWarningTriggersForActiveBuoyInstances() ([]WarningTrigger, erro
 	}
 
 	return warningTriggers, nil
+}
+
+// Get the most recent reading for the buoy instance with the given id.
+// The database query returns multiple rows, one for each sensor reading in the reading.
+// The sensor readings are added as children to a reading struct before being returned.
+func (db *DB) GetMostRecentReadingForBuoyInstance(id int) ([]MapReading, error) {
+	readings, err := db.GetAllReadingsForBuoyInstance(id)
+	if err != nil {
+		return nil, err
+	}
+
+	sort.Sort(byTimestampDesc(readings))
+	if len(readings) < 1 {
+		return nil, errors.New("No reading found")
+	}
+
+	reading := []MapReading{}
+	reading = append(reading, readings[0])
+
+	return reading, nil
+}
+
+// Sort readings in descending timestamp
+type byTimestampDesc []MapReading
+
+func (readings byTimestampDesc) Len() int {
+	return len(readings)
+}
+
+func (readings byTimestampDesc) Swap(i, j int) {
+	readings[i], readings[j] = readings[j], readings[i]
+}
+
+func (readings byTimestampDesc) Less(i, j int) bool {
+	return readings[j].Timestamp < readings[i].Timestamp
+}
+
+// Get all readings for the buoy instance with the given id.
+// The database query returns multiple rows, one for each sensor reading in the reading.
+// The sensor readings are added as children to a reading struct before being returned.
+func (db *DB) GetAllReadingsForBuoyInstance(id int) ([]MapReading, error) {
+	dbReadings := []DbMapReading{}
+	err := db.Select(&dbReadings, `SELECT 
+									reading.id AS reading_id,
+									latitude, 
+									longitude, 
+									altitude, 
+									speed_og, 
+									course, 
+									timestamp, 
+									value, 
+									sensor_type_id
+								FROM 
+									reading 
+									INNER JOIN sensor_reading ON sensor_reading.reading_id = reading.id
+								WHERE 
+									buoy_instance_id = ?
+								ORDER BY reading.id`, id)
+	if err != nil {
+		return nil, err
+	}
+
+	readings, err := buildReadings(dbReadings)
+	if err != nil {
+		return nil, err
+	}
+
+	return readings, nil
+}
+
+// Build the object that's returned as JSON
+// Sensor Readings need to be put in as children of Readings
+func buildReadings(dbReadings []DbMapReading) ([]MapReading, error) {
+	var exists bool
+	mapReadings := make(map[int]*MapReading)
+	for _, reading := range dbReadings {
+		var mapReading *MapReading
+		// If a Map Reading for the given buoy instance with the given timestamp doesn't already exist, add it
+		if mapReading, exists = mapReadings[reading.ReadingId]; !exists {
+			// Construct Reading for Buoy Instance
+			mapReading = &MapReading{
+				Id:        reading.ReadingId,
+				Latitude:  reading.Latitude,
+				Longitude: reading.Longitude,
+				Altitude:  reading.Altitude,
+				SpeedOG:   reading.SpeedOG,
+				Course:    reading.Course,
+				Timestamp: reading.Timestamp.Unix(),
+			}
+			// Store the reading in the map
+			mapReadings[reading.ReadingId] = mapReading
+		}
+
+		sensorReading := MapSensorReading{Value: reading.Value, SensorTypeId: reading.SensorTypeId}
+		mapReading.SensorReadings = append(mapReading.SensorReadings, sensorReading)
+	}
+
+	// Convert map to slice
+	readings := make([]MapReading, 0, len(mapReadings))
+	for _, r := range mapReadings {
+		readings = append(readings, *r)
+	}
+
+	return readings, nil
 }

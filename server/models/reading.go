@@ -12,7 +12,6 @@ package models
 
 import (
 	"sort"
-	"strconv"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -55,7 +54,7 @@ type ReadingRepository interface {
 	CreateReading(*Reading) (int64, error)
 	CreateSensorReading(*SensorReading) error
 	GetAllReadings(time.Time, time.Time) (*MapReadingBuoyGroupsWrapper, error)
-	GetReadingsIn([]int) ([][]string, error)
+	GetReadingsIn([]int) ([]ExportedSensorReading, error)
 }
 
 // Insert a new Reading into the database. Returns the id of the new Reading.
@@ -298,10 +297,24 @@ func (readings byTimestamp) Less(i, j int) bool {
 	return readings[i].Timestamp < readings[j].Timestamp
 }
 
-// Get all Readings with ids that are in the given slice of integers.
-// Returns a 2D string array which can be passed to the CSV WriteAll
-// function.
-func (db *DB) GetReadingsIn(readingsIds []int) ([][]string, error) {
+type ExportedSensorReading struct {
+	Value            float64   `db:"value"`
+	Latitude         float64   `db:"latitude"`
+	Longitude        float64   `db:"longitude"`
+	Altitude         float32   `db:"altitude"`
+	SpeedOG          float32   `db:"speed_og"`
+	Course           float32   `db:"course"`
+	Timestamp        time.Time `db:"timestamp"`
+	ReadingId        int64     `db:"reading_id"`
+	BuoyInstanceName string    `db:"buoy_instance_name"`
+	BuoyInstanceId   int64     `db:"buoy_instance_id"`
+	SensorTypeId     int64     `db:"sensor_type_id"`
+	SensorTypeName   string    `db:"sensor_type_name"`
+	SensorTypeUnit   string    `db:"sensor_type_unit"`
+}
+
+// Get all Sensor Readings with reading ids that are in the given slice of integers.
+func (db *DB) GetReadingsIn(readingsIds []int) ([]ExportedSensorReading, error) {
 	query, args, err := sqlx.In(`SELECT 
 									value, 
 									latitude, 
@@ -309,42 +322,31 @@ func (db *DB) GetReadingsIn(readingsIds []int) ([][]string, error) {
 									altitude,
 									speed_og,
 									course,
-									timestamp 
+									timestamp,
+									reading.id AS reading_id,
+									sensor_type_id AS sensor_type_id,
+									sensor_type.name AS sensor_type_name,
+									sensor_type.unit AS sensor_type_unit,
+									buoy_instance_id AS buoy_instance_id,
+									buoy_instance.name AS buoy_instance_name
 								FROM 
 									sensor_reading 
 									INNER JOIN reading ON sensor_reading.reading_id = reading.id 
+									INNER JOIN sensor_type ON sensor_reading.sensor_type_id = sensor_type.id
+									INNER JOIN buoy_instance ON reading.buoy_instance_id = buoy_instance.id
 								WHERE 
-									reading.id IN (?)`, readingsIds)
+									reading.id IN (?)
+								ORDER BY buoy_instance_id, reading_id, sensor_type_id`, readingsIds)
 	if err != nil {
 		return nil, err
 	}
 	query = db.Rebind(query)
 
-	rows, err := db.Query(query, args...)
+	exportedReadings := []ExportedSensorReading{}
+	err = db.Select(&exportedReadings, query, args...)
 	if err != nil {
 		return nil, err
 	}
 
-	var readings [][]string
-	var value float64
-	var latitude float64
-	var longitude float64
-	var timestamp time.Time
-
-	// Add readings to [][]string
-	for rows.Next() {
-		err = rows.Scan(&value, &latitude, &longitude, &timestamp)
-		if err != nil {
-			return nil, err
-		}
-
-		val := strconv.FormatFloat(value, 'f', -1, 64)
-		lat := strconv.FormatFloat(latitude, 'f', -1, 64)
-		long := strconv.FormatFloat(longitude, 'f', -1, 64)
-		result := []string{val, lat, long, timestamp.UTC().String()}
-
-		readings = append(readings, result)
-	}
-
-	return readings, nil
+	return exportedReadings, nil
 }

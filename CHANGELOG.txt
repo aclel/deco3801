@@ -7,6 +7,9 @@ Legend:
 * Changed
 ! Fixed
 
+v0.6 - Week 12 27/10
++ Add GET /api/buoy_instances/id/readings to get all readings for a buoy instance. Can also use ?last=true query parameter to get only the most recent reading. This is used on the web app to populate the info popup.
+
 v0.5 - Week 11 20/10
 
 Server:
@@ -24,6 +27,31 @@ Server:
 
 Web App:
 * Dashboard panels are now slightly transparent
++ Display a chart for each sensor
+* Change charts to scatter charts
+* Fix chart timestamp formatting
+* Disable chart animation
++ Charts with a lot of readings will display averages instead (and this is indicated clearly)
+* Improve graph pane toggling functionality
+* Update Export Data to download a zip containing CSVs
+* Improve navigation bar styling
++ Export button now dynamically updates to show how many readings from how many buoys will be exported
+* Restructure Admin page MVC setup (use separate controllers for each tab)
+* Fix sensor types on Admin page
++ Automatically focus on form input when begin editing
++ Press Enter to submit edit change, Escape to cancel editing
++ Implement change password functionality
++ Prompt user to change password on first login
+* Update name to 'WaterWatcher'
+! Fix bug where changing sensor filters didn't update filtered readings
+* Disable randomisation of marker position on map
+* Initially only display a marker for the most recent reading for each buoy instance. When a marker is clicked, markers will be shown for older readings for that buoy
+! Properly assign colours to buoy instances when they're queried, make them persistent across filter updates, and use the colour for map marker
++ Display buoy instance colours in the list on the filter pane
+* Don't display archived sensors in dashboard filter list
+* Marker opacity is now based on the relative age of the reading for that buoy, not the time filters
+! Fix buoys list not being update correctly when changing time filters
+
 
 iOS App:
 + 'Unlisted Buoys' section.

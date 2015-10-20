@@ -108,6 +108,14 @@ func (mdb *MockDB) GetWarningTriggersForActiveBuoyInstances() ([]WarningTrigger,
 	return nil, nil
 }
 
+func (mdb *MockDB) GetMostRecentReadingForBuoyInstance(id int) ([]MapReading, error) {
+	return nil, nil
+}
+
+func (mdb *MockDB) GetAllReadingsForBuoyInstance(id int) ([]MapReading, error) {
+	return nil, nil
+}
+
 // BUOY GROUPS
 func (mdb *MockDB) GetAllBuoyGroups() ([]BuoyGroup, error) {
 	return nil, nil
@@ -143,7 +151,7 @@ func (mdb *MockDB) CreateSensorReading(sensorReading *SensorReading) error {
 	return nil
 }
 
-func (mdb *MockDB) GetReadingsIn(readingsIds []int) ([][]string, error) {
+func (mdb *MockDB) GetReadingsIn(readingsIds []int) ([]ExportedSensorReading, error) {
 	return nil, nil
 }
 

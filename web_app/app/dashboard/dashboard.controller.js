@@ -59,18 +59,19 @@
 
 			// set up chart listeners
 			$scope.$on('mapMarkerSelected', function(event, buoyInstance) {
+				if (vm.selectedBuoy) {
+					if (vm.selectedBuoy.id == buoyInstance.id) return;
+				}
 				chartObjects = [];
 				vm.charts = dashboard.calculateChartData(buoyInstance);
 				$scope.$apply(function() {
+					vm.selectedBuoy = buoyInstance;
 					// if (!vm.showGraphs) {
 					// 	toggleGraphs();
 					// }
-					
-					vm.selectedBuoy = buoyInstance;
 				});
 			});
 			$scope.$on('create', function(event, chart) {
-				chart.update();
 				chartObjects.push(chart);
 			});
 		}

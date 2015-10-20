@@ -27,7 +27,8 @@
 
 - (void)startPinging;
 - (void)finishPingingSuccessWithTime:(NSNumber *)seconds;
-- (void)finishPingingFailure;
+- (void)finishPingingTimeout;
+- (void)finishPingingServerError;
 
 @end
 
@@ -153,10 +154,18 @@
     [self.pingInd startAnimating];
 }
 
-- (void)finishPingingFailure {
+- (void)finishPingingTimeout {
     [self.pingInd stopAnimating];
     self.pingDetail.textColor = FMS_COLOUR_TEXT_ERROR;
-    self.pingDetail.text = [NSString stringWithFormat:@"\u274C no response"];
+    self.pingDetail.text = [NSString stringWithFormat:@"\u274C timed out"];
+    [self.pingDetail setHidden:NO];
+    [self.pingButton setEnabled:YES];
+}
+
+- (void)finishPingingServerError {
+    [self.pingInd stopAnimating];
+    self.pingDetail.textColor = FMS_COLOUR_TEXT_ERROR;
+    self.pingDetail.text = [NSString stringWithFormat:@"\u274C server error"];
     [self.pingDetail setHidden:NO];
     [self.pingButton setEnabled:YES];
 }
@@ -813,7 +822,19 @@
             return;
         }
         
-        [self.moreInfoDialog finishPingingFailure];
+        [self.moreInfoDialog finishPingingTimeout];
+    }
+}
+
+- (void)didServerErrorPing:(Buoy *)b {
+    // Update more info dialog to ping res
+    if (self.moreInfoDialog) {
+        // Check if right buoy
+        if (self.moreInfoDialog.buoy != b) {
+            return;
+        }
+        
+        [self.moreInfoDialog finishPingingServerError];
     }
 }
 

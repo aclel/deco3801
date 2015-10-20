@@ -11,9 +11,9 @@
 @interface PingRequest : NSObject
 
 @property (nonatomic, strong) NSDate *startTime;
+@property (nonatomic, weak) Buoy *buoy;
 @property NSUInteger timesRemaining;
 @property NSUInteger commandId;
-@property (nonatomic, weak) Buoy *buoy;
 
 @end
 @implementation PingRequest
@@ -154,7 +154,7 @@
         
         // Set indiv. properties
         NSString *buoyGuid = [buoyInfo objectForKey:@"buoyGuid"];
-        NSNumber *buoyId = [buoyInfo objectForKey:@"buoyID"];
+        NSNumber *buoyId = [buoyInfo objectForKey:@"buoyId"];
         NSString *buoyName = [buoyInfo objectForKey:@"buoyName"];
         NSString *dateCreated = [buoyInfo objectForKey:@"dateCreated"];
         NSNumber *databaseId = [buoyInfo objectForKey:@"id"];
@@ -199,9 +199,21 @@
     return parsed;
 }
 
-- (void)repeatPingDataReq:(PingRequest *)p {
+- (void)repeatPingDataReq:(NSObject *)req {
+    // Allow both timer and ping request objects
+    PingRequest *p;
+    if ([req isKindOfClass:[PingRequest class]]) {
+        p = (PingRequest *)req;
+    } else if ([req isKindOfClass:[NSTimer class]]) {
+        p = ((NSTimer *)req).userInfo;
+    } else {
+        return;
+    }
+    
+    // Ensure attempts remain
     p.timesRemaining--;
     if (p.timesRemaining == 0) {
+        [self.dataDelegate didTimeoutPing:p.buoy];
         return;
     }
     
@@ -212,7 +224,7 @@
          @try {
              // Interpret their response
              NSHTTPURLResponse *httpRes = (NSHTTPURLResponse *)response;
-             if (!error && httpRes.statusCode == 201) { //Success
+             if (!error && httpRes.statusCode == 200) { //Success
                  // Get buoy info
                  NSDictionary *res = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
                  
@@ -225,7 +237,7 @@
                  }
                  
                  // See if sent is true and get time
-                 if (sent.boolValue) {
+                 if (sent.intValue != 0) {
                      // Got value!
                      NSString *timeStr = [sentAt objectForKey:@"Time"];
                      if (timeStr == nil) {
@@ -237,16 +249,20 @@
                      [self.dataDelegate didGetPingDataWithPing:timeTaken forBuoy:p.buoy];
                  } else {
                      // Resend after a delay
-                     [NSTimer scheduledTimerWithTimeInterval:FMS_PING_SPACE_BETWEEN_TRIES target:self selector:@selector(repeatPingDataReq:) userInfo:p repeats:NO];
+                     [self performSelectorOnMainThread:@selector(nextPingReqCycle:) withObject:p waitUntilDone:NO];
                  }
              } else {
                  [NSException raise:@"Failed request" format:@"%@", httpRes];
              }
          } @catch (NSException *e) {
              NSLog(@"%@", e);
-             [self.dataDelegate performSelectorOnMainThread:@selector(didTimeoutPing:) withObject:p.buoy waitUntilDone:NO];
+             [self.dataDelegate performSelectorOnMainThread:@selector(didServerErrorPing:) withObject:p.buoy waitUntilDone:NO];
          }
      }];
+}
+
+- (void)nextPingReqCycle:(PingRequest *)p {
+    [NSTimer scheduledTimerWithTimeInterval:FMS_PING_SPACE_BETWEEN_TRIES target:self selector:@selector(repeatPingDataReq:) userInfo:p repeats:NO];
 }
 
 #pragma mark - server connection
@@ -265,7 +281,6 @@
     
     // Get request info
     NSURL *postUrl = [NSURL URLWithString:relPath relativeToURL:[self getServerUrl]];
-    NSLog(@"Connecting to url: %@", postUrl);
     NSData *postData = [requestString dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
     NSString *postLen = [NSString stringWithFormat:@"%lu", (unsigned long)requestString.length];
     
@@ -366,8 +381,8 @@
     p.buoy = buoy;
     
     // Send a POST command to add a new ping command
-    NSString *addr = [NSString stringWithFormat:@"api/buoys/%lu/commands", (unsigned long)buoy.databaseId];
-    NSString *dataToSend = [NSString stringWithFormat:@" { \"commands\" : [ \"commandID\" : \"2\"] } "];
+    NSString *addr = [NSString stringWithFormat:@"api/buoys/%lu/commands", (unsigned long)buoy.buoyId];
+    NSString *dataToSend = [NSString stringWithFormat:@" { \"commands\" : [ {\"commandTypeId\" : %d, \"value\" : 0} ] } ", FMS_PING_COMMANDID];
     [self sendRequestToServerUrl:addr textData:dataToSend method:@"POST" authorization:YES handler:
      ^(NSData *data, NSURLResponse *response, NSError *error){
          @try {
@@ -392,13 +407,14 @@
                  
                  // Start sending for id
                  p.commandId = commandId.integerValue;
-                 [self performSelectorOnMainThread:@selector(repeatPingDataReq:) withObject:p waitUntilDone:NO];
+                 NSTimer *send = [NSTimer timerWithTimeInterval:0 target:self selector:@selector(nextPingReqCycle:) userInfo:p repeats:NO];
+                 [self performSelectorOnMainThread:@selector(repeatPingDataReq:) withObject:send waitUntilDone:NO];
              } else {
                  [NSException raise:@"Failed request" format:@"%@", httpRes];
              }
          } @catch (NSException *e) {
              NSLog(@"%@", e);
-             [self.dataDelegate performSelectorOnMainThread:@selector(didTimeoutPing:) withObject:p.buoy waitUntilDone:NO];
+             [self.dataDelegate performSelectorOnMainThread:@selector(didServerErrorPing:) withObject:p.buoy waitUntilDone:NO];
          }
      }];
 }

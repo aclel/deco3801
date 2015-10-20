@@ -59,6 +59,7 @@
 
 - (void)didFailServerComms;
 - (void)didTimeoutPing:(Buoy *)b;
+- (void)didServerErrorPing:(Buoy *)b;
 
 - (void)didGetBuoyListFromServer:(NSArray *)buoyGroups;
 - (void)didGetBuoyInfoFromServer:(NSDictionary *)buoyInfo forBuoy:(Buoy *)b;

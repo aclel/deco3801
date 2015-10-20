@@ -104,19 +104,59 @@
     return self;
 }
 
+#pragma mark - server connection
+
+- (NSURL *)getServerUrl {
+    // Return the server url specified by the current settings
+    NSString *address = [[NSUserDefaults standardUserDefaults] objectForKey:@"ServerAddress"];
+    if (address == nil) {
+        NSLog(@"Saved server address could not be found; using default");
+        address = FMS_DEFAULT_SERVER_ADDRESS;
+    }
+    return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@", address]];
+}
+
+- (void)sendRequestToServerUrl:(NSString *)relPath textData:(NSString *)requestString method:(NSString *)method authorization:(BOOL)authorization handler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))handler {
+    
+    // Get request info
+    NSURL *postUrl = [NSURL URLWithString:relPath relativeToURL:[self getServerUrl]];
+    NSData *postData = [requestString dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
+    NSString *postLen = [NSString stringWithFormat:@"%lu", (unsigned long)requestString.length];
+    
+    // Create request
+    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:postUrl];
+    request.allowsCellularAccess = YES;
+    request.HTTPMethod = method;
+    request.HTTPBody = postData;
+    if (authorization && self.jwt != nil) {
+        [request setValue:[NSString stringWithFormat:@"Bearer %@", self.jwt] forHTTPHeaderField:@"Authorization"];
+    } else {
+        [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+        [request setValue:postLen forHTTPHeaderField:@"Content-Length"];
+    }
+    
+    // Send request
+    NSLog(@"Sending request: %@\n body %@ %@", request, method, requestString);
+     for (NSString *header in [[request allHTTPHeaderFields] allKeys]) {
+     NSLog(@"header %@: %@", header, [request allHTTPHeaderFields][header]);
+     }
+    
+    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:handler] resume];
+}
+
 #pragma mark - parsing/data methods
 
 - (BOOL)parseJSONForUserLogin:(NSDictionary *)userInfo {
     // Given a dictionary response to a user login, sets all class properties for a user login as necessary, returning false for a bad login (one without a token)
-    self.jwt = [userInfo objectForKey:@"token"];
+    self.jwt = userInfo[@"token"];
     if (self.jwt == nil) {
         return NO;
     }
     
-    self.email = [userInfo objectForKey:@"email"];
-    self.firstName = [userInfo objectForKey:@"firstName"];
-    self.lastName = [userInfo objectForKey:@"lastName"];
-    self.role = [userInfo objectForKey:@"role"];
+    self.email = userInfo[@"email"];
+    self.firstName = userInfo[@"firstName"];
+    self.lastName = userInfo[@"lastName"];
+    self.role = userInfo[@"role"];
     
     return YES;
 }
@@ -127,8 +167,8 @@
     NSMutableArray *parsed = [[NSMutableArray alloc] initWithCapacity:buoyDictList.count];
     for (NSDictionary *buoyInfo in buoyDictList) {
         // Get lat, long
-        NSObject *latInfo = [buoyInfo objectForKey:@"latitude"];
-        NSObject *lonInfo = [buoyInfo objectForKey:@"longitude"];
+        NSObject *latInfo = buoyInfo[@"latitude"];
+        NSObject *lonInfo = buoyInfo[@"longitude"];
         
         // Create buoy
         Buoy *b;
@@ -139,10 +179,10 @@
         } else if ([latInfo isKindOfClass:[NSDictionary class]] && [lonInfo isKindOfClass:[NSDictionary class]]) {
             NSDictionary *latDict = (NSDictionary *)latInfo;
             NSDictionary *lonDict = (NSDictionary *)lonInfo;
-            NSNumber *lat = [latDict objectForKey:@"Float64"];
-            NSNumber *lon = [lonDict objectForKey:@"Float64"];
-            NSNumber *latValid = [latDict objectForKey:@"Valid"];
-            NSNumber *lonValid = [lonDict objectForKey:@"Valid"];
+            NSNumber *lat = latDict[@"Float64"];
+            NSNumber *lon = lonDict[@"Float64"];
+            NSNumber *latValid = latDict[@"Valid"];
+            NSNumber *lonValid = lonDict[@"Valid"];
             if (lat != nil && lon != nil && latValid != nil && lonValid != nil && latValid.intValue == 1 && lonValid.intValue == 1) {
                 b = [[Buoy alloc] initWithCoord:CLLocationCoordinate2DMake(lat.doubleValue, lon.doubleValue)];
             } else {
@@ -153,12 +193,12 @@
         }
         
         // Set indiv. properties
-        NSString *buoyGuid = [buoyInfo objectForKey:@"buoyGuid"];
-        NSNumber *buoyId = [buoyInfo objectForKey:@"buoyId"];
-        NSString *buoyName = [buoyInfo objectForKey:@"buoyName"];
-        NSString *dateCreated = [buoyInfo objectForKey:@"dateCreated"];
-        NSNumber *databaseId = [buoyInfo objectForKey:@"id"];
-        NSString *name = [buoyInfo objectForKey:@"name"];
+        NSString *buoyGuid = buoyInfo[@"buoyGuid"];
+        NSNumber *buoyId = buoyInfo[@"buoyId"];
+        NSString *buoyName = buoyInfo[@"buoyName"];
+        NSString *dateCreated = buoyInfo[@"dateCreated"];
+        NSNumber *databaseId = buoyInfo[@"id"];
+        NSString *name = buoyInfo[@"name"];
         if (buoyGuid != nil) b.buoyGuid = buoyGuid;
         if (buoyId != nil) b.buoyId = buoyId.integerValue;
         if (buoyName != nil) b.buoyName = buoyName;
@@ -167,7 +207,7 @@
         if (name != nil) b.title = name;
         
         // Get group id to put under
-        NSNumber *groupId = [buoyInfo objectForKey:@"buoyGroupId"];
+        NSNumber *groupId = buoyInfo[@"buoyGroupId"];
         if (groupId == nil) groupId = [NSNumber numberWithInteger:0];
         
         // Find group for this id
@@ -185,7 +225,7 @@
             if (groupId.integerValue == 0) {
                 groupForBuoy.title = @"-";
             } else {
-                NSString *groupName = [buoyInfo objectForKey:@"buoyGroupName"];
+                NSString *groupName = buoyInfo[@"buoyGroupName"];
                 if (groupName != nil) groupForBuoy.title = groupName;
             }
             [parsed addObject:groupForBuoy];
@@ -197,6 +237,40 @@
     }
     
     return parsed;
+}
+
+- (NSDictionary *)parseJSONForBuoyInfo:(NSArray *)readings {
+    // Given a list of readings from a 'latest reading' request, generates a formatted dictionary linking their formatted names with values
+    // Returns nil if invalid
+    if (readings == nil || ![readings isKindOfClass:[NSArray class]] || readings.count != 1)
+        return nil;
+    
+    // Get sensor readings
+    NSDictionary *latest = readings[0];
+    NSNumber *timestamp = latest[@"timestamp"];
+    NSArray *sensorReadings = latest[@"sensorReadings"];
+    if (sensorReadings == nil)
+        return nil;
+    
+    // For each of these readings, add them to the overall dict
+    NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
+    for (NSDictionary *reading in sensorReadings) {
+        //TODO proper format name
+        NSNumber *sensorTypeID = reading[@"sensorTypeId"];
+        NSNumber *value = reading[@"value"];
+        if (sensorTypeID == nil || value == nil)
+            continue;
+        
+        [dict setObject:value.stringValue forKey:sensorTypeID.stringValue];
+    }
+    
+    // Handle timestamp, if it exists
+    if (timestamp) {
+        NSDate *ts = [NSDate dateWithTimeIntervalSince1970:timestamp.doubleValue];
+        //TODO
+    }
+    
+    return dict;
 }
 
 - (void)repeatPingDataReq:(NSObject *)req {
@@ -230,8 +304,8 @@
                  
                  // Get command ID array
                  NSLog(@"%@", res);
-                 NSNumber *sent = [res objectForKey:@"sent"];
-                 NSDictionary *sentAt = [res objectForKey:@"sentAt"];
+                 NSNumber *sent = res[@"sent"];
+                 NSDictionary *sentAt = res[@"sentAt"];
                  if (sent == nil || sentAt == nil) {
                      [NSException raise:@"Bad sent" format:@"sent is bad"];
                  }
@@ -239,7 +313,7 @@
                  // See if sent is true and get time
                  if (sent.intValue != 0) {
                      // Got value!
-                     NSString *timeStr = [sentAt objectForKey:@"Time"];
+                     NSString *timeStr = sentAt[@"Time"];
                      if (timeStr == nil) {
                          [NSException raise:@"Bad time" format:@""];
                      }
@@ -265,51 +339,11 @@
     [NSTimer scheduledTimerWithTimeInterval:FMS_PING_SPACE_BETWEEN_TRIES target:self selector:@selector(repeatPingDataReq:) userInfo:p repeats:NO];
 }
 
-#pragma mark - server connection
-
-- (NSURL *)getServerUrl {
-    // Return the server url specified by the current settings
-    NSString *address = [[NSUserDefaults standardUserDefaults] objectForKey:@"ServerAddress"];
-    if (address == nil) {
-        NSLog(@"Saved server address could not be found; using default");
-        address = FMS_DEFAULT_SERVER_ADDRESS;
-    }
-    return [NSURL URLWithString:[NSString stringWithFormat:@"https://%@", address]];
-}
-
-- (void)sendRequestToServerUrl:(NSString *)relPath textData:(NSString *)requestString method:(NSString *)method authorization:(BOOL)authorization handler:(void (^)(NSData *data, NSURLResponse *response, NSError *error))handler {
-    
-    // Get request info
-    NSURL *postUrl = [NSURL URLWithString:relPath relativeToURL:[self getServerUrl]];
-    NSData *postData = [requestString dataUsingEncoding:NSASCIIStringEncoding allowLossyConversion:YES];
-    NSString *postLen = [NSString stringWithFormat:@"%lu", (unsigned long)requestString.length];
-    
-    // Create request
-    NSMutableURLRequest *request = [[NSMutableURLRequest alloc] initWithURL:postUrl];
-    request.allowsCellularAccess = YES;
-    request.HTTPMethod = method;
-    request.HTTPBody = postData;
-    if (authorization && self.jwt != nil) {
-        [request setValue:[NSString stringWithFormat:@"Bearer %@", self.jwt] forHTTPHeaderField:@"Authorization"];
-    } else {
-        [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
-        [request setValue:postLen forHTTPHeaderField:@"Content-Length"];
-    }
-    
-    // Send request
-    /*NSLog(@"Sending request: %@", request);
-    for (NSString *header in [[request allHTTPHeaderFields] allKeys]) {
-        NSLog(@"header %@: %@", header, [request allHTTPHeaderFields][header]);
-    }*/
-    
-    [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:handler] resume];
-}
-
 
 #pragma mark - external methods
 
 - (void)connectToServerWithEmail:(NSString *)email andPass:(NSString *)password {
-    NSString *dataToSend = [NSString stringWithFormat:@" { \"email\" : \"%@\", \"password\" : \"%@\" } ",email, password];
+    NSString *dataToSend = [NSString stringWithFormat:@" { \"email\" : \"%@\", \"password\" : \"%@\" } ", email, password];
     
     // Send a server api request to logon
     [self sendRequestToServerUrl:@"api/login" textData:dataToSend method:@"POST" authorization:NO handler:
@@ -349,7 +383,7 @@
              NSDictionary *res = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
              
              NSLog(@"%@", res);
-             NSArray *buoyGroups = [self parseJSONForCurrentBuoys:[res objectForKey:@"buoyInstances"]];
+             NSArray *buoyGroups = [self parseJSONForCurrentBuoys:res[@"buoyInstances"]];
              
              [self.dataDelegate performSelectorOnMainThread:@selector(didGetBuoyListFromServer:) withObject:buoyGroups waitUntilDone:NO];
          } else { //Server failure
@@ -359,18 +393,35 @@
 }
 
 - (void)requestBuoyInfo:(Buoy *)buoy {
-    //For now, just use dummy data
-    //TODO
-    
-    [NSTimer scheduledTimerWithTimeInterval:2.0 target:self selector:@selector(dummybuoyinfo:) userInfo:buoy repeats:NO];
-}
-
-- (void)dummybuoyinfo:(NSTimer *)b {
-    [self.dataDelegate didGetBuoyInfoFromServer:@{
-       @"Temperature" : @"20°C",
-       @"Turbidity" : @"33 NTU",
-       @"Battery" : @"85\%",
-    } forBuoy:b.userInfo];
+    // Send a server request for data
+    NSString *addr = [NSString stringWithFormat:@"api/buoy_instances/%lu/readings?last=true", (unsigned long)buoy.buoyId];
+    [self sendRequestToServerUrl:addr textData:@"" method:@"GET" authorization:YES handler:
+     ^(NSData *data, NSURLResponse *response, NSError *error){
+         @try {
+             // Interpret their response
+             NSHTTPURLResponse *httpRes = (NSHTTPURLResponse *)response;
+             if (!error && httpRes.statusCode == 200) { //Success
+                 // Get buoy info
+                 NSDictionary *res = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                 
+                 // Get command ID array
+                 NSLog(@"%@", res);
+                 NSDictionary *namesWithValues = [self parseJSONForBuoyInfo:res[@"readings"]];
+                 if (namesWithValues == nil) {
+                     [NSException raise:@"Bad readings" format:@"readings is bad"];
+                 }
+                 
+                 
+                 // Return it
+                 [self.dataDelegate didGetBuoyInfoFromServer:namesWithValues forBuoy:buoy];
+             } else {
+                 [NSException raise:@"Failed request" format:@"%@", httpRes];
+             }
+         } @catch (NSException *e) {
+             NSLog(@"%@", e);
+             [self.dataDelegate performSelectorOnMainThread:@selector(didFailBuoyInfoForBuoy:) withObject:buoy waitUntilDone:NO];
+         }
+     }];
 }
 
 - (void)getPingDataFor:(Buoy *)buoy {
@@ -394,13 +445,13 @@
                  
                  // Get command ID array
                  NSLog(@"%@", res);
-                 NSArray *commandIds = [res objectForKey:@"commandIds"];
+                 NSArray *commandIds = res[@"commandIds"];
                  if (commandIds == nil || commandIds.count != 1) {
                      [NSException raise:@"Bad count" format:@"count is bad"];
                  }
                  
                  // Get id we want
-                 NSNumber *commandId = [commandIds objectAtIndex:0];
+                 NSNumber *commandId = commandIds[0];
                  if (commandId == nil) {
                      [NSException raise:@"Bad command ID" format:@""];
                  }

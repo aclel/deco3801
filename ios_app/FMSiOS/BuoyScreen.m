@@ -214,7 +214,7 @@
     
     // Pull out info in dictionary as strings to append
     for (NSString *key in info.allKeys) {
-        NSString *val = [info objectForKey:key];
+        NSString *val = info[key];
         // Key
         NSAttributedString *formatKey = [[NSAttributedString alloc] initWithString:[key stringByPaddingToLength:28 - val.length withString:@" " startingAtIndex:0] attributes:attr];
         [infoString appendAttributedString:formatKey];
@@ -830,8 +830,14 @@
             return;
         }
         
-        [self.moreInfoDialog displayBuoyInfo:buoyInfo];
+        // Do this to force onto main thread, as it likes to jump onto background thread sometimes.
+        [self.moreInfoDialog performSelectorOnMainThread:@selector(displayBuoyInfo:) withObject:buoyInfo waitUntilDone:NO];
     }
+}
+
+- (void)didFailBuoyInfoForBuoy:(Buoy *)b {
+    //COCKS
+    NSLog(@"COCKS");
 }
 
 - (void)didGetPingDataWithPing:(NSTimeInterval)ping forBuoy:(Buoy *)b {

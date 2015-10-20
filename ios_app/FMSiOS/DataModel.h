@@ -58,6 +58,9 @@
 @protocol DataModelDataDelegate <NSObject>
 
 - (void)didFailServerComms;
+
+- (void)didFailBuoyInfoForBuoy:(Buoy *)b;
+
 - (void)didTimeoutPing:(Buoy *)b;
 - (void)didServerErrorPing:(Buoy *)b;
 

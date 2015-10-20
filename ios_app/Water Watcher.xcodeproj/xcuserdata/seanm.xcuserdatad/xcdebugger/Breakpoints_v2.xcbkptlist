@@ -4,28 +4,18 @@
    version = "2.0">
    <Breakpoints>
       <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.ExceptionBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            scope = "0"
-            stopOnStyle = "0">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
             shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FMSiOS/DataModel.m"
-            timestampString = "466961376.175382"
+            timestampString = "467028889.795926"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "349"
-            endingLineNumber = "349"
-            landmarkName = "-requestBuoyInfo:"
+            startingLineNumber = "381"
+            endingLineNumber = "381"
+            landmarkName = "-getPingDataFor:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -36,44 +26,60 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "FMSiOS/DataModel.m"
-            timestampString = "466961376.175382"
+            timestampString = "467027582.872395"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "356"
-            endingLineNumber = "356"
-            landmarkName = "-dummybuoyinfo:"
+            startingLineNumber = "169"
+            endingLineNumber = "169"
+            landmarkName = "-parseJSONForCurrentBuoys:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "FMSiOS/BuoyScreen.m"
-            timestampString = "466960400.408086"
+            filePath = "FMSiOS/DataModel.m"
+            timestampString = "467028889.795926"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "791"
-            endingLineNumber = "791"
-            landmarkName = "-didGetBuoyInfoFromServer:forBuoy:"
+            startingLineNumber = "252"
+            endingLineNumber = "252"
+            landmarkName = "-repeatPingDataReq:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "FMSiOS/BuoyScreen.m"
-            timestampString = "466960401.769759"
+            filePath = "FMSiOS/DataModel.m"
+            timestampString = "467028889.795926"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "787"
-            endingLineNumber = "787"
-            landmarkName = "-didGetBuoyInfoFromServer:forBuoy:"
+            startingLineNumber = "214"
+            endingLineNumber = "214"
+            landmarkName = "-repeatPingDataReq:"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "FMSiOS/DataModel.m"
+            timestampString = "467029949.392671"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "213"
+            endingLineNumber = "213"
+            landmarkName = "-repeatPingDataReq:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

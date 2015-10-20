@@ -80,14 +80,16 @@
         self.backgroundColor = [FMS_COLOUR_BG_SHADE colorWithAlphaComponent:0.95];
         self.layer.cornerRadius = 10;
         self.tintColor = FMS_COLOUR_TEXT_BUTTON;
+        self.clipsToBounds = YES;
         
         _buoy = nil;
         
-        // Label
+        // Labels
         _content = [[UILabel alloc] init];
         _content.numberOfLines = 0;
-        _content.text = @" ";
+        _content.attributedText = [[NSAttributedString alloc] initWithString:@" "];
         _content.font = [UIFont systemFontOfSize:17];
+        _content.lineBreakMode = NSLineBreakByClipping;
         [self addSubview:_content];
         
         // Indicator for missing content
@@ -178,22 +180,53 @@
     [self.pingButton setEnabled:YES];
 }
 
-- (void)setBuoy:(Buoy *)buoy {
-    _buoy = buoy;
-    //TODO
-}
-
 - (void)displayBuoyInfo:(NSDictionary *)info {
-    // Pull out info in dictionary
-    NSMutableString *infoString = [[NSMutableString alloc] init];
+    NSMutableParagraphStyle *clipStyle = [[NSMutableParagraphStyle alloc] init];
+    clipStyle.lineBreakMode = NSLineBreakByTruncatingTail;
+    NSDictionary *titleAttr = @{ NSFontAttributeName : [UIFont boldSystemFontOfSize:20], NSParagraphStyleAttributeName : clipStyle};
+    NSDictionary *groupAttr = @{ NSFontAttributeName : [UIFont systemFontOfSize:15], NSForegroundColorAttributeName : FMS_COLOUR_TEXT_FADE, NSParagraphStyleAttributeName : clipStyle };
+    NSDictionary *timeAttr = @{ NSFontAttributeName : [UIFont italicSystemFontOfSize:16] };
+    NSDictionary *attr = @{NSFontAttributeName : [UIFont fontWithName:@"Courier" size:17]};
+    NSMutableAttributedString *infoString = [[NSMutableAttributedString alloc] initWithString:@""];
+    
+    // Write name, time and coords
+    if (self.buoy) {
+        NSAttributedString *titleString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", self.buoy.title] attributes:titleAttr];
+        [infoString appendAttributedString:titleString];
+        
+        NSAttributedString *groupString;
+        if (self.buoy.group.groupId == 0) {
+            groupString = [[NSAttributedString alloc] initWithString:@" (unlisted)\n" attributes:groupAttr];
+        } else {
+            groupString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" (%@)\n", self.buoy.group.title] attributes:groupAttr];
+        }
+        [infoString appendAttributedString:groupString];
+    }
+    if (self.buoy && self.buoy.dateCreated) {
+        NSString *dateStr = [NSDateFormatter localizedStringFromDate:self.buoy.dateCreated dateStyle:NSDateFormatterMediumStyle timeStyle:NSDateFormatterShortStyle];
+        dateStr = [NSString stringWithFormat:@"  Created: %@\n", dateStr];
+        NSAttributedString *dateString = [[NSAttributedString alloc] initWithString:dateStr attributes:timeAttr];
+        [infoString appendAttributedString:dateString];
+    }
+    
+    // Add a space
+    [infoString appendAttributedString:[[NSAttributedString alloc] initWithString:@"\n"]];
+    
+    // Pull out info in dictionary as strings to append
     for (NSString *key in info.allKeys) {
-        // Pad for spacing
-        NSString *formatKey = [NSString stringWithFormat:@"%@:", key];
-        [infoString appendFormat:@"%@\t\t%@\n", formatKey,  [info objectForKey:key]];
+        NSString *val = [info objectForKey:key];
+        // Key
+        NSAttributedString *formatKey = [[NSAttributedString alloc] initWithString:[key stringByPaddingToLength:28 - val.length withString:@" " startingAtIndex:0] attributes:attr];
+        [infoString appendAttributedString:formatKey];
+        
+        // Value
+        
+        NSAttributedString *formatVal = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n", val] attributes:attr];
+        [infoString appendAttributedString:formatVal];
     }
     
     // Display
-    self.content.text = infoString;
+    self.content.attributedText = infoString;
     [self.contentInd stopAnimating];
     [self.content setHidden:NO];
     [self layoutSubviews];

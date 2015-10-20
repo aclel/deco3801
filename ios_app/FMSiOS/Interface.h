@@ -19,6 +19,7 @@
 #define FMS_COLOUR_BUTTON_DARK_SEL [UIColor colorWithRed:0 green:0.281 blue:0.461 alpha:1.0]
 #define FMS_COLOUR_TEXT_LIGHT [UIColor whiteColor]
 #define FMS_COLOUR_TEXT_DARK [UIColor blackColor]
+#define FMS_COLOUR_TEXT_FADE [UIColor lightGrayColor]
 #define FMS_COLOUR_TEXT_BUTTON [UIColor colorWithRed:0.2 green:0.478 blue:0.718 alpha:1.0]
 #define FMS_COLOUR_TEXT_ERROR [UIColor colorWithRed:1 green:0.35 blue:0.35 alpha:1]
 #define FMS_COLOUR_TEXT_SUCCESS [UIColor colorWithHue:121/256.0 saturation:0.85 brightness:0.55 alpha:1.0]

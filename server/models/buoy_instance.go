@@ -13,6 +13,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"sort"
 	"time"
 )
 
@@ -298,39 +299,35 @@ func (db *DB) GetWarningTriggersForActiveBuoyInstances() ([]WarningTrigger, erro
 // The database query returns multiple rows, one for each sensor reading in the reading.
 // The sensor readings are added as children to a reading struct before being returned.
 func (db *DB) GetMostRecentReadingForBuoyInstance(id int) ([]MapReading, error) {
-	dbReadings := []DbMapReading{}
-	err := db.Select(&dbReadings, `SELECT 
-									reading.id AS reading_id,
-									latitude, 
-									longitude, 
-									altitude, 
-									speed_og, 
-									course, 
-									timestamp, 
-									value, 
-									sensor_type_id 
-								FROM 
-									reading 
-									INNER JOIN sensor_reading ON sensor_reading.reading_id = reading.id 
-								WHERE 
-									buoy_instance_id = ?
-								ORDER BY timestamp DESC 
-								LIMIT 1`, id)
-
+	readings, err := db.GetAllReadingsForBuoyInstance(id)
 	if err != nil {
 		return nil, err
 	}
 
-	readings, err := buildReadings(dbReadings)
-	if err != nil {
-		return nil, err
+	sort.Sort(byTimestampDesc(readings))
+	if len(readings) < 1 {
+		return nil, errors.New("No reading found")
 	}
 
-	if len(readings) != 1 {
-		return nil, errors.New("There should only be one most recent reading")
-	}
+	reading := []MapReading{}
+	reading = append(reading, readings[0])
 
-	return readings, nil
+	return reading, nil
+}
+
+// Sort readings in descending timestamp
+type byTimestampDesc []MapReading
+
+func (readings byTimestampDesc) Len() int {
+	return len(readings)
+}
+
+func (readings byTimestampDesc) Swap(i, j int) {
+	readings[i], readings[j] = readings[j], readings[i]
+}
+
+func (readings byTimestampDesc) Less(i, j int) bool {
+	return readings[j].Timestamp < readings[i].Timestamp
 }
 
 // Get all readings for the buoy instance with the given id.

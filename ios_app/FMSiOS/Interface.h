@@ -11,7 +11,7 @@
 #import <MapKit/MapKit.h>
 
 // Default colours
-#define FMS_COLOUR_BG_DARK [UIColor colorWithRed:0.008 green:0.494 blue:0.573 alpha:1.0]
+#define FMS_COLOUR_BG_DARK [UIColor colorWithRed:0x07/255.0 green:0x30/255.0 blue:0x64/255.0 alpha:1.0]
 #define FMS_COLOUR_BG_LIGHT [UIColor whiteColor]
 #define FMS_COLOUR_BG_SHADE [UIColor colorWithWhite:0.85 alpha:1.0]
 #define FMS_COLOUR_BG_LIGHT_SHADE [UIColor colorWithWhite:0.97 alpha:1.0]

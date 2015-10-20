@@ -226,7 +226,13 @@
                 groupForBuoy.title = @"-";
             } else {
                 NSString *groupName = buoyInfo[@"buoyGroupName"];
-                if (groupName != nil) groupForBuoy.title = groupName;
+                if (groupName != nil) {
+                    if (groupName.length == 0) {
+                        groupForBuoy.title = @"(blank)";
+                    } else {
+                        groupForBuoy.title = groupName;
+                    }
+                }
             }
             [parsed addObject:groupForBuoy];
         }

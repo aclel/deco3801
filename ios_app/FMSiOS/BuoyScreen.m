@@ -370,7 +370,11 @@
         
         if (self.delegate.buoyGroups.count == 0) { // No buoys loaded to filter
             c.selectionStyle = UITableViewCellSelectionStyleNone;
-            c.textLabel.text = @"No buoys currently loaded.";
+            if (self.delegate.allBuoys.count == 0) {
+                c.textLabel.text = @"No buoys currently loaded.";
+            } else {
+                c.textLabel.text = @"No groups to filter.";
+            }
         } else { // Show buoy group at this index
             BuoyGroup *g = [self.delegate.buoyGroups objectAtIndex:indexPath.row];
             c.textLabel.text = (g.groupId == 0) ? @"Unassigned" : g.title;
@@ -408,11 +412,9 @@
         
         // Deselect
         [tableView deselectRowAtIndexPath:indexPath animated:YES];
-        NSLog(@"Selected row %d", indexPath.row);
         
         // Open more info
         Buoy *b = [self.delegate.unlistedBuoys objectAtIndex:indexPath.row];
-        NSLog(@"Selected row %d", indexPath.row);
         [self.delegate moreInfoOpenedForBuoy:b];
     } else if (indexPath.section == 2) { // Filters
         if (self.delegate.buoyGroups.count == 0) {
@@ -786,11 +788,14 @@
     // Get buoy information from list of buoys/groups
     NSMutableArray *allBuoys = [[NSMutableArray alloc] init];
     NSMutableArray *unlistedBuoys = [[NSMutableArray alloc] init];
+    NSMutableArray *displayedBuoyGroups = [[NSMutableArray alloc] init];
     for (BuoyGroup *g in buoyGroups) {
+        BOOL hasDisplayedBuoy = NO;
         for (Buoy *b in g.buoys) {
             // Get buoys with valid coordinates
             if (b.validCoordinate) {
                 [allBuoys addObject:b];
+                hasDisplayedBuoy = YES;
             } else {
                 NSLog(@"Buoy %@ with id %d has invalid coord - adding to unlisted list", b, b.buoyId);
                 [unlistedBuoys addObject:b];
@@ -799,12 +804,17 @@
         
         // Get all buoys
         [allBuoys addObjectsFromArray:g.buoys];
+        
+        // Add group if displayed
+        if (hasDisplayedBuoy) {
+            [displayedBuoyGroups addObject:g];
+        }
     }
     
     // Update globals
     self.allBuoys = allBuoys;
     self.unlistedBuoys = unlistedBuoys;
-    self.buoyGroups = [buoyGroups sortedArrayUsingComparator:^NSComparisonResult(id a, id b) {
+    self.buoyGroups = [displayedBuoyGroups sortedArrayUsingComparator:^NSComparisonResult(id a, id b) {
         BuoyGroup *a2 = (BuoyGroup *)a;
         BuoyGroup *b2 = (BuoyGroup *)b;
         if (a2.groupId < b2.groupId) {

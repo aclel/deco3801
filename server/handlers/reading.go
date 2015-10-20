@@ -11,14 +11,16 @@
 package handlers
 
 import (
-	"bytes"
+	"archive/zip"
 	"encoding/csv"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/aclel/deco3801/server/models"
@@ -138,6 +140,31 @@ func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 	return e
 }
 
+// Same as ReadingsCreate except the readings aren't added to the database
+// Readings sent to this route are still validated and missing buoy instance sensors
+// are still created.
+func ReadingsTest(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	readingsContainer := new(models.BuoyReadingContainer)
+	decoder := json.NewDecoder(r.Body)
+	err := decoder.Decode(&readingsContainer)
+
+	// Check if the request is valid
+	if err != nil && err != io.EOF {
+		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
+	}
+
+	var e *AppError
+	// Validate the readings and add missing buoy instance sensors
+	_, e = buildReadings(env, readingsContainer)
+
+	// Respond with 200 OK if everything was successful
+	if e == nil {
+		w.WriteHeader(http.StatusOK)
+	}
+
+	return e
+}
+
 // Constructs Readings from the JSON which was in the request body of a /buoys/api/readings POST request.
 func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContainer) (*[]*models.Reading, *AppError) {
 	// Get most recent buoy instance for buoy with guid
@@ -153,7 +180,11 @@ func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContain
 	for _, reading := range *readingsContainer.Readings {
 		reading.BuoyInstanceId = buoyInstance.Id
 		reading.BuoyGuid = readingsContainer.BuoyGuid
-		reading.Timestamp = time.Unix(reading.UnixTimestamp, 0).UTC()
+		reading.Timestamp, err = parseDatetime(reading)
+		if err != nil {
+			e = &AppError{err, "Error parsing datetime", http.StatusInternalServerError}
+			continue
+		}
 
 		if e = validateReading(env, reading); e != nil {
 			continue
@@ -165,6 +196,17 @@ func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContain
 	}
 
 	return &validReadings, e
+}
+
+// Parses the date and time field in the reading
+func parseDatetime(reading *models.Reading) (time.Time, error) {
+	datetime := reading.Date + "T" + reading.Time
+	parsed, err := time.Parse("020106T150405.999999", datetime)
+	if err != nil {
+		return time.Now(), err
+	}
+
+	return parsed, nil
 }
 
 // Add new sensors and update the "last recorded" time of the other sensors with sensor readings.
@@ -219,17 +261,17 @@ func sensorExists(sensorTypeId int, sensors []models.BuoyInstanceSensor) bool {
 func validateReading(env *models.Env, reading *models.Reading) *AppError {
 	// Check if guid is present
 	if reading.BuoyGuid == "" {
-		return &AppError{errors.New("Reading: "), "No guid", http.StatusBadRequest}
+		return &AppError{errors.New("Reading error"), "No guid", http.StatusBadRequest}
 	}
 
 	// Check if latitute is valid
 	if reading.Latitude < -90.0 || reading.Latitude > 90.0 {
-		return &AppError{errors.New("Reading: "), "Invalid latitude", http.StatusBadRequest}
+		return &AppError{errors.New("Reading error "), "Invalid latitude", http.StatusBadRequest}
 	}
 
 	// Check if longitude is valid
 	if reading.Longitude < -180.0 || reading.Longitude > 180 {
-		return &AppError{errors.New("Reading: "), "Invalid longitude", http.StatusBadRequest}
+		return &AppError{errors.New("Reading error "), "Invalid longitude", http.StatusBadRequest}
 	}
 
 	if len(reading.SensorReadings) == 0 {
@@ -272,18 +314,174 @@ func ReadingsExport(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 		return &AppError{err, "Error retrieving readings", http.StatusInternalServerError}
 	}
 
-	csvHeader := []string{"value", "latitude", "longitude", "timestamp"}
+	w.Header().Set("Content-Type", "application/zip")
+	w.Header().Set("Content-Disposition", "attachment;filename=\"export.zip\"")
 
-	// Write the readings to a csv
-	b := &bytes.Buffer{}
-	wr := csv.NewWriter(b)
-	wr.Write(csvHeader)
-	wr.WriteAll(readings)
+	{
+		zw := zip.NewWriter(w)
 
-	w.Header().Set("Content-Type", "text/csv")
-	w.Header().Set("Content-Disposition", "attachment;filename=export.csv")
-	w.WriteHeader(http.StatusOK)
-	w.Write(b.Bytes())
+		// Get readings for each buoy instance
+		files, err := buildCsvFiles(readings)
+		if err != nil {
+			return &AppError{err, "Error building data for csv files", http.StatusInternalServerError}
+		}
+		// Create zip file
+		for _, file := range files {
+			zipHeader := &zip.FileHeader{
+				Name:         fmt.Sprintf("%s.csv", file.FileName),
+				ModifiedTime: uint16(time.Now().UnixNano()),
+				ModifiedDate: uint16(time.Now().UnixNano()),
+			}
+
+			fw, err := zw.CreateHeader(zipHeader)
+			if err != nil {
+				return &AppError{err, "Error creating zip header", http.StatusInternalServerError}
+			}
+			// Add csv to zip
+			csvWriter := csv.NewWriter(fw)
+			csvWriter.WriteAll(file.StringArray())
+			if err := csvWriter.Error(); err != nil {
+				return &AppError{err, "Error writing csv", http.StatusInternalServerError}
+			}
+		}
+
+		if err := zw.Close(); err != nil {
+			return &AppError{err, "Error writing zip", http.StatusInternalServerError}
+		}
+	}
 
 	return nil
+}
+
+type CsvFile struct {
+	BuoyInstanceId   int64
+	BuoyInstanceName string
+	FileName         string
+	CsvRows          []CsvRow
+	CsvRowsMap       map[int64]*CsvRow
+}
+
+func indexOf(i int64, slice []int64) int {
+	for j, x := range slice {
+		if x == i {
+			return j
+		}
+	}
+	return -1
+}
+
+// Get a [][]string representation of the csv object so that
+// it can be written directly to the csv writer with WriteAll
+func (f *CsvFile) StringArray() [][]string {
+	// Create CSV header
+	initialHeaderLength := 6
+	csvHeader := []string{"Timestamp (UTC)", "Latitude", "Longitude", "Altitude (m)", "Course (Degrees)", "Speed OG (Knots)"}
+
+	// Get all unique sensor types in the readings and add them to the csv header
+	var sensorTypeIds []int64
+	for _, r := range f.CsvRowsMap {
+		for _, s := range r.SensorReadings {
+			if indexOf(s.SensorTypeId, sensorTypeIds) == -1 {
+				sensorTypeIds = append(sensorTypeIds, s.SensorTypeId)
+				csvHeader = append(csvHeader, s.SensorTypeName+" ("+s.SensorTypeUnit+")")
+			}
+		}
+	}
+
+	var csvRows [][]string
+	csvRows = append(csvRows, csvHeader)
+	// Build a 2D string array - the first dimension is for the "rows" and the second dimension is for the "cells"
+	for _, r := range f.CsvRowsMap {
+		reading := r.Reading
+		row := make([]string, initialHeaderLength+len(sensorTypeIds))
+		row[0] = reading.Timestamp.UTC().String()
+		row[1] = strconv.FormatFloat(reading.Latitude, 'f', -1, 64)
+		row[2] = strconv.FormatFloat(reading.Longitude, 'f', -1, 64)
+		row[3] = strconv.FormatFloat(float64(reading.Altitude), 'f', -1, 32)
+		row[4] = strconv.FormatFloat(float64(reading.Course), 'f', -1, 32)
+		row[5] = strconv.FormatFloat(float64(reading.SpeedOG), 'f', -1, 32)
+
+		for _, s := range r.SensorReadings {
+			// The index of the column where this cell needs to go
+			headerIndex := initialHeaderLength + indexOf(s.SensorTypeId, sensorTypeIds)
+			row[headerIndex] = strconv.FormatFloat(s.Value, 'f', -1, 64)
+		}
+		csvRows = append(csvRows, row)
+	}
+
+	return csvRows
+}
+
+type CsvRow struct {
+	Reading        models.Reading
+	SensorReadings []CsvSensorReading
+}
+
+type CsvSensorReading struct {
+	Value          float64
+	SensorTypeId   int64
+	SensorTypeName string
+	SensorTypeUnit string
+}
+
+// Build the objects that will eventually be written to the csv writer
+func buildCsvFiles(readings []models.ExportedSensorReading) (map[int64]*CsvFile, error) {
+	csvFiles := make(map[int64]*CsvFile)
+
+	// For each sensor reading in the SQL result
+	for _, reading := range readings {
+		var csvFile *CsvFile
+		var exists bool
+		// If the Buoy Instance doesn't exist yet, create a new csv file for it
+		if csvFile, exists = csvFiles[reading.BuoyInstanceId]; !exists {
+			csvFile = &CsvFile{
+				BuoyInstanceId:   reading.BuoyInstanceId,
+				BuoyInstanceName: reading.BuoyInstanceName,
+				FileName:         formattedCsvFileName(reading.BuoyInstanceName),
+			}
+			csvFile.CsvRowsMap = make(map[int64]*CsvRow)
+			csvFiles[reading.BuoyInstanceId] = csvFile
+		}
+
+		var csvRow *CsvRow
+		// If the row for the reading doesn't exist in the csv file yet, add it
+		if csvRow, exists = csvFile.CsvRowsMap[reading.ReadingId]; !exists {
+			readingRow := &models.Reading{
+				Id:        reading.ReadingId,
+				Latitude:  reading.Latitude,
+				Longitude: reading.Longitude,
+				Altitude:  reading.Altitude,
+				SpeedOG:   reading.SpeedOG,
+				Course:    reading.Course,
+				Timestamp: reading.Timestamp,
+			}
+			csvRow = &CsvRow{Reading: *readingRow}
+			csvFile.CsvRowsMap[reading.ReadingId] = csvRow
+		}
+
+		// Add the sensor reading to the csv row
+		sensorReading := &CsvSensorReading{
+			Value:          reading.Value,
+			SensorTypeId:   reading.SensorTypeId,
+			SensorTypeName: reading.SensorTypeName,
+			SensorTypeUnit: reading.SensorTypeUnit,
+		}
+		csvRow.SensorReadings = append(csvRow.SensorReadings, *sensorReading)
+	}
+
+	return csvFiles, nil
+}
+
+func formattedCsvFileName(buoyInstanceName string) string {
+	return "export_" + replaceCharsWithUnderscores(buoyInstanceName, "/\\?%*:|\"<> ")
+}
+
+// Replaces all characters in str that are present in chr with underscores
+func replaceCharsWithUnderscores(str, chars string) string {
+	return strings.Map(func(r rune) rune {
+		if strings.IndexRune(chars, r) < 0 {
+			return r
+		}
+		return '_'
+	}, str)
 }

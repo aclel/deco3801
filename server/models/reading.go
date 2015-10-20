@@ -12,7 +12,6 @@ package models
 
 import (
 	"sort"
-	"strconv"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -24,8 +23,12 @@ type Reading struct {
 	Id             int64            `db:"reading_id"`
 	Latitude       float64          `json:"lat" db:"latitude"`
 	Longitude      float64          `json:"lng" db:"longitude"`
+	Altitude       float32          `json:"al" db:"altitude"`
+	SpeedOG        float32          `json:"sp" db:"speed_og"`
+	Course         float32          `json:"co" db:"course"`
 	Timestamp      time.Time        `db:"timestamp"`
-	UnixTimestamp  int64            `json:"ut"`
+	Date           string           `json:"d"`
+	Time           string           `json:"t"`
 	SensorReadings []*SensorReading `json:"sR"`
 	BuoyInstanceId int              `db:"buoy_instance_id"`
 	BuoyGuid       string           `json:"guid" db:"guid"`
@@ -51,17 +54,23 @@ type ReadingRepository interface {
 	CreateReading(*Reading) (int64, error)
 	CreateSensorReading(*SensorReading) error
 	GetAllReadings(time.Time, time.Time) (*MapReadingBuoyGroupsWrapper, error)
-	GetReadingsIn([]int) ([][]string, error)
+	GetReadingsIn([]int) ([]ExportedSensorReading, error)
 }
 
 // Insert a new Reading into the database. Returns the id of the new Reading.
 func (db *DB) CreateReading(reading *Reading) (int64, error) {
-	stmt, err := db.Preparex(`INSERT INTO reading (buoy_instance_id, latitude, longitude, timestamp) VALUES(?, ?, ?, ?);`)
+	stmt, err := db.Preparex(`INSERT INTO reading (
+									buoy_instance_id, latitude, longitude, 
+									altitude, speed_og, course, timestamp
+								) 
+								VALUES 
+									(?, ?, ?, ?, ?, ?, ?);`)
 	if err != nil {
 		return -1, err
 	}
 
-	result, err := stmt.Exec(reading.BuoyInstanceId, reading.Latitude, reading.Longitude, reading.Timestamp)
+	result, err := stmt.Exec(reading.BuoyInstanceId, reading.Latitude, reading.Longitude,
+		reading.Altitude, reading.SpeedOG, reading.Course, reading.Timestamp)
 	if err != nil {
 		return -1, err
 	}
@@ -101,6 +110,9 @@ type DbMapReading struct {
 	Value            float64   `db:"value"`
 	Latitude         float64   `db:"latitude"`
 	Longitude        float64   `db:"longitude"`
+	Altitude         float32   `db:"altitude"`
+	SpeedOG          float32   `db:"speed_og"`
+	Course           float32   `db:"course"`
 	Timestamp        time.Time `db:"timestamp"`
 	SensorTypeId     int       `db:"sensor_type_id"`
 	BuoyGroupId      int       `db:"buoy_group_id"`
@@ -131,6 +143,9 @@ type MapReading struct {
 	Id             int                `json:"id"`
 	Latitude       float64            `json:"latitude"`
 	Longitude      float64            `json:"longitude"`
+	Altitude       float32            `json:"altitude"`
+	SpeedOG        float32            `json:"speedOG"`
+	Course         float32            `json:"course"`
 	Timestamp      int64              `json:"timestamp"`
 	SensorReadings []MapSensorReading `json:"sensorReadings"`
 }
@@ -152,6 +167,9 @@ func (db *DB) GetAllReadings(startTime time.Time, endTime time.Time) (*MapReadin
 		reading.latitude AS latitude, 
 		reading.longitude AS longitude, 
 		reading.timestamp AS timestamp, 
+		reading.altitude AS altitude,
+		reading.speed_og AS speed_og,
+		reading.course AS course,
 		buoy_instance.buoy_id AS buoy_id, 
 		buoy_instance.name AS buoy_instance_name,
 		buoy_group.id AS buoy_group_id, 
@@ -235,6 +253,9 @@ func buildReadingsIndexData(mapReadings []DbMapReading) (*MapReadingBuoyGroupsWr
 				Id:        reading.ReadingId,
 				Latitude:  reading.Latitude,
 				Longitude: reading.Longitude,
+				Altitude:  reading.Altitude,
+				SpeedOG:   reading.SpeedOG,
+				Course:    reading.Course,
 				Timestamp: reading.Timestamp.Unix(),
 			}
 			// Store the reading in the map
@@ -276,43 +297,56 @@ func (readings byTimestamp) Less(i, j int) bool {
 	return readings[i].Timestamp < readings[j].Timestamp
 }
 
-// Get all Readings with ids that are in the given slice of integers.
-// Returns a 2D string array which can be passed to the CSV WriteAll
-// function.
-func (db *DB) GetReadingsIn(readingsIds []int) ([][]string, error) {
-	query, args, err := sqlx.In(`SELECT value, latitude, longitude, timestamp FROM sensor_reading 
-								 INNER JOIN reading ON sensor_reading.reading_id = reading.id 
-								 WHERE reading.id IN (?)`, readingsIds)
+type ExportedSensorReading struct {
+	Value            float64   `db:"value"`
+	Latitude         float64   `db:"latitude"`
+	Longitude        float64   `db:"longitude"`
+	Altitude         float32   `db:"altitude"`
+	SpeedOG          float32   `db:"speed_og"`
+	Course           float32   `db:"course"`
+	Timestamp        time.Time `db:"timestamp"`
+	ReadingId        int64     `db:"reading_id"`
+	BuoyInstanceName string    `db:"buoy_instance_name"`
+	BuoyInstanceId   int64     `db:"buoy_instance_id"`
+	SensorTypeId     int64     `db:"sensor_type_id"`
+	SensorTypeName   string    `db:"sensor_type_name"`
+	SensorTypeUnit   string    `db:"sensor_type_unit"`
+}
+
+// Get all Sensor Readings with reading ids that are in the given slice of integers.
+func (db *DB) GetReadingsIn(readingsIds []int) ([]ExportedSensorReading, error) {
+	query, args, err := sqlx.In(`SELECT 
+									value, 
+									latitude, 
+									longitude, 
+									altitude,
+									speed_og,
+									course,
+									timestamp,
+									reading.id AS reading_id,
+									sensor_type_id AS sensor_type_id,
+									sensor_type.name AS sensor_type_name,
+									sensor_type.unit AS sensor_type_unit,
+									buoy_instance_id AS buoy_instance_id,
+									buoy_instance.name AS buoy_instance_name
+								FROM 
+									sensor_reading 
+									INNER JOIN reading ON sensor_reading.reading_id = reading.id 
+									INNER JOIN sensor_type ON sensor_reading.sensor_type_id = sensor_type.id
+									INNER JOIN buoy_instance ON reading.buoy_instance_id = buoy_instance.id
+								WHERE 
+									reading.id IN (?)
+								ORDER BY buoy_instance_id, reading_id, sensor_type_id`, readingsIds)
 	if err != nil {
 		return nil, err
 	}
 	query = db.Rebind(query)
 
-	rows, err := db.Query(query, args...)
+	exportedReadings := []ExportedSensorReading{}
+	err = db.Select(&exportedReadings, query, args...)
 	if err != nil {
 		return nil, err
 	}
 
-	var readings [][]string
-	var value float64
-	var latitude float64
-	var longitude float64
-	var timestamp time.Time
-
-	// Add readings to [][]string
-	for rows.Next() {
-		err = rows.Scan(&value, &latitude, &longitude, &timestamp)
-		if err != nil {
-			return nil, err
-		}
-
-		val := strconv.FormatFloat(value, 'f', -1, 64)
-		lat := strconv.FormatFloat(latitude, 'f', -1, 64)
-		long := strconv.FormatFloat(longitude, 'f', -1, 64)
-		result := []string{val, lat, long, timestamp.UTC().String()}
-
-		readings = append(readings, result)
-	}
-
-	return readings, nil
+	return exportedReadings, nil
 }

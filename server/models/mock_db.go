@@ -143,7 +143,7 @@ func (mdb *MockDB) CreateSensorReading(sensorReading *SensorReading) error {
 	return nil
 }
 
-func (mdb *MockDB) GetReadingsIn(readingsIds []int) ([][]string, error) {
+func (mdb *MockDB) GetReadingsIn(readingsIds []int) ([]ExportedSensorReading, error) {
 	return nil, nil
 }
 

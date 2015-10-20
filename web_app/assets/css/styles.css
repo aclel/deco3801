@@ -142,7 +142,9 @@ html, body, h1, h2, h3, h4, h5, h6 {
 .sk-fading-circle {
   width: 1.75em;
   height: 1.75em;
-  position: relative; }
+  position: relative;
+  margin-top: 7px;
+  margin-right: 7px; }
   .sk-fading-circle .sk-circle {
     width: 100%;
     height: 100%;
@@ -518,7 +520,25 @@ input.ti-xl {
 }
 
 .dashboard-panel {
-    transition: all 0.5s linear 0s;
+  position: absolute;
+  transition: all 0.5s linear 0s;
+  background-color: #fff;
+  opacity: 0.96;
+  height: 100%;
+}
+
+#filter-panel {
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  width: 400px;
+}
+
+#chart-panel {
+  top: 0;
+  right: 0;
+  z-index: 9998;
+  width: 450px;
 }
 
 .infoBox {

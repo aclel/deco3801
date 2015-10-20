@@ -1,8 +1,15 @@
 import socket, sys, threading, json, httplib
 from time import sleep
 
+
+# I AM A BUOY 
+# BUT NOT A REAL BUOY
+
+
 HOSTNAME = "teamneptune.co"
-PORT = 8080
+PORT = 8081
+READINGS_ENDPOINT = "/buoys/api/readings"
+COMMANDS_ENDPOINT = "/buoys/api/commands"
 
 HEADER = '\033[95m'
 OKBLUE = '\033[94m'
@@ -10,10 +17,6 @@ OKGREEN = '\033[92m'
 WARNING = '\033[93m'
 FAIL = '\033[91m'
 ENDC = '\033[0m'
-
-def jprint(jstr):
-	print json.dumps(jstr, sort_keys=True, 
-		indent=4, separators=(',', ': '))
 
 # Custom exceptions
 class InvalidBuoy(Exception):
@@ -47,41 +50,47 @@ class Buoy():
 	def send_command(self):
 		pass
 
-	def get_auth_token(self):
-		data = json.load(open('creds.json'))
-		headers = {"Content-type": "application/json"}
-		conn = httplib.HTTPConnection(HOSTNAME, PORT)
-		conn.request("POST", "/api/login", json.dumps(data), headers)
-		res = conn.getresponse()
-		if res.status != 200:
-			print WARNING + "Server NOT OK. returned " + str(res.status) + ENDC
-			return None
-		try:
-			jstr = json.loads(res.read())
-		except ValueError:
-			print WARNING + "JSON could not be decoded." + ENDC
-			return None
-		return jstr['token']
+	#def get_auth_token(self):
+	#	data = json.load(open('creds.json'))
+	#	headers = {"Content-type": "application/json"}
+	#	conn = httplib.HTTPConnection(HOSTNAME, PORT)
+	#	conn.request("POST", "/api/login", json.dumps(data), headers)
+	#	res = conn.getresponse()
+	#	if res.status != 200:
+	#		print WARNING + "Server NOT OK. returned " + str(res.status) + ENDC
+	#		return None
+	#	try:
+	#		jstr = json.loads(res.read())
+	#	except ValueError:
+	#		print WARNING + "JSON could not be decoded." + ENDC
+	#		return None
+	#	return jstr['token']
 
 	def send_reading(self, readingsf):
+		data = None
 		try:
 			data = json.load(open(readingsf))
 		except ValueError:
-			print WARNING + "Could not parse file: " + readingsf + "." + ENDC
-		token = self.get_auth_token()
-		if token == None:
-			print WARNING + "Could not open file: " + readingsf + "." + ENDC
+			print WARNING + "Buoy {0}: Could not parse/read/open JSON readings file: ".format(self.name) + readingsf + "." + ENDC
 			return None
+		#token = self.get_auth_token()
+		#if token == None:
+		#	print WARNING + "Could not open file: " + readingsf + "." + ENDC
+		#	return None
 		headers = {"Content-type": "application/json", 
-					"Accept": "text/plain", 
-					"Authorization": "Bearer " + token}
+				   "Accept": "text/plain"}
+
 		conn = httplib.HTTPConnection(HOSTNAME, PORT)
-		conn.request("POST", "/api/readings", json.dumps(data), headers)
-		print OKBLUE + "Buoy {0}: Sent reading.json to server." + ENDC
-		res = conn.getresponse()
+		conn.request("POST", READINGS_ENDPOINT, json.dumps(data), headers)
+		print OKBLUE + "Buoy {0}: Sent reading.json to server.".format(self.name) + ENDC
+		try:
+			res = conn.getresponse()
+		except httplib.BadStatusLine:
+			print WARNING + "Buoy {0}: Could not get response from server.".format(self.name) + ENDC
+			return None
 		print OKBLUE + "Buoy {0}: Server response: {1}".format(self.name, res.status) + ENDC
-		print OKBLUE + res.reason + ENDC
-		print OKBLUE + res.read() + ENDC
+		#print OKBLUE + res.reason + ENDC
+		#print OKBLUE + res.read() + ENDC
 		return 1
 
 	def update_running(self, running):
@@ -114,15 +123,15 @@ class BuoyThread():
 			# be able to access 'buoy' at this time
 			lock.acquire()
 			if (self.buoy.send_reading(self.readingsf) == None):
-				print OKBLUE + ("Buoy {0}: Could not connect to server. " 
-						"Trying again in {1}.").format(self.buoy.name, 
-						self.timeout) + ENDC
+				print OKBLUE + ("Buoy {0}: Could not connect to server or couldn't send reading. " 
+						"Trying again {1} times.").format(self.buoy.name, 
+						self.iterations - 1) + ENDC
 			lock.release()
 			print OKBLUE + "Buoy {0}: Sleeping for {1}".format(self.buoy.name, 
 					self.timeout) + ENDC
 			sleep(self.timeout)
 			i += 1
-		print OKBLUE + "Buoy {0}: Thread ending." + ENDC
+		print OKBLUE + "Buoy {0}: Thread ending.".format(self.buoy.name) + ENDC
 
 # CLI
 class Simulate():
@@ -334,7 +343,7 @@ class Simulate():
 						self.threads.append(thread)
 						thread.start()
 		except InvalidBuoy as e:
-			print WARNING + "Could not start buoy. " + e.value + ENDC
+			print WARNING + "Buoy {0}: Could not start me: ".format(name) + e.value + ENDC
 
 	def cmd_stop(self, args, lock):
 		cvars = args.split()
@@ -358,7 +367,7 @@ class Simulate():
 							if buoy.name == name:
 								buoy.running = False
 								self.threads.remove(bthread)
-								print (OKBLUE + "Buoy {0}: Thread is kill." 
+								print (OKBLUE + "Buoy {0}: Thread is kill.".format(buoy.name)
 									+ ENDC)
 
 		except InvalidBuoy as e:

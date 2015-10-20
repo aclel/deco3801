@@ -55,9 +55,9 @@
     // Logo
     UILabel *topLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 300, 50)];
     topLabel.textAlignment = NSTextAlignmentCenter;
-    topLabel.font = [UIFont fontWithName:@"Avenir Next" size:50];
+    topLabel.font = [UIFont fontWithName:@"Avenir Next" size:42];
     topLabel.textColor = FMS_COLOUR_TEXT_LIGHT;
-    topLabel.text = @"Flounder";
+    topLabel.text = @"Water Watcher";
     topLabel.center = CGPointMake(150, 40);
     
     // Error message

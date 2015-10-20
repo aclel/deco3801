@@ -32,7 +32,7 @@ type BuoyInstancesSensorWrapper struct {
 }
 
 // GET /api/buoy_instances
-// Gets all Buoy Instances, or a filtered set if the "active" query parameter is present in the
+// Gets all Buoy Instances, or a filtered set if the "last" query parameter is present in the
 // request URL. Responds with HTTP 200. The response body has all Buoy Instances in JSON.
 func BuoyInstancesIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	u, err := url.Parse(r.URL.String())
@@ -41,18 +41,18 @@ func BuoyInstancesIndex(env *models.Env, w http.ResponseWriter, r *http.Request)
 		return &AppError{err, "Error parsing query parameters", http.StatusInternalServerError}
 	}
 
-	active := false
-	if params["active"] != nil {
-		active, err = strconv.ParseBool(params["active"][0])
+	last := false
+	if params["last"] != nil {
+		last, err = strconv.ParseBool(params["last"][0])
 		if err != nil {
-			return &AppError{err, "Error parsing 'active' query parameter", http.StatusInternalServerError}
+			return &AppError{err, "Error parsing 'last' query parameter", http.StatusInternalServerError}
 		}
 	}
 
-	// If the active query param is present then just get the active Buoy Instances.
-	// The active buoy instance is the instance that was most recently created for each buoy.
+	// If the last query param is present then just get the last Buoy Instances.
+	// The last buoy instance is the instance that was most recently created for each buoy.
 	var buoyInstanceWrapper BuoyInstancesWrapper
-	if active {
+	if last {
 		// This is used by the iOS app to get all information needed to display the buoys on the map
 		buoyInstanceWrapper.BuoyInstances, err = env.DB.GetAllActiveBuoyInstances()
 	} else {
@@ -162,7 +162,7 @@ func validateBuoyInstance(buoyInstance *models.BuoyInstance) *AppError {
 
 // DELETE /api/buoy_instances/id
 // Responds with HTTP 200 if successful. Response body empty.
-// If the Buoy Instance was the active instance for the parent Buoy then the "active_buoy_instance_id"
+// If the Buoy Instance was the last instance for the parent Buoy then the "last_buoy_instance_id"
 // field on the Buoy is set to 0. This is done with the "buoy_instance_after_delete" trigger on the
 // buoy_instance table in the database.
 func BuoyInstancesDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
@@ -279,6 +279,59 @@ func BuoyInstancesWarningTriggersIndex(env *models.Env, w http.ResponseWriter, r
 	response, err := json.Marshal(warningTriggerWrapper)
 	if err != nil {
 		return &AppError{err, "Error marshalling warning triggers json", http.StatusInternalServerError}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(response)
+
+	return nil
+}
+
+type ReadingsWrapper struct {
+	Readings []models.MapReading `json:"readings"`
+}
+
+// GET /api/buoy_instances/id/readings
+// Responds with HTTP 200. Gets all readings for a buoy instance, or just the most recent if the 'last'
+// query parameter is set to true.
+func BuoyInstancesReadingsShow(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing buoy instance id", http.StatusInternalServerError}
+	}
+
+	u, err := url.Parse(r.URL.String())
+	params, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return &AppError{err, "Error parsing query parameters", http.StatusInternalServerError}
+	}
+
+	last := false
+	if params["last"] != nil {
+		last, err = strconv.ParseBool(params["last"][0])
+		if err != nil {
+			return &AppError{err, "Error parsing 'last' query parameter", http.StatusInternalServerError}
+		}
+	}
+
+	// If the last query param is present then just get the most recent reading.
+	var readingsWrapper ReadingsWrapper
+	if last {
+		// This is used by the iOS app to get all information needed to display the buoys on the map
+		readingsWrapper.Readings, err = env.DB.GetMostRecentReadingForBuoyInstance(id)
+	} else {
+		readingsWrapper.Readings, err = env.DB.GetAllReadingsForBuoyInstance(id)
+	}
+
+	if err != nil {
+		return &AppError{err, "Error retrieving readings", http.StatusInternalServerError}
+	}
+
+	response, err := json.Marshal(readingsWrapper)
+	if err != nil {
+		return &AppError{err, "Error marshalling readings json", http.StatusInternalServerError}
 	}
 
 	w.Header().Set("Content-Type", "application/json")

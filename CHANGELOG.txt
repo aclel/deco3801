@@ -7,6 +7,9 @@ Legend:
 * Changed
 ! Fixed
 
+v0.6 - Week 12 27/10
++ Add GET /api/buoy_instances/id/readings to get all readings for a buoy instance. Can also use ?last=true query parameter to get only the most recent reading. This is used on the web app to populate the info popup.
+
 v0.5 - Week 11 20/10
 
 Server:

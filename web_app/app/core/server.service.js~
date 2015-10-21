@@ -341,7 +341,7 @@
 		 */
 		function deleteBuoyCommand(buoyCommandId) {
 			var config = addToken(headers());
-			return $http.delete(SERVER_ADDRESS + '/api/commands/' + buoyCommandId, config);
+			return $http.delete(SERVER_ADDRESS + '/api/commands/' + buoyCommandID, config);
 		}
 			
 		

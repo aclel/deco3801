@@ -13,6 +13,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -247,6 +248,22 @@ func BuoyCommandsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) 
 	commands, err := env.DB.GetBuoyCommands(guid, false)
 	if err != nil {
 		return &AppError{err, "Error retrieving commands from database", http.StatusInternalServerError}
+	}
+
+	// Get the active buoy instance for the buoy
+	buoyInstance, err := env.DB.GetActiveBuoyInstance(guid)
+	if err != nil {
+		return &AppError{err, "Error retrieving active buoy instance", http.StatusInternalServerError}
+	}
+
+	fmt.Println(buoyInstance)
+
+	// Update the 'last polled' field on the buoy instance
+	buoyInstance.LastPolled = models.Now()
+	fmt.Println(buoyInstance.LastPolled)
+	err = env.DB.UpdateBuoyInstance(buoyInstance)
+	if err != nil {
+		return &AppError{err, "Error updating last polled on buoy instance", http.StatusInternalServerError}
 	}
 
 	// Construct custom comma separated response in the following format:

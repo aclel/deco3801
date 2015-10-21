@@ -48,6 +48,7 @@ type UserRepository interface {
 	GetAllUsers() ([]User, error)
 	DeleteUserWithId(int) error
 	UpdateUserExcludePassword(*User) error
+	UpdateUserExcludePasswordAndLastLogin(updatedUser *User) error
 	UpdateUserPassword(*NewUserPassword) error
 }
 
@@ -172,6 +173,23 @@ func (db *DB) UpdateUserExcludePassword(updatedUser *User) error {
 
 	_, err = stmt.Exec(updatedUser.FirstName,
 		updatedUser.LastName, updatedUser.Role, updatedUser.LastLogin, updatedUser.Id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// Don't want to update the last login because it could be tampered with on the client side
+func (db *DB) UpdateUserExcludePasswordAndLastLogin(updatedUser *User) error {
+	stmt, err := db.Preparex(`UPDATE user SET first_name=?,
+		last_name=?, role=? WHERE id=?;`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(updatedUser.FirstName,
+		updatedUser.LastName, updatedUser.Role, updatedUser.Id)
 	if err != nil {
 		return err
 	}

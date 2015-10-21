@@ -32,7 +32,7 @@ type BuoyInstancesSensorWrapper struct {
 }
 
 // GET /api/buoy_instances
-// Gets all Buoy Instances, or a filtered set if the "last" query parameter is present in the
+// Gets all Buoy Instances, or a filtered set if the "active" query parameter is present in the
 // request URL. Responds with HTTP 200. The response body has all Buoy Instances in JSON.
 func BuoyInstancesIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	u, err := url.Parse(r.URL.String())
@@ -41,18 +41,18 @@ func BuoyInstancesIndex(env *models.Env, w http.ResponseWriter, r *http.Request)
 		return &AppError{err, "Error parsing query parameters", http.StatusInternalServerError}
 	}
 
-	last := false
-	if params["last"] != nil {
-		last, err = strconv.ParseBool(params["last"][0])
+	active := false
+	if params["active"] != nil {
+		active, err = strconv.ParseBool(params["active"][0])
 		if err != nil {
-			return &AppError{err, "Error parsing 'last' query parameter", http.StatusInternalServerError}
+			return &AppError{err, "Error parsing 'active' query parameter", http.StatusInternalServerError}
 		}
 	}
 
-	// If the last query param is present then just get the last Buoy Instances.
-	// The last buoy instance is the instance that was most recently created for each buoy.
+	// If the active query param is present then just get the active Buoy Instances.
+	// The active buoy instance is the instance that was most recently created for each buoy.
 	var buoyInstanceWrapper BuoyInstancesWrapper
-	if last {
+	if active {
 		// This is used by the iOS app to get all information needed to display the buoys on the map
 		buoyInstanceWrapper.BuoyInstances, err = env.DB.GetAllActiveBuoyInstances()
 	} else {
@@ -162,7 +162,7 @@ func validateBuoyInstance(buoyInstance *models.BuoyInstance) *AppError {
 
 // DELETE /api/buoy_instances/id
 // Responds with HTTP 200 if successful. Response body empty.
-// If the Buoy Instance was the last instance for the parent Buoy then the "last_buoy_instance_id"
+// If the Buoy Instance was the active instance for the parent Buoy then the "active_buoy_instance_id"
 // field on the Buoy is set to 0. This is done with the "buoy_instance_after_delete" trigger on the
 // buoy_instance table in the database.
 func BuoyInstancesDelete(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {

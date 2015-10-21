@@ -7,7 +7,7 @@ from time import sleep
 
 
 HOSTNAME = "teamneptune.co"
-PORT = 8081
+PORT = 80
 READINGS_ENDPOINT = "/buoys/api/readings"
 COMMANDS_ENDPOINT = "/buoys/api/commands"
 
@@ -47,9 +47,6 @@ class Buoy():
 		self.ip = ip
 		self.running = running
 
-	def send_command(self):
-		pass
-
 	#def get_auth_token(self):
 	#	data = json.load(open('creds.json'))
 	#	headers = {"Content-type": "application/json"}
@@ -65,7 +62,25 @@ class Buoy():
 	#		print WARNING + "JSON could not be decoded." + ENDC
 	#		return None
 	#	return jstr['token']
+	def get_commands(self):
+		headers = {"Content-type": "text/plain",
+				    "Accept": "text/plain"}
 
+		conn = httplib.HTTPConnection(HOSTNAME, PORT)
+		conn.request("GET", COMMANDS_ENDPOINT)
+		print OKBLUE + "Buoy {0}: Requesting commands from server.".format(self.name) + ENDC
+		try:
+			res = conn.getresponse()
+		except httplib.BadStatusLine:
+			print WARNING + "Buoy {0}: Could not get response from server.".format(self.name) + ENDC
+			return None
+		print OKBLUE + "Buoy {0}: Server response: {1}".format(self.name, res.status) + ENDC
+		print OKBLUE + "Response: " + res.read() + ENDC
+		#print OKBLUE + res.reason + ENDC
+		#print OKBLUE + res.read() + ENDC
+		return 1
+	def send_ack(self, commandsf = "commands"):
+		pass
 	def send_reading(self, readingsf):
 		data = None
 		try:
@@ -200,8 +215,8 @@ class Simulate():
 				self.cmd_send(cmd, lock)
 			elif part == 'poll':
 				self.cmd_poll(cmd, lock)
-			elif part == 'start':
-				self.cmd_start(cmd, lock)
+			elif part == 'deploy':
+				self.cmd_deploy(cmd, lock)
 			elif part == 'stop':
 				self.cmd_stop(cmd, lock)
 			else:
@@ -211,16 +226,17 @@ class Simulate():
 		while True:
 			try:
 				cmd = raw_input("> ")
-			except EOFError:
-				if self.f != None:
-					self.f.close()
-				print OKGREEN + "User EOF" + ENDC
-				sys.exit(10)
 			except KeyboardInterrupt:
 				if self.f != None:
 					self.f.close()
 				print OKGREEN + "^C Exit" + ENDC
 				sys.exit(11)
+			except EOFError:
+				if self.f != None:
+					self.f.close()
+				print OKGREEN + "User EOF" + ENDC
+				sys.exit(10)
+
 			self.parse_command(cmd, lock)
 
 	def cmd_ls_buoys(self):
@@ -332,7 +348,29 @@ class Simulate():
 			print WARNING + "Buoy {0}: Could not start me: ".format(name) + e.value + ENDC
 
 	def cmd_poll(self, args, lock):
-		pass
+		cvars = args.split()
+		name = ""
+		#iterations = 0
+		#timeout = 0
+		#readingsf = "reading.json"
+		try:
+			if (len(cvars) != 2):
+				raise InvalidArguments("Wrong number of arguments for poll: "
+					"poll <name>")
+			else:
+				name = cvars[1]
+		except InvalidArguments as e:
+			print WARNING + e.value + ENDC
+			return
+		try:
+			if (name == ""):
+				raise InvalidBuoy("Invalid buoy name.")
+			else:
+				for buoy in self.buoys:
+					if buoy.name == name:
+						buoy.get_commands()
+		except InvalidBuoy as e:
+			print WARNING + "Buoy {0}: Could not start me: ".format(name) + e.value + ENDC
 
 	def cmd_stop(self, args, lock):
 		cvars = args.split()

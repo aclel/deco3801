@@ -119,19 +119,23 @@ class BuoyThread():
 		running = self.buoy.running = True
 		lock.release()
 		while i < self.iterations and running:
-			# Potentially unnecessary, I don't think the parent process will
-			# be able to access 'buoy' at this time
 			lock.acquire()
 			if (self.buoy.send_reading(self.readingsf) == None):
 				print OKBLUE + ("Buoy {0}: Could not connect to server or couldn't send reading. " 
-						"Trying again {1} times.").format(self.buoy.name, 
-						self.iterations - 1) + ENDC
+						"Trying again {1} times.").format(self.buoy.name, self.iterations - 1) + ENDC
 			lock.release()
-			print OKBLUE + "Buoy {0}: Sleeping for {1}".format(self.buoy.name, 
-					self.timeout) + ENDC
+			print OKBLUE + "Buoy {0}: Sleeping for {1}".format(self.buoy.name, self.timeout) + ENDC
 			sleep(self.timeout)
 			i += 1
 		print OKBLUE + "Buoy {0}: Thread ending.".format(self.buoy.name) + ENDC
+
+
+class Command():
+
+
+	def __init__(self):
+		pass
+
 
 # CLI
 class Simulate():
@@ -143,6 +147,7 @@ class Simulate():
 	f = None
 
 	def __init__(self):
+		# Create a mutex for the threads
 		lock = threading.Lock()
 		print HEADER + "Team Neptune DECO3801 Buoy Simulator" + ENDC
 		print HEADER + "        Type 'help' for help" + ENDC
@@ -150,12 +155,11 @@ class Simulate():
 			print HEADER + "\nLoading commands from file.\n" + ENDC
 			try:
 				self.f = open(sys.argv[1])
+				for line in self.f:
+					self.parse_command(line, lock)
 			except IOError:
 				print FAIL + "Could not open commands file. Continuing." + ENDC
-				self.run(lock)
-			for line in self.f:
-				self.parse_command(line, lock)
-
+				#self.run(lock)
 		self.run(lock)
 
 	def guid_in_use(self, guid):
@@ -230,7 +234,7 @@ class Simulate():
 						"update a buoy's ping time"],
 					[" poll <name>                ", "get buoy to poll server"],
 					[" send <buoy> [reading.json] ", "sends a reading request"],
-					[" start <name> <iterations>\n   <timeout> [reading.json] ",
+					[" deploy <name> <iterations>\n   <timeout> [reading.json] ",
 						"start a buoy"],
 					[" stop <name>                ", "stop a buoy"]]
 		print OKGREEN + "Available tasks: " + ENDC
@@ -239,7 +243,10 @@ class Simulate():
 		print (OKGREEN + "\nFor automation invoke: \n" 
 				+ "      python simulator.py [file]" + ENDC)
 		print (OKGREEN + "For a buoy to send a reading per day you would do: \n" 
-				+ "      start buoy numDays 86400" + ENDC)
+				+ "      deploy buoy numDays 86400" + ENDC)
+		print (OKGREEN + "For testing sending a reading to buoy do: \n" 
+				+ "      send buoy1 readingfile.json" + ENDC)
+
 
 	def cmd_new(self, args, lock):
 		cvars = args.split()
@@ -292,8 +299,9 @@ class Simulate():
 			if (name == ""):
 				raise InvalidBuoy("Invalid buoy name.")
 			else:
+				# Iterate over the threads, find the thread and then send the message
 				for bthread in self.threads:
-					print bthread.name
+					#print bthread.name
 					if (bthread.name == name):
 						for buoy in self.buoys:
 							if buoy.name == name:
@@ -303,10 +311,9 @@ class Simulate():
 					if (buoy.name == name):
 						print (OKBLUE + "Buoy {0}: Thread created.".format(name) 
 								+ ENDC)
-						# buoy, timeout, iterations, file
+						# buoyObj, timeout, iterations, readingsFile
 						buoythread = BuoyThread(buoy, 1, 1, readingsf)
-						thread = threading.Thread(target=buoythread.run, 
-							args=(lock,))
+						thread = threading.Thread(target=buoythread.run, args=(lock,))
 						thread.daemon = True
 						thread.name = buoy.name
 						self.threads.append(thread)
@@ -314,14 +321,13 @@ class Simulate():
 		except InvalidBuoy as e:
 			print WARNING + "Could not start buoy. " + e.value + ENDC
 
-	def cmd_start(self, args, lock):
+	def cmd_deploy(self, args, lock):
 		cvars = args.split()
 		name = ""
 		try:
 			if (len(cvars) != 2):
 				raise InvalidArguments("Wrong number of arguments for start: "
 					"start <name>")
-
 			else:
 				name = cvars[1]
 		except InvalidArguments as e:
@@ -331,19 +337,22 @@ class Simulate():
 			if (name == ""):
 				raise InvalidBuoy("Invalid buoy name.")
 			else:
+				deploy_buoy()
 				for buoy in self.buoys:
 					if (buoy.name == name):
 						print OKBLUE + "Buoy {0}: Thread created.".format(name) 
 						# buoy, timeout, iterations, file
 						buoythread = BuoyThread(buoy, 5, 10)
-						thread = threading.Thread(target=buoythread.run, 
-							args=(lock,))
+						thread = threading.Thread(target=buoythread.run, args=(lock,))
 						thread.daemon = True
 						thread.name = buoy.name
 						self.threads.append(thread)
 						thread.start()
 		except InvalidBuoy as e:
 			print WARNING + "Buoy {0}: Could not start me: ".format(name) + e.value + ENDC
+
+	def cmd_poll(self, args, lock):
+		pass
 
 	def cmd_stop(self, args, lock):
 		cvars = args.split()
@@ -373,4 +382,6 @@ class Simulate():
 		except InvalidBuoy as e:
 			print WARNING + "Could not stop buoy. " + e.value + ENDC
 
-s = Simulate()
+
+if __name__ == "__main__":
+	s = Simulate()

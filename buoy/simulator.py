@@ -299,37 +299,27 @@ class Simulate():
 			if (name == ""):
 				raise InvalidBuoy("Invalid buoy name.")
 			else:
-				# Iterate over the threads, find the thread and then send the message
-				for bthread in self.threads:
-					#print bthread.name
-					if (bthread.name == name):
-						for buoy in self.buoys:
-							if buoy.name == name:
-								buoy.send_reading(readingsf)
-				print WARNING + "No thread exists. Creating one." + ENDC
-				for buoy in self.buoys:
-					if (buoy.name == name):
-						print (OKBLUE + "Buoy {0}: Thread created.".format(name) 
-								+ ENDC)
-						# buoyObj, timeout, iterations, readingsFile
-						buoythread = BuoyThread(buoy, 1, 1, readingsf)
-						thread = threading.Thread(target=buoythread.run, args=(lock,))
-						thread.daemon = True
-						thread.name = buoy.name
-						self.threads.append(thread)
-						thread.start()
+				# Make a buoy
+				self.give_birth(name, 1, 1, lock, readingsf)
 		except InvalidBuoy as e:
 			print WARNING + "Could not start buoy. " + e.value + ENDC
 
 	def cmd_deploy(self, args, lock):
 		cvars = args.split()
 		name = ""
+		iterations = 0
+		timeout = 0
+		readingsf = "reading.json"
 		try:
-			if (len(cvars) != 2):
-				raise InvalidArguments("Wrong number of arguments for start: "
-					"start <name>")
+			if (len(cvars) < 4):
+				raise InvalidArguments("Wrong number of arguments for deploy: "
+					"deploy <name> <iterations> <timeout> [reading.json]")
 			else:
 				name = cvars[1]
+				iterations = cvars[2]
+				timeout = cvars[3]
+				if (len(cvars) >= 5):
+					readingsf = cvars[4]
 		except InvalidArguments as e:
 			print WARNING + e.value + ENDC
 			return
@@ -337,17 +327,7 @@ class Simulate():
 			if (name == ""):
 				raise InvalidBuoy("Invalid buoy name.")
 			else:
-				deploy_buoy()
-				for buoy in self.buoys:
-					if (buoy.name == name):
-						print OKBLUE + "Buoy {0}: Thread created.".format(name) 
-						# buoy, timeout, iterations, file
-						buoythread = BuoyThread(buoy, 5, 10)
-						thread = threading.Thread(target=buoythread.run, args=(lock,))
-						thread.daemon = True
-						thread.name = buoy.name
-						self.threads.append(thread)
-						thread.start()
+				self.give_birth(name, int(timeout), int(iterations), lock, readingsf)
 		except InvalidBuoy as e:
 			print WARNING + "Buoy {0}: Could not start me: ".format(name) + e.value + ENDC
 
@@ -382,6 +362,26 @@ class Simulate():
 		except InvalidBuoy as e:
 			print WARNING + "Could not stop buoy. " + e.value + ENDC
 
+	# Create a buoy, obviously
+	def give_birth(self, name, timeout, iterations, lock, readingsf):
+		for bthread in self.threads:
+			#print bthread.name
+			if (bthread.name == name):
+				for buoy in self.buoys:
+					if buoy.name == name:
+						buoy.send_reading(readingsf)
+		print WARNING + "No thread exists. Creating one." + ENDC
+		for buoy in self.buoys:
+			if (buoy.name == name):
+				print (OKBLUE + "Buoy {0}: Thread created.".format(name) 
+						+ ENDC)
+				# buoyObj, timeout, iterations, readingsFile
+				buoythread = BuoyThread(buoy, timeout, iterations, readingsf)
+				thread = threading.Thread(target=buoythread.run, args=(lock,))
+				thread.daemon = True
+				thread.name = buoy.name
+				self.threads.append(thread)
+				thread.start()
 
 if __name__ == "__main__":
 	s = Simulate()

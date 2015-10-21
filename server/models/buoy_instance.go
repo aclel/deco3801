@@ -12,7 +12,6 @@ package models
 
 import (
 	"database/sql"
-	"errors"
 	"sort"
 	"time"
 )
@@ -305,12 +304,11 @@ func (db *DB) GetMostRecentReadingForBuoyInstance(id int) ([]MapReading, error) 
 	}
 
 	sort.Sort(byTimestampDesc(readings))
-	if len(readings) < 1 {
-		return nil, errors.New("No reading found")
-	}
-
 	reading := []MapReading{}
-	reading = append(reading, readings[0])
+
+	if len(readings) > 0 {
+		reading = append(reading, readings[0])
+	}
 
 	return reading, nil
 }

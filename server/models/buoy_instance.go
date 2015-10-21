@@ -12,9 +12,10 @@ package models
 
 import (
 	"database/sql"
-	"errors"
 	"sort"
 	"time"
+
+	"github.com/go-sql-driver/mysql"
 )
 
 // A buoy instance is an abstraction of a physical buoy which represents
@@ -32,6 +33,7 @@ type BuoyInstance struct {
 	Longitude     sql.NullFloat64 `json:"longitude" db:"longitude"`
 	DateCreated   time.Time       `json:"dateCreated" db:"date_created"`
 	PollRate      int             `json:"pollRate" db:"poll_rate"`
+	LastPolled    mysql.NullTime  `json:"lastPolled" db:"last_polled"`
 }
 
 // Wrap the Buoy Instance methods to allow for testing with dependency injection.
@@ -73,7 +75,7 @@ func (db *DB) GetAllActiveBuoyInstances() ([]BuoyInstance, error) {
 											buoy.guid as buoy_guid, 
 											buoy_group.name AS buoy_group_name, 
 											latitude, 
-											longitude 
+											longitude
 										FROM 
 											buoy_instance 
 											INNER JOIN buoy ON buoy_instance.id = buoy.active_buoy_instance_id 
@@ -117,11 +119,17 @@ func (db *DB) GetAllActiveBuoyInstances() ([]BuoyInstance, error) {
 // Get the most recent buoy instance for the buoy with the given guid
 func (db *DB) GetActiveBuoyInstance(buoyGuid string) (*BuoyInstance, error) {
 	dbBuoyInstance := BuoyInstance{}
-	err := db.Get(&dbBuoyInstance, `SELECT buoy_instance.id, buoy_id, buoy_group_id, date_created 
-		from buoy_instance 
-		INNER JOIN buoy on buoy_instance.buoy_id = buoy.id 
-		WHERE buoy.guid=? 
-		ORDER BY date_created DESC LIMIT 1;`, buoyGuid)
+	err := db.Get(&dbBuoyInstance, `SELECT 
+										buoy_instance.*
+									from 
+										buoy_instance 
+										INNER JOIN buoy on buoy_instance.buoy_id = buoy.id 
+									WHERE 
+										buoy.guid = ? 
+									ORDER BY 
+										date_created DESC 
+									LIMIT 
+										1;`, buoyGuid)
 
 	if err != nil {
 		return nil, err
@@ -164,12 +172,13 @@ func (db *DB) DeleteBuoyInstanceWithId(id int) error {
 // Only its name and buoy group can be changed.
 // When a Buoy Instance is updated, the active_buoy_instance_id for the parent buoy is updated
 func (db *DB) UpdateBuoyInstance(updatedBuoyInstance *BuoyInstance) error {
-	stmt, err := db.Preparex(`UPDATE buoy_instance SET name=?, poll_rate=?, buoy_group_id=? WHERE id=?;`)
+	stmt, err := db.Preparex(`UPDATE buoy_instance SET name=?, poll_rate=?, last_polled=?, buoy_group_id=? WHERE id=?;`)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(updatedBuoyInstance.Name, updatedBuoyInstance.PollRate, updatedBuoyInstance.BuoyGroupId, updatedBuoyInstance.Id)
+	_, err = stmt.Exec(updatedBuoyInstance.Name, updatedBuoyInstance.PollRate, updatedBuoyInstance.LastPolled,
+		updatedBuoyInstance.BuoyGroupId, updatedBuoyInstance.Id)
 	if err != nil {
 		return err
 	}
@@ -284,10 +293,16 @@ func (db *DB) GetMostRecentReadingsForActiveBuoyInstances() ([]DbMapReading, err
 // Get Warning Triggers for all active Buoy Instances
 func (db *DB) GetWarningTriggersForActiveBuoyInstances() ([]WarningTrigger, error) {
 	warningTriggers := []WarningTrigger{}
-	err := db.Select(&warningTriggers, `SELECT warning_trigger.id, warning_trigger.value, warning_trigger.operator, warning_trigger.message,
-									   warning_trigger.buoy_instance_id, warning_trigger.sensor_type_id
-									   FROM warning_trigger INNER JOIN buoy 
-									   ON warning_trigger.buoy_instance_id=buoy.active_buoy_instance_id`)
+	err := db.Select(&warningTriggers, `SELECT 
+											warning_trigger.id, 
+											warning_trigger.value, 
+											warning_trigger.operator, 
+											warning_trigger.message, 
+											warning_trigger.buoy_instance_id, 
+											warning_trigger.sensor_type_id 
+										FROM 
+											warning_trigger 
+											INNER JOIN buoy ON warning_trigger.buoy_instance_id = buoy.active_buoy_instance_id`)
 	if err != nil {
 		return nil, err
 	}
@@ -305,12 +320,11 @@ func (db *DB) GetMostRecentReadingForBuoyInstance(id int) ([]MapReading, error) 
 	}
 
 	sort.Sort(byTimestampDesc(readings))
-	if len(readings) < 1 {
-		return nil, errors.New("No reading found")
-	}
-
 	reading := []MapReading{}
-	reading = append(reading, readings[0])
+
+	if len(readings) > 0 {
+		reading = append(reading, readings[0])
+	}
 
 	return reading, nil
 }

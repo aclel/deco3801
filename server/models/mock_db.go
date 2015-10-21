@@ -228,6 +228,10 @@ func (mdb *MockDB) CreateUser(user *User) error {
 	return nil
 }
 
+func (mdb *MockDB) UpdateUserExcludePasswordAndLastLogin(updatedUser *User) error {
+	return nil
+}
+
 func (mdb *MockDB) UpdateUserExcludePassword(updatedUser *User) error {
 	return nil
 }

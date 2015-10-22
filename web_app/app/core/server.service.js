@@ -43,6 +43,9 @@
 			newBuoyGroup: newBuoyGroup,
 			updateBuoyInstanceGroup: updateBuoyInstanceGroup,
 			getCommandTypes: getCommandTypes,
+			addCommandType: addCommandType,
+			updateCommandType: updateCommandType,
+			deleteCommandType: deleteCommandType,
 			getBuoyCommands: getBuoyCommands,
 			exportData: exportData,
 			sendBuoyCommand: sendBuoyCommand,
@@ -263,6 +266,49 @@
 		function getCommandTypes() {
 			var config = addToken(headers());
 			return $http.get(SERVER_ADDRESS + '/api/command_types', config);
+		}
+
+		/**
+		 * Request create sensor type
+		 * POST /api/sensor_types
+		 * @param {object} sensor type new sensor type
+		 * @return {promise} request promise
+		 */
+		function addCommandType(commandType) {
+			var config = setJson(addToken(headers()));
+			var data = {
+				name: commandType.name,
+				description: commandType.description
+			};
+			return $http.post(SERVER_ADDRESS + '/api/command_types', 
+				JSON.stringify(data), config);
+		}
+		
+		/**
+		 * Request update command type
+		 * PUT /api/command_types/:id
+		 * @param  {object} command type updated command type
+		 * @return {promise}      request promise
+		 */
+		function updateCommandType(commandType) {
+			var config = setJson(addToken(headers()));
+			var data = {
+				name: commandType.name,
+				description: commandType.description
+			};
+			return $http.put(SERVER_ADDRESS + '/api/command_types/' + commandType.id, 
+				JSON.stringify(data), config);
+		}
+		
+		/**
+		 * Request delete command type
+		 * DELETE /api/command_types/:id
+		 * @param  {int} id command type Id
+		 * @return {promise}    request promise
+		 */
+		function deleteCommandType(id) {
+			var config = addToken(headers());
+			return $http.delete(SERVER_ADDRESS + '/api/command_types/' + id, config);
 		}
 
 		/**

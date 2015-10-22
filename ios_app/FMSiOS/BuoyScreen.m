@@ -194,7 +194,7 @@
         
         NSAttributedString *groupString;
         if (self.buoy.group.groupId == 0) {
-            groupString = [[NSAttributedString alloc] initWithString:@" (unlisted)\n" attributes:groupAttr];
+            groupString = [[NSAttributedString alloc] initWithString:@"\n"];
         } else {
             groupString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" (%@)\n", self.buoy.group.title] attributes:groupAttr];
         }
@@ -209,7 +209,7 @@
     if (self.buoy && info.count > 0 && info[@"ts"] != nil) { // Update date
         NSDate *dateUpdated = [NSDate dateWithTimeIntervalSince1970:((NSNumber *)info[@"ts"]).integerValue];
         NSString *dateStr = [NSDateFormatter localizedStringFromDate:dateUpdated dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
-        dateStr = [NSString stringWithFormat:@"  Updated:  %@\n", dateStr];
+        dateStr = [NSString stringWithFormat:@"  Last reading:  %@:\n", dateStr];
         NSAttributedString *dateString = [[NSAttributedString alloc] initWithString:dateStr attributes:timeAttr];
         [infoString appendAttributedString:dateString];
     }

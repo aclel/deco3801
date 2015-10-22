@@ -13,11 +13,14 @@ Server
 + Add GET /api/buoy_instances/id/readings to get all readings for a buoy instance. Can also use ?last=true query parameter to get only the most recent reading. This is used on the web app to populate the info popup.
 
 iOS App
+[Release Candidate]
 + Pinging functionality.
 + More info now displays buoy name, group and creation date.
++ Ability to automatically load some command names and sensor types before making proper requests.
 * Updated colours a little (again).
 * More info dialog now displays text formattedly rather than as-is.
 ! More info text escaping bounds when loaded.
+! Incorrect names for some groups.
 ! Some odd edge cases where UI could faff up.
 
 v0.5 - Week 11 20/10

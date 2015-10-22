@@ -15,10 +15,10 @@
 		    <td>{{ command.commandName }}</td>
 		    <td>{{ command.value }}</td>
 		    <td class="button-cell">
-		        <button type="button" class="btn btn-default btn-sm right" ng-if="vm.showDeleteButton(command)" ng-click="vm.editDelete(command)">
+		        <button type="button" class="btn btn-default btn-sm right" ng-if="vm.showDeleteButton(commands)" ng-click="vm.editDelete(commands)">
 		            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
 		        </button>
-		        <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == -1" ng-click="vm.editExisting(command)">
+		        <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == -1" ng-click="vm.editExisting(commands)">
 		            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
 		        </button>
 		        <button type="button" class="btn btn-default btn-sm right invisible">

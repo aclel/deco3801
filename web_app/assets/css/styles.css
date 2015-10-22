@@ -503,6 +503,7 @@ input.ti-xl {
 .navbar .dropdown-menu {
   background-color: #073F64;
   border: none;
+  z-index: 9999;
 }
 
 .dropdown-menu > li > a:hover,

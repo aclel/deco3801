@@ -181,11 +181,9 @@ func UsersUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
 	}
 	user.Id = id
-	// TODO: Create another model method which does not update last login time
-	user.LastLogin = models.Now()
 
 	// Update User in the database
-	err = env.DB.UpdateUserExcludePassword(user)
+	err = env.DB.UpdateUserExcludePasswordAndLastLogin(user)
 	if err != nil {
 		return &AppError{err, "Error updating user into the database", http.StatusInternalServerError}
 	}

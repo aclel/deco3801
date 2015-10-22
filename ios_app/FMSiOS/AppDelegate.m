@@ -8,8 +8,6 @@
 
 #import "AppDelegate.h"
 
-// TODO: some more styling
-
 
 @implementation AppDelegate
 

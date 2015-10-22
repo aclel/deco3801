@@ -363,8 +363,12 @@
 - (NSDictionary *)parseJSONForBuoyInfo:(NSArray *)readings {
     // Given a list of readings from a 'latest reading' request, generates a formatted dictionary linking their formatted names with values
     // Returns nil if invalid
-    if (readings == nil || ![readings isKindOfClass:[NSArray class]] || readings.count != 1)
+    if (readings == nil || ![readings isKindOfClass:[NSArray class]])
         return nil;
+    
+    // Empty reading list
+    if (readings.count == 0)
+        return [NSDictionary dictionary];
     
     // Get sensor readings
     NSDictionary *latest = readings[0];
@@ -397,8 +401,7 @@
     
     // Handle timestamp, if it exists
     if (timestamp) {
-        NSDate *ts = [NSDate dateWithTimeIntervalSince1970:timestamp.doubleValue];
-        //TODO
+        [dict setObject:timestamp forKey:@"ts"];
     }
     
     return dict;
@@ -486,7 +489,6 @@
          
          // Interpret their response
          NSHTTPURLResponse *httpRes = (NSHTTPURLResponse *)response;
-         NSLog(@"Got login response: %d", httpRes.statusCode);
          if (httpRes.statusCode == 401 || httpRes.statusCode == 403) { //Unauthorised
              [self.delegate performSelectorOnMainThread:@selector(didFailToConnectBadDetails) withObject:nil waitUntilDone:NO];
          } else if (httpRes.statusCode == 200) { //Success

@@ -11,7 +11,6 @@
 
 #define FMS_DEFAULT_SERVER_ADDRESS @"teamneptune.co"
 
-#define FMS_PING_COMMANDID 2
 #define FMS_PING_TRIES 7
 #define FMS_PING_SPACE_BETWEEN_TRIES 1.0
 

@@ -6,8 +6,8 @@
 //  Copyright (c) 2015 Team Neptune. All rights reserved.
 //
 
-// TODO: pinging
-// TODO: more info content
+// TODO: rest of more info
+// TODO: handle empty reading for more info
 
 #import "BuoyScreen.h"
 

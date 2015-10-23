@@ -283,7 +283,7 @@ func UsersForgotPassword(env *models.Env, w http.ResponseWriter, r *http.Request
 	}
 
 	if u.Email == "" {
-		return &AppError{err, "Missing email", http.StatusBadRequest}
+		return &AppError{errors.New("User error"), "Missing email", http.StatusBadRequest}
 	}
 
 	user, err := env.DB.GetUserWithEmail(u.Email)
@@ -292,7 +292,7 @@ func UsersForgotPassword(env *models.Env, w http.ResponseWriter, r *http.Request
 	}
 
 	if user == nil {
-		return &AppError{err, "No user exists with that email", http.StatusBadRequest}
+		return &AppError{errors.New("User error"), "No user exists with that email", http.StatusBadRequest}
 	}
 
 	// Generate one-use token to facilitate password reset

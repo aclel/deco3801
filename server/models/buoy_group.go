@@ -102,10 +102,16 @@ func (db *DB) ArchiveBuoyGroupWithId(id int) error {
 // Get all Buoys for the Buoy Group with the given id.
 func (db *DB) GetBuoysForBuoyGroup(id int) ([]Buoy, error) {
 	buoys := []Buoy{}
-	err := db.Select(&buoys, `SELECT buoy.id, buoy.guid, buoy.archived FROM buoy 
-							 INNER JOIN buoy_instance ON buoy_instance.id=buoy.id
-							 INNER JOIN buoy_group ON buoy_instance.buoy_group_id=buoy_group.id
-							 WHERE buoy_group.id=?`, id)
+	err := db.Select(&buoys, `SELECT 
+									buoy.id, 
+									buoy.guid, 
+									buoy.archived 
+								FROM 
+									buoy 
+									INNER JOIN buoy_instance ON buoy_instance.buoy_id = buoy.id 
+									INNER JOIN buoy_group ON buoy_instance.buoy_group_id = buoy_group.id 
+								WHERE 
+									buoy_group.id = ?`, id)
 	if err != nil {
 		return nil, err
 	}
@@ -116,13 +122,17 @@ func (db *DB) GetBuoysForBuoyGroup(id int) ([]Buoy, error) {
 // Get all Buoy Instances for the Buoy Group with the given id.
 func (db *DB) GetBuoyInstancesForBuoyGroup(id int) ([]BuoyInstance, error) {
 	buoyInstances := []BuoyInstance{}
-	err := db.Select(&buoyInstances, `SELECT buoy.id, 
-							 buoy.guid AS buoy_guid, 
-							 buoy_group.name AS buoy_group_name,
-							 buoy_instance.id FROM buoy 
-							 INNER JOIN buoy_instance ON buoy_instance.id=buoy.id
-							 INNER JOIN buoy_group ON buoy_instance.buoy_group_id=buoy_group.id
-							 WHERE buoy_group.id=?`, id)
+	err := db.Select(&buoyInstances, `SELECT 
+											buoy.id, 
+											buoy.guid AS buoy_guid, 
+											buoy_group.name AS buoy_group_name, 
+											buoy_instance.id 
+										FROM 
+											buoy 
+											INNER JOIN buoy_instance ON buoy_instance.buoy_id = buoy.id 
+											INNER JOIN buoy_group ON buoy_instance.buoy_group_id = buoy_group.id 
+										WHERE 
+											buoy_group.id = ?`, id)
 
 	if err != nil {
 		return nil, err

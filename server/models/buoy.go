@@ -107,12 +107,12 @@ func (db *DB) ArchiveBuoyWithId(id int) error {
 
 // Add the given Command to a Buoy
 func (db *DB) AddCommandToBuoy(command *Command) (int64, error) {
-	stmt, err := db.Preparex("INSERT INTO buoy_command (buoy_id, command_type_id, value) VALUES(?, ?, ?);")
+	stmt, err := db.Preparex("INSERT INTO buoy_command (buoy_id, command_type_id, value, created_at) VALUES(?, ?, ?, ?);")
 	if err != nil {
 		return -1, err
 	}
 
-	result, err := stmt.Exec(command.BuoyId, command.CommandTypeId, command.Value)
+	result, err := stmt.Exec(command.BuoyId, command.CommandTypeId, command.Value, command.CreatedAt)
 	if err != nil {
 		return -1, err
 	}

@@ -12,6 +12,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 
@@ -96,6 +97,11 @@ func BuoyGroupsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *
 		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
 	}
 
+	var e *AppError
+	if e = validateBuoyGroup(buoyGroup); e != nil {
+		return e
+	}
+
 	// Insert the Buoy into the database
 	err = env.DB.CreateBuoyGroup(buoyGroup)
 	if err != nil {
@@ -104,6 +110,14 @@ func BuoyGroupsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *
 
 	// Set return status.
 	w.WriteHeader(http.StatusCreated)
+	return nil
+}
+
+// Validate the incoming buoy group. Check that the name is not blank or missing.
+func validateBuoyGroup(buoyGroup *models.BuoyGroup) *AppError {
+	if buoyGroup.Name == "" {
+		return &AppError{errors.New("Buoy group error"), "Name is blank or missing", http.StatusInternalServerError}
+	}
 	return nil
 }
 
@@ -125,6 +139,11 @@ func BuoyGroupsUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *
 	buoyGroup := new(models.BuoyGroup)
 	decoder := json.NewDecoder(r.Body)
 	err = decoder.Decode(&buoyGroup)
+
+	var e *AppError
+	if e = validateBuoyGroup(buoyGroup); e != nil {
+		return e
+	}
 
 	// Check if Buoy JSON is valid
 	if err != nil {

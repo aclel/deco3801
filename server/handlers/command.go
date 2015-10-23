@@ -15,6 +15,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 
 	"github.com/aclel/deco3801/server/models"
 	"github.com/gorilla/mux"
@@ -87,6 +88,7 @@ func CommandsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 	addedIds := make([]int64, 0)
 	// Insert each command into db
 	for _, command := range commandsWrapper.Commands {
+		command.CreatedAt = time.Now().UTC()
 		newId, err := env.DB.AddCommandToBuoy(&command)
 		if err != nil {
 			return &AppError{err, "Error inserting command into the database", http.StatusInternalServerError}

@@ -103,7 +103,7 @@ func (db *DB) ArchiveBuoyGroupWithId(id int) error {
 func (db *DB) GetBuoysForBuoyGroup(id int) ([]Buoy, error) {
 	buoys := []Buoy{}
 	err := db.Select(&buoys, `SELECT buoy.id, buoy.guid, buoy.archived FROM buoy 
-							 INNER JOIN buoy_instance ON buoy_instance.id=buoy.id
+							 INNER JOIN buoy_instance ON buoy_instance.buoy_id=buoy.id
 							 INNER JOIN buoy_group ON buoy_instance.buoy_group_id=buoy_group.id
 							 WHERE buoy_group.id=?`, id)
 	if err != nil {

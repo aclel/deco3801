@@ -115,17 +115,8 @@
 					enableMarker(id);
 				}
 			}
-			console.log(markers[id]);
-			console.log(buoyInstance);
-			markers[id].content = "<div id='reading" + buoyInstance.id.toString() + "' class='hue"+buoyInstance.colour+"'><img src='assets/img/marker.png'></div>";
-			//console.log('reading'+buoyInstance.id.toString());
-			//var mark = null;
-			//console.log(document.getElementById(buoyInstance.id.toString()));
-			//var myEl = angular.element(document.getElementById('reading' + buoyInstance.id.toString()));
-			//console.log(myEl);
-			//buoyInstance.computedStyle = window.getComputedStyle();
-			//markers[id].setIcon(markerColour(buoyInstance.colour));
-
+			
+			markers[id].content = "<div id='reading" + buoyInstance.id.toString() + "' class='hue"+buoyInstance.colour+"'><img style='opacity: "+calculateOpacity(age)+"'src='assets/img/marker.png'></div>";
 			//markers[id].setOpacity(calculateOpacity(age));
 		}
 		

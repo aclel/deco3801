@@ -88,6 +88,7 @@
 			queryBuoyInstances();
 			queryCommandTypes();
 			queryWarningTriggers();
+			queryBuoyInstanceSensors();
 			resetNewTrigger();
 			setTreeOptions();
 		}
@@ -178,8 +179,10 @@
 
 		/** Query buoy instance sensors for buoy instance */
 		function queryBuoyInstanceSensors(buoyInstanceId) {
+			if (vm.selected.type != 'instance') return;
 			server.getBuoyInstanceSensors(buoyInstanceId).then(function(res) {
-				vm.sensors = res.data.buoyInstanceSensors;
+				console.log(res);
+				vm.buoyInstanceSensors = res.data.sensors;
 				parseBuoyInstanceSensors();
 			}, function(res) {
 				gui.alertBadResponse(res);
@@ -219,7 +222,7 @@
 
 		/** Associate buoy instance sensors with sensor types */
 		function parseBuoyInstanceSensors() {
-			vm.sensorTypes.forEach(function(sensor) {
+			vm.buoyInstanceSensors.forEach(function(sensor) {
 				// get sensor name
 				for (var i = 0; i < vm.sensorTypes.length; i++) {
 					var sensorType = vm.sensorTypes[i];
@@ -228,6 +231,9 @@
 						break;
 					}
 				}
+				// parse time
+				sensor.recentTime = moment(sensor.lastRecorded.Time,
+					'X').format("DD/MM/YY HH:mm A");
 			});
 		}
 		

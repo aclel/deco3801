@@ -105,6 +105,7 @@
 			var promise = server.getReadings(from, to);
 			promise.then(function(res) {
 				readings = res.data.buoyGroups;
+				sortReadings();
 				populateBuoys();
 				updateFilters();
 			}, function(res) {
@@ -330,6 +331,30 @@
 			}
 		}
 
+		/**
+		 * Sort buoy groups and instances in the readings list
+		 */
+		function sortReadings() {
+			readings.sort(buoyCompare);
+			readings.forEach(function(buoyGroup) {
+				buoyGroup.buoyInstances.sort(buoyCompare);
+			});
+		}
+
+		/**
+		 * Comparison function used to sort buoy groups and instances
+		 * @param  {object} a first buoyGroup or buoyInstance
+		 * @param  {object} b second buoyGroup or buoyInstance
+		 * @return {int}   -1 if a comes first, 1 if b comes first, otherwise 0
+		 */
+		function buoyCompare(a, b) {
+			if (a.id < b.id) {
+				return -1;
+			} else if (a.id > b.id) {
+				return 1;
+			}
+			return 0;
+		}
 
 		/** Update whether buoy group filter is enabled */
 		function selectBuoyGroup(buoyGroup) {

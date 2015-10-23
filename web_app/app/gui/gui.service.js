@@ -56,8 +56,8 @@
          */
         function alertBadResponse(res) {
             $log.error(res); // for debugging purposes
-            // alertError(res.data + '(' + res.status + ')');
-            alertError("An error occured.");
+            alertError(res.data);
+            // alertError("An error occured.");
         }
 
         /**

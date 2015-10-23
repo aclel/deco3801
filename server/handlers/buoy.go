@@ -17,6 +17,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"time"
 
 	"github.com/aclel/deco3801/server/models"
 	"github.com/gorilla/mux"
@@ -209,6 +210,7 @@ func BuoyCommandsCreate(env *models.Env, w http.ResponseWriter, r *http.Request)
 
 	addedIds := make([]int64, 0)
 	for _, command := range commandsWrapper.Commands {
+		command.CreatedAt = time.Now().UTC()
 		command.BuoyId = buoyId
 		newId, err := env.DB.AddCommandToBuoy(&command)
 		if err != nil {

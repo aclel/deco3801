@@ -41,7 +41,7 @@ func (db *DB) SendNewUserEmail(user *User, emailUser *EmailCredentials) error {
 		`<h1>Welcome to WaterWatcher.</h1>
 		<p>Here is a link to sign in to your account: </p>
 		<a href="https://teamneptune.co">Sign In</a>
-		<p>You temporary password is `+user.Password+`</p>
+		<p>Your temporary password is `+user.Password+`</p>
 		<p>You will be prompted to change your password when you sign in for the first time.</p>`)
 
 	d := gomail.NewPlainDialer(emailUser.Server, emailUser.Port, emailUser.Username, emailUser.Password)

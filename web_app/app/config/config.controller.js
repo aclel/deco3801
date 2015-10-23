@@ -31,6 +31,7 @@
 		vm.groupBuoys = [];
 		vm.commands = [];
 		vm.commandTypes = [];
+		vm.buoyInstanceSensors = [];
 		vm.sensorTypes = [];
 		vm.warningTriggers = [];
 		vm.command = { id: -1, value: '' };
@@ -174,6 +175,16 @@
 				gui.alertBadResponse(res);
 			});
 		}
+
+		/** Query buoy instance sensors for buoy instance */
+		function queryBuoyInstanceSensors(buoyInstanceId) {
+			server.getBuoyInstanceSensors(buoyInstanceId).then(function(res) {
+				vm.sensors = res.data.buoyInstanceSensors;
+				parseBuoyInstanceSensors();
+			}, function(res) {
+				gui.alertBadResponse(res);
+			});
+		}
 		
 		/** Associate buoy instances with groups */
 		function parseGroupNames() {
@@ -200,6 +211,20 @@
 					var sensorType = vm.sensorTypes[i];
 					if (sensorType.id == trigger.sensorTypeId) {
 						trigger.sensorName = sensorType.name;
+						break;
+					}
+				}
+			});
+		}
+
+		/** Associate buoy instance sensors with sensor types */
+		function parseBuoyInstanceSensors() {
+			vm.sensorTypes.forEach(function(sensor) {
+				// get sensor name
+				for (var i = 0; i < vm.sensorTypes.length; i++) {
+					var sensorType = vm.sensorTypes[i];
+					if (sensorType.id == sensor.sensorTypeId) {
+						sensor.sensorName = sensorType.name;
 						break;
 					}
 				}
@@ -255,6 +280,7 @@
 			vm.selected.type = 'instance';
 			vm.selected.obj = buoyInstance;
 			updateGroupBuoys();
+			queryBuoyInstanceSensors(buoyInstance.id);
 		}
 
 		/** Set all buoy groups to have no instances */
@@ -595,6 +621,10 @@
 				}
 			}
 			return false;
+		}
+
+		function buoyInstanceSensorFilter(sensor) {
+			return true
 		}
 
 		/**

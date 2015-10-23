@@ -48,6 +48,7 @@
 			deleteCommandType: deleteCommandType,
 			getBuoyCommands: getBuoyCommands,
 			exportData: exportData,
+			getBuoyInstanceSensors: getBuoyInstanceSensors,
 			sendBuoyCommand: sendBuoyCommand,
 			getWarningTriggers: getWarningTriggers,
 			addWarningTriggers: addWarningTriggers,
@@ -355,6 +356,17 @@
 		function openSaveAsDialog(filename, content, mediaType) {
 			var blob = new Blob([content], {type: mediaType});
 			saveAs(blob, filename);
+		}
+
+		/**
+		 * Request sensors for buoy instance
+		 * GET /api/buoy_instances/id/sensors
+		 * @param {int} buoyInstanceId Id of the Buoy Instance
+		 * @return {promise}         request promise 
+		 */
+		function getBuoyInstanceSensors(buoyInstanceId) {
+			var config = addToken(headers());
+			return $http.get(SERVER_ADDRESS + '/api/buoy_instances/' + buoyInstanceId + '/sensors', config)
 		}
 		
 		/**

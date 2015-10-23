@@ -6,9 +6,6 @@
 //  Copyright (c) 2015 Team Neptune. All rights reserved.
 //
 
-// TODO: pinging
-// TODO: more info content
-
 #import "BuoyScreen.h"
 
 // View in the centre when clicking more info
@@ -24,6 +21,7 @@
 @property (strong, nonatomic) UIButton *cancelButton;
 
 - (void)displayBuoyInfo:(NSDictionary *)info;
+- (void)displayBuoyLoadingFailed;
 
 - (void)startPinging;
 - (void)finishPingingSuccessWithTime:(NSNumber *)seconds;
@@ -183,13 +181,94 @@
 - (void)displayBuoyInfo:(NSDictionary *)info {
     NSMutableParagraphStyle *clipStyle = [[NSMutableParagraphStyle alloc] init];
     clipStyle.lineBreakMode = NSLineBreakByTruncatingTail;
-    NSDictionary *titleAttr = @{ NSFontAttributeName : [UIFont boldSystemFontOfSize:20], NSParagraphStyleAttributeName : clipStyle};
+    NSDictionary *titleAttr = @{ NSFontAttributeName : [UIFont boldSystemFontOfSize:18], NSParagraphStyleAttributeName : clipStyle};
     NSDictionary *groupAttr = @{ NSFontAttributeName : [UIFont systemFontOfSize:15], NSForegroundColorAttributeName : FMS_COLOUR_TEXT_FADE, NSParagraphStyleAttributeName : clipStyle };
-    NSDictionary *timeAttr = @{ NSFontAttributeName : [UIFont italicSystemFontOfSize:16] };
+    NSDictionary *timeAttr = @{ NSFontAttributeName : [UIFont italicSystemFontOfSize:15] };
     NSDictionary *attr = @{NSFontAttributeName : [UIFont fontWithName:@"Courier" size:17]};
     NSMutableAttributedString *infoString = [[NSMutableAttributedString alloc] initWithString:@""];
     
-    // Write name, time and coords
+    // Write name and times
+    if (self.buoy) {
+        NSAttributedString *titleString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", self.buoy.title] attributes:titleAttr];
+        [infoString appendAttributedString:titleString];
+        
+        NSAttributedString *groupString;
+        if (self.buoy.group.groupId == 0) {
+            groupString = [[NSAttributedString alloc] initWithString:@"\n"];
+        } else {
+            groupString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@" (%@)\n", self.buoy.group.title] attributes:groupAttr];
+        }
+        [infoString appendAttributedString:groupString];
+    }
+    if (self.buoy && self.buoy.dateCreated) { // Creation date
+        NSString *dateStr = [NSDateFormatter localizedStringFromDate:self.buoy.dateCreated dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
+        dateStr = [NSString stringWithFormat:@"  Created:  %@\n", dateStr];
+        NSAttributedString *dateString = [[NSAttributedString alloc] initWithString:dateStr attributes:timeAttr];
+        [infoString appendAttributedString:dateString];
+    }
+    if (self.buoy && info.count > 0 && info[@"ts"] != nil) { // Update date
+        NSDate *dateUpdated = [NSDate dateWithTimeIntervalSince1970:((NSNumber *)info[@"ts"]).integerValue];
+        NSString *dateStr = [NSDateFormatter localizedStringFromDate:dateUpdated dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
+        dateStr = [NSString stringWithFormat:@"  Last reading:  %@:\n", dateStr];
+        NSAttributedString *dateString = [[NSAttributedString alloc] initWithString:dateStr attributes:timeAttr];
+        [infoString appendAttributedString:dateString];
+    }
+    
+    // Add space
+    [infoString appendAttributedString:[[NSAttributedString alloc] initWithString:@"\n"]];
+    
+    // Pull out info in dictionary as strings to append
+    NSUInteger num = 0;
+    for (NSString *key in info.allKeys) {
+        if ([key isEqualToString:@"ts"])
+            continue; //Don't bother with timestamp
+        
+        NSString *val = info[key];
+        // Key
+        NSAttributedString *formatKey = [[NSAttributedString alloc] initWithString:[key stringByPaddingToLength:28 - val.length withString:@" " startingAtIndex:0] attributes:attr];
+        [infoString appendAttributedString:formatKey];
+        
+        // Value
+        
+        NSAttributedString *formatVal = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n", val] attributes:attr];
+        [infoString appendAttributedString:formatVal];
+        
+        num ++;
+    }
+    
+    // If none were displayed, say so
+    if (num == 0) {
+        NSAttributedString *formatMsg = [[NSAttributedString alloc] initWithString:@"No readings found." attributes:attr];
+        [infoString appendAttributedString:formatMsg];
+    }
+    
+    // Display
+    self.content.attributedText = infoString;
+    [self.contentInd stopAnimating];
+    [self.content setHidden:NO];
+    [self layoutSubviews];
+    
+    // Update size
+    float trueHeight = _content.frame.size.height + 50;
+    CGRect trueSize = CGRectMake(self.frame.origin.x, self.center.y - trueHeight/2, self.frame.size.width, trueHeight);
+    if (!CGRectEqualToRect(self.frame, trueSize)) {
+        [UIView animateWithDuration:0.4 animations:^{
+            self.frame = trueSize;
+        }];
+    }
+}
+
+- (void)displayBuoyLoadingFailed {
+    // We copy much of the standard display, but have an error message
+    NSMutableParagraphStyle *clipStyle = [[NSMutableParagraphStyle alloc] init];
+    clipStyle.lineBreakMode = NSLineBreakByTruncatingTail;
+    NSDictionary *titleAttr = @{ NSFontAttributeName : [UIFont boldSystemFontOfSize:18], NSParagraphStyleAttributeName : clipStyle};
+    NSDictionary *groupAttr = @{ NSFontAttributeName : [UIFont systemFontOfSize:15], NSForegroundColorAttributeName : FMS_COLOUR_TEXT_FADE, NSParagraphStyleAttributeName : clipStyle };
+    NSDictionary *timeAttr = @{ NSFontAttributeName : [UIFont italicSystemFontOfSize:15] };
+    NSDictionary *attr = @{NSFontAttributeName : [UIFont fontWithName:@"Courier" size:17], NSForegroundColorAttributeName : FMS_COLOUR_TEXT_ERROR};
+    NSMutableAttributedString *infoString = [[NSMutableAttributedString alloc] initWithString:@""];
+    
+    // Write name and times
     if (self.buoy) {
         NSAttributedString *titleString = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@", self.buoy.title] attributes:titleAttr];
         [infoString appendAttributedString:titleString];
@@ -202,28 +281,19 @@
         }
         [infoString appendAttributedString:groupString];
     }
-    if (self.buoy && self.buoy.dateCreated) {
-        NSString *dateStr = [NSDateFormatter localizedStringFromDate:self.buoy.dateCreated dateStyle:NSDateFormatterMediumStyle timeStyle:NSDateFormatterShortStyle];
-        dateStr = [NSString stringWithFormat:@"  Created: %@\n", dateStr];
+    if (self.buoy && self.buoy.dateCreated) { // Creation date
+        NSString *dateStr = [NSDateFormatter localizedStringFromDate:self.buoy.dateCreated dateStyle:NSDateFormatterShortStyle timeStyle:NSDateFormatterShortStyle];
+        dateStr = [NSString stringWithFormat:@"  Created:  %@\n", dateStr];
         NSAttributedString *dateString = [[NSAttributedString alloc] initWithString:dateStr attributes:timeAttr];
         [infoString appendAttributedString:dateString];
     }
     
-    // Add a space
+    // Add space
     [infoString appendAttributedString:[[NSAttributedString alloc] initWithString:@"\n"]];
     
-    // Pull out info in dictionary as strings to append
-    for (NSString *key in info.allKeys) {
-        NSString *val = info[key];
-        // Key
-        NSAttributedString *formatKey = [[NSAttributedString alloc] initWithString:[key stringByPaddingToLength:28 - val.length withString:@" " startingAtIndex:0] attributes:attr];
-        [infoString appendAttributedString:formatKey];
-        
-        // Value
-        
-        NSAttributedString *formatVal = [[NSAttributedString alloc] initWithString:[NSString stringWithFormat:@"%@\n", val] attributes:attr];
-        [infoString appendAttributedString:formatVal];
-    }
+    // If none were displayed, say so
+    NSAttributedString *formatMsg = [[NSAttributedString alloc] initWithString:@"Failed loading readings from server." attributes:attr];
+    [infoString appendAttributedString:formatMsg];
     
     // Display
     self.content.attributedText = infoString;
@@ -846,8 +916,15 @@
 }
 
 - (void)didFailBuoyInfoForBuoy:(Buoy *)b {
-    //COCKS
-    NSLog(@"COCKS");
+    // Update more info dialog to say so
+    if (self.moreInfoDialog) {
+        // Check if right buoy
+        if (self.moreInfoDialog.buoy != b) {
+            return;
+        }
+        
+        [self.moreInfoDialog displayBuoyLoadingFailed];
+    }
 }
 
 - (void)didGetPingDataWithPing:(NSTimeInterval)ping forBuoy:(Buoy *)b {

@@ -8,7 +8,9 @@
 
 #import "DataModel.h"
 
+// Helper classes
 @interface PingRequest : NSObject
+// Representation of a ping request being executed over several HTTPS requests
 
 @property (nonatomic, strong) NSDate *startTime;
 @property (nonatomic, weak) Buoy *buoy;
@@ -18,6 +20,19 @@
 @end
 @implementation PingRequest
 @end
+
+@interface SensorType : NSObject
+// Data class for a sensor
+
+@property NSUInteger sensorTypeId;
+@property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong) NSString *unit;
+@property (nonatomic, strong) NSString *desc;
+
+@end
+@implementation SensorType
+@end
+
 
 @implementation Buoy
 
@@ -85,6 +100,10 @@
 @property (strong, nonatomic) NSString *lastName;
 @property (strong, nonatomic) NSString *role;
 
+// Loaded data
+@property (strong, nonatomic) NSArray *sensorTypes;
+@property (strong, nonatomic) NSNumber *pingCommandId;
+
 // Misc
 @property (strong, nonatomic) NSDateFormatter *dateFormatter;
 
@@ -97,6 +116,8 @@
     self = [super init];
     if (self) {
         _jwt = _email = _firstName = _lastName = _role = nil;
+        _sensorTypes = [NSArray array];
+        _pingCommandId = nil;
         _dateFormatter = [[NSDateFormatter alloc] init];
         [_dateFormatter setLocale:[NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"]];
         [_dateFormatter setDateFormat:@"yyyy-MM-dd'T'HH:mm:ssZZZZZZ"];
@@ -142,6 +163,100 @@
      }
     
     [[[NSURLSession sharedSession] dataTaskWithRequest:request completionHandler:handler] resume];
+}
+
+- (void)getCommandInfo {
+    // Get the list of commands with their id so we can know what to send
+    
+    [self sendRequestToServerUrl:@"api/command_types" textData:@"" method:@"GET" authorization:YES handler:
+     ^(NSData *data, NSURLResponse *response, NSError *error){
+         @try {
+             // Interpret their response
+             NSHTTPURLResponse *httpRes = (NSHTTPURLResponse *)response;
+             if (!error && httpRes.statusCode == 200) { //Success
+                 // Get command info
+                 NSDictionary *res = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                 
+                 // Get command array
+                 NSLog(@"%@", res);
+                 NSArray *commandTypes = res[@"commandTypes"];
+                 if (commandTypes == nil || commandTypes.count < 1)
+                     [NSException raise:@"Bad readings" format:@"readings is bad"];
+                 
+                 // Find ping command
+                 for (NSDictionary *d in commandTypes) {
+                     if (d == nil)
+                         continue;
+                     
+                     NSNumber *commandId = d[@"id"];
+                     NSString *commandName = d[@"name"];
+                     if (commandId == nil || commandName == nil)
+                         continue;
+                     
+                     NSLog(@"Found command type %@ with name %@", commandId, commandName);
+                     if ([commandName isEqualToString:@"ping"])
+                         self.pingCommandId = commandId;
+                 }
+             } else {
+                 [NSException raise:@"Failed request" format:@"%@", httpRes];
+             }
+         } @catch (NSException *e) {
+             NSLog(@"%@", e);
+             [self.dataDelegate performSelectorOnMainThread:@selector(didFailServerComms) withObject:nil waitUntilDone:NO];
+         }
+     }];
+}
+
+- (void)getSensorTypeInfo {
+    // Get the list of names and units for sensor types
+    
+    [self sendRequestToServerUrl:@"api/sensor_types" textData:@"" method:@"GET" authorization:YES handler:
+     ^(NSData *data, NSURLResponse *response, NSError *error){
+         @try {
+             // Interpret their response
+             NSHTTPURLResponse *httpRes = (NSHTTPURLResponse *)response;
+             if (!error && httpRes.statusCode == 200) { //Success
+                 // Get command info
+                 NSDictionary *res = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+                 
+                 // Get command array
+                 NSLog(@"%@", res);
+                 NSArray *sensorTypes = res[@"sensorTypes"];
+                 if (sensorTypes == nil || sensorTypes.count < 1)
+                     [NSException raise:@"Bad readings" format:@"readings is bad"];
+                 
+                 // Find ping command
+                 NSArray *sensorList = [NSArray array];
+                 for (NSDictionary *d in sensorTypes) {
+                     if (d == nil)
+                         continue;
+                     
+                     NSNumber *sensorId = d[@"id"];
+                     NSString *sensorName = d[@"name"];
+                     NSString *sensorUnit = d[@"unit"];
+                     NSString *sensorDesc = d[@"description"];
+                     if (sensorId == nil || sensorName == nil || sensorUnit == nil || sensorDesc == nil)
+                         continue;
+                     
+                     NSLog(@"Found sensor type %@ with name %@", sensorId, sensorName);
+                     SensorType *s = [[SensorType alloc] init];
+                     s.sensorTypeId = sensorId.integerValue;
+                     s.name = sensorName;
+                     s.unit = sensorUnit;
+                     s.desc = sensorDesc;
+                     
+                     sensorList = [sensorList arrayByAddingObject:s];
+                 }
+                 
+                 self.sensorTypes = sensorList;
+             } else {
+                 [NSException raise:@"Failed request" format:@"%@", httpRes];
+             }
+         } @catch (NSException *e) {
+             NSLog(@"%@", e);
+             [self.dataDelegate performSelectorOnMainThread:@selector(didFailServerComms) withObject:nil waitUntilDone:NO];
+         }
+     }];
 }
 
 #pragma mark - parsing/data methods
@@ -248,8 +363,12 @@
 - (NSDictionary *)parseJSONForBuoyInfo:(NSArray *)readings {
     // Given a list of readings from a 'latest reading' request, generates a formatted dictionary linking their formatted names with values
     // Returns nil if invalid
-    if (readings == nil || ![readings isKindOfClass:[NSArray class]] || readings.count != 1)
+    if (readings == nil || ![readings isKindOfClass:[NSArray class]])
         return nil;
+    
+    // Empty reading list
+    if (readings.count == 0)
+        return [NSDictionary dictionary];
     
     // Get sensor readings
     NSDictionary *latest = readings[0];
@@ -261,19 +380,28 @@
     // For each of these readings, add them to the overall dict
     NSMutableDictionary *dict = [[NSMutableDictionary alloc] init];
     for (NSDictionary *reading in sensorReadings) {
-        //TODO proper format name
         NSNumber *sensorTypeID = reading[@"sensorTypeId"];
         NSNumber *value = reading[@"value"];
         if (sensorTypeID == nil || value == nil)
             continue;
         
-        [dict setObject:value.stringValue forKey:sensorTypeID.stringValue];
+        // Get sensor type for this
+        SensorType *sensor = nil;
+        for (SensorType *s in self.sensorTypes) {
+            if (s.sensorTypeId == sensorTypeID.integerValue) {
+                sensor = s;
+                break;
+            }
+        }
+        if (sensor == nil)
+            continue; // Only display sensors we understand
+        
+        [dict setObject:[NSString stringWithFormat:@"%@%@", value.stringValue, sensor.unit] forKey:sensor.name];
     }
     
     // Handle timestamp, if it exists
     if (timestamp) {
-        NSDate *ts = [NSDate dateWithTimeIntervalSince1970:timestamp.doubleValue];
-        //TODO
+        [dict setObject:timestamp forKey:@"ts"];
     }
     
     return dict;
@@ -361,7 +489,6 @@
          
          // Interpret their response
          NSHTTPURLResponse *httpRes = (NSHTTPURLResponse *)response;
-         NSLog(@"Got login response: %d", httpRes.statusCode);
          if (httpRes.statusCode == 401 || httpRes.statusCode == 403) { //Unauthorised
              [self.delegate performSelectorOnMainThread:@selector(didFailToConnectBadDetails) withObject:nil waitUntilDone:NO];
          } else if (httpRes.statusCode == 200) { //Success
@@ -369,6 +496,10 @@
              NSDictionary *user = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
              if ([self parseJSONForUserLogin:user]) {
                  [self.delegate performSelectorOnMainThread:@selector(didConnectToServer) withObject:nil waitUntilDone:NO];
+                 
+                 // Kick off extraneous data readings
+                 [self performSelectorOnMainThread:@selector(getCommandInfo) withObject:nil waitUntilDone:NO];
+                 [self performSelectorOnMainThread:@selector(getSensorTypeInfo) withObject:nil waitUntilDone:NO];
              } else {
                  [self.delegate performSelectorOnMainThread:@selector(didFailToConnectServerFail) withObject:nil waitUntilDone:NO];
              }
@@ -400,7 +531,7 @@
 
 - (void)requestBuoyInfo:(Buoy *)buoy {
     // Send a server request for data
-    NSString *addr = [NSString stringWithFormat:@"api/buoy_instances/%lu/readings?last=true", (unsigned long)buoy.buoyId];
+    NSString *addr = [NSString stringWithFormat:@"api/buoy_instances/%lu/readings?last=true", (unsigned long)buoy.databaseId];
     [self sendRequestToServerUrl:addr textData:@"" method:@"GET" authorization:YES handler:
      ^(NSData *data, NSURLResponse *response, NSError *error){
          @try {
@@ -431,6 +562,10 @@
 }
 
 - (void)getPingDataFor:(Buoy *)buoy {
+    // Error if no ping command ID loaded
+    if (self.pingCommandId == nil)
+        [self.dataDelegate didServerErrorPing:buoy];
+    
     // Create new ping request, and start polling for a ping response this many times
     PingRequest *p = [[PingRequest alloc] init];
     p.startTime = [NSDate date];
@@ -439,7 +574,7 @@
     
     // Send a POST command to add a new ping command
     NSString *addr = [NSString stringWithFormat:@"api/buoys/%lu/commands", (unsigned long)buoy.buoyId];
-    NSString *dataToSend = [NSString stringWithFormat:@" { \"commands\" : [ {\"commandTypeId\" : %d, \"value\" : 0} ] } ", FMS_PING_COMMANDID];
+    NSString *dataToSend = [NSString stringWithFormat:@" { \"commands\" : [ {\"commandTypeId\" : %@, \"value\" : 0} ] } ", self.pingCommandId];
     [self sendRequestToServerUrl:addr textData:dataToSend method:@"POST" authorization:YES handler:
      ^(NSData *data, NSURLResponse *response, NSError *error){
          @try {

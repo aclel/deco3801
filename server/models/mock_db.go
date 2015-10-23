@@ -190,6 +190,18 @@ func (mdb *MockDB) GetAllCommandTypes() ([]CommandType, error) {
 	return nil, nil
 }
 
+func (mdb *MockDB) CreateCommandType(commandType *CommandType) error {
+	return nil
+}
+
+func (mdb *MockDB) UpdateCommandType(commandType *CommandType) error {
+	return nil
+}
+
+func (mdb *MockDB) ArchiveCommandTypeWithId(id int) error {
+	return nil
+}
+
 // COMMANDS
 func (mdb *MockDB) GetCommandWithId(id int) (*Command, error) {
 	return nil, nil

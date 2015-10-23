@@ -10,6 +10,7 @@ HOSTNAME = "teamneptune.co"
 PORT = 80
 READINGS_ENDPOINT = "/buoys/api/readings"
 COMMANDS_ENDPOINT = "/buoys/api/commands"
+ACK_ENDPOINT = "/buoys/api/commands/ack"
 
 HEADER = '\033[95m'
 OKBLUE = '\033[94m'
@@ -38,36 +39,18 @@ class Buoy():
 
 	guid = ""
 	name = ""
-	ip = ""
 	running = False
 
-	def __init__(self, guid, name, ip, running):		
+	def __init__(self, guid, name, running):		
 		self.guid = guid
 		self.name = name
-		self.ip = ip
 		self.running = running
 
-	#def get_auth_token(self):
-	#	data = json.load(open('creds.json'))
-	#	headers = {"Content-type": "application/json"}
-	#	conn = httplib.HTTPConnection(HOSTNAME, PORT)
-	#	conn.request("POST", "/api/login", json.dumps(data), headers)
-	#	res = conn.getresponse()
-	#	if res.status != 200:
-	#		print WARNING + "Server NOT OK. returned " + str(res.status) + ENDC
-	#		return None
-	#	try:
-	#		jstr = json.loads(res.read())
-	#	except ValueError:
-	#		print WARNING + "JSON could not be decoded." + ENDC
-	#		return None
-	#	return jstr['token']
 	def get_commands(self):
 		headers = {"Content-type": "text/plain",
 				    "Accept": "text/plain"}
-
 		conn = httplib.HTTPConnection(HOSTNAME, PORT)
-		conn.request("GET", COMMANDS_ENDPOINT)
+		conn.request("GET", COMMANDS_ENDPOINT+"?guid=" + self.guid)
 		print OKBLUE + "Buoy {0}: Requesting commands from server.".format(self.name) + ENDC
 		try:
 			res = conn.getresponse()
@@ -75,12 +58,52 @@ class Buoy():
 			print WARNING + "Buoy {0}: Could not get response from server.".format(self.name) + ENDC
 			return None
 		print OKBLUE + "Buoy {0}: Server response: {1}".format(self.name, res.status) + ENDC
-		print OKBLUE + "Response: " + res.read() + ENDC
+		resStr = res.read()
+		print OKBLUE + "Response: " + resStr + ENDC
+		self.send_ack(resStr)
 		#print OKBLUE + res.reason + ENDC
 		#print OKBLUE + res.read() + ENDC
 		return 1
-	def send_ack(self, commandsf = "commands"):
-		pass
+	def send_ack(self, commandsStr, commandsf = "commands"):
+		# commandTypeId,commandId,commandValue
+		cmds = commandsStr.split(";")
+		idArr = []
+		for cmd in cmds:
+			ids = cmd.split(",")
+			i = 0
+			if cmd == "":
+				break
+			print "Command: " + cmd
+			for elem in ids:
+				if i == 1:
+					idArr.append(elem)
+				i += 1
+		if commandsStr == "":
+			print WARNING + "Buoy {0}: No commands found. Not sending ack.".format(self.name) + ENDC
+			return
+
+		ackStr = ("{"
+					"\"guid\": \"" +self.guid +"\","
+					"\"ids\": [")
+		i = 0
+		while i < len(idArr):
+			if i == (len(idArr) - 1):
+				ackStr = ackStr + idArr[i] + "] }" 
+			else:
+				ackStr = ackStr + idArr[i] + ","
+			i += 1
+		print ackStr
+		headers = {"Content-type": "application/json"}
+		conn = httplib.HTTPConnection(HOSTNAME, PORT)
+		conn.request("POST", ACK_ENDPOINT, ackStr, headers)
+		print OKBLUE + "Buoy {0}: Sent command acknowledgement to server.".format(self.name) + ENDC
+		try:
+			res = conn.getresponse()
+		except httplib.BadStatusLine:
+			print WARNING + "Buoy {0}: Could not get response from server.".format(self.name) + ENDC
+			return None
+		print OKBLUE + "Buoy {0}: Server response: {1}".format(self.name, res.status) + ENDC
+
 	def send_reading(self, readingsf):
 		data = None
 		try:
@@ -244,7 +267,7 @@ class Simulate():
 			print buoy.name
 
 	def cmd_help(self):
-		commands = [[" new <guid> <name> <ip>     ", "creates a new buoy"],
+		commands = [[" new <guid> <name>          ", "creates a new buoy"],
 					[" list                       ", "list all buoys"],
 					[" update <name> <interval>   ", 
 						"update a buoy's ping time"],
@@ -268,15 +291,13 @@ class Simulate():
 		cvars = args.split()
 		guid = ""
 		name = ""
-		ip = ""
 		try:
-			if (len(cvars) != 4):
+			if (len(cvars) != 3):
 				raise InvalidArguments("Wrong number of arguments for new: " +
-					"new <guid> <name> <ip>")
+					"new <guid> <name>")
 			else:
 				guid = cvars[1]
 				name = cvars[2]
-				ip = cvars[3]
 		except InvalidArguments as e:
 			print WARNING + e.value + ENDC
 			return
@@ -287,11 +308,8 @@ class Simulate():
 			elif (name == "" or (self.name_in_use(name))):
 				raise InvalidBuoy("Name in use.")
 				return
-			elif (ip == "" or (self.ip_in_use(ip))):
-				raise InvalidBuoy("IP/Hostname in use.")
-				return
 			else:
-				self.buoys.append(Buoy(guid, name, ip, True))
+				self.buoys.append(Buoy(guid, name, True))
 				print "Buoy " + name + " successfully created."
 		except InvalidBuoy as e:
 			print "Could not create buoy. " + e.value

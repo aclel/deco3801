@@ -8,11 +8,8 @@
 
 #import "AppDelegate.h"
 
-// TODO: some more styling
-
 
 @implementation AppDelegate
-
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     /* APP ENTRY POINT */

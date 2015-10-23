@@ -87,7 +87,7 @@
 			<table class="filter-table">
 				<tbody>
 					<form class="form-inline">
-						<tr ng-repeat="sensor in vm.sensors">
+						<tr ng-repeat="sensor in vm.sensors | orderBy:'id'">
 							<!-- <div class="form-group"> -->
 								<td><input type="checkbox" ng-model="sensor.inputs.enabled" ng-change="vm.updateSensors()"></td>
 								<td><span>{{ sensor.name }}</span></td>

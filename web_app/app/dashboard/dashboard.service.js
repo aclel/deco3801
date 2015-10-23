@@ -80,10 +80,13 @@
 		
 		/**
 		 * Return sensor input data structures
-		 * @return {object} sensor inputs and filters
+		 * @return {array} sensor inputs and filters
 		 */
 		function getSensors() {
-			return sensors;
+			// convert sensors object to an array
+			return Object.keys(sensors).map(function(key) {
+				return sensors[key];
+			});
 		}
 
 		function getReadingMetadata() {
@@ -199,21 +202,37 @@
 
 		/** Populate sensor input data */
 		function populateSensors(data) {
+			var keep = [];
 			for (var i = 0; i < data.length; i++) {
 				var sensor = data[i];
-
+				
 				if (sensor.archived) continue;
-				if (sensors.hasOwnProperty(sensor.id)) continue;
+				keep.push(sensor.id + "");			
 
-				sensor.inputs = {
-					enabled: false,
-					options: [">", "<", "="],
-					selected: ">",
-					value: ""
-				};
-
+				if (!sensors.hasOwnProperty(sensor.id)) {
+						sensor.inputs = {
+						enabled: false,
+						options: [">", "<", "="],
+						selected: ">",
+						value: ""
+					};
+				} else {
+					sensor.inputs = {
+						enabled: sensors[sensor.id].inputs.enabled,
+						options: sensors[sensor.id].inputs.options,
+						selected: sensors[sensor.id].inputs.selected,
+						value: sensors[sensor.id].inputs.value
+					};
+				}
 				sensors[sensor.id] = sensor;	
 			}
+			// remove old sensors
+			var sensorIds = Object.keys(sensors);
+			sensorIds.forEach(function(sensorId) {
+				if (keep.indexOf(sensorId) == -1) {
+					delete sensors[sensorId];
+				}
+			});
 		}
 
 		/**

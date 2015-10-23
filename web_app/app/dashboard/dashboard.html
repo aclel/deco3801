@@ -77,7 +77,7 @@
 				</span>
 				<div ng-if="!buoyGroup.collapsed" ng-repeat="buoyInstance in buoyGroup.buoyInstances" class="filter-buoy-instance">
 						<input type="checkbox" ng-model="buoyInstance.enabled" ng-change="vm.selectBuoyInstance(buoyGroup)">
-						<span class="glyphicon glyphicon-stop" ng-style="{ color: buoyInstance.colour }"></span>
+						<span class="glyphicon glyphicon-stop" ng-style="{ filter: hue-rotate(buoyInstance.colour) }"></span>
 						{{ buoyInstance.name }}
 				</div>
 			</div>

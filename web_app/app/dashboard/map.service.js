@@ -27,6 +27,7 @@
 		var map;
 		var mapOptions = {
 			zoom: 11,
+			/* TODO: don't hardcode this */
 			center: new google.maps.LatLng(-27.573704, 153.055818),
 			mapTypeId: google.maps.MapTypeId.ROADMAP
 		};
@@ -114,8 +115,18 @@
 					enableMarker(id);
 				}
 			}
-			markers[id].setIcon(markerColour(buoyInstance.colour));
-			markers[id].setOpacity(calculateOpacity(age));
+			console.log(markers[id]);
+			console.log(buoyInstance);
+			markers[id].content = "<div id='reading" + buoyInstance.id.toString() + "' class='hue"+buoyInstance.colour+"'><img src='assets/img/marker.png'></div>";
+			//console.log('reading'+buoyInstance.id.toString());
+			//var mark = null;
+			//console.log(document.getElementById(buoyInstance.id.toString()));
+			//var myEl = angular.element(document.getElementById('reading' + buoyInstance.id.toString()));
+			//console.log(myEl);
+			//buoyInstance.computedStyle = window.getComputedStyle();
+			//markers[id].setIcon(markerColour(buoyInstance.colour));
+
+			//markers[id].setOpacity(calculateOpacity(age));
 		}
 		
 		/**
@@ -138,9 +149,13 @@
 		 * @param {object} reading      reading for marker
 		 */
 		function addMarker(reading) {
-			var marker = new google.maps.Marker({
+
+			var marker = new RichMarker({
 				position: new google.maps.LatLng(reading.latitude, reading.longitude),
 				map: map,
+				content: "<div class='marker'><img src='assets/img/marker.png'></div>",
+				draggable: false,
+				flat: true
 				// title: 'Buoy ' + reading.buoy + ': reading ' + reading.id,
 			});
 			
@@ -253,7 +268,7 @@
 		 */
 		function colorPalette(n) {
 			// palette generated from http://tools.medialab.sciences-po.fr/iwanthue/
-			var palette = [
+			/*var palette = [
 				"#84CBD1",
 				"#CC4B30",
 				"#BF54D0",
@@ -274,7 +289,26 @@
 				"#785F2A",
 				"#596C87",
 				"#C471B4"
-			];
+			]; */
+			var palette = [
+				"20",
+				"40",
+				"60",
+				"80",
+				"100",
+				"120",
+				"140",
+				"160",
+				"180",
+				"200",
+				"220",
+				"240",
+				"260",
+				"280",
+				"300",
+				"320",
+				"340"
+			]
 			return palette[n % palette.length];	
 		}
 

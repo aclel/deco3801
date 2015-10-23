@@ -77,13 +77,14 @@
                     gui.alertBadResponse(res);
                 });
             } else {
+                vm.editObj.id = -3;
                 server.addCommandType(vm.editObj).then(function(res) {
                     queryCommandTypes();
                     gui.alertSuccess('Command type added.');
                 }, function(res) {
                     gui.alertBadResponse(res);
+                    vm.commandTypes.splice(vm.commandTypes.length - 1, 1);
                 });
-                vm.commandTypes.splice(vm.commandTypes.length - 1, 1);
             }
             vm.editId = -1;
         }

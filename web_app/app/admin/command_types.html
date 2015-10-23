@@ -11,7 +11,7 @@
         <tbody>
             <tr ng-repeat="commandType in vm.commandTypes | filter: { archived: false }">
                 <td>
-                    <span ng-if="commandType.id != -2">{{ commandType.id }}</span>
+                    <span ng-if="commandType.id >= 0">{{ commandType.id }}</span>
                 </td>
                 <td>
                     <span ng-if="vm.editId != commandType.id">{{ commandType.name }}</span>

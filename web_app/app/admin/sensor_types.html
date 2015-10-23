@@ -14,7 +14,7 @@
         <tbody>
             <tr ng-repeat="sensorType in vm.sensorTypes | filter: { archived: false }">
                 <td>
-                    <span ng-if="sensorType.id != -2">{{ sensorType.id }}</span>
+                    <span ng-if="sensorType.id >= 0">{{ sensorType.id }}</span>
                 </td>
                 <td>
                     <span ng-if="vm.editId != sensorType.id">{{ sensorType.name }}</span>

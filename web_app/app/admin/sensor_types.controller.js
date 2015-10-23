@@ -77,13 +77,14 @@
                     gui.alertBadResponse(res);
                 });
             } else {
+                vm.editObj.id = -3;
                 server.addSensorType(vm.editObj).then(function(res) {
                     querySensorTypes();
                     gui.alertSuccess('Sensor type added.');
                 }, function(res) {
                     gui.alertBadResponse(res);
+                    vm.sensorTypes.splice(vm.sensorTypes.length - 1, 1);
                 });
-                vm.sensorTypes.splice(vm.sensorTypes.length - 1, 1);
             }
             vm.editId = -1;
         }

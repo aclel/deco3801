@@ -92,13 +92,14 @@
 					gui.alertBadResponse(res);
 				});
 			} else {
+				vm.editObj.id = -3;
 				server.addUser(vm.editObj).then(function(res) {
 					queryUsers();
 					gui.alertSuccess('User added.');
 				}, function(res) {
 					gui.alertBadResponse(res);
+					vm.users.splice(vm.users.length - 1, 1);
 				});
-				vm.users.splice(vm.users.length - 1, 1);
 			}
 			vm.editId = -1;
 		}

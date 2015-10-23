@@ -99,14 +99,15 @@
          * called on Save button click
          */
         function editSave() {
+            vm.editObj.id = -3;
             server.addBuoy(vm.editObj).then(function(res) {
                 queryBuoys();
                 queryBuoyInstances();
                 gui.alertSuccess('Buoy added.');
             }, function(res) {
                 gui.alertBadResponse(res);
+                vm.buoys.splice(vm.buoys.length - 1, 1);
             });
-            vm.buoys.splice(vm.buoys.length - 1, 1);
             vm.editId = -1;
         }
         

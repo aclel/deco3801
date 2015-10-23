@@ -9,7 +9,7 @@
     <tbody>
 	<tr ng-repeat="buoyInstanceSensor in vm.buoyInstanceSensors | filter:vm.buoyInstanceSensorFilter">
 	    <td>{{ buoyInstanceSensor.sensorTypeId }}</td>
-	    <td>{{ buoyInstanceSensor.lastRecorded }}</td>
+	    <td>{{ buoyInstanceSensor.lastRecorded.Time }}</td>
 	</tr>
     </tbody>
 </table>

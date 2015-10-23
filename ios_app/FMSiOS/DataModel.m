@@ -448,12 +448,14 @@
                  if (sent.intValue != 0) {
                      // Got value!
                      NSString *timeStr = sentAt[@"Time"];
-                     if (timeStr == nil) {
+                     NSString *createdT = res[@"createdAt"];
+                     if (timeStr == nil || createdT == nil) {
                          [NSException raise:@"Bad time" format:@""];
                      }
                      // Get time sent
+                     NSDate *createdTime = [_dateFormatter dateFromString:createdT];
                      NSDate *timeSent = [_dateFormatter dateFromString:timeStr];
-                     NSTimeInterval timeTaken = [timeSent timeIntervalSinceDate:p.startTime];
+                     NSTimeInterval timeTaken = [timeSent timeIntervalSinceDate:createdTime];
                      [self.dataDelegate didGetPingDataWithPing:timeTaken forBuoy:p.buoy];
                  } else {
                      // Resend after a delay

@@ -10,7 +10,11 @@
 // @link       https://github.com/aclel/deco3801
 package models
 
-import "github.com/go-sql-driver/mysql"
+import (
+	"time"
+
+	"github.com/go-sql-driver/mysql"
+)
 
 // Commands are sent to a buoy to invoke configuration of certain
 // behaviours. Multiple Commands can be queued up for a buoy. When
@@ -23,6 +27,7 @@ type Command struct {
 	Value         int            `json:"value" db:"value"`
 	Sent          bool           `json:"sent" db:"sent"`
 	SentAt        mysql.NullTime `json:"sentAt" db:"sent_at"`
+	CreatedAt     time.Time      `json:"createdAt" db:"created_at"`
 }
 
 // Wraps Command methods to allow for testing with dependency injection.

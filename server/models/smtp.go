@@ -36,12 +36,12 @@ func (db *DB) SendNewUserEmail(user *User, emailUser *EmailCredentials) error {
 	m := gomail.NewMessage()
 	m.SetHeader("From", emailUser.Username)
 	m.SetHeader("To", user.Email)
-	m.SetHeader("Subject", "UQ Flood Monitoring System Account")
+	m.SetHeader("Subject", "WatcherWatcher Account")
 	m.SetBody("text/html",
-		`<h1>Welcome to the UQ Flood Monitoring System.</h1>
+		`<h1>Welcome to WaterWatcher.</h1>
 		<p>Here is a link to sign in to your account: </p>
 		<a href="https://teamneptune.co">Sign In</a>
-		<p>You temporary password is `+user.Password+`</p>
+		<p>Your temporary password is `+user.Password+`</p>
 		<p>You will be prompted to change your password when you sign in for the first time.</p>`)
 
 	d := gomail.NewPlainDialer(emailUser.Server, emailUser.Port, emailUser.Username, emailUser.Password)
@@ -60,7 +60,7 @@ func (db *DB) SendPasswordResetEmail(user *User, link string, emailUser *EmailCr
 	m := gomail.NewMessage()
 	m.SetHeader("From", emailUser.Username)
 	m.SetHeader("To", user.Email)
-	m.SetHeader("Subject", "UQ Flood Monitoring System Password Reset")
+	m.SetHeader("Subject", "WaterWatcher Password Reset")
 	m.SetBody("text/html",
 		`<h1>Hi `+user.FirstName+`,</h1>
 		<p>Here is a link to reset your password: </p>

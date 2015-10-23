@@ -1,0 +1,15 @@
+<h3>Sensors</h3>
+<table class="data-table">
+    <thead>
+	<tr>
+	    <th>Sensor Name</th>
+	    <th>Last Recorded</th>
+	</tr>
+    </thead>
+    <tbody>
+	<tr ng-repeat="buoyInstanceSensor in vm.buoyInstanceSensors | filter:vm.buoyInstanceSensorFilter">
+	    <td>{{ buoyInstanceSensor.sensorTypeId }}</td>
+	    <td>{{ buoyInstanceSensor.lastRecorded.Time }}</td>
+	</tr>
+    </tbody>
+</table>

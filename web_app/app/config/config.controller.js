@@ -109,7 +109,7 @@
 						existingName
 					).then(function(res) {
 						queryBuoyInstances();
-						gui.alertSuccess('New buoy instance created.')
+						gui.alertSuccess('Buoy group changed.')
 					}, function(res) {
 						queryBuoyInstances(); // easiest way to undo drag-drop
 						gui.alertBadResponse(res);
@@ -369,7 +369,7 @@
 				vm.editGroup.name
 			).then(function(res) {
 				queryBuoyInstances();
-				gui.alertSuccess('New buoy instance created.')
+				gui.alertSuccess('Buoy updated.')
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});

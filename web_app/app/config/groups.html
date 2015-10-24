@@ -7,7 +7,7 @@
                 <strong>Select All Buoys</strong>
             </a>
         </li>
-        <li ng-repeat="buoyGroup in vm.buoyGroups" ui-tree-node>
+        <li ng-repeat="buoyGroup in vm.buoyGroups | filter: { archived: false }" ui-tree-node>
             <div>
                 <div ui-tree-handle class="tree-node pointer" ng-click="vm.selectBuoyGroup(buoyGroup)" data-nodrag>
                     <a class="btn btn-xs" ng-click="toggle(this); $event.stopPropagation();" data-nodrag

@@ -99,7 +99,21 @@
 					return true;
 				},
 				dropped: function(event) {
-					// console.log(event);
+					console.log(event);
+					var groupId = event.dest.nodesScope.$nodeScope.$modelValue;
+					var existingName = event.source.nodeScope.$modelValue.name;
+					var instanceId = event.source.nodeScope.$modelValue.id;
+					server.updateBuoyInstanceGroup(
+						instanceId,
+						groupId,
+						existingName
+					).then(function(res) {
+						queryBuoyInstances();
+						gui.alertSuccess('New buoy instance created.')
+					}, function(res) {
+						queryBuoyInstances(); // easiest way to undo drag-drop
+						gui.alertBadResponse(res);
+					});
 				}
 			};
 		}
@@ -168,7 +182,6 @@
 		function queryBuoyInstanceSensors(buoyInstanceId) {
 			if (vm.selected.type != 'instance') return;
 			server.getBuoyInstanceSensors(buoyInstanceId).then(function(res) {
-				console.log(res);
 				vm.buoyInstanceSensors = res.data.sensors;
 				parseBuoyInstanceSensors();
 			}, function(res) {
@@ -348,10 +361,10 @@
 		function finishEditingBuoyGroup() {
 			vm.editGroup.on = false;
 			vm.selected.obj.buoyGroupId = vm.editGroup.buoyGroupId;
-			setBuoyGroupName(vm.selected.obj);
+			// setBuoyGroupName(vm.selected.obj);
 			// update server
 			server.updateBuoyInstanceGroup(
-				vm.selected.obj.buoyId,
+				vm.selected.obj.id,
 				vm.editGroup.buoyGroupId,
 				vm.editGroup.name
 			).then(function(res) {

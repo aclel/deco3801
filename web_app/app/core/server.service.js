@@ -241,21 +241,20 @@
 		}
 		
 		/**
-		 * Request create new buoy instance in group
-		 * POST /api/buoy_instances
-		 * @param  {int} buoyId  buoy id
+		 * Request update buoy instance in group
+		 * PUT /api/buoy_instances/:id
+		 * @param  {int} instanceId  buoy id
 		 * @param  {int} groupId new group id
 		 * @param  {string} name    new name
 		 * @return {promise}         request promise
 		 */
-		function updateBuoyInstanceGroup(buoyId, groupId, name) {
+		function updateBuoyInstanceGroup(instanceId, groupId, name) {
 			var config = setJson(addToken(headers()));
 			var data = {
 				name: name,
-				buoyId: buoyId,
 				buoyGroupId: groupId
 			};
-			return $http.post(SERVER_ADDRESS + '/api/buoy_instances',
+			return $http.put(SERVER_ADDRESS + '/api/buoy_instances/' + instanceId,
 					JSON.stringify(data), config);
 		}
 		

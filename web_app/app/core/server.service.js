@@ -330,7 +330,7 @@
 		function exportData(readings) {
 			var config = addToken(headers());
 			config.responseType = 'arraybuffer';
-			config.headers['Accept'] = 'text/csv';
+			config.headers['Accept'] = 'application/zip';
 			var data = {
 				readings: readings
 			};
@@ -340,8 +340,8 @@
 				
 			promise.then(function(res) {
 				var time = moment().format("DD-MM-YY-HHmmss");
-				var filename = 'export-' + time + '.csv';
-				openSaveAsDialog(filename, res.data, 'text/csv');
+				var filename = 'export-' + time + '.zip';
+				openSaveAsDialog(filename, res.data, 'application/zip');
 			}, function(res) {
 				$log.error(res);
 			});

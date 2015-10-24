@@ -36,7 +36,7 @@ web_app/bower_components
 # Dist files
 web_app/dist
 web_app/index.html
-web_app/assets/css/_built
+# web_app/assets/css/_built
 
 # VS Code files
 web_app/typings

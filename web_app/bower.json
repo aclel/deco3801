@@ -27,6 +27,6 @@
     "angular-ui-tree": "~2.9.0",
     "bootstrap-sass": "~3.3.5",
     "Chart.Scatter.js": "~1.1.2",
-    "easy-richmaker": "~0.0.1"
+    "easy-richmarker": "~0.0.1"
   }
 }

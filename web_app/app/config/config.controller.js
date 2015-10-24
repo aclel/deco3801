@@ -100,7 +100,7 @@
 				},
 				dropped: function(event) {
 					console.log(event);
-					var groupId = event.dest.nodesScope.$nodeScope.$modelValue;
+					var groupId = event.dest.nodesScope.$nodeScope.$modelValue.id;
 					var existingName = event.source.nodeScope.$modelValue.name;
 					var instanceId = event.source.nodeScope.$modelValue.id;
 					server.updateBuoyInstanceGroup(

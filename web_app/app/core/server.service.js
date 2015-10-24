@@ -385,12 +385,9 @@
 		 * @param  {int} buoyId  buoy id
 		 * @return {promise}         request promise
 		 */
-		function deleteBuoyCommand(buoyCommandId) {
-			var config = addToken(headers());
-			return $http.delete(SERVER_ADDRESS + '/api/commands/' + buoyCommandId, config);
-		}
+		function deleteBuoyCommand(buoyId) {
 			
-		
+		}
 		
 		/**
 		 * Request warning triggers for active buoy instances

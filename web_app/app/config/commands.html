@@ -1,37 +1,35 @@
 <h3>Commands</h3>
-<form ng-submit="vm.editSave()">
-	<table class="data-table">
-	    <thead>
-		<tr>
-		    <th>Buoy</th>
-		    <th>Command</th>
-		    <th>Value</th>
-		    <th></th>
-		</tr>
-	    </thead>
-	    <tbody>
-		<tr ng-repeat="command in vm.commands | filter:vm.commandFilter">
-		    <td>{{ command.buoyName }}</td>
-		    <td>{{ command.commandName }}</td>
-		    <td>{{ command.value }}</td>
-		    <td class="button-cell">
-		        <button type="button" class="btn btn-default btn-sm right" ng-if="vm.showDeleteButton(command)" ng-click="vm.editDelete(command)">
-		            <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-		        </button>
-		        <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == -1" ng-click="vm.editExisting(command)">
-		            <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-		        </button>
-		        <button type="button" class="btn btn-default btn-sm right invisible">
-		            <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
-		        </button>
-		        <button type="button" class="btn btn-default btn-sm right invisible">
-		            <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
-		        </button>
-		    </td>
-		</tr>
-	    </tbody>
-	</table>
-</form>
+<table class="data-table">
+    <thead>
+        <tr>
+            <th>Buoy</th>
+            <th>Command</th>
+            <th>Value</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr ng-repeat="command in vm.commands | filter:vm.commandFilter">
+            <td>{{ command.buoyName }}</td>
+            <td>{{ command.commandName }}</td>
+            <td>{{ command.value }}</td>
+            <td class="button-cell">
+                <button type="button" class="btn btn-default btn-sm right">
+                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-sm right">
+                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-sm right invisible">
+                    <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default btn-sm right invisible">
+                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                </button>
+            </td>
+        </tr>
+    </tbody>
+</table>
 <button type="button" class="btn btn-default"
     ng-click="vm.newCommand = true"
     ng-if="!vm.editing()">

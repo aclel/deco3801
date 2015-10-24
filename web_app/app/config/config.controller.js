@@ -22,7 +22,7 @@
 		* @description Provides viewmodel for config view
 		* @requires server
 	**/
-	function ConfigController($scope, server, gui) {
+	function ConfigController(server, gui) {
 		var vm = this;
 		
 		/** Variables and methods bound to viewmodel */
@@ -66,19 +66,6 @@
 		vm.cancelEditGroup = cancelEditGroup;
 		vm.toggleBuoyGroup = toggleBuoyGroup;
 		
-		
-
-		// mostly ctrl + v'ed from users... //
-		vm.editId = -1;
-		//vm.editExisting = editExisting;
-		//vm.editSave = editSave;
-		vm.editDelete = editDelete;
-		//vm.editCancel = editCancel;
-		//vm.editNew = editNew;
-		vm.showDeleteButton = showDeleteButton;
-		vm.confirmDelete  = confirmDelete;
-		//
-
 		activate();
 		
 		/** Called when controller is instantiated (config page is loaded) */
@@ -457,41 +444,6 @@
 			
 		}
 		
-		/**
-		 * Command is deleted, called on Confirm button click in delete modal
-		 * @param  {object} command command to delete
-		 */
-		function confirmDelete(command) {
-			server.deleteBuoyCommand(command.id).then(function(res) {
-				queryCommands();
-				gui.alertSuccess('Command deleted.');
-			}, function(res) {
-				gui.alertBadResponse(res);
-			});
-		}
-
-		/**
-		 * Shows a delete confirmation, called on Delete button click
-		 * @param  {object} command command to delete
-		 */
-		function editDelete(command) {
-			vm.deleteObject = command;
-			vm.deleteType = 'command';
-			vm.deleteName = command.commandName;
-			gui.confirmDelete($scope);
-		}
-		
-		/**
-		 * Determines whether to show delete button for each command row
-		 * @param  {object} command
-		 * @return {bool}      whether to show delete button
-		 */
-		function showDeleteButton(command) {
-			return ((vm.editId == -1 || vm.editId == command.id) &&
-				command.id != -2);
-		}
-
-
 		/** Prepare to add new trigger warning for buoy or group */
 		function addTrigger() {
 			if (vm.trigger.sensorTypeId == -1 || vm.trigger.value == '') {

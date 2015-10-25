@@ -21,6 +21,9 @@
 		
 			// intercept all requests to check for token	
 			$httpProvider.interceptors.push('authInterceptor');
+
+			// intercept all requests to handle loading
+			$httpProvider.interceptors.push('loadingInterceptor');
 			
 			// default settings for datepicker
 			angular.extend($datepickerProvider.defaults, {

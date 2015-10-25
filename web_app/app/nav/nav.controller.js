@@ -25,13 +25,14 @@
 		* @requires routerHelper
 		* @requires auth
 	**/
-	function NavController($rootScope, $state, routerHelper, auth) {
+	function NavController($rootScope, $state, $scope, $timeout, routerHelper, auth) {
 		var vm = this;
 		
 		/** Internal variables */
 		var loggedIn = auth.loggedIn();
 		
 		/** Variables and methods bound to viewmodel */
+		vm.loading = true;
 		vm.accountMenu = [
 			{ text: "Change password", click: "vm.changePassword()" },
 			{ text: "Logout", click: "vm.logout()" }
@@ -48,6 +49,17 @@
 			// after navigating to a new panel, check still logged in
 			$rootScope.$on('$stateChangeSuccess', function() {
 				loggedIn = auth.loggedIn();
+			});
+			// register loading event listener
+			$rootScope.$on('loading', function(event, on) {
+				if (on) {
+					vm.loading = on;
+				} else {
+					// apply a short delay when hiding the loader
+					$timeout(function() {
+						vm.loading = on;
+					}, 800);
+				}
 			});
 		}
 		

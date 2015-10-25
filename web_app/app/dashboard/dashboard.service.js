@@ -100,6 +100,7 @@
 		 * @return {promise}      request promise
 		 */
 		function queryReadings(from, to) {
+			$rootScope.$broadcast('loading', true);
 			if (!from) {
 				from = moment().subtract(times.inputs.since.value,
 					 times.inputs.since.quantifier).unix();

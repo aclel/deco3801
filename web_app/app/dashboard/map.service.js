@@ -39,7 +39,7 @@
 				position: google.maps.ControlPosition.TOP_CENTER
 			},
 			scaleControl: true,
-			streetViewControl: true,
+			streetViewControl: false,
 			streetViewControlOptions: {
 				position: google.maps.ControlPosition.TOP_CENTER
 			}

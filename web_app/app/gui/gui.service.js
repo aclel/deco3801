@@ -29,6 +29,7 @@
 		return {
 			alertSuccess: alertSuccess,
             alertError: alertError,
+            alertInfo: alertInfo,
             alertBadResponse: alertBadResponse,
             confirmDelete: confirmDelete,
             focus: focus
@@ -48,6 +49,14 @@
          */
         function alertError(message) {
             $alert({title: 'Error:', content: message, type: 'danger' });
+        }
+
+        /**
+         * Shows an info alert
+         * @param  {string} message message to show in the alert
+         */
+        function alertInfo(message) {
+            $alert({content: message, type: 'info' });
         }
 
         /**

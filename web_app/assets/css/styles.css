@@ -389,6 +389,10 @@ input.ti-xl {
 
 /************************* ALERTS **********************/
 
+.alert {
+  z-index: 99999;
+}
+
 .alert-placement {
   position: absolute;
   top: 10px;

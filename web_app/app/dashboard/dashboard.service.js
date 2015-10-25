@@ -24,7 +24,7 @@
 		* @requires map
 		* @requires moment
 	**/
-	function dashboard($log, $q, $rootScope, server, map, moment) {
+	function dashboard($log, $q, $rootScope, server, map, moment, gui) {
 		/** Internal variables. These are preserved until page refresh. */
 		var readings = [];
 		var filteredReadings = [];
@@ -146,6 +146,9 @@
 			var promise = server.getReadings(from, to);
 			promise.then(function(res) {
 				readings = res.data.buoyGroups;
+				if (!readings.length) {
+					gui.alertInfo("No readings found for the selected time period.");
+				}
 				sortReadings();
 				populateBuoys();
 				updateFilters();

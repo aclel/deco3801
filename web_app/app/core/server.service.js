@@ -46,10 +46,8 @@
 			addCommandType: addCommandType,
 			updateCommandType: updateCommandType,
 			deleteCommandType: deleteCommandType,
-			getBuoyCommands: getBuoyCommands,
 			exportData: exportData,
 			getBuoyInstanceSensors: getBuoyInstanceSensors,
-			sendBuoyCommand: sendBuoyCommand,
 			getWarningTriggers: getWarningTriggers,
 			addWarningTriggers: addWarningTriggers,
 			getWarnings: getWarnings,
@@ -61,7 +59,10 @@
 			addUser: addUser,
 			updateUser: updateUser,
 			deleteUser: deleteUser,
-			deleteBuoyCommand: deleteBuoyCommand,
+			getCommands: getCommands,
+			addCommand: addCommand,
+			updateCommand: updateCommand,
+			deleteCommand: deleteCommand,
 			getBuoys: getBuoys,
 			addBuoy: addBuoy,
 			updateBuoy: updateBuoy,
@@ -310,16 +311,6 @@
 			var config = addToken(headers());
 			return $http.delete(SERVER_ADDRESS + '/api/command_types/' + id, config);
 		}
-
-		/**
-		 * Request pending commands
-		 * GET /api/commands?sent=false
-		 * @return {promise} request promise
-		 */
-		function getBuoyCommands() {
-			var config = addToken(headers());
-			return $http.get(SERVER_ADDRESS + '/api/commands?sent=false', config);
-		}
 		
 		/**
 		 * Request export data and download CSV in response
@@ -367,6 +358,16 @@
 			var config = addToken(headers());
 			return $http.get(SERVER_ADDRESS + '/api/buoy_instances/' + buoyInstanceId + '/sensors', config)
 		}
+
+		/**
+		 * Request pending commands
+		 * GET /api/commands?sent=false
+		 * @return {promise} request promise
+		 */
+		function getCommands() {
+			var config = addToken(headers());
+			return $http.get(SERVER_ADDRESS + '/api/commands?sent=false', config);
+		}
 		
 		/**
 		 * Request new command for buoys
@@ -375,14 +376,14 @@
 		 * @param  {int[]} buoyIds list of buoy Ids to send command for
 		 * @return {promise}         request promise
 		 */
-		function sendBuoyCommand(command, buoyIds) {
+		function addCommand(command, buoyIds) {
 			var config = setJson(addToken(headers()));
 			var data = {
 				commands: []
 			};
 			buoyIds.forEach(function(buoyId) {
 				data.commands.push({
-					commandTypeId: command.id,
+					commandTypeId: command.commandTypeId,
 					value: parseInt(command.value, 10),
 					buoyId: buoyId
 				});
@@ -390,14 +391,32 @@
 			return $http.post(SERVER_ADDRESS + '/api/commands', 
 				JSON.stringify(data), config);
 		}
+
+		/**
+		 * Request update command for buoys
+		 * PUT /api/commands/:id
+		 * @param  {object} command updated command
+		 * @return {promise}      request promise
+		 */
+		function updateCommand(command) {
+			var config = setJson(addToken(headers()));
+			var data = {
+				commandTypeId: command.commandTypeId,
+				value: parseInt(command.value, 10),
+				buoyId: command.buoyId
+			}
+			return $http.put(SERVER_ADDRESS + '/api/commands/' + command.id, 
+				JSON.stringify(data), config);
+		}
 		
 		/**
-		 * Request delete buoy command
-		 * @param  {int} buoyId  buoy id
+		 * Request delete command
+		 * @param  {int} id  command id
 		 * @return {promise}         request promise
 		 */
-		function deleteBuoyCommand(buoyId) {
-			
+		function deleteCommand(id) {
+			var config = addToken(headers());
+			return $http.delete(SERVER_ADDRESS + '/api/commands/' + id, config);
 		}
 		
 		/**

@@ -66,6 +66,8 @@
 		vm.cancelEditName = cancelEditName;
 		vm.cancelEditGroup = cancelEditGroup;
 		vm.toggleBuoyGroup = toggleBuoyGroup;
+		vm.queryCommands = queryCommands;
+		vm.parseCommands = parseCommands;
 		
 		activate();
 		
@@ -142,6 +144,7 @@
 		function queryCommandTypes() {
 			server.getCommandTypes().then(function(res) {
 				vm.commandTypes = res.data.commandTypes;
+				console.log(vm.commandTypes);
 				queryCommands();
 			}, function(res) {
 				gui.alertBadResponse(res);
@@ -150,8 +153,9 @@
 		
 		/** Query buoy commands from the server */
 		function queryCommands() {
-			server.getBuoyCommands().then(function(res) {
+			server.getCommands().then(function(res) {
 				vm.commands = res.data.commands;
+				console.log(vm.commands);
 				parseCommands();
 			}, function(res) {
 				gui.alertBadResponse(res);
@@ -424,10 +428,11 @@
 						break;
 					}
 				}
-				// get command name
+				// get command name and whether command type is archived
 				for (var i = 0; i < vm.commandTypes.length; i++) {
 					if (command.commandTypeId == vm.commandTypes[i].id) {
 						command.commandName = vm.commandTypes[i].name;
+						command.commandTypeArchived = vm.commandTypes[i].archived;
 						break;
 					}
 				}
@@ -559,6 +564,8 @@
 		 * @return {bool}         show command
 		 */
 		function commandFilter(command) {
+			if (command.id == -2) return true;
+			if (command.commandTypeArchived) return false;
 			if (vm.selected.type == 'all') {
 				return true;
 			} else if (vm.selected.type == 'instance') {

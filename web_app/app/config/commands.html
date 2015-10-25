@@ -1,5 +1,4 @@
 <h3>Commands</h3>
-<div>
 <div ng-if="!(vm.commands | filter:vm.commandFilter).length">
     <em>No pending commands.</em>
 </div>
@@ -29,6 +28,7 @@
                         type="button" class="btn btn-default" 
                         ng-model="editVm.editObj.commandTypeId" 
                         bs-options="opt.id as opt.name for opt in vm.commandTypes | filter: { archived: false }"
+                        esc-cancel="editVm.editCancel()"
                         bs-select>
                     </select>
                 </td>

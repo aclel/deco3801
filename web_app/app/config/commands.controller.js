@@ -41,43 +41,6 @@
         
         /** Called when controller is instantiated (admin page is loaded) */
         function activate() {
-            // queryCommands();
-        }
-
-        /**
-         * Query command types from the server
-         */
-        function queryCommands() {
-            server.getBuoyCommands().then(function(res) {
-                vm.commands = res.data.commands;
-                parseCommands();
-            }, function(res) {
-                gui.alertBadResponse(res);
-            });
-        }
-
-        /** Associate each command with buoy and command info */
-        function parseCommands() {
-            vm.commands.forEach(function(command) {
-                // get buoy name
-                for (var i = 0; i < editVm.buoyInstances.length; i++) {
-                    var buoyInstance = editVm.buoyInstances[i];
-                    if (command.buoyId == buoyInstance.buoyId) {
-                        command.buoyName = buoyInstance.name;
-                        if (command.buoyName == "") {
-                            command.buoyName = "(no name)"
-                        }
-                        break;
-                    }
-                }
-                // get command name
-                for (var i = 0; i < editVm.commandTypes.length; i++) {
-                    if (command.commandTypeId == editVm.commandTypes[i].id) {
-                        command.commandName = editVm.commandTypes[i].name;
-                        break;
-                    }
-                }
-            });
         }
         
         /**
@@ -99,7 +62,7 @@
                 vm.parseCommands(); // necessary to instantly update dropdown
                 server.updateCommand(editVm.editObj).then(function(res) {
                     vm.queryCommands();
-                    gui.alertSuccess('Command type updated.');
+                    gui.alertSuccess('Command updated.');
                 }, function(res) {
                     gui.alertBadResponse(res);
                 });
@@ -107,7 +70,7 @@
                 editVm.editObj.id = -3;
                 server.addCommand(editVm.editObj, getAffectedBuoyIds()).then(function(res) {
                     vm.queryCommands();
-                    gui.alertSuccess('Command type added.');
+                    gui.alertSuccess('Command added.');
                 }, function(res) {
                     gui.alertBadResponse(res);
                     vm.commands.splice(vm.commands.length - 1, 1);

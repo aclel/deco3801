@@ -33,7 +33,7 @@
 		vm.commandTypes = [];
 		vm.buoyInstanceSensors = [];
 		vm.sensorTypes = [];
-		vm.warningTriggers = [];
+		vm.triggers = [];
 		vm.command = { id: -1, value: '' };
 		vm.selected = { type: 'all', obj: null };
 		vm.editName = {};
@@ -68,6 +68,9 @@
 		vm.toggleBuoyGroup = toggleBuoyGroup;
 		vm.queryCommands = queryCommands;
 		vm.parseCommands = parseCommands;
+		vm.queryTriggers = queryTriggers;
+		vm.parseTriggers = parseTriggers;
+		vm.triggerFilter = triggerFilter;
 		
 		activate();
 		
@@ -76,7 +79,7 @@
 			queryBuoyGroups();
 			queryBuoyInstances();
 			queryCommandTypes();
-			queryWarningTriggers();
+			queryTriggers();
 			queryBuoyInstanceSensors();
 			resetNewTrigger();
 			setTreeOptions();
@@ -144,7 +147,6 @@
 		function queryCommandTypes() {
 			server.getCommandTypes().then(function(res) {
 				vm.commandTypes = res.data.commandTypes;
-				console.log(vm.commandTypes);
 				queryCommands();
 			}, function(res) {
 				gui.alertBadResponse(res);
@@ -155,7 +157,6 @@
 		function queryCommands() {
 			server.getCommands().then(function(res) {
 				vm.commands = res.data.commands;
-				console.log(vm.commands);
 				parseCommands();
 			}, function(res) {
 				gui.alertBadResponse(res);
@@ -163,10 +164,12 @@
 		}
 		
 		/** Query warning triggers from the server */
-		function queryWarningTriggers() {
+		function queryTriggers() {
 			server.getWarningTriggers().then(function(res) {
-				vm.warningTriggers = res.data.warningTriggers;
-				querySensorTypes();
+				vm.triggers = res.data.warningTriggers;
+				console.log(vm.triggers);
+				if (!vm.sensorTypes.length) querySensorTypes();
+				parseTriggers();
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});
@@ -176,7 +179,7 @@
 		function querySensorTypes() {
 			server.getSensorTypes().then(function(res) {
 				vm.sensorTypes = res.data.sensorTypes;
-				parseWarningSensors();
+				parseTriggers();
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});
@@ -203,8 +206,8 @@
 		}
 		
 		/** Associate sensor and buoy info with warnings */
-		function parseWarningSensors() {
-			vm.warningTriggers.forEach(function(trigger) {
+		function parseTriggers() {
+			vm.triggers.forEach(function(trigger) {
 				// get buoy name
 				for (var i = 0; i < vm.buoyInstances.length; i++) {
 					var buoyInstance = vm.buoyInstances[i];
@@ -218,6 +221,7 @@
 					var sensorType = vm.sensorTypes[i];
 					if (sensorType.id == trigger.sensorTypeId) {
 						trigger.sensorName = sensorType.name;
+						trigger.sensorTypeArchived = sensorType.archived;
 						break;
 					}
 				}
@@ -525,7 +529,7 @@
 		/** Send new warning triggers to server and update page */
 		function sendTriggers(buoyIds) {
 			server.addWarningTriggers(vm.trigger, buoyIds).then(function(res) {
-				queryWarningTriggers();
+				queryTriggers();
 				gui.alertSuccess('Warning trigger added.')
 			}, function(res) {
 				gui.alertBadResponse(res);
@@ -601,8 +605,51 @@
 			return false;
 		}
 
+		/**
+		 * Filter warning triggers list based on currently selected buoy/group
+		 * @param  {object} trigger warning trigger
+		 * @return {bool}         show trigger
+		 */
+		function triggerFilter(trigger) {
+			if (trigger.id == -2) return true;
+			// if (trigger.triggerTypeArchived) return false;
+			if (vm.selected.type == 'all') {
+				return true;
+			} else if (vm.selected.type == 'instance') {
+				return buoyInstanceTriggerFilter(trigger);
+			} else if (vm.selected.type == 'group') {
+				return buoyGroupTriggerFilter(trigger);
+			}
+			return false;
+		}
+		
+		/**
+		 * Helper function for triggerFilter
+		 * @param  {object} trigger trigger
+		 * @return {bool}         show trigger
+		 */
+		function buoyInstanceTriggerFilter(trigger) {
+			if (trigger.buoyInstanceId == vm.selected.obj.id) return true;
+			return false;
+		}
+		
+		/**
+		 * Helper function for triggerFilter
+		 * @param  {object} trigger trigger
+		 * @return {bool}         show trigger
+		 */
+		function buoyGroupTriggerFilter(trigger) {
+			for (var i = 0; i < vm.buoyInstances.length; i++) {
+				var buoyInstance = vm.buoyInstances[i];
+				if (buoyInstance.buoyGroupId == vm.selected.obj.id) {
+					if (trigger.buoyInstanceId == buoyInstance.id) return true;
+				}
+			}
+			return false;
+		}
+
 		function buoyInstanceSensorFilter(sensor) {
-			return true
+			return true;
 		}
 
 		/**

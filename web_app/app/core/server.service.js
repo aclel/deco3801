@@ -48,21 +48,23 @@
 			deleteCommandType: deleteCommandType,
 			exportData: exportData,
 			getBuoyInstanceSensors: getBuoyInstanceSensors,
-			getWarningTriggers: getWarningTriggers,
-			addWarningTriggers: addWarningTriggers,
 			getWarnings: getWarnings,
 			getSensorTypes: getSensorTypes,
 			addSensorType: addSensorType,
 			updateSensorType: updateSensorType,
 			deleteSensorType: deleteSensorType,
-			getUsers: getUsers,
-			addUser: addUser,
-			updateUser: updateUser,
-			deleteUser: deleteUser,
 			getCommands: getCommands,
 			addCommand: addCommand,
 			updateCommand: updateCommand,
 			deleteCommand: deleteCommand,
+			getWarningTriggers: getWarningTriggers,
+			addWarningTrigger: addWarningTrigger,
+			updateWarningTrigger: updateWarningTrigger,
+			deleteWarningTrigger: deleteWarningTrigger,
+			getUsers: getUsers,
+			addUser: addUser,
+			updateUser: updateUser,
+			deleteUser: deleteUser,
 			getBuoys: getBuoys,
 			addBuoy: addBuoy,
 			updateBuoy: updateBuoy,
@@ -429,7 +431,6 @@
 			return $http.get(SERVER_ADDRESS + '/api/warning_triggers?active_instances=true', config);
 		}
 
-
 		/**
 		 * Request create warning triggers for buoy instances
 		 * POST /api/warning_triggers
@@ -437,7 +438,7 @@
 		 * @param {int[]} buoyInstanceIds list of buoy instance Ids
 		 * @return {promise} request promise
 		 */
-		function addWarningTriggers(trigger, buoyInstanceIds) {
+		function addWarningTrigger(trigger, buoyInstanceIds) {
 			var config = setJson(addToken(headers()));
 			var data = {
 				warningTriggers: []
@@ -453,6 +454,36 @@
 			});
 			return $http.post(SERVER_ADDRESS + '/api/warning_triggers', 
 				JSON.stringify(data), config);
+		}
+
+		/**
+		 * Request update warning trigger for buoys
+		 * PUT /api/warning_triggers/:id
+		 * @param  {object} trigger updated warning trigger
+		 * @return {promise}      request promise
+		 */
+		function updateWarningTrigger(trigger) {
+			
+			var config = setJson(addToken(headers()));
+			var data = {
+					buoyInstanceId: trigger.buoyInstanceId,
+					sensorTypeId: trigger.sensorTypeId,
+					operator: trigger.operator,
+					value: parseInt(trigger.value, 10),
+					message: trigger.message
+			}
+			return $http.put(SERVER_ADDRESS + '/api/warning_triggers/' + trigger.id, 
+				JSON.stringify(data), config);
+		}
+		
+		/**
+		 * Request delete warning trigger
+		 * @param  {int} id  warning trigger id
+		 * @return {promise}         request promise
+		 */
+		function deleteWarningTrigger(id) {
+			var config = addToken(headers());
+			return $http.delete(SERVER_ADDRESS + '/api/warning_triggers/' + id, config);
 		}
 		
 		/**

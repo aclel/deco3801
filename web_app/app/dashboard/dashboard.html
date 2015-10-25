@@ -12,7 +12,7 @@
 				<form class="form-inline">
 					<!-- <div class="form-group"> -->
 						<span class="span-label">Since</span>
-						<input type="text" class="form-control ti-xs" ng-model="vm.times.inputs.since.value" ng-change="vm.updateTimes()">
+						<input type="text" class="form-control ti-xs" ng-model="vm.times.inputs.since.value" ng-model-options="{debounce: 800}" ng-change="vm.updateTimes()">
 					<!-- </div> -->
 					<button type="button" class="btn btn-default" 
 								ng-model="vm.times.inputs.since.quantifier" 

@@ -13,7 +13,7 @@
             </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="command in vm.commands | filter:vm.commandFilter">
+            <tr ng-repeat="command in vm.commands | filter:vm.commandFilter | orderBy:'id'">
                 <td>
                     <span ng-if="command.id != -2">{{ command.buoyName }}</span>
                     <div ng-if="command.id == -2">

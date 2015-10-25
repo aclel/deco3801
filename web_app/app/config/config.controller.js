@@ -127,7 +127,8 @@
 		function queryBuoyGroups() {
 			server.getBuoyGroups().then(function(res) {
 				vm.buoyGroups = res.data.buoyGroups;
-				parseGroupNames()
+				parseGroupNames();
+				console.log(vm.buoyGroups);
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});
@@ -293,6 +294,7 @@
 			stopEditing();
 			vm.selected.type = 'instance';
 			vm.selected.obj = buoyInstance;
+			console.log(vm.selected.obj);
 			updateGroupBuoys();
 			queryBuoyInstanceSensors(buoyInstance.id);
 		}
@@ -368,13 +370,13 @@
 		/** Save buoy's new group and name to server and update page */
 		function finishEditingBuoyGroup() {
 			vm.editGroup.on = false;
-			vm.selected.obj.buoyGroupId = vm.editGroup.buoyGroupId;
+			// vm.selected.obj.buoyGroupId = vm.editGroup.buoyGroupId;
 			// setBuoyGroupName(vm.selected.obj);
 			// update server
 			server.updateBuoyInstanceGroup(
 				vm.selected.obj.id,
-				vm.editGroup.buoyGroupId,
-				vm.editGroup.name
+				vm.selected.obj.buoyGroupId,
+				vm.selected.obj.name
 			).then(function(res) {
 				queryBuoyInstances();
 				gui.alertSuccess('Buoy updated.')

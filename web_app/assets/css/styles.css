@@ -48,6 +48,10 @@ form {
   margin-top: 60px;
 }
 
+.btn-sm, .btn-group-sm > .btn {
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
 
 /************************** FONT **************************/
 
@@ -617,6 +621,10 @@ input.ti-xl {
 }
 
 
+/*.inline-header {
+  display: inline;
+  margin-top: 50px;
+}*/
 
 /************************ HELPERS *************************/
 

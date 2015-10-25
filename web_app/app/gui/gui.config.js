@@ -16,7 +16,8 @@
 	/** Set timepicker and datepicker defaults */
 	angular.module('app.gui')
 		.config(function($datepickerProvider, $timepickerProvider,
-						$httpProvider, $alertProvider) {
+						$httpProvider, $alertProvider,
+						$animateProvider) {
 		
 			// intercept all requests to check for token	
 			$httpProvider.interceptors.push('authInterceptor');
@@ -45,5 +46,9 @@
 				container: '#page',
 				show: true
 			});
+
+			// Display animations only on these classes
+			// ngAnimate causes delays on ngIf elements
+			$animateProvider.classNameFilter(/^(alert|modal)/);
 		});
 })();

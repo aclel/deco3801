@@ -679,24 +679,3 @@ input.ti-xl {
 .unconfiguredSensor {
   border: 1px solid limegreen;
 }
-
-
-/************************* !HUES! **********************/
-
-.hue20 { -webkit-filter: hue-rotate(20deg); filter: hue-rotate(20); }
-.hue40 { -webkit-filter: hue-rotate(40deg); filter: hue-rotate(40); }
-.hue60 { -webkit-filter: hue-rotate(60deg); filter: hue-rotate(60); }
-.hue80 { -webkit-filter: hue-rotate(80deg); filter: hue-rotate(80); }
-.hue100 { -webkit-filter: hue-rotate(100deg); filter: hue-rotate(100); }
-.hue120 { -webkit-filter: hue-rotate(120deg); filter: hue-rotate(120); }
-.hue140 { -webkit-filter: hue-rotate(140deg); filter: hue-rotate(140); }
-.hue160 { -webkit-filter: hue-rotate(160deg); filter: hue-rotate(160); }
-.hue180 { -webkit-filter: hue-rotate(180deg); filter: hue-rotate(180); }
-.hue200 { -webkit-filter: hue-rotate(200deg); filter: hue-rotate(200); }
-.hue220 { -webkit-filter: hue-rotate(220deg); filter: hue-rotate(220); }
-.hue240 { -webkit-filter: hue-rotate(240deg); filter: hue-rotate(240); }
-.hue260 { -webkit-filter: hue-rotate(260deg); filter: hue-rotate(260); }
-.hue280 { -webkit-filter: hue-rotate(280deg); filter: hue-rotate(280); }
-.hue300 { -webkit-filter: hue-rotate(300deg); filter: hue-rotate(300); }
-.hue320 { -webkit-filter: hue-rotate(320deg); filter: hue-rotate(320); }
-.hue340 { -webkit-filter: hue-rotate(340deg); filter: hue-rotate(340); }

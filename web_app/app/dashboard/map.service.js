@@ -29,7 +29,21 @@
 			zoom: 11,
 			/* TODO: don't hardcode this */
 			center: new google.maps.LatLng(-27.573704, 153.055818),
-			mapTypeId: google.maps.MapTypeId.ROADMAP
+			mapTypeId: google.maps.MapTypeId.ROADMAP,
+			mapTypeControl: true,
+			mapTypeControlOptions: {
+				style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+				position: google.maps.ControlPosition.TOP_CENTER
+			},
+			zoomControl: true,
+			zoomControlOptions: {
+				position: google.maps.ControlPosition.TOP_CENTER
+			},
+			scaleControl: true,
+			streetViewControl: true,
+			streetViewControlOptions: {
+				position: google.maps.ControlPosition.TOP_CENTER
+			}
 		};
 		var markers = {};
 		var markerBuoyInstances = {};

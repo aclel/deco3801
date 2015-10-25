@@ -233,6 +233,31 @@ func BuoyCommandsCreate(env *models.Env, w http.ResponseWriter, r *http.Request)
 	return nil
 }
 
+func BuoyCommandsAppIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
+	vars := mux.Vars(r)
+	id, err := strconv.Atoi(vars["id"])
+	if err != nil {
+		return &AppError{err, "Error parsing buoy id", http.StatusInternalServerError}
+	}
+
+	var commandsWrapper CommandsWrapper
+	commandsWrapper.Commands, err = env.DB.GetBuoyCommandsById(id, false)
+	if err != nil {
+		return &AppError{err, "Error retrieving commands", http.StatusInternalServerError}
+	}
+
+	response, err := json.Marshal(commandsWrapper)
+	if err != nil {
+		return &AppError{err, "Error marshalling commands json", http.StatusInternalServerError}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(response)
+
+	return nil
+}
+
 func BuoyCommandsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	// Parse query parameters
 	u, err := url.Parse(r.URL.String())

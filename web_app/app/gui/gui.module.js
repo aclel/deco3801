@@ -20,7 +20,6 @@
     **/
 	angular.module('app.gui', [
 		// 3rd-party modules
-        'ngAnimate', 
 		'mgcrea.ngStrap',
 		'mgcrea.ngStrap.helpers.dimensions',
 		'mgcrea.ngStrap.helpers.dateParser',

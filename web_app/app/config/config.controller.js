@@ -22,7 +22,7 @@
 		* @description Provides viewmodel for config view
 		* @requires server
 	**/
-	function ConfigController(server, gui) {
+	function ConfigController(server, gui, moment) {
 		var vm = this;
 		
 		/** Variables and methods bound to viewmodel */
@@ -127,8 +127,7 @@
 		function queryBuoyGroups() {
 			server.getBuoyGroups().then(function(res) {
 				vm.buoyGroups = res.data.buoyGroups;
-				parseGroupNames();
-				console.log(vm.buoyGroups);
+				parseBuoyInstanceDetails();
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});
@@ -138,7 +137,7 @@
 		function queryBuoyInstances() {
 			server.getBuoyInstances().then(function(res) {
 				vm.buoyInstances = res.data.buoyInstances;
-				parseGroupNames()
+				parseBuoyInstanceDetails()
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});
@@ -168,7 +167,6 @@
 		function queryTriggers() {
 			server.getWarningTriggers().then(function(res) {
 				vm.triggers = res.data.warningTriggers;
-				console.log(vm.triggers);
 				if (!vm.sensorTypes.length) querySensorTypes();
 				parseTriggers();
 			}, function(res) {
@@ -198,12 +196,35 @@
 		}
 		
 		/** Associate buoy instances with groups */
-		function parseGroupNames() {
+		function parseBuoyInstanceDetails() {
 			resetBuoyGroupInstances();
 			vm.buoyInstances.forEach(function(buoyInstance) {
 				setBuoyInstanceGroup(buoyInstance);
 				buoyInstance.type = 'instance';
+				parseBuoyInstanceStatus(buoyInstance);
 			});
+		}
+
+		function parseBuoyInstanceStatus(buoyInstance) {
+			if (buoyInstance.lastPolled.Valid) {
+				buoyInstance.lastReceived = moment(buoyInstance.lastReceived.Time,
+				'X').format("DD/MM/YY HH:mm A");
+			} else {
+				buoyInstance.lastReceived = 'Never';
+			}
+			if (buoyInstance.pollRate == 0) {
+				buoyInstance.pollInterval = 0;
+				buoyInstance.nextScheduled = 'Never';
+			} else {
+				var duration = moment.duration(buoyInstance.pollRate, 'seconds');
+				buoyInstance.pollInterval = duration.humanize();
+				if (buoyInstance.lastPolled.Valid) {
+					buoyInstance.nextScheduled = moment(buoyInstance.lastReceived.Time,
+						'X').add(duration).format("DD/MM/YY HH:mm A");
+				} else {
+					buoyInstance.nextScheduled = 'Never';
+				}
+			}
 		}
 		
 		/** Associate sensor and buoy info with warnings */
@@ -294,7 +315,6 @@
 			stopEditing();
 			vm.selected.type = 'instance';
 			vm.selected.obj = buoyInstance;
-			console.log(vm.selected.obj);
 			updateGroupBuoys();
 			queryBuoyInstanceSensors(buoyInstance.id);
 		}

@@ -10,6 +10,50 @@
 // @link       https://github.com/aclel/deco3801
 package handlers
 
+import "testing"
+
+var latitudeTests = []struct {
+	description string
+	in          string
+	out         float64
+}{
+	{"Positive", "4140.831527", 41.680525},
+	{"Negative", "-4140.831527", -41.680525},
+	{"Zero degrees", "0033.6195", 0.560325},
+	{"Bad sign", "j4140.831527", 0},
+	{"Double sign", "--4140.831527", 0},
+}
+
+func TestLatitudeParser(t *testing.T) {
+	for _, tt := range latitudeTests {
+		got, _ := parseLatitude(tt.in)
+		if toFixed(got, 6) != tt.out {
+			t.Errorf("%v: got = %v, want = %v", tt.description, got, tt.out)
+		}
+	}
+}
+
+var longitudeTests = []struct {
+	description string
+	in          string
+	out         float64
+}{
+	{"Positive", "12453.173495", 124.886225},
+	{"Negative", "-12453.173495", -124.886225},
+	{"Zero degrees", "-00053.173495", -0.886225},
+	{"Bad sign", "j12453.173495", 0},
+	{"Double sign", "--12453.173495", 0},
+}
+
+func TestLongitudeParser(t *testing.T) {
+	for _, tt := range longitudeTests {
+		got, _ := parseLongitude(tt.in)
+		if toFixed(got, 6) != tt.out {
+			t.Errorf("%v: got = %v, want = %v", tt.description, got, tt.out)
+		}
+	}
+}
+
 /*
 func TestReadingsCreate(t *testing.T) {
 	env := &models.Env{DB: &models.MockDB{}}

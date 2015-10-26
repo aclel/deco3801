@@ -17,6 +17,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -85,8 +86,8 @@ func ReadingsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *App
 //     "guid": "e9528b5e-1d8f-4960-91ae-8b21ecc0bcab",
 //     "r": [
 //         {
-//             "lat": -27.425676,
-//             "lng": 153.147055,
+//             "lat": "4140.831527",
+//             "lng": "-00053.173495",
 //             "sR": [
 //                 {
 //                     "type": 1,
@@ -186,6 +187,20 @@ func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContain
 			continue
 		}
 
+		// Parse latitude from DDmm.mmmm format
+		reading.Latitude, err = parseLatitude(reading.LatitudeString)
+		if err != nil {
+			e = &AppError{err, "Error parsing latitude", http.StatusInternalServerError}
+			continue
+		}
+
+		// Parse longitude from DDDmm.mmmm format
+		reading.Longitude, err = parseLongitude(reading.LongitudeString)
+		if err != nil {
+			e = &AppError{err, "Error parsing latitude", http.StatusInternalServerError}
+			continue
+		}
+
 		if e = validateReading(env, reading); e != nil {
 			continue
 		}
@@ -208,6 +223,186 @@ func parseDatetime(reading *models.Reading) (time.Time, error) {
 
 	return parsed, nil
 }
+
+// Parse the latitude from a string with format DDmm.mmmm.
+// DD is the degrees and mm.mmmm is the minutes.
+func parseLatitude(input string) (float64, error) {
+	// Check if the decimal point is in the correct place depending
+	// on if there's a sign or not
+	if ((input[0] == '+' || input[0] == '-') && input[5] != '.') ||
+		(input[0] != '+' && input[0] != '-' && input[4] != '.') {
+		return 0, errors.New("Invalid indicator")
+	}
+
+	// pull the sign out from the front of the string if there is one
+	var sign byte
+	if input[0] == '+' || input[0] == '-' {
+		sign = input[0]
+		input = input[1:]
+	}
+
+	// convert degrees (DD) to an int
+	x, err := strconv.Atoi(input[0:2])
+	if err != nil {
+		return 0, err
+	}
+	degrees := float64(x)
+
+	// convert minutes (mm.mmmm) to float
+	y, err := strconv.ParseFloat(input[2:], 64)
+	if err != nil {
+		return 0, err
+	}
+	minutes := float64(y)
+
+	// add minutes to degrees
+	degrees = degrees + minutes/60
+
+	// convert to negative if there was a minus at the start of the string
+	if sign == '-' {
+		degrees *= -1.0
+	}
+
+	return degrees, nil
+}
+
+// Parse the longitude from a string with format DDDmm.mmmm.
+// DDD is the degrees and mm.mmmm is the minutes.
+func parseLongitude(input string) (float64, error) {
+	// Check if the decimal point is in the correct place depending
+	// on if there's a sign or not
+	if ((input[0] == '+' || input[0] == '-') && input[6] != '.') ||
+		(input[0] != '+' && input[0] != '-' && input[5] != '.') {
+		return 0, errors.New("Invalid indicator")
+	}
+
+	// pull sign out from the front of the string if it's there
+	var sign byte
+	if input[0] == '+' || input[0] == '-' {
+		sign = input[0]
+		input = input[1:]
+	}
+
+	// convert the degrees (DDD) to an int
+	x, err := strconv.Atoi(input[0:3])
+	if err != nil {
+		return 0, err
+	}
+	degrees := float64(x)
+
+	// convert the minutes (mm.mmmm) to a float
+	y, err := strconv.ParseFloat(input[3:], 64)
+	if err != nil {
+		return 0, err
+	}
+	minutes := float64(y)
+
+	// add minutes to degrees
+	degrees = degrees + minutes/60
+
+	// convert to negative if there's a minus at the start of the string
+	if sign == '-' {
+		degrees *= -1.0
+	}
+
+	return degrees, nil
+}
+
+func round(num float64) int {
+	return int(num + math.Copysign(0.5, num))
+}
+
+func toFixed(num float64, precision int) float64 {
+	output := math.Pow(10, float64(precision))
+	return float64(round(num*output)) / output
+}
+
+/*
+func parseDegreesMinutes(input string, coordType string) (float64, error) {
+	var degrees, minutes float64
+
+	var signed bool
+	if input[0] == '+' || input[1] == '-' {
+		signed = true
+	}
+
+	temp := make([]byte, 20)
+
+	// get degress from input string
+	if signed {
+		if input[5] == '.' {
+			// latitude format: DDmm.mmmm
+			temp[0] = input[1]
+			temp[1] = input[2]
+		}
+		else {
+			// longitude format: DDDmm.mmmm
+			temp[0] = input[1]
+			temp[1] = input[2]
+			temp[2] = input[3]
+		}
+	} else {
+		if input[4] == '.' {
+			// latitude format: DDmm.mmmm
+			temp[0] = input[0]
+			temp[1] = input[1]
+		} else {
+			// longitude format: DDDmm.mmmm
+			temp[0] = input[0]
+			temp[1] = input[1]
+			temp[2] = input[2]
+		}
+	}
+
+	// pull out the number of bytes from the array that we need,
+	// depending on if it's the latitude or longitude
+	var conv []byte
+	if coordType == "lat" {
+		conv = temp[:2]
+	} else {
+		conv = temp[:3]
+	}
+
+	// convert string to integer and it to final float variable
+	x, err := strconv.Atoi(string(conv))
+	if err != nil {
+		return 0, err
+	}
+	degrees = float64(x)
+
+	// get 'minutes' from input string
+	if input[5] == '.' {
+		fmt.Println(input)
+		// latitude format: DDmm.mmmm
+		for i := 0; i < 9; i++ {
+			temp[i] = input[i+3]
+		}
+	} else {
+		// longitude format: DDDmm.mmmm
+		for i := 0; i < 10; i++ {
+			fmt.Println(i)
+			temp[i] = input[i+4]
+		}
+	}
+
+	// convert string to integer and add it to final float variable
+	y, err := strconv.Atoi(string(temp))
+	if err != nil {
+		return 0, err
+	}
+	minutes = float64(y)
+
+	// add minutes to degrees
+	degrees = degrees + minutes/60
+
+	// convert to negative if there's a minus at the start of the string
+	if input[0] == '-' {
+		degrees *= -1.0
+	}
+
+	return degrees, nil
+}
+*/
 
 // Add new sensors and update the "last recorded" time of the other sensors with sensor readings.
 func updateBuoyInstanceSensorConfiguration(env *models.Env, buoyInstanceId int, readingTimestamp mysql.NullTime, sensorReadings *[]*models.SensorReading) *AppError {

@@ -304,6 +304,7 @@ func BuoyCommandsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) 
 	}
 
 	w.Header().Set("Content-Type", "text/plain")
+	w.Header().Set("Connection", "close")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(buffer.String()))
 
@@ -347,6 +348,7 @@ func BuoyCommandsAcknowledge(env *models.Env, w http.ResponseWriter, r *http.Req
 		}
 	}
 
+	w.Header().Set("Connection", "close")
 	w.WriteHeader(http.StatusOK)
 
 	return nil

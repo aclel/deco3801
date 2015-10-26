@@ -1,40 +1,82 @@
 <h3>Warning Triggers</h3>
-<table class="data-table">
-    <thead>
-        <tr>
-            <th>Buoy</th>
-            <th>Sensor</th>
-            <th>Operator</th>
-            <th>Value</th>
-            <th>Message</th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr ng-repeat="trigger in vm.warningTriggers | filter:vm.triggerFilter">
-            <td>{{ trigger.buoyName }}</td>
-            <td>{{ trigger.sensorName }}</td>
-            <td>{{ trigger.operator }}</td>
-            <td>{{ trigger.value }}</td>
-            <td>{{ trigger.message }}</td>
-            <td class="button-cell">
-                <button type="button" class="btn btn-default btn-sm right">
-                    <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
-                </button>
-                <button type="button" class="btn btn-default btn-sm right">
-                    <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-                </button>
-                <button type="button" class="btn btn-default btn-sm right invisible">
-                    <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
-                </button>
-                <button type="button" class="btn btn-default btn-sm right invisible">
-                    <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
-                </button>
-            </td>
-        </tr>
-    </tbody>
-</table>
-<button type="button" class="btn btn-default"
+<div ng-if="!(vm.triggers | filter:vm.triggerFilter).length">
+    <em>No warning triggers.</em>
+</div>
+<form ng-submit="editVm.editSave()" ng-if="(vm.triggers | filter:vm.triggerFilter).length">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Buoy</th>
+                <th>Sensor</th>
+                <th>Operator</th>
+                <th>Value</th>
+                <th>Message</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="trigger in vm.triggers | filter:vm.triggerFilter | orderBy:'id'">
+                <td>
+                    <span ng-if="trigger.id != -2">{{ trigger.buoyName }}</span>
+                    <div ng-if="trigger.id == -2">
+                        <span ng-if="vm.selected.type == 'instance'">{{ trigger.buoyName }}</span>
+                        <em ng-if="vm.selected.type == 'group'">All buoys in {{ vm.selected.obj.name }}</em>
+                        <em ng-if="vm.selected.type == 'all'">All buoys</em>
+                    </div>
+                </td>
+                <td>
+                    <span ng-if="editVm.editId != trigger.id">{{ trigger.sensorName }}</span>
+                    <select ng-if="editVm.editId == trigger.id"
+                        type="button" class="btn btn-default" 
+                        ng-model="editVm.editObj.sensorTypeId" 
+                        bs-options="opt.id as opt.name for opt in vm.sensorTypes | filter: { archived: false }"
+                        esc-cancel="editVm.editCancel()"
+                        bs-select>
+                    </select>
+                </td>
+                <td>
+                    <span ng-if="editVm.editId != trigger.id">{{ trigger.operator }}</span>
+                    <select ng-if="editVm.editId == trigger.id"
+                        type="button" class="btn btn-default" 
+                        ng-model="editVm.editObj.operator" 
+                        bs-options="opt for opt in vm.operators"
+                        esc-cancel="editVm.editCancel()"
+                        bs-select>
+                    </select>
+                </td>
+                <td>
+                    <span ng-if="editVm.editId != trigger.id">{{ trigger.value }}</span>
+                    <input ng-if="editVm.editId == trigger.id" type="text" class="form-control" ng-model="editVm.editObj.value" placeholder="20" focus-on="editExisting" esc-cancel="editVm.editCancel()">
+                </td>
+                <td>
+                    <span ng-if="editVm.editId != trigger.id">{{ trigger.message }}</span>
+                    <input ng-if="editVm.editId == trigger.id" type="text" class="form-control" ng-model="editVm.editObj.message" placeholder="Battery is too low" esc-cancel="editVm.editCancel()">
+                </td>
+                <td class="button-cell">
+                    <button type="button" class="btn btn-default btn-sm right" ng-if="editVm.showDeleteButton(trigger)" ng-click="editVm.editDelete(trigger)">
+                        <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+                    </button>
+                    <button type="button" class="btn btn-default btn-sm right" ng-if="editVm.editId == -1" ng-click="editVm.editExisting(trigger)">
+                        <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+                    </button>
+                    <button type="button" class="btn btn-default btn-sm right" ng-if="editVm.editId == trigger.id" ng-click="editVm.editCancel()">
+                        <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
+                    </button>
+                    <button type="submit" class="btn btn-default btn-sm right" ng-if="editVm.editId == trigger.id">
+                        <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
+<button type="button" class="btn btn-default" ng-if="editVm.editId == -1" ng-click="editVm.editNew()">
+    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+    <small>New Warning Trigger</small>
+</button>
+
+
+<!-- <button type="button" class="btn btn-default"
     ng-click="vm.newTrigger = true"
     ng-if="!vm.editing()">
         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
@@ -60,4 +102,4 @@
     <input type="submit" ng-click="vm.addTrigger()"
         class="button" value="Add">
     <button class="info button" ng-click="vm.cancelNewTrigger()">Cancel</button>
-</form>
+</form> -->

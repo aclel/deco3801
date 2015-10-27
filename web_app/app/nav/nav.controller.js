@@ -84,7 +84,7 @@
 				case 'config':
 					return auth.checkUser('power_user');
 				case 'warnings':
-					return loggedIn;
+					return auth.checkUser('power_user');
 				case 'admin':
 					return auth.checkUser('system_admin');
 				case 'logout':

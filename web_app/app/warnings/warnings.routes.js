@@ -31,7 +31,7 @@
 					controllerAs: 'vm',
 					templateUrl: '/app/warnings/warnings.html',
 					data: {
-						access: 'authed'
+						access: 'power_user'
 					}
 				}
 			}

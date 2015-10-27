@@ -143,12 +143,12 @@
 				point: null,
 				pointReadings: [], // contains list of closest readings to point
 				inputs: {
-					since: { value: 20, quantifier: "weeks", options: [
+					since: { value: 2, quantifier: "weeks", options: [
 						"hours", "days", "weeks", "months"
 					] },
 					range: {
-						from: { date: "", time: "" },
-						to: { date: "", time: "" },
+						from: { date: "01/07/15", time: "" },
+						to: { date: "28/10/15", time: "" },
 					},
 					point: { date: "", time: "" },
 				}

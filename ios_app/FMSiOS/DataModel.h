@@ -84,6 +84,7 @@
 
 // Info methods after connecting to server (DO NOT USE WHEN DISCONNECTED)
 - (NSString *)userDisplayName; //Name/text to display for user's name
+- (BOOL)hasConfigClearance; //Can send ping commands etc
 
 // Static helper methods
 + (BOOL)NSStringIsValidEmail:(NSString *)s; // Returns whether the given string is a valid email

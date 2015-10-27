@@ -99,6 +99,7 @@
 @property (strong, nonatomic) NSString *firstName;
 @property (strong, nonatomic) NSString *lastName;
 @property (strong, nonatomic) NSString *role;
+@property BOOL configClearance;
 
 // Loaded data
 @property (strong, nonatomic) NSArray *sensorTypes;
@@ -116,6 +117,7 @@
     self = [super init];
     if (self) {
         _jwt = _email = _firstName = _lastName = _role = nil;
+        _configClearance = NO;
         _sensorTypes = [NSArray array];
         _pingCommandId = nil;
         _dateFormatter = [[NSDateFormatter alloc] init];
@@ -272,6 +274,11 @@
     self.firstName = userInfo[@"firstName"];
     self.lastName = userInfo[@"lastName"];
     self.role = userInfo[@"role"];
+    if (self.role != nil && ([self.role isEqualToString:@"power_user"] || [self.role isEqualToString:@"system_admin"])) {
+        self.configClearance = YES;
+    } else {
+        self.configClearance = NO;
+    }
     
     return YES;
 }
@@ -500,7 +507,9 @@
                  [self.delegate performSelectorOnMainThread:@selector(didConnectToServer) withObject:nil waitUntilDone:NO];
                  
                  // Kick off extraneous data readings
-                 [self performSelectorOnMainThread:@selector(getCommandInfo) withObject:nil waitUntilDone:NO];
+                 if (self.configClearance) {
+                    [self performSelectorOnMainThread:@selector(getCommandInfo) withObject:nil waitUntilDone:NO];
+                 }
                  [self performSelectorOnMainThread:@selector(getSensorTypeInfo) withObject:nil waitUntilDone:NO];
              } else {
                  [self.delegate performSelectorOnMainThread:@selector(didFailToConnectServerFail) withObject:nil waitUntilDone:NO];
@@ -639,6 +648,10 @@
     
     // Else unknown way to display name
     return @"User";
+}
+
+- (BOOL)hasConfigClearance {
+    return self.configClearance;
 }
 
 #pragma mark - static methods

@@ -3,14 +3,13 @@
 		<div class="filter-section">
 			<h4 class="well well-sm">Times</h4>
 			<div class="btn-group btn-group-justified" ng-model="vm.times.type" bs-radio-group>
-				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="since" ng-change="vm.updateTimes()">Since</label>
+				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="since" ng-change="vm.updateTimes()">From</label>
 				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="range" ng-change="vm.updateTimes()">Range</label>
 				<!-- <label class="btn btn-default"><input type="radio" class="btn btn-default" value="point" ng-change="vm.updateTimes()">Point</label> -->
 			</div>
 			<div ng-if="vm.times.type=='since'" id="since">
 				<form class="form-inline">
 					<!-- <div class="form-group"> -->
-						<span class="span-label">Since</span>
 						<input type="text" class="form-control ti-xs" ng-model="vm.times.inputs.since.value" ng-model-options="{debounce: 800}" ng-change="vm.updateTimes()" ng-pattern="/^\d+$/">
 					<!-- </div> -->
 					<button type="button" class="btn btn-default" 
@@ -18,6 +17,7 @@
 								bs-options="opt for opt in vm.times.inputs.since.options"
 								ng-change="vm.updateSensors()" bs-select>
 					</button>
+					<span class="span-label"> ago</span>
 				</form>
 			</div>
 			<div ng-if="vm.times.type == 'range'">

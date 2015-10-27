@@ -63,11 +63,13 @@
 		vm.queryTriggers = queryTriggers;
 		vm.parseTriggers = parseTriggers;
 		vm.triggerFilter = triggerFilter;
+		vm.sensorFilter = sensorFilter;
 		
 		activate();
 		
 		/** Called when controller is instantiated (config page is loaded) */
 		function activate() {
+			querySensorTypes();
 			queryBuoyGroups();
 			queryBuoyInstances();
 			queryCommandTypes();
@@ -128,7 +130,8 @@
 		function queryBuoyInstances() {
 			server.getBuoyInstances().then(function(res) {
 				vm.buoyInstances = res.data.buoyInstances;
-				parseBuoyInstanceDetails()
+				parseBuoyInstanceDetails();
+				console.log(vm.buoyInstances);
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});
@@ -170,6 +173,7 @@
 			server.getSensorTypes().then(function(res) {
 				vm.sensorTypes = res.data.sensorTypes;
 				parseTriggers();
+				parseBuoyInstanceSensors();
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});
@@ -189,11 +193,19 @@
 		/** Associate buoy instances with groups */
 		function parseBuoyInstanceDetails() {
 			resetBuoyGroupInstances();
+			vm.buoyInstanceSensors = [];
 			vm.buoyInstances.forEach(function(buoyInstance) {
 				setBuoyInstanceGroup(buoyInstance);
 				buoyInstance.type = 'instance';
 				parseBuoyInstanceStatus(buoyInstance);
+
+				// flatten sensors
+				buoyInstance.sensors.forEach(function(sensor) {
+					sensor.buoyInstance = buoyInstance;
+					vm.buoyInstanceSensors.push(sensor);
+				});
 			});
+			parseBuoyInstanceSensors();
 		}
 
 		function parseBuoyInstanceStatus(buoyInstance) {
@@ -315,7 +327,6 @@
 			vm.selected.type = 'instance';
 			vm.selected.obj = buoyInstance;
 			updateGroupBuoys();
-			queryBuoyInstanceSensors(buoyInstance.id);
 		}
 
 		/** Set all buoy groups to have no instances */
@@ -560,8 +571,47 @@
 			return false;
 		}
 
+		/**
+		 * Filter sensors list based on currently selected buoy/group
+		 * @param  {object} sensor sensor
+		 * @return {bool}         show sensor
+		 */
+		function sensorFilter(sensor) {
+			if (sensor.id == -2) return true;
+			// if (sensor.sensorTypeArchived) return false;
+			if (vm.selected.type == 'all') {
+				return true;
+			} else if (vm.selected.type == 'instance') {
+				return buoyInstanceSensorFilter(sensor);
+			} else if (vm.selected.type == 'group') {
+				return buoyGroupSensorFilter(sensor);
+			}
+			return false;
+		}
+
+		/**
+		 * Helper function for sensorFilter
+		 * @param  {object} sensor sensor
+		 * @return {bool}         show sensor
+		 */
 		function buoyInstanceSensorFilter(sensor) {
-			return true;
+			if (sensor.buoyInstance.id == vm.selected.obj.id) return true;
+			return false;
+		}
+		
+		/**
+		 * Helper function for sensorFilter
+		 * @param  {object} sensor sensor
+		 * @return {bool}         show sensor
+		 */
+		function buoyGroupSensorFilter(sensor) {
+			for (var i = 0; i < vm.buoyInstances.length; i++) {
+				var buoyInstance = vm.buoyInstances[i];
+				if (buoyInstance.buoyGroupId == vm.selected.obj.id) {
+					if (sensor.buoyInstance.id == buoyInstance.id) return true;
+				}
+			}
+			return false;
 		}
 
 		/**

@@ -133,7 +133,6 @@ func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 		}
 	}
 
-	w.Header().Set("Connection", "close")
 	// Respond with 201 Created if everything was successful
 	if e == nil {
 		w.WriteHeader(http.StatusCreated)
@@ -159,7 +158,6 @@ func ReadingsTest(env *models.Env, w http.ResponseWriter, r *http.Request) *AppE
 	// Validate the readings and add missing buoy instance sensors
 	_, e = buildReadings(env, readingsContainer)
 
-	w.Header().Set("Connection", "close")
 	// Respond with 200 OK if everything was successful
 	if e == nil {
 		w.WriteHeader(http.StatusOK)

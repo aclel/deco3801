@@ -27,7 +27,7 @@
 		* @requires server
 		* @requires routeHelper
 	**/
-	function AuthController($scope, $state, $stateParams, auth, server, routerHelper) {
+	function AuthController($rootScope, $scope, $state, $stateParams, auth, server, routerHelper, gui) {
 		var vm = this;
 
 		var savePassword = ""; // used to save password for first login
@@ -80,7 +80,8 @@
 				
 			},
 			function(res) {
-				alert('Invalid email or password');
+				gui.alertError('Invalid email or password');
+				$rootScope.$broadcast('loading', false);
 			});
 		}
 		
@@ -101,8 +102,9 @@
 					vm.changePasswordResponse = 1;
 				});
 			} else {
-				alert("Invalid password");
+				gui.alertError("Invalid password");
 				vm.waiting = false;
+				$rootScope.$broadcast('loading', false);
 			}
 		}
 
@@ -116,8 +118,9 @@
 					vm.changePasswordResponse = 1;
 				});
 			} else {
-				alert("Invalid password");
+				gui.alertError("Invalid password");
 				vm.waiting = false;
+				$rootScope.$broadcast('loading', false);
 			}
 		}
 		

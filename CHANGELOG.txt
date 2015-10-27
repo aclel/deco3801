@@ -11,6 +11,26 @@ v0.6 - Week 12 27/10
 
 Server
 + Add GET /api/buoy_instances/id/readings to get all readings for a buoy instance. Can also use ?last=true query parameter to get only the most recent reading. This is used on the web app to populate the info popup.
++ Add Created At to Command
++ Fix validation on POST /api/forgot_password
+! Add validation to BuoyGroups Create/Update
+
+Web App
++ Show server error responses
++ Add favicon 
+! Fix Time in sensors template 
+* Dashboard sensor types update after edits on admin page
+* New users (etc) are appended to table immediately
+* Buoy images for markers with different colours.
+! Fix export in web app - now returns zip
+! Fix rich-marker dependency
++ Include richmarker in production index 
+! Fix drag drop group change 
+! Moved map controls
+* Implement commands properly on config page
+* Implement warning triggers on config page
++ Show loading icon on all requests 
++ Implement buoy status details on config page 
 
 iOS App
 [Release Candidate]
@@ -22,6 +42,7 @@ iOS App
 ! More info text escaping bounds when loaded.
 ! Incorrect names for some groups.
 ! Some odd edge cases where UI could faff up.
++ Handled 'createdAt' field for pinging.
 
 v0.5 - Week 11 20/10
 

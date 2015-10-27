@@ -24,6 +24,8 @@
         'app.gui',
         'app.auth',
         'app.nav',
+
+        'app.templates',
         
         // Feature modules        
         'app.dashboard',

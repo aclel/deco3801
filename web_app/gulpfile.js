@@ -45,8 +45,8 @@ gulp.task('fonts', function() {
 
 gulp.task('html', function() {
   gulp.src('app/**/*.html')
-    // .pipe(templateCache({ module: 'app.templates', standalone: true }))
-    // .pipe(gulp.dest('assets/js'))
+    .pipe(templateCache({ module: 'app.templates', standalone: true }))
+    .pipe(gulp.dest('assets/js'))
     .pipe(livereload());
 });
 

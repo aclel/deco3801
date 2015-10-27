@@ -43,6 +43,7 @@
 		vm.newCommand = false;
 		vm.newTrigger = false;
 		vm.operators = [ '<', '>', '=' ];
+		vm.editingPollRate = false;
 		vm.trigger = {};
 		vm.treeOptions = {};
 		vm.selectAll = selectAll;
@@ -207,8 +208,7 @@
 
 		function parseBuoyInstanceStatus(buoyInstance) {
 			if (buoyInstance.lastPolled.Valid) {
-				buoyInstance.lastReceived = moment(buoyInstance.lastReceived.Time,
-				'X').format("DD/MM/YY HH:mm A");
+				buoyInstance.lastReceived = buoyInstance.pollRate.Time
 			} else {
 				buoyInstance.lastReceived = 'Never';
 			}
@@ -219,7 +219,7 @@
 				var duration = moment.duration(buoyInstance.pollRate, 'seconds');
 				buoyInstance.pollInterval = duration.humanize();
 				if (buoyInstance.lastPolled.Valid) {
-					buoyInstance.nextScheduled = moment(buoyInstance.lastReceived.Time,
+					buoyInstance.nextScheduled = moment(buoyInstance.pollRate.Time,
 						'X').add(duration).format("DD/MM/YY HH:mm A");
 				} else {
 					buoyInstance.nextScheduled = 'Never';
@@ -265,6 +265,15 @@
 				sensor.recentTime = moment(sensor.lastRecorded.Time,
 					'X').format("DD/MM/YY HH:mm A");
 			});
+		}
+
+		function updatePollRate(buoyInstance) {
+			var command = {
+				commandTypeId: 1,
+				value: buoyInstance.pollRate,
+				buoyId: buoyInstance.buoyId
+			};
+			server.addCommand(command, [buoyInstance.buoyId]);
 		}
 		
 		/**

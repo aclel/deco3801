@@ -463,7 +463,6 @@
 		 * @return {promise}      request promise
 		 */
 		function updateWarningTrigger(trigger) {
-			
 			var config = setJson(addToken(headers()));
 			var data = {
 					buoyInstanceId: trigger.buoyInstanceId,

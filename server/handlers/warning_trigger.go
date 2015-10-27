@@ -96,7 +96,7 @@ func WarningTriggersCreate(env *models.Env, w http.ResponseWriter, r *http.Reque
 
 	// Check if the request body is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
+		return &AppError{err, "Invalid Warning Trigger", http.StatusBadRequest}
 	}
 
 	// Insert each warning trigger into db
@@ -136,7 +136,7 @@ func WarningTriggersUpdate(env *models.Env, w http.ResponseWriter, r *http.Reque
 
 	// Check if Warning Trigger JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+		return &AppError{err, "Invalid Warning Trigger JSON", http.StatusInternalServerError}
 	}
 	warningTrigger.Id = id
 
@@ -177,7 +177,7 @@ func WarningTriggersBatchUpdate(env *models.Env, w http.ResponseWriter, r *http.
 
 	// Check if the request body is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
+		return &AppError{err, "Invalid Warning Trigger", http.StatusBadRequest}
 	}
 
 	// Insert each warning trigger into db
@@ -232,7 +232,7 @@ func WarningTriggersBatchDelete(env *models.Env, w http.ResponseWriter, r *http.
 
 	// Check if the request body is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
+		return &AppError{err, "Invalid delete request", http.StatusBadRequest}
 	}
 
 	// Insert each warning trigger into db

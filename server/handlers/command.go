@@ -82,7 +82,7 @@ func CommandsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 
 	// Check if the request body is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
+		return &AppError{err, "Invalid Command", http.StatusBadRequest}
 	}
 
 	addedIds := make([]int64, 0)
@@ -175,7 +175,7 @@ func CommandsUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 
 	// Check if Command JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+		return &AppError{err, "Invalid Command", http.StatusInternalServerError}
 	}
 	command.Id = id
 
@@ -214,7 +214,7 @@ func CommandsBatchUpdate(env *models.Env, w http.ResponseWriter, r *http.Request
 
 	// Check if the request body is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
+		return &AppError{err, "Invalid Command", http.StatusBadRequest}
 	}
 
 	// Update each command into db

@@ -66,7 +66,7 @@ func SensorTypesCreate(env *models.Env, w http.ResponseWriter, r *http.Request) 
 
 	// Check if Sensor Type JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+		return &AppError{err, "Invalid Sensor Type", http.StatusInternalServerError}
 	}
 
 	// Insert the Sensor Type into the database
@@ -103,7 +103,7 @@ func SensorTypeUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *
 	err = decoder.Decode(&sensorType)
 	// Check if Sensor Type JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+		return &AppError{err, "Invalid Sensor Type", http.StatusInternalServerError}
 	}
 	sensorType.Id = id
 

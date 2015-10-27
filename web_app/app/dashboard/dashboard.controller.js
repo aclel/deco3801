@@ -100,12 +100,12 @@
 				vm.showCharts = false;
 			}
 			vm.showGraphs = !vm.showGraphs;
-			var center = map.getCenter();
+			// var center = map.getCenter();
 			angular.element(
 				document.getElementsByClassName('dashboard-panel'))
 				.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
 					// finish expanding/contracting
-					map.setCenter(center);
+					// map.setCenter(center);
 					resizeCharts();
 			});
 		}

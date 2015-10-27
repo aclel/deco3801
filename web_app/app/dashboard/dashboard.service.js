@@ -519,7 +519,6 @@
 		}
 
 		function sensorInputsValid() {
-			console.log(sensors);
 			for (var key in sensors) {
 				if (!sensors.hasOwnProperty(key)) continue;
 				var sensor = sensors[key];
@@ -930,7 +929,6 @@
 		        });
 
 		    });
-		    console.log(charts);
 			averageReadings(charts);
 			var arr = [];
 			for (var key in charts) {

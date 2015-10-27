@@ -34,17 +34,13 @@
 		vm.buoyInstanceSensors = [];
 		vm.sensorTypes = [];
 		vm.triggers = [];
-		vm.command = { id: -1, value: '' };
 		vm.selected = { type: 'all', obj: null };
 		vm.editName = {};
 		vm.editName.on = false;
 		vm.editGroup = {};
 		vm.editGroup.on = false;
-		vm.newCommand = false;
-		vm.newTrigger = false;
 		vm.operators = [ '<', '>', '=' ];
 		vm.editingPollRate = false;
-		vm.trigger = {};
 		vm.treeOptions = {};
 		vm.selectAll = selectAll;
 		vm.selectBuoyGroup = selectBuoyGroup;
@@ -57,12 +53,7 @@
 		vm.saveNewBuoyGroup = saveNewBuoyGroup;
 		vm.buoyGroupFilter = buoyGroupFilter;
 		vm.commandFilter = commandFilter;
-		vm.sendCommand = sendCommand;
-		vm.deleteCommand = deleteCommand;
 		vm.showBuoyConfig = showBuoyConfig;
-		vm.addTrigger = addTrigger;
-		vm.cancelNewCommand = cancelNewCommand;
-		vm.cancelNewTrigger = cancelNewTrigger;
 		vm.editing = editing;
 		vm.cancelEditName = cancelEditName;
 		vm.cancelEditGroup = cancelEditGroup;
@@ -82,7 +73,6 @@
 			queryCommandTypes();
 			queryTriggers();
 			queryBuoyInstanceSensors();
-			resetNewTrigger();
 			setTreeOptions();
 		}
 
@@ -472,115 +462,6 @@
 					}
 				}
 			});
-		}
-		
-		/** Prepare to send new command(s) to server */
-		function sendCommand() {
-			if (vm.command.id == -1 || vm.command.value == '') {
-				gui.alertError('No command chosen.');
-				return;
-			}
-			if (!isValueFloat(vm.command.value)) return;
-			vm.newCommand = false;
-			var buoyIds = []; // buoys to send command for
-			if (vm.selected.type == 'instance') {
-				buoyIds.push(vm.selected.obj.buoyId);
-			} else if (vm.selected.type == 'group') {
-				// send command to each buoy in selected group
-				vm.buoyInstances.forEach(function(buoyInstance) {
-					if (buoyInstance.buoyGroupId == vm.selected.obj.id) {
-						buoyIds.push(buoyInstance.buoyId);
-					}
-				});
-			} else if (vm.selected.type == 'all') {
-				// send command to all buoys
-				vm.buoyInstances.forEach(function(buoyInstance) {
-					buoyIds.push(buoyInstance.buoyId);
-				});
-			}
-			sendCommands(buoyIds);			
-			resetNewCommand();
-		}
-		
-		/** Clear command input fields */
-		function resetNewCommand() {
-			vm.command.id = -1;
-			vm.command.value = '';
-		}
-		
-		/** Cancel editing of new command */
-		function cancelNewCommand() {
-			vm.newCommand = false;
-			resetNewCommand();
-		}
-		
-		/** Send command(s) for buoy(s) to server and update page */
-		function sendCommands(buoyIds) {
-			server.sendBuoyCommand(vm.command, buoyIds).then(function(res) {
-				queryCommands();
-				gui.alertSuccess('Command queued.')
-			}, function(res) {
-				gui.alertBadResponse(res);
-			});
-		}
-		
-		/** Delete command(s) for buoy(s) and update server */
-		function deleteCommand(command) {
-			
-		}
-		
-		/** Prepare to add new trigger warning for buoy or group */
-		function addTrigger() {
-			if (vm.trigger.sensorTypeId == -1 || vm.trigger.value == '') {
-				gui.alertError('No sensor chosen.');
-				return;
-			}
-			if (!isValueFloat(vm.trigger.value)) return;
-			vm.newTrigger = false;
-			var buoyInstanceIds = []; // buoys instances to add trigger for
-			if (vm.selected.type == 'instance') {
-				buoyInstanceIds.push(vm.selected.obj.id);
-			} else if (vm.selected.type == 'group') {
-				// add trigger for each buoy in group
-				vm.buoyInstances.forEach(function(buoyInstance) {
-					if (buoyInstance.buoyGroupId == vm.selected.obj.id) {
-						buoyInstanceIds.push(buoyInstance.id);
-					}
-				});
-			} else if (vm.selected.type == 'all') {
-				// add trigger for all buoys
-				vm.buoyInstances.forEach(function(buoyInstance) {
-					buoyInstanceIds.push(buoyInstance.id);
-				});
-			}
-			sendTriggers(buoyInstanceIds);
-			resetNewTrigger();
-		}
-		
-		/** Send new warning triggers to server and update page */
-		function sendTriggers(buoyIds) {
-			server.addWarningTriggers(vm.trigger, buoyIds).then(function(res) {
-				queryTriggers();
-				gui.alertSuccess('Warning trigger added.')
-			}, function(res) {
-				gui.alertBadResponse(res);
-			});
-		}
-		
-		/** Clear trigger inputs */
-		function resetNewTrigger() {
-			vm.trigger = {
-				sensorTypeId: -1,
-				operator: '<',
-				value: '',
-				message: ''
-			};
-		}
-		
-		/** Cancel creation of a new trigger */
-		function cancelNewTrigger() {
-			vm.newTrigger = false;
-			resetNewTrigger();
 		}
 		
 		/** 

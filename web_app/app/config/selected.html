@@ -4,7 +4,6 @@
     <form ng-submit="vm.saveNewBuoyGroup()" class="form-inline">
         <input class="form-control ti-md" type="text" ng-model="vm.editName.value" placeholder="North Brisbane">
         <button class="btn btn-sm btn-default" type="submit">
-            <!-- Create -->
             <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
         </button>
     </form>
@@ -29,12 +28,6 @@
         ng-if="vm.editName.on">
         <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
     </button>
-<!--     <form ng-if="vm.editName.on">
-        <input type="text" ng-model="vm.selected.obj.name">
-        <input type="submit" ng-click="vm.finishEditingName()"
-            value="Save" class="small button">
-        <button class="info button" ng-click="vm.cancelEditName()">Cancel</button>
-    </form> -->
 </div>
 <div ng-if="vm.selected.type == 'instance'">
     <h3 class="inline-header" ng-if="!vm.editing()">{{ vm.selected.obj.name }}</h3>
@@ -62,25 +55,4 @@
         ng-change="vm.finishEditingBuoyGroup()"
         bs-select>
     </select>
-
-<!--     <div ng-if="!vm.editGroup.on">
-        <span><h4>{{ vm.selected.obj.buoyGroupName }} </h4>
-            <button class="small button" ng-click="vm.startEditingBuoyGroup()"
-                ng-if="!vm.editing()">Change group</button>
-        </span>
-    </div>
-    <form ng-if="vm.editGroup.on">
-        <label>New name</label>
-        <input type="text" ng-model="vm.editGroup.name">
-        <label>New group</label>
-        <select type="button" class="btn btn-default" 
-                ng-model="vm.editGroup.buoyGroupId" 
-                bs-options="opt.id as opt.name for opt in vm.buoyGroups"
-                bs-select>
-        </select>
-        <br>
-        <input type="submit" ng-click="vm.finishEditingBuoyGroup()"
-            value="Save" class="small button">
-        <button class="info button" ng-click="vm.cancelEditGroup()">Cancel</button>
-    </form> -->
 </div>

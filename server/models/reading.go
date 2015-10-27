@@ -20,19 +20,21 @@ import (
 // Represents a reading at for a particular buoy instance at a time.
 // Has a sensor reading for each sensor that was recorded.
 type Reading struct {
-	Id             int64            `db:"reading_id"`
-	Latitude       float64          `json:"lat" db:"latitude"`
-	Longitude      float64          `json:"lng" db:"longitude"`
-	Altitude       float32          `json:"al" db:"altitude"`
-	SpeedOG        float32          `json:"sp" db:"speed_og"`
-	Course         float32          `json:"co" db:"course"`
-	Timestamp      time.Time        `db:"timestamp"`
-	Date           string           `json:"d"`
-	Time           string           `json:"t"`
-	SensorReadings []*SensorReading `json:"sR"`
-	BuoyInstanceId int              `db:"buoy_instance_id"`
-	BuoyGuid       string           `json:"guid" db:"guid"`
-	MessageNumber  int              `db:"message_number"`
+	Id              int64            `db:"reading_id"`
+	Latitude        float64          `db:"latitude"`
+	LatitudeString  string           `json:"lat"`
+	Longitude       float64          `db:"longitude"`
+	LongitudeString string           `json:"lng"`
+	Altitude        float32          `json:"al" db:"altitude"`
+	SpeedOG         float32          `json:"sp" db:"speed_og"`
+	Course          float32          `json:"co" db:"course"`
+	Timestamp       time.Time        `db:"timestamp"`
+	Date            string           `json:"d"`
+	Time            string           `json:"t"`
+	SensorReadings  []*SensorReading `json:"sR"`
+	BuoyInstanceId  int              `db:"buoy_instance_id"`
+	BuoyGuid        string           `json:"guid" db:"guid"`
+	MessageNumber   int              `db:"message_number"`
 }
 
 // Represents a reading for a particular sensor at a certain time.

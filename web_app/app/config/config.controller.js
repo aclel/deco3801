@@ -65,6 +65,7 @@
 		vm.parseTriggers = parseTriggers;
 		vm.triggerFilter = triggerFilter;
 		vm.sensorFilter = sensorFilter;
+		vm.sensorsAttached = sensorsAttached;
 		
 		activate();
 		
@@ -640,5 +641,25 @@
 			return true;				
 		}
 
+		/**
+		 * Whether there are sensors attached to the selected buoy
+		 * @return {bool} true if sensors attached, else false
+		 */
+		function sensorsAttached() {
+			if (vm.selected.type == 'all') {
+				for (var i = 0; i < vm.buoyInstances.length; i++) {
+					if (vm.buoyInstances[i].sensors.length) return true;
+				}
+			} else if (vm.selected.type == 'instance') {
+				if (vm.selected.obj.sensors.length) return true;
+			} else if (vm.selected.type == 'group') {
+				for (var i = 0; i < vm.buoyInstances.length; i++) {
+					if (vm.buoyInstances[i].buoyGroupId == vm.selected.obj.id) {
+						if (vm.buoyInstances[i].sensors.length) return true;
+					}
+				}
+			}
+			return false;
+		}
 	}
 })();

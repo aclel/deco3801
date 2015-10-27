@@ -108,7 +108,7 @@ func BuoyInstancesCreate(env *models.Env, w http.ResponseWriter, r *http.Request
 
 	// Check if Buoy Group JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+		return &AppError{err, "Invalid Buoy Instance", http.StatusInternalServerError}
 	}
 
 	if e := validateBuoyInstance(buoyInstance); e != nil {
@@ -146,7 +146,7 @@ func BuoyInstancesUpdate(env *models.Env, w http.ResponseWriter, r *http.Request
 	err = decoder.Decode(&buoyInstance)
 	// Check if Buoy Instance JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+		return &AppError{err, "Invalid Buoy Instance", http.StatusInternalServerError}
 	}
 	buoyInstance.Id = id
 
@@ -240,7 +240,7 @@ func BuoyInstancesSensorsCreate(env *models.Env, w http.ResponseWriter, r *http.
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&sensors)
 	if err != nil {
-		return &AppError{err, "Invalid Buoy Instance Sensor JSON", http.StatusBadRequest}
+		return &AppError{err, "Invalid Buoy Instance Sensor", http.StatusBadRequest}
 	}
 
 	for _, sensor := range sensors.Sensors {

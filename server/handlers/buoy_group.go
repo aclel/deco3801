@@ -38,12 +38,12 @@ func BuoyGroupsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *A
 
 	buoyGroupsWrapper.BuoyGroups, err = env.DB.GetAllBuoyGroups()
 	if err != nil {
-		return &AppError{err, "Error retrieving buoys", http.StatusInternalServerError}
+		return &AppError{err, "Error retrieving buoy groups", http.StatusInternalServerError}
 	}
 
 	response, err := json.Marshal(buoyGroupsWrapper)
 	if err != nil {
-		return &AppError{err, "Error marshalling buoy json", http.StatusInternalServerError}
+		return &AppError{err, "Error marshalling buoy group json", http.StatusInternalServerError}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -59,17 +59,17 @@ func BuoyGroupsShow(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
 	if err != nil {
-		return &AppError{err, "Error parsing buoy id", http.StatusInternalServerError}
+		return &AppError{err, "Error parsing buoy group id", http.StatusInternalServerError}
 	}
 
 	buoy, err := env.DB.GetBuoyGroupById(id)
 	if err != nil {
-		return &AppError{err, "Error retrieving buoy", http.StatusInternalServerError}
+		return &AppError{err, "Error retrieving buoy group", http.StatusInternalServerError}
 	}
 
 	response, err := json.Marshal(buoy)
 	if err != nil {
-		return &AppError{err, "Error marshalling buoy json", http.StatusInternalServerError}
+		return &AppError{err, "Error marshalling buoy group json", http.StatusInternalServerError}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -94,7 +94,7 @@ func BuoyGroupsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *
 
 	// Check if Buoy Group JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+		return &AppError{err, "Invalid Buoy Group", http.StatusInternalServerError}
 	}
 
 	var e *AppError
@@ -105,7 +105,7 @@ func BuoyGroupsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *
 	// Insert the Buoy into the database
 	err = env.DB.CreateBuoyGroup(buoyGroup)
 	if err != nil {
-		return &AppError{err, "Error inserting buoy into the database", http.StatusInternalServerError}
+		return &AppError{err, "Error inserting buoy group into the database", http.StatusInternalServerError}
 	}
 
 	// Set return status.
@@ -147,7 +147,7 @@ func BuoyGroupsUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *
 
 	// Check if Buoy JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+		return &AppError{err, "Invalid Buoy Group", http.StatusInternalServerError}
 	}
 	buoyGroup.Id = id
 

@@ -103,14 +103,14 @@ func UsersShowWithEmail(env *models.Env, w http.ResponseWriter, r *http.Request)
 //     "email": "test@email.com",
 //     "firstName": "test",
 //     "lastName": "user",
-//     "role": "researcher"
+//     "role": "user"
 // }
 func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	user := new(models.User)
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&user)
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
+		return &AppError{err, "Invalid User", http.StatusBadRequest}
 	}
 
 	if e := validateUser(user); e != nil {
@@ -178,7 +178,7 @@ func UsersUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 
 	// Check if User JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+		return &AppError{err, "Invalid User", http.StatusInternalServerError}
 	}
 	user.Id = id
 
@@ -230,7 +230,7 @@ func UsersUpdatePassword(env *models.Env, w http.ResponseWriter, r *http.Request
 
 	// Check if User JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+		return &AppError{err, "Invalid User", http.StatusInternalServerError}
 	}
 	user.Id = id
 
@@ -279,7 +279,7 @@ func UsersForgotPassword(env *models.Env, w http.ResponseWriter, r *http.Request
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&u)
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
+		return &AppError{err, "Invalid User", http.StatusBadRequest}
 	}
 
 	if u.Email == "" {
@@ -334,7 +334,7 @@ func UsersResetPassword(env *models.Env, w http.ResponseWriter, r *http.Request)
 	decoder := json.NewDecoder(r.Body)
 	err = decoder.Decode(&newPassword)
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
+		return &AppError{err, "Invalid User", http.StatusBadRequest}
 	}
 
 	// Check token validity

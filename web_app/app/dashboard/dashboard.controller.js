@@ -34,6 +34,7 @@
 
 		/** Variables and methods bound to viewmodel */
 		vm.showGraphs = false;
+		vm.showCharts = false;
 		vm.buoys = dashboard.buoys(); // binds reference
 		vm.times = dashboard.times(); // binds reference
 		vm.sensors = dashboard.sensors(); // binds reference
@@ -95,6 +96,9 @@
 		
 		/** Expand/contract graphs pane and update map */
 		function toggleGraphs() {
+			if (vm.showCharts) {
+				vm.showCharts = false;
+			}
 			vm.showGraphs = !vm.showGraphs;
 			var center = map.getCenter();
 			angular.element(
@@ -108,6 +112,10 @@
 
 		/** Resize all charts */
 		function resizeCharts() {
+			if (!vm.showGraphs) return;
+			$scope.$apply(function() {
+				vm.showCharts = true;
+			});
 			chartObjects.forEach(function(chart) {
 				chart.resize(chart.render, true);
 			});

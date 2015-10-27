@@ -270,7 +270,6 @@
 					}
 				}
 				// parse time
-				console.log(sensor.lastRecorded.Time);
 				sensor.recentTime = moment(sensor.lastRecorded.Time)
 					.format("DD/MM/YY HH:mm A");
 			});

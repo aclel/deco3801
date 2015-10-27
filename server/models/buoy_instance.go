@@ -23,23 +23,24 @@ import (
 // has its own set of sensors and readings. Only one buoy instance for a buoy
 // is active at one time.
 type BuoyInstance struct {
-	Id            int             `json:"id" db:"id"`
-	Name          string          `json:"name" db:"name"`
-	BuoyId        int             `json:"buoyId" db:"buoy_id"`
-	BuoyGuid      string          `json:"buoyGuid" db:"buoy_guid"`
-	BuoyGroupId   int             `json:"buoyGroupId" db:"buoy_group_id"`
-	BuoyGroupName string          `json:"buoyGroupName" db:"buoy_group_name"`
-	Latitude      sql.NullFloat64 `json:"latitude" db:"latitude"`
-	Longitude     sql.NullFloat64 `json:"longitude" db:"longitude"`
-	DateCreated   time.Time       `json:"dateCreated" db:"date_created"`
-	PollRate      int             `json:"pollRate" db:"poll_rate"`
-	LastPolled    mysql.NullTime  `json:"lastPolled" db:"last_polled"`
+	Id                  int                   `json:"id" db:"id"`
+	Name                string                `json:"name" db:"name"`
+	BuoyId              int                   `json:"buoyId" db:"buoy_id"`
+	BuoyGuid            string                `json:"buoyGuid" db:"buoy_guid"`
+	BuoyGroupId         int                   `json:"buoyGroupId" db:"buoy_group_id"`
+	BuoyGroupName       string                `json:"buoyGroupName" db:"buoy_group_name"`
+	Latitude            sql.NullFloat64       `json:"latitude" db:"latitude"`
+	Longitude           sql.NullFloat64       `json:"longitude" db:"longitude"`
+	DateCreated         time.Time             `json:"dateCreated" db:"date_created"`
+	PollRate            int                   `json:"pollRate" db:"poll_rate"`
+	LastPolled          mysql.NullTime        `json:"lastPolled" db:"last_polled"`
+	BuoyInstanceSensors *[]BuoyInstanceSensor `json:"sensors"`
 }
 
 // Wrap the Buoy Instance methods to allow for testing with dependency injection.
 type BuoyInstanceRepository interface {
-	GetAllBuoyInstances() ([]BuoyInstance, error)
-	GetAllActiveBuoyInstances() ([]BuoyInstance, error)
+	GetAllBuoyInstances() ([]*BuoyInstance, error)
+	GetAllActiveBuoyInstances() ([]*BuoyInstance, error)
 	GetActiveBuoyInstance(string) (*BuoyInstance, error)
 	CreateBuoyInstance(*BuoyInstance) error
 	UpdateBuoyInstance(*BuoyInstance) error
@@ -55,8 +56,8 @@ type BuoyInstanceRepository interface {
 }
 
 // Get all Buoy Instances (both active and inactive)
-func (db *DB) GetAllBuoyInstances() ([]BuoyInstance, error) {
-	buoyInstances := []BuoyInstance{}
+func (db *DB) GetAllBuoyInstances() ([]*BuoyInstance, error) {
+	buoyInstances := []*BuoyInstance{}
 	err := db.Select(&buoyInstances, "SELECT * FROM buoy_instance;")
 	if err != nil {
 		return nil, err
@@ -68,8 +69,8 @@ func (db *DB) GetAllBuoyInstances() ([]BuoyInstance, error) {
 // Get all active Buoy Instances. A Buoy can only have one
 // active Buoy Instance at any one time. Also gets the last known
 // latitude and longitude.
-func (db *DB) GetAllActiveBuoyInstances() ([]BuoyInstance, error) {
-	buoyInstances := []BuoyInstance{}
+func (db *DB) GetAllActiveBuoyInstances() ([]*BuoyInstance, error) {
+	buoyInstances := []*BuoyInstance{}
 	err := db.Select(&buoyInstances, `SELECT 
 											buoy_instance.*, 
 											buoy.guid as buoy_guid, 

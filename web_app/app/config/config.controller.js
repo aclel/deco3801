@@ -24,6 +24,7 @@
 	**/
 	function ConfigController(server, gui, moment) {
 		var vm = this;
+		var newId = Math.pow(2, 32) + 1;
 		
 		/** Variables and methods bound to viewmodel */
 		vm.buoyGroups = [];
@@ -34,18 +35,15 @@
 		vm.buoyInstanceSensors = [];
 		vm.sensorTypes = [];
 		vm.triggers = [];
-		vm.command = { id: -1, value: '' };
 		vm.selected = { type: 'all', obj: null };
 		vm.editName = {};
 		vm.editName.on = false;
 		vm.editGroup = {};
 		vm.editGroup.on = false;
-		vm.newCommand = false;
-		vm.newTrigger = false;
 		vm.operators = [ '<', '>', '=' ];
 		vm.editingPollRate = false;
-		vm.trigger = {};
 		vm.treeOptions = {};
+		vm.redeploy = {};
 		vm.selectAll = selectAll;
 		vm.selectBuoyGroup = selectBuoyGroup;
 		vm.selectBuoyInstance = selectBuoyInstance;
@@ -57,12 +55,7 @@
 		vm.saveNewBuoyGroup = saveNewBuoyGroup;
 		vm.buoyGroupFilter = buoyGroupFilter;
 		vm.commandFilter = commandFilter;
-		vm.sendCommand = sendCommand;
-		vm.deleteCommand = deleteCommand;
 		vm.showBuoyConfig = showBuoyConfig;
-		vm.addTrigger = addTrigger;
-		vm.cancelNewCommand = cancelNewCommand;
-		vm.cancelNewTrigger = cancelNewTrigger;
 		vm.editing = editing;
 		vm.cancelEditName = cancelEditName;
 		vm.cancelEditGroup = cancelEditGroup;
@@ -72,18 +65,23 @@
 		vm.queryTriggers = queryTriggers;
 		vm.parseTriggers = parseTriggers;
 		vm.triggerFilter = triggerFilter;
+		vm.sensorFilter = sensorFilter;
+		vm.sensorsAttached = sensorsAttached;
+		vm.redeployBuoy = redeployBuoy;
+		vm.redeployShow = redeployShow;
 		
 		activate();
 		
 		/** Called when controller is instantiated (config page is loaded) */
 		function activate() {
+			querySensorTypes();
 			queryBuoyGroups();
 			queryBuoyInstances();
 			queryCommandTypes();
 			queryTriggers();
 			queryBuoyInstanceSensors();
-			resetNewTrigger();
 			setTreeOptions();
+			resetRedeployInput();
 		}
 
 		/** Set the tree options for buoy groups list */
@@ -105,7 +103,6 @@
 					return true;
 				},
 				dropped: function(event) {
-					console.log(event);
 					var groupId = event.dest.nodesScope.$nodeScope.$modelValue.id;
 					var existingName = event.source.nodeScope.$modelValue.name;
 					var instanceId = event.source.nodeScope.$modelValue.id;
@@ -138,7 +135,8 @@
 		function queryBuoyInstances() {
 			server.getBuoyInstances().then(function(res) {
 				vm.buoyInstances = res.data.buoyInstances;
-				parseBuoyInstanceDetails()
+				parseBuoyInstanceDetails();
+				parseTriggers();
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});
@@ -180,6 +178,7 @@
 			server.getSensorTypes().then(function(res) {
 				vm.sensorTypes = res.data.sensorTypes;
 				parseTriggers();
+				parseBuoyInstanceSensors();
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});
@@ -199,11 +198,20 @@
 		/** Associate buoy instances with groups */
 		function parseBuoyInstanceDetails() {
 			resetBuoyGroupInstances();
+			vm.buoyInstanceSensors = [];
 			vm.buoyInstances.forEach(function(buoyInstance) {
 				setBuoyInstanceGroup(buoyInstance);
 				buoyInstance.type = 'instance';
 				parseBuoyInstanceStatus(buoyInstance);
+
+				// flatten sensors
+				buoyInstance.sensors.forEach(function(sensor) {
+					sensor.buoyInstance = buoyInstance;
+					sensor.buoyInstanceId = buoyInstance.id;
+					vm.buoyInstanceSensors.push(sensor);
+				});
 			});
+			parseBuoyInstanceSensors();
 		}
 
 		function parseBuoyInstanceStatus(buoyInstance) {
@@ -219,8 +227,8 @@
 				var duration = moment.duration(buoyInstance.pollRate, 'seconds');
 				buoyInstance.pollInterval = duration.humanize();
 				if (buoyInstance.lastPolled.Valid) {
-					buoyInstance.nextScheduled = moment(buoyInstance.pollRate.Time,
-						'X').add(duration).format("DD/MM/YY HH:mm A");
+					buoyInstance.nextScheduled = moment(buoyInstance.pollRate.Time)
+						.add(duration).format("DD/MM/YY HH:mm A");
 				} else {
 					buoyInstance.nextScheduled = 'Never';
 				}
@@ -234,7 +242,7 @@
 				for (var i = 0; i < vm.buoyInstances.length; i++) {
 					var buoyInstance = vm.buoyInstances[i];
 					if (buoyInstance.id == trigger.buoyInstanceId) {
-						trigger.buoyName = buoyInstance.name;
+						trigger.buoyInstance = buoyInstance;
 						break;
 					}
 				}
@@ -262,8 +270,9 @@
 					}
 				}
 				// parse time
-				sensor.recentTime = moment(sensor.lastRecorded.Time,
-					'X').format("DD/MM/YY HH:mm A");
+				console.log(sensor.lastRecorded.Time);
+				sensor.recentTime = moment(sensor.lastRecorded.Time)
+					.format("DD/MM/YY HH:mm A");
 			});
 		}
 
@@ -281,7 +290,7 @@
 		 * @return {bool} show config
 		 */
 		function showBuoyConfig() {
-			if (vm.selected.type == 'instance') return true;
+			if (vm.selected.type == 'instance' && !vm.redeploy.show) return true;
 			if (vm.selected.type == 'group' && vm.groupBuoys.length > 0) return true;
 			if (vm.selected.type == 'all' && vm.buoyInstances.length > 0) return true;
 			return false;
@@ -309,6 +318,9 @@
 			vm.editGroup.on = false;
 			vm.newCommand = false;
 			vm.newTrigger = false;
+
+			vm.redeploy.show = false;
+			resetRedeployInput();
 		}
 		
 		/** Show config for selected buoy group */
@@ -325,7 +337,6 @@
 			vm.selected.type = 'instance';
 			vm.selected.obj = buoyInstance;
 			updateGroupBuoys();
-			queryBuoyInstanceSensors(buoyInstance.id);
 		}
 
 		/** Set all buoy groups to have no instances */
@@ -474,115 +485,6 @@
 			});
 		}
 		
-		/** Prepare to send new command(s) to server */
-		function sendCommand() {
-			if (vm.command.id == -1 || vm.command.value == '') {
-				gui.alertError('No command chosen.');
-				return;
-			}
-			if (!isValueFloat(vm.command.value)) return;
-			vm.newCommand = false;
-			var buoyIds = []; // buoys to send command for
-			if (vm.selected.type == 'instance') {
-				buoyIds.push(vm.selected.obj.buoyId);
-			} else if (vm.selected.type == 'group') {
-				// send command to each buoy in selected group
-				vm.buoyInstances.forEach(function(buoyInstance) {
-					if (buoyInstance.buoyGroupId == vm.selected.obj.id) {
-						buoyIds.push(buoyInstance.buoyId);
-					}
-				});
-			} else if (vm.selected.type == 'all') {
-				// send command to all buoys
-				vm.buoyInstances.forEach(function(buoyInstance) {
-					buoyIds.push(buoyInstance.buoyId);
-				});
-			}
-			sendCommands(buoyIds);			
-			resetNewCommand();
-		}
-		
-		/** Clear command input fields */
-		function resetNewCommand() {
-			vm.command.id = -1;
-			vm.command.value = '';
-		}
-		
-		/** Cancel editing of new command */
-		function cancelNewCommand() {
-			vm.newCommand = false;
-			resetNewCommand();
-		}
-		
-		/** Send command(s) for buoy(s) to server and update page */
-		function sendCommands(buoyIds) {
-			server.sendBuoyCommand(vm.command, buoyIds).then(function(res) {
-				queryCommands();
-				gui.alertSuccess('Command queued.')
-			}, function(res) {
-				gui.alertBadResponse(res);
-			});
-		}
-		
-		/** Delete command(s) for buoy(s) and update server */
-		function deleteCommand(command) {
-			
-		}
-		
-		/** Prepare to add new trigger warning for buoy or group */
-		function addTrigger() {
-			if (vm.trigger.sensorTypeId == -1 || vm.trigger.value == '') {
-				gui.alertError('No sensor chosen.');
-				return;
-			}
-			if (!isValueFloat(vm.trigger.value)) return;
-			vm.newTrigger = false;
-			var buoyInstanceIds = []; // buoys instances to add trigger for
-			if (vm.selected.type == 'instance') {
-				buoyInstanceIds.push(vm.selected.obj.id);
-			} else if (vm.selected.type == 'group') {
-				// add trigger for each buoy in group
-				vm.buoyInstances.forEach(function(buoyInstance) {
-					if (buoyInstance.buoyGroupId == vm.selected.obj.id) {
-						buoyInstanceIds.push(buoyInstance.id);
-					}
-				});
-			} else if (vm.selected.type == 'all') {
-				// add trigger for all buoys
-				vm.buoyInstances.forEach(function(buoyInstance) {
-					buoyInstanceIds.push(buoyInstance.id);
-				});
-			}
-			sendTriggers(buoyInstanceIds);
-			resetNewTrigger();
-		}
-		
-		/** Send new warning triggers to server and update page */
-		function sendTriggers(buoyIds) {
-			server.addWarningTriggers(vm.trigger, buoyIds).then(function(res) {
-				queryTriggers();
-				gui.alertSuccess('Warning trigger added.')
-			}, function(res) {
-				gui.alertBadResponse(res);
-			});
-		}
-		
-		/** Clear trigger inputs */
-		function resetNewTrigger() {
-			vm.trigger = {
-				sensorTypeId: -1,
-				operator: '<',
-				value: '',
-				message: ''
-			};
-		}
-		
-		/** Cancel creation of a new trigger */
-		function cancelNewTrigger() {
-			vm.newTrigger = false;
-			resetNewTrigger();
-		}
-		
 		/** 
 		 * Filter 'unassigned' out of buoy group list
 		 * @param  {object} buoyGroup 
@@ -599,7 +501,7 @@
 		 * @return {bool}         show command
 		 */
 		function commandFilter(command) {
-			if (command.id == -2) return true;
+			if (command.id == newId) return true;
 			if (command.commandTypeArchived) return false;
 			if (vm.selected.type == 'all') {
 				return true;
@@ -642,7 +544,7 @@
 		 * @return {bool}         show trigger
 		 */
 		function triggerFilter(trigger) {
-			if (trigger.id == -2) return true;
+			if (trigger.id == newId) return true;
 			// if (trigger.triggerTypeArchived) return false;
 			if (vm.selected.type == 'all') {
 				return true;
@@ -679,8 +581,45 @@
 			return false;
 		}
 
+		/**
+		 * Filter sensors list based on currently selected buoy/group
+		 * @param  {object} sensor sensor
+		 * @return {bool}         show sensor
+		 */
+		function sensorFilter(sensor) {
+			if (vm.selected.type == 'all') {
+				return true;
+			} else if (vm.selected.type == 'instance') {
+				return buoyInstanceSensorFilter(sensor);
+			} else if (vm.selected.type == 'group') {
+				return buoyGroupSensorFilter(sensor);
+			}
+			return false;
+		}
+
+		/**
+		 * Helper function for sensorFilter
+		 * @param  {object} sensor sensor
+		 * @return {bool}         show sensor
+		 */
 		function buoyInstanceSensorFilter(sensor) {
-			return true;
+			if (sensor.buoyInstance.id == vm.selected.obj.id) return true;
+			return false;
+		}
+		
+		/**
+		 * Helper function for sensorFilter
+		 * @param  {object} sensor sensor
+		 * @return {bool}         show sensor
+		 */
+		function buoyGroupSensorFilter(sensor) {
+			for (var i = 0; i < vm.buoyInstances.length; i++) {
+				var buoyInstance = vm.buoyInstances[i];
+				if (buoyInstance.buoyGroupId == vm.selected.obj.id) {
+					if (sensor.buoyInstance.id == buoyInstance.id) return true;
+				}
+			}
+			return false;
 		}
 
 		/**
@@ -710,5 +649,53 @@
 			return true;				
 		}
 
+		/**
+		 * Whether there are sensors attached to the selected buoy
+		 * @return {bool} true if sensors attached, else false
+		 */
+		function sensorsAttached() {
+			if (vm.selected.type == 'all') {
+				for (var i = 0; i < vm.buoyInstances.length; i++) {
+					if (vm.buoyInstances[i].sensors.length) return true;
+				}
+			} else if (vm.selected.type == 'instance') {
+				if (vm.selected.obj.sensors.length) return true;
+			} else if (vm.selected.type == 'group') {
+				for (var i = 0; i < vm.buoyInstances.length; i++) {
+					if (vm.buoyInstances[i].buoyGroupId == vm.selected.obj.id) {
+						if (vm.buoyInstances[i].sensors.length) return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		function resetRedeployInput() {
+			vm.redeploy = { show: false, buoyGroupId: 0 };
+		}
+
+		function redeployBuoy() {
+			var oldName = vm.selected.obj.name;
+			var oldBuoyGroupId = vm.selected.obj.buoyGroupId;
+			var newName = vm.redeploy.name;
+			vm.selected.obj.name = newName;
+			vm.selected.obj.buoyGroupId = vm.redeploy.buoyGroupId;
+			server.redeployBuoy(vm.selected.obj.buoyId,
+					vm.redeploy.name,
+					vm.redeploy.buoyGroupId).then(function(res) {
+				queryBuoyInstances();
+				gui.alertSuccess(oldName + ' redeployed as ' + newName);
+			}, function(res) {
+				gui.alertBadResponse(res);
+				vm.selected.obj.name = oldName;
+				vm.selected.obj.buoyGroupId = oldBuoyGroupId;
+			});
+			resetRedeployInput();
+		}
+
+		function redeployShow() {
+			vm.redeploy.show = true;
+			gui.focus('redeploy');
+		}
 	}
 })();

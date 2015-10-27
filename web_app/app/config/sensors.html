@@ -1,15 +1,22 @@
-<h3>Sensors</h3>
-<table class="data-table">
+<div ng-if="!(vm.buoyInstanceSensors | filter:vm.sensorFilter).length">
+    <em>No sensors attached.</em>
+</div>
+<table class="data-table" ng-if="(vm.buoyInstanceSensors | filter:vm.sensorFilter).length">
     <thead>
-	<tr>
-	    <th>Sensor Name</th>
-	    <th>Last Recorded</th>
-	</tr>
+        <tr>
+            <th>Buoy</th>
+            <th>Sensor Name</th>
+            <th>Last Recorded</th>
+        </tr>
     </thead>
     <tbody>
-	<tr ng-repeat="buoyInstanceSensor in vm.buoyInstanceSensors | filter:vm.buoyInstanceSensorFilter">
-	    <td>{{ buoyInstanceSensor.sensorName }}</td>
-	    <td>{{ buoyInstanceSensor.recentTime }}</td>
-	</tr>
+        <tr ng-repeat="sensor in vm.buoyInstanceSensors | filter:vm.sensorFilter | orderBy:'id'">
+            <td>
+                {{ sensor.buoyInstance.name }}
+                <span ng-if="buoyInstance.name == ''">(no name)</span>
+            </td>
+            <td>{{ sensor.sensorName }}</td>
+            <td>{{ sensor.recentTime }}</td>
+        </tr>
     </tbody>
 </table>

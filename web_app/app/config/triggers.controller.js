@@ -25,8 +25,10 @@
     function TriggersController($scope, server, gui) {
         var vm = $scope.vm; // parent controller
         var editVm = this;
+        var newId = Math.pow(2, 32) + 1;
         
         /** Variables and methods bound to viewmodel */
+        editVm.newId = newId;
         editVm.triggers = [];
         editVm.editId = -1;
         editVm.editExisting = editExisting;
@@ -58,7 +60,7 @@
          * called on Save button click
          */
         function editSave() {
-            if (editVm.editId != -2) {
+            if (editVm.editId != newId) {
                 vm.parseTriggers(); // necessary to instantly update dropdown
                 server.updateWarningTrigger(editVm.editObj).then(function(res) {
                     vm.queryTriggers();
@@ -68,6 +70,7 @@
                 });
             } else {
                 editVm.editObj.id = -3;
+                vm.parseTriggers(); // necessary to instantly update dropdown
                 server.addWarningTrigger(editVm.editObj, getAffectedBuoyIds()).then(function(res) {
                     vm.queryTriggers();
                     gui.alertSuccess('Warning trigger added.');
@@ -103,7 +106,7 @@
          * Edits are discarded, called on Cancel button click
          */
         function editCancel() {
-            if (editVm.editId == -2) {
+            if (editVm.editId == newId) {
                 vm.triggers.splice(vm.triggers.length - 1, 1);
             }
             editVm.editId = -1;
@@ -142,7 +145,7 @@
          */
         function showDeleteButton(trigger) {
             return ((editVm.editId == -1 || editVm.editId == trigger.id) &&
-                trigger.id != -2);
+                trigger.id != newId);
         }
         
         /**
@@ -150,9 +153,10 @@
          * called on Add button click
          */
         function editNew() {
-            var temp = { id: -2, sensorTypeId: 1, operator: "<" };
+            var temp = { id: newId, sensorTypeId: 1, operator: "<" };
             if (vm.selected.type == 'instance') {
-                temp.buoyName = vm.selected.obj.name;
+                temp.buoyInstance = vm.selected.obj;
+                temp.buoyInstanceId = vm.selected.obj.id;
             }
             vm.triggers.push(temp);
             editExisting(temp);

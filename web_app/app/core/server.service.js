@@ -68,7 +68,8 @@
 			getBuoys: getBuoys,
 			addBuoy: addBuoy,
 			updateBuoy: updateBuoy,
-			deleteBuoy: deleteBuoy
+			deleteBuoy: deleteBuoy,
+			redeployBuoy: redeployBuoy
 		};
 		
 		/** 
@@ -241,6 +242,17 @@
 			};
 			return $http.post(SERVER_ADDRESS + '/api/buoy_groups',
 					JSON.stringify(data), config);
+		}
+
+		function redeployBuoy(buoyId, name, groupId) {
+			var config = setJson(addToken(headers()));
+			var data = {
+				name: name,
+				buoyId: buoyId,
+				buoyGroupId: groupId
+			};
+			return $http.post(SERVER_ADDRESS + '/api/buoy_instances', 
+				JSON.stringify(data), config);
 		}
 		
 		/**

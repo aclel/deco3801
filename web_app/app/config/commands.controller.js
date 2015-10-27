@@ -25,8 +25,10 @@
     function CommandsController($scope, server, gui) {
         var vm = $scope.vm; // parent controller
         var editVm = this;
+        var newId = Math.pow(2, 32) + 1;
         
         /** Variables and methods bound to viewmodel */
+        editVm.newId = newId;
         editVm.commands = [];
         editVm.editId = -1;
         editVm.editExisting = editExisting;
@@ -58,7 +60,7 @@
          * called on Save button click
          */
         function editSave() {
-            if (editVm.editId != -2) {
+            if (editVm.editId != newId) {
                 vm.parseCommands(); // necessary to instantly update dropdown
                 server.updateCommand(editVm.editObj).then(function(res) {
                     vm.queryCommands();
@@ -103,7 +105,7 @@
          * Edits are discarded, called on Cancel button click
          */
         function editCancel() {
-            if (editVm.editId == -2) {
+            if (editVm.editId == newId) {
                 vm.commands.splice(vm.commands.length - 1, 1);
             }
             editVm.editId = -1;
@@ -142,7 +144,7 @@
          */
         function showDeleteButton(command) {
             return ((editVm.editId == -1 || editVm.editId == command.id) &&
-                command.id != -2);
+                command.id != newId);
         }
         
         /**
@@ -150,7 +152,7 @@
          * called on Add button click
          */
         function editNew() {
-            var temp = { id: -2, commandTypeId: 1 };
+            var temp = { id: newId, commandTypeId: 1 };
             if (vm.selected.type == 'instance') {
                 temp.buoyName = vm.selected.obj.name;
             }

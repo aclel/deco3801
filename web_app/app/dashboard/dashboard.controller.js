@@ -57,7 +57,7 @@
 
 			// set up chart listeners
 			$scope.$on('mapMarkerSelected', function(event, buoyInstance) {
-				if (vm.selectedBuoy) {
+				if (vm.selectedBuoy && buoyInstance) {
 					if (vm.selectedBuoy.id == buoyInstance.id) return;
 				}
 				chartObjects = [];

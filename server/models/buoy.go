@@ -28,6 +28,7 @@ type BuoyRepository interface {
 	ArchiveBuoyWithId(id int) error
 	AddCommandToBuoy(command *Command) (int64, error)
 	GetBuoyCommands(string, bool) ([]Command, error)
+	GetBuoyCommandsById(id int, sent bool) ([]Command, error)
 }
 
 // Gets all buoys from the database.
@@ -123,6 +124,23 @@ func (db *DB) AddCommandToBuoy(command *Command) (int64, error) {
 	}
 
 	return newId, nil
+}
+
+func (db *DB) GetBuoyCommandsById(id int, sent bool) ([]Command, error) {
+	commands := []Command{}
+	err := db.Select(&commands, `SELECT 
+									buoy_command.* 
+								FROM 
+									buoy_command 
+									INNER JOIN buoy ON buoy_command.buoy_id = buoy.id 
+								WHERE 
+									buoy.id = ? 
+									AND sent = ?;`, id, sent)
+	if err != nil {
+		return nil, err
+	}
+
+	return commands, nil
 }
 
 // Get all commands for a buoy with the given guid and sent status

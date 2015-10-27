@@ -26,9 +26,9 @@
                     {{ buoyInstance.name }}
                     <span ng-if="buoyInstance.name == ''">(no name)</span>
                 </td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>{{ buoyInstance.lastReceived }}</td>
+                <td>{{ buoyInstance.nextScheduled }}</td>
+                <td>{{ buoyInstance.pollInterval }}</td>
             </tr>
         </body>
     </table>
@@ -50,9 +50,9 @@
                     {{ buoyInstance.name }}
                     <span ng-if="buoyInstance.name == ''">(no name)</span>
                 </td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>{{ buoyInstance.lastReceived }}</td>
+                <td>{{ buoyInstance.nextScheduled }}</td>
+                <td>{{ buoyInstance.pollInterval }}</td>
             </tr>
         </body>
     </table>
@@ -73,9 +73,9 @@
                     {{ vm.selected.obj.name }}
                     <span ng-if="vm.selected.obj.name == ''">(no name)</span>
                 </td>
-                <td></td>
-                <td></td>
-                <td></td>
+                <td>{{ vm.selected.obj.lastReceived }}</td>
+                <td>{{ buoyInstance.nextScheduled }}</td>
+                <td>{{ buoyInstance.pollInterval }}</td>
             </tr>
         </body>
     </table>

@@ -1,7 +1,6 @@
 <div class="grid-block">
 	<div class="small-12 medium-3 grid-content dashboard-panel" id="filter-panel">
 		<div class="filter-section">
-			<div class="right" ng-include="'/app/gui/loading.html'"></div>
 			<h4 class="well well-sm">Times</h4>
 			<div class="btn-group btn-group-justified" ng-model="vm.times.type" bs-radio-group>
 				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="since" ng-change="vm.updateTimes()">Since</label>
@@ -12,7 +11,7 @@
 				<form class="form-inline">
 					<!-- <div class="form-group"> -->
 						<span class="span-label">Since</span>
-						<input type="text" class="form-control ti-xs" ng-model="vm.times.inputs.since.value" ng-change="vm.updateTimes()">
+						<input type="text" class="form-control ti-xs" ng-model="vm.times.inputs.since.value" ng-model-options="{debounce: 800}" ng-change="vm.updateTimes()">
 					<!-- </div> -->
 					<button type="button" class="btn btn-default" 
 								ng-model="vm.times.inputs.since.quantifier" 
@@ -77,7 +76,7 @@
 				</span>
 				<div ng-if="!buoyGroup.collapsed" ng-repeat="buoyInstance in buoyGroup.buoyInstances" class="filter-buoy-instance">
 						<input type="checkbox" ng-model="buoyInstance.enabled" ng-change="vm.selectBuoyInstance(buoyGroup)">
-						<span class="glyphicon glyphicon-stop" style="color: red; filter: hue-rotate(buoyInstance.colour); -webkit-filter: hue-rotate({{buoyInstance.colour}}deg);"></span>
+						<span class="glyphicon glyphicon-stop" ng-style="{ color: buoyInstance.colour }"></span>
 						{{ buoyInstance.name }}
 				</div>
 			</div>

@@ -33,7 +33,6 @@
 		
 
 		/** Variables and methods bound to viewmodel */
-		vm.loading = false;
 		vm.showGraphs = false;
 		vm.buoys = dashboard.buoys(); // binds reference
 		vm.times = dashboard.times(); // binds reference
@@ -51,7 +50,6 @@
 
 		/** Called when controller is instantiated (dashboard page is loaded) */
 		function activate() {
-			vm.loading = true;
 			resolved = 0;
 
 			queryReadings();
@@ -78,33 +76,21 @@
 
 		/** Query readings and update display */
 		function queryReadings() {
-			dashboard.queryReadings().then(function() {
-				checkLoaded();
-			});
+			dashboard.queryReadings();
 		}
 
 		/** Bind sensor information to vm */
 		function querySensors() {
 			dashboard.querySensors().then(function() {
 				vm.sensors = dashboard.sensors();
-				checkLoaded();
 			});
 		}
 		
 		/** Update time filters, handle loading */
 		function updateTimes() {
-			vm.loading = true;
 			dashboard.updateTimes().then(function() {
-				vm.loading = false;
 				vm.charts = dashboard.calculateChartData(vm.selectedBuoy);
 			});
-		}
-		
-		/** Check whether the dashboard has finished loading */
-		function checkLoaded() {
-			if (++resolved == 2) {
-				vm.loading = false;
-			}
 		}
 		
 		/** Expand/contract graphs pane and update map */

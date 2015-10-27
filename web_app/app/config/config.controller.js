@@ -22,7 +22,7 @@
 		* @description Provides viewmodel for config view
 		* @requires server
 	**/
-	function ConfigController(server, gui) {
+	function ConfigController(server, gui, moment) {
 		var vm = this;
 		
 		/** Variables and methods bound to viewmodel */
@@ -33,7 +33,7 @@
 		vm.commandTypes = [];
 		vm.buoyInstanceSensors = [];
 		vm.sensorTypes = [];
-		vm.warningTriggers = [];
+		vm.triggers = [];
 		vm.command = { id: -1, value: '' };
 		vm.selected = { type: 'all', obj: null };
 		vm.editName = {};
@@ -43,6 +43,7 @@
 		vm.newCommand = false;
 		vm.newTrigger = false;
 		vm.operators = [ '<', '>', '=' ];
+		vm.editingPollRate = false;
 		vm.trigger = {};
 		vm.treeOptions = {};
 		vm.selectAll = selectAll;
@@ -66,6 +67,11 @@
 		vm.cancelEditName = cancelEditName;
 		vm.cancelEditGroup = cancelEditGroup;
 		vm.toggleBuoyGroup = toggleBuoyGroup;
+		vm.queryCommands = queryCommands;
+		vm.parseCommands = parseCommands;
+		vm.queryTriggers = queryTriggers;
+		vm.parseTriggers = parseTriggers;
+		vm.triggerFilter = triggerFilter;
 		
 		activate();
 		
@@ -74,7 +80,7 @@
 			queryBuoyGroups();
 			queryBuoyInstances();
 			queryCommandTypes();
-			queryWarningTriggers();
+			queryTriggers();
 			queryBuoyInstanceSensors();
 			resetNewTrigger();
 			setTreeOptions();
@@ -109,7 +115,7 @@
 						existingName
 					).then(function(res) {
 						queryBuoyInstances();
-						gui.alertSuccess('New buoy instance created.')
+						gui.alertSuccess('Buoy group changed.')
 					}, function(res) {
 						queryBuoyInstances(); // easiest way to undo drag-drop
 						gui.alertBadResponse(res);
@@ -122,7 +128,7 @@
 		function queryBuoyGroups() {
 			server.getBuoyGroups().then(function(res) {
 				vm.buoyGroups = res.data.buoyGroups;
-				parseGroupNames()
+				parseBuoyInstanceDetails();
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});
@@ -132,7 +138,7 @@
 		function queryBuoyInstances() {
 			server.getBuoyInstances().then(function(res) {
 				vm.buoyInstances = res.data.buoyInstances;
-				parseGroupNames()
+				parseBuoyInstanceDetails()
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});
@@ -150,7 +156,7 @@
 		
 		/** Query buoy commands from the server */
 		function queryCommands() {
-			server.getBuoyCommands().then(function(res) {
+			server.getCommands().then(function(res) {
 				vm.commands = res.data.commands;
 				parseCommands();
 			}, function(res) {
@@ -159,10 +165,11 @@
 		}
 		
 		/** Query warning triggers from the server */
-		function queryWarningTriggers() {
+		function queryTriggers() {
 			server.getWarningTriggers().then(function(res) {
-				vm.warningTriggers = res.data.warningTriggers;
-				querySensorTypes();
+				vm.triggers = res.data.warningTriggers;
+				if (!vm.sensorTypes.length) querySensorTypes();
+				parseTriggers();
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});
@@ -172,7 +179,7 @@
 		function querySensorTypes() {
 			server.getSensorTypes().then(function(res) {
 				vm.sensorTypes = res.data.sensorTypes;
-				parseWarningSensors();
+				parseTriggers();
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});
@@ -190,17 +197,39 @@
 		}
 		
 		/** Associate buoy instances with groups */
-		function parseGroupNames() {
+		function parseBuoyInstanceDetails() {
 			resetBuoyGroupInstances();
 			vm.buoyInstances.forEach(function(buoyInstance) {
 				setBuoyInstanceGroup(buoyInstance);
 				buoyInstance.type = 'instance';
+				parseBuoyInstanceStatus(buoyInstance);
 			});
+		}
+
+		function parseBuoyInstanceStatus(buoyInstance) {
+			if (buoyInstance.lastPolled.Valid) {
+				buoyInstance.lastReceived = buoyInstance.pollRate.Time
+			} else {
+				buoyInstance.lastReceived = 'Never';
+			}
+			if (buoyInstance.pollRate == 0) {
+				buoyInstance.pollInterval = 0;
+				buoyInstance.nextScheduled = 'Never';
+			} else {
+				var duration = moment.duration(buoyInstance.pollRate, 'seconds');
+				buoyInstance.pollInterval = duration.humanize();
+				if (buoyInstance.lastPolled.Valid) {
+					buoyInstance.nextScheduled = moment(buoyInstance.pollRate.Time,
+						'X').add(duration).format("DD/MM/YY HH:mm A");
+				} else {
+					buoyInstance.nextScheduled = 'Never';
+				}
+			}
 		}
 		
 		/** Associate sensor and buoy info with warnings */
-		function parseWarningSensors() {
-			vm.warningTriggers.forEach(function(trigger) {
+		function parseTriggers() {
+			vm.triggers.forEach(function(trigger) {
 				// get buoy name
 				for (var i = 0; i < vm.buoyInstances.length; i++) {
 					var buoyInstance = vm.buoyInstances[i];
@@ -214,6 +243,7 @@
 					var sensorType = vm.sensorTypes[i];
 					if (sensorType.id == trigger.sensorTypeId) {
 						trigger.sensorName = sensorType.name;
+						trigger.sensorTypeArchived = sensorType.archived;
 						break;
 					}
 				}
@@ -235,6 +265,15 @@
 				sensor.recentTime = moment(sensor.lastRecorded.Time,
 					'X').format("DD/MM/YY HH:mm A");
 			});
+		}
+
+		function updatePollRate(buoyInstance) {
+			var command = {
+				commandTypeId: 1,
+				value: buoyInstance.pollRate,
+				buoyId: buoyInstance.buoyId
+			};
+			server.addCommand(command, [buoyInstance.buoyId]);
 		}
 		
 		/**
@@ -360,16 +399,16 @@
 		/** Save buoy's new group and name to server and update page */
 		function finishEditingBuoyGroup() {
 			vm.editGroup.on = false;
-			vm.selected.obj.buoyGroupId = vm.editGroup.buoyGroupId;
+			// vm.selected.obj.buoyGroupId = vm.editGroup.buoyGroupId;
 			// setBuoyGroupName(vm.selected.obj);
 			// update server
 			server.updateBuoyInstanceGroup(
 				vm.selected.obj.id,
-				vm.editGroup.buoyGroupId,
-				vm.editGroup.name
+				vm.selected.obj.buoyGroupId,
+				vm.selected.obj.name
 			).then(function(res) {
 				queryBuoyInstances();
-				gui.alertSuccess('New buoy instance created.')
+				gui.alertSuccess('Buoy updated.')
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});
@@ -424,10 +463,11 @@
 						break;
 					}
 				}
-				// get command name
+				// get command name and whether command type is archived
 				for (var i = 0; i < vm.commandTypes.length; i++) {
 					if (command.commandTypeId == vm.commandTypes[i].id) {
 						command.commandName = vm.commandTypes[i].name;
+						command.commandTypeArchived = vm.commandTypes[i].archived;
 						break;
 					}
 				}
@@ -520,7 +560,7 @@
 		/** Send new warning triggers to server and update page */
 		function sendTriggers(buoyIds) {
 			server.addWarningTriggers(vm.trigger, buoyIds).then(function(res) {
-				queryWarningTriggers();
+				queryTriggers();
 				gui.alertSuccess('Warning trigger added.')
 			}, function(res) {
 				gui.alertBadResponse(res);
@@ -559,6 +599,8 @@
 		 * @return {bool}         show command
 		 */
 		function commandFilter(command) {
+			if (command.id == -2) return true;
+			if (command.commandTypeArchived) return false;
 			if (vm.selected.type == 'all') {
 				return true;
 			} else if (vm.selected.type == 'instance') {
@@ -594,8 +636,51 @@
 			return false;
 		}
 
+		/**
+		 * Filter warning triggers list based on currently selected buoy/group
+		 * @param  {object} trigger warning trigger
+		 * @return {bool}         show trigger
+		 */
+		function triggerFilter(trigger) {
+			if (trigger.id == -2) return true;
+			// if (trigger.triggerTypeArchived) return false;
+			if (vm.selected.type == 'all') {
+				return true;
+			} else if (vm.selected.type == 'instance') {
+				return buoyInstanceTriggerFilter(trigger);
+			} else if (vm.selected.type == 'group') {
+				return buoyGroupTriggerFilter(trigger);
+			}
+			return false;
+		}
+		
+		/**
+		 * Helper function for triggerFilter
+		 * @param  {object} trigger trigger
+		 * @return {bool}         show trigger
+		 */
+		function buoyInstanceTriggerFilter(trigger) {
+			if (trigger.buoyInstanceId == vm.selected.obj.id) return true;
+			return false;
+		}
+		
+		/**
+		 * Helper function for triggerFilter
+		 * @param  {object} trigger trigger
+		 * @return {bool}         show trigger
+		 */
+		function buoyGroupTriggerFilter(trigger) {
+			for (var i = 0; i < vm.buoyInstances.length; i++) {
+				var buoyInstance = vm.buoyInstances[i];
+				if (buoyInstance.buoyGroupId == vm.selected.obj.id) {
+					if (trigger.buoyInstanceId == buoyInstance.id) return true;
+				}
+			}
+			return false;
+		}
+
 		function buoyInstanceSensorFilter(sensor) {
-			return true
+			return true;
 		}
 
 		/**

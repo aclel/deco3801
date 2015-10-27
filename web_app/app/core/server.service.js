@@ -46,22 +46,25 @@
 			addCommandType: addCommandType,
 			updateCommandType: updateCommandType,
 			deleteCommandType: deleteCommandType,
-			getBuoyCommands: getBuoyCommands,
 			exportData: exportData,
 			getBuoyInstanceSensors: getBuoyInstanceSensors,
-			sendBuoyCommand: sendBuoyCommand,
-			getWarningTriggers: getWarningTriggers,
-			addWarningTriggers: addWarningTriggers,
 			getWarnings: getWarnings,
 			getSensorTypes: getSensorTypes,
 			addSensorType: addSensorType,
 			updateSensorType: updateSensorType,
 			deleteSensorType: deleteSensorType,
+			getCommands: getCommands,
+			addCommand: addCommand,
+			updateCommand: updateCommand,
+			deleteCommand: deleteCommand,
+			getWarningTriggers: getWarningTriggers,
+			addWarningTrigger: addWarningTrigger,
+			updateWarningTrigger: updateWarningTrigger,
+			deleteWarningTrigger: deleteWarningTrigger,
 			getUsers: getUsers,
 			addUser: addUser,
 			updateUser: updateUser,
 			deleteUser: deleteUser,
-			deleteBuoyCommand: deleteBuoyCommand,
 			getBuoys: getBuoys,
 			addBuoy: addBuoy,
 			updateBuoy: updateBuoy,
@@ -310,16 +313,6 @@
 			var config = addToken(headers());
 			return $http.delete(SERVER_ADDRESS + '/api/command_types/' + id, config);
 		}
-
-		/**
-		 * Request pending commands
-		 * GET /api/commands?sent=false
-		 * @return {promise} request promise
-		 */
-		function getBuoyCommands() {
-			var config = addToken(headers());
-			return $http.get(SERVER_ADDRESS + '/api/commands?sent=false', config);
-		}
 		
 		/**
 		 * Request export data and download CSV in response
@@ -367,6 +360,16 @@
 			var config = addToken(headers());
 			return $http.get(SERVER_ADDRESS + '/api/buoy_instances/' + buoyInstanceId + '/sensors', config)
 		}
+
+		/**
+		 * Request pending commands
+		 * GET /api/commands?sent=false
+		 * @return {promise} request promise
+		 */
+		function getCommands() {
+			var config = addToken(headers());
+			return $http.get(SERVER_ADDRESS + '/api/commands?sent=false', config);
+		}
 		
 		/**
 		 * Request new command for buoys
@@ -375,14 +378,14 @@
 		 * @param  {int[]} buoyIds list of buoy Ids to send command for
 		 * @return {promise}         request promise
 		 */
-		function sendBuoyCommand(command, buoyIds) {
+		function addCommand(command, buoyIds) {
 			var config = setJson(addToken(headers()));
 			var data = {
 				commands: []
 			};
 			buoyIds.forEach(function(buoyId) {
 				data.commands.push({
-					commandTypeId: command.id,
+					commandTypeId: command.commandTypeId,
 					value: parseInt(command.value, 10),
 					buoyId: buoyId
 				});
@@ -390,14 +393,32 @@
 			return $http.post(SERVER_ADDRESS + '/api/commands', 
 				JSON.stringify(data), config);
 		}
+
+		/**
+		 * Request update command for buoys
+		 * PUT /api/commands/:id
+		 * @param  {object} command updated command
+		 * @return {promise}      request promise
+		 */
+		function updateCommand(command) {
+			var config = setJson(addToken(headers()));
+			var data = {
+				commandTypeId: command.commandTypeId,
+				value: parseInt(command.value, 10),
+				buoyId: command.buoyId
+			}
+			return $http.put(SERVER_ADDRESS + '/api/commands/' + command.id, 
+				JSON.stringify(data), config);
+		}
 		
 		/**
-		 * Request delete buoy command
-		 * @param  {int} buoyId  buoy id
+		 * Request delete command
+		 * @param  {int} id  command id
 		 * @return {promise}         request promise
 		 */
-		function deleteBuoyCommand(buoyId) {
-			
+		function deleteCommand(id) {
+			var config = addToken(headers());
+			return $http.delete(SERVER_ADDRESS + '/api/commands/' + id, config);
 		}
 		
 		/**
@@ -410,7 +431,6 @@
 			return $http.get(SERVER_ADDRESS + '/api/warning_triggers?active_instances=true', config);
 		}
 
-
 		/**
 		 * Request create warning triggers for buoy instances
 		 * POST /api/warning_triggers
@@ -418,7 +438,7 @@
 		 * @param {int[]} buoyInstanceIds list of buoy instance Ids
 		 * @return {promise} request promise
 		 */
-		function addWarningTriggers(trigger, buoyInstanceIds) {
+		function addWarningTrigger(trigger, buoyInstanceIds) {
 			var config = setJson(addToken(headers()));
 			var data = {
 				warningTriggers: []
@@ -434,6 +454,35 @@
 			});
 			return $http.post(SERVER_ADDRESS + '/api/warning_triggers', 
 				JSON.stringify(data), config);
+		}
+
+		/**
+		 * Request update warning trigger for buoys
+		 * PUT /api/warning_triggers/:id
+		 * @param  {object} trigger updated warning trigger
+		 * @return {promise}      request promise
+		 */
+		function updateWarningTrigger(trigger) {
+			var config = setJson(addToken(headers()));
+			var data = {
+					buoyInstanceId: trigger.buoyInstanceId,
+					sensorTypeId: trigger.sensorTypeId,
+					operator: trigger.operator,
+					value: parseInt(trigger.value, 10),
+					message: trigger.message
+			}
+			return $http.put(SERVER_ADDRESS + '/api/warning_triggers/' + trigger.id, 
+				JSON.stringify(data), config);
+		}
+		
+		/**
+		 * Request delete warning trigger
+		 * @param  {int} id  warning trigger id
+		 * @return {promise}         request promise
+		 */
+		function deleteWarningTrigger(id) {
+			var config = addToken(headers());
+			return $http.delete(SERVER_ADDRESS + '/api/warning_triggers/' + id, config);
 		}
 		
 		/**

@@ -24,7 +24,7 @@
 		* @requires map
 		* @requires moment
 	**/
-	function dashboard($log, $q, $rootScope, server, map, moment) {
+	function dashboard($log, $q, $rootScope, server, map, moment, gui) {
 		/** Internal variables. These are preserved until page refresh. */
 		var readings = [];
 		var filteredReadings = [];
@@ -36,49 +36,11 @@
 		var dateFormat = "D/M/YY";
 		var timeFormat = "h:mm A";
 		// palette generated from http://tools.medialab.sciences-po.fr/iwanthue/
-		/*var colours = ["#84CBD1", "#CC4B30", "#BF54D0", "#70D84C", "#36362B",
+		var colours = ["#84CBD1", "#CC4B30", "#BF54D0", "#70D84C", "#36362B",
 				"#CD4075", "#553264", "#CBCC92", "#D2983C", "#6B7AD0",
 				"#C78378", "#5A8A37", "#CCD446", "#72DA9E", "#598369",
 				"#6D292F", "#CAB3CC", "#785F2A", "#596C87", "#C471B4"
-		].reverse();  */
-		/*var colours = [
-				"hue20",
-				"hue40",
-				"hue60",
-				"hue80",
-				"hue100",
-				"hue120",
-				"hue140",
-				"hue160",
-				"hue180",
-				"hue200",
-				"hue220",
-				"hue240",
-				"hue260",
-				"hue280",
-				"hue300",
-				"hue320",
-				"hue340"
-			] */
-		var colours = [
-			"20",
-			"40",
-			"60",
-			"80",
-			"100",
-			"120",
-			"140",
-			"160",
-			"180",
-			"200",
-			"220",
-			"240",
-			"260",
-			"280",
-			"300",
-			"320",
-			"340"
-		]
+		].reverse(); 
 		var instanceColours = {};
 
 		initialiseTimes();
@@ -146,6 +108,9 @@
 			var promise = server.getReadings(from, to);
 			promise.then(function(res) {
 				readings = res.data.buoyGroups;
+				if (!readings.length) {
+					gui.alertInfo("No readings found for the selected time period.");
+				}
 				sortReadings();
 				populateBuoys();
 				updateFilters();
@@ -232,8 +197,7 @@
 				if (colours.length) {
 					instanceColours[buoyInstance.id] = colours.pop();
 				} else {
-					//instanceColours[buoyInstance.id] = "#FFFFFF";
-					instanceColours[buoyInstance.id] = "";
+					instanceColours[buoyInstance.id] = "#FFFFFF";
 				}
 			}
 			buoyInstance.colour = instanceColours[buoyInstance.id];

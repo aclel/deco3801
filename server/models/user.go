@@ -55,7 +55,7 @@ type UserRepository interface {
 // All possible roles that a user can have. A user can only have one role at a time.
 // Roles with a higher index have all of the priveleges of roles at low indexes.
 var roles = map[string]int{
-	"researcher":   0,
+	"user":         0,
 	"power_user":   1,
 	"system_admin": 2,
 }

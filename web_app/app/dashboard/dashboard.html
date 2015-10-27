@@ -5,7 +5,7 @@
 			<div class="btn-group btn-group-justified" ng-model="vm.times.type" bs-radio-group>
 				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="since" ng-change="vm.updateTimes()">Since</label>
 				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="range" ng-change="vm.updateTimes()">Range</label>
-				<label class="btn btn-default"><input type="radio" class="btn btn-default" value="point" ng-change="vm.updateTimes()">Point</label>
+				<!-- <label class="btn btn-default"><input type="radio" class="btn btn-default" value="point" ng-change="vm.updateTimes()">Point</label> -->
 			</div>
 			<div ng-if="vm.times.type=='since'" id="since">
 				<form class="form-inline">

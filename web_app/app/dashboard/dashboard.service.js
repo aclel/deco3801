@@ -209,7 +209,7 @@
 			for (var i = 0; i < data.length; i++) {
 				var sensor = data[i];
 				
-				if (sensor.archived) continue;
+				// if (sensor.archived) continue;
 				keep.push(sensor.id + "");			
 
 				if (!sensors.hasOwnProperty(sensor.id)) {

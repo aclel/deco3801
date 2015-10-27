@@ -18,7 +18,7 @@
                 </td>
                 <td>
                     <span ng-if="vm.editId != sensorType.id">{{ sensorType.name }}</span>
-                    <input ng-if="vm.editId == sensorType.id" type="text" class="form-control" ng-model="vm.editObj.name" placeholder="Turbidity" focus-on="editExisting" esc-cancel="vm.editCancel()">
+                    <input ng-if="vm.editId == sensorType.id" type="text" class="form-control" ng-model="vm.editObj.name" required placeholder="Turbidity" focus-on="editExisting" esc-cancel="vm.editCancel()">
                 </td>
                 <td>
                     <span ng-if="vm.editId != sensorType.id">{{ sensorType.description }}</span>
@@ -26,15 +26,15 @@
                 </td>
                 <td>
                     <span ng-if="vm.editId != sensorType.id">{{ sensorType.unit }}</span>
-                    <input ng-if="vm.editId == sensorType.id" type="text" class="form-control" ng-model="vm.editObj.unit" placeholder="NTU" esc-cancel="vm.editCancel()">
+                    <input ng-if="vm.editId == sensorType.id" type="text" class="form-control" ng-model="vm.editObj.unit" required placeholder="NTU" esc-cancel="vm.editCancel()">
                 </td>
                 <td>
                     <span ng-if="vm.editId != sensorType.id">{{ sensorType.lowerBound }}</span>
-                    <input ng-if="vm.editId == sensorType.id" type="text" class="form-control" ng-model="vm.editObj.lowerBound" ng-pattern="/^\d*\.?\d*$/" placeholder="0" esc-cancel="vm.editCancel()">
+                    <input ng-if="vm.editId == sensorType.id" type="text" class="form-control" ng-model="vm.editObj.lowerBound" ng-pattern="/^\d*\.?\d*$/" required placeholder="0" esc-cancel="vm.editCancel()">
                 </td>
                 <td>
                     <span ng-if="vm.editId != sensorType.id">{{ sensorType.upperBound }}</span>
-                    <input ng-if="vm.editId == sensorType.id" type="text" class="form-control" ng-model="vm.editObj.upperBound" ng-pattern="/^\d*\.?\d*$/" placeholder="100" esc-cancel="vm.editCancel()">
+                    <input ng-if="vm.editId == sensorType.id" type="text" class="form-control" ng-model="vm.editObj.upperBound" ng-pattern="/^\d*\.?\d*$/" required placeholder="100" esc-cancel="vm.editCancel()">
                 </td>
                 <td class="button-cell">
                     <!-- <button type="button" class="btn btn-default btn-sm right" ng-if="vm.showDeleteButton(sensorType)" ng-click="vm.editDelete(sensorType)">

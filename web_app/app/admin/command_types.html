@@ -15,7 +15,7 @@
                 </td>
                 <td>
                     <span ng-if="vm.editId != commandType.id">{{ commandType.name }}</span>
-                    <input ng-if="vm.editId == commandType.id" type="text" class="form-control" ng-model="vm.editObj.name" placeholder="Wakeup Rate" focus-on="editExisting" esc-cancel="vm.editCancel()">
+                    <input ng-if="vm.editId == commandType.id" type="text" class="form-control" ng-model="vm.editObj.name" required placeholder="Wakeup Rate" focus-on="editExisting" esc-cancel="vm.editCancel()">
                 </td>
                 <td>
                     <span ng-if="vm.editId != commandType.id">{{ commandType.description }}</span>

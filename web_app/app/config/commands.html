@@ -33,7 +33,7 @@
                 </td>
                 <td>
                     <span ng-if="editVm.editId != command.id">{{ command.value }}</span>
-                    <input ng-if="editVm.editId == command.id" type="text" class="form-control" ng-model="editVm.editObj.value" placeholder="20" ng-pattern="/^\d*\.?\d*$/" focus-on="editExisting" esc-cancel="editVm.editCancel()">
+                    <input ng-if="editVm.editId == command.id" type="text" class="form-control" ng-model="editVm.editObj.value" placeholder="20" required ng-pattern="/^\d*\.?\d*$/" focus-on="editExisting" esc-cancel="editVm.editCancel()">
                 </td>
                 <td class="button-cell">
                     <button type="button" class="btn btn-default btn-sm right" ng-if="editVm.showDeleteButton(command)" ng-click="editVm.editDelete(command)">

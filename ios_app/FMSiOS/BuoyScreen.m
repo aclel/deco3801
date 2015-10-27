@@ -23,6 +23,8 @@
 - (void)displayBuoyInfo:(NSDictionary *)info;
 - (void)displayBuoyLoadingFailed;
 
+- (void)hidePingButton;
+
 - (void)startPinging;
 - (void)finishPingingSuccessWithTime:(NSNumber *)seconds;
 - (void)finishPingingTimeout;
@@ -135,6 +137,7 @@
 
 - (void)layoutSubviews {
     [super layoutSubviews];
+    
     // Ping/cancel buttons
     _pingButton.frame = CGRectMake(15, 5, _pingButton.frame.size.width, _pingButton.frame.size.height);
     _pingDetail.frame = CGRectMake(30 + _pingButton.frame.size.width, 5, 200, _pingButton.frame.size.height);
@@ -146,6 +149,10 @@
     float newHeight = (_content.frame.size.height < 70) ? 70 : _content.frame.size.height;
     _content.frame = CGRectMake(10, 40, self.frame.size.width - 20, newHeight);
     _contentInd.center = _content.center;
+}
+
+- (void)hidePingButton {
+    [self.pingButton setHidden:YES];
 }
 
 - (void)startPinging {
@@ -1045,6 +1052,11 @@
     [self.moreInfoDialog.cancelButton addTarget:self action:@selector(closeMoreInfoPressed) forControlEvents:UIControlEventTouchUpInside];
     [self.moreInfoDialogContainer addSubview:self.moreInfoDialog];
     self.moreInfoDialog.buoy = b;
+    
+    // Hide ping if no clearance
+    if (![self.d hasConfigClearance]) {
+        [self.moreInfoDialog hidePingButton];
+    }
     
     // Start settings for animation
     self.moreInfoDialogContainer.alpha = 0;

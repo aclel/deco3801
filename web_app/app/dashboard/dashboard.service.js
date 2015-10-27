@@ -147,8 +147,8 @@
 						"hours", "days", "weeks", "months"
 					] },
 					range: {
-						from: { date: "", time: "" },
-						to: { date: "", time: "" },
+						from: { date: "01/07/15", time: "" },
+						to: { date: "28/10/15", time: "" },
 					},
 					point: { date: "", time: "" },
 				}

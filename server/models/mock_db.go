@@ -68,11 +68,11 @@ func (mdb *MockDB) GetActiveBuoyInstance(guid string) (*BuoyInstance, error) {
 	return &BuoyInstance{}, nil
 }
 
-func (mdb *MockDB) GetAllBuoyInstances() ([]BuoyInstance, error) {
+func (mdb *MockDB) GetAllBuoyInstances() ([]*BuoyInstance, error) {
 	return nil, nil
 }
 
-func (mdb *MockDB) GetAllActiveBuoyInstances() ([]BuoyInstance, error) {
+func (mdb *MockDB) GetAllActiveBuoyInstances() ([]*BuoyInstance, error) {
 	return nil, nil
 }
 

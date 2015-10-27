@@ -13,6 +13,7 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -23,7 +24,7 @@ import (
 
 // Wraps Buoy Instance array for json response
 type BuoyInstancesWrapper struct {
-	BuoyInstances []models.BuoyInstance `json:"buoyInstances"`
+	BuoyInstances []*models.BuoyInstance `json:"buoyInstances"`
 }
 
 // Wraps Buoy Instance Sensor array for json response
@@ -57,6 +58,21 @@ func BuoyInstancesIndex(env *models.Env, w http.ResponseWriter, r *http.Request)
 		buoyInstanceWrapper.BuoyInstances, err = env.DB.GetAllActiveBuoyInstances()
 	} else {
 		buoyInstanceWrapper.BuoyInstances, err = env.DB.GetAllBuoyInstances()
+	}
+
+	// Get the buoy instance sensors for each buoy instance
+	for _, buoyInstance := range buoyInstanceWrapper.BuoyInstances {
+		sensors, err := env.DB.GetSensorsForBuoyInstance(buoyInstance.Id)
+		fmt.Println(sensors)
+		if err != nil {
+			return &AppError{err, "Error retrieving sensors for buoy instance", http.StatusInternalServerError}
+		}
+
+		if len(sensors) == 0 {
+			buoyInstance.BuoyInstanceSensors = &[]models.BuoyInstanceSensor{}
+		} else {
+			buoyInstance.BuoyInstanceSensors = &sensors
+		}
 	}
 
 	if err != nil {

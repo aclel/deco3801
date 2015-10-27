@@ -63,7 +63,7 @@ func CommandTypesCreate(env *models.Env, w http.ResponseWriter, r *http.Request)
 
 	// Check if Command Type JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+		return &AppError{err, "Invalid Command Type", http.StatusInternalServerError}
 	}
 
 	// Insert the Command Type into the database
@@ -98,7 +98,7 @@ func CommandTypesUpdate(env *models.Env, w http.ResponseWriter, r *http.Request)
 
 	// Check if Command Type JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+		return &AppError{err, "Invalid Command Type", http.StatusInternalServerError}
 	}
 	commandType.Id = id
 

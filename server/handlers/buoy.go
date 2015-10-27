@@ -94,7 +94,7 @@ func BuoysCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 
 	// Check if Buoy JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+		return &AppError{err, "Invalid Buoy", http.StatusInternalServerError}
 	}
 
 	// Insert the Buoy into the database
@@ -145,7 +145,7 @@ func BuoysUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 
 	// Check if Buoy JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON", http.StatusInternalServerError}
+		return &AppError{err, "Invalid Buoy", http.StatusInternalServerError}
 	}
 	buoy.Id = id
 
@@ -205,7 +205,7 @@ func BuoyCommandsCreate(env *models.Env, w http.ResponseWriter, r *http.Request)
 
 	// Check if Command JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid Commands JSON", http.StatusInternalServerError}
+		return &AppError{err, "Invalid Commands", http.StatusInternalServerError}
 	}
 
 	addedIds := make([]int64, 0)

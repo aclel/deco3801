@@ -68,6 +68,7 @@
                 });
             } else {
                 editVm.editObj.id = -3;
+                vm.parseTriggers(); // necessary to instantly update dropdown
                 server.addWarningTrigger(editVm.editObj, getAffectedBuoyIds()).then(function(res) {
                     vm.queryTriggers();
                     gui.alertSuccess('Warning trigger added.');
@@ -152,7 +153,8 @@
         function editNew() {
             var temp = { id: -2, sensorTypeId: 1, operator: "<" };
             if (vm.selected.type == 'instance') {
-                temp.buoyName = vm.selected.obj.name;
+                temp.buoyInstance = vm.selected.obj;
+                temp.buoyInstanceId = vm.selected.obj.id;
             }
             vm.triggers.push(temp);
             editExisting(temp);

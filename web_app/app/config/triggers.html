@@ -16,9 +16,9 @@
         <tbody>
             <tr ng-repeat="trigger in vm.triggers | filter:vm.triggerFilter | orderBy:'id'">
                 <td>
-                    <span ng-if="trigger.id != -2">{{ trigger.buoyName }}</span>
+                    <span ng-if="trigger.id != -2">{{ trigger.buoyInstance.name }}</span>
                     <div ng-if="trigger.id == -2">
-                        <span ng-if="vm.selected.type == 'instance'">{{ trigger.buoyName }}</span>
+                        <span ng-if="vm.selected.type == 'instance'">{{ trigger.buoyInstance.name }}</span>
                         <em ng-if="vm.selected.type == 'group'">All buoys in {{ vm.selected.obj.name }}</em>
                         <em ng-if="vm.selected.type == 'all'">All buoys</em>
                     </div>
@@ -28,7 +28,7 @@
                     <select ng-if="editVm.editId == trigger.id"
                         type="button" class="btn btn-default" 
                         ng-model="editVm.editObj.sensorTypeId" 
-                        bs-options="opt.id as opt.name for opt in vm.sensorTypes | filter: { archived: false }"
+                        bs-options="opt.sensorTypeId as opt.sensorName for opt in vm.buoyInstanceSensors | filter: { buoyInstanceId: trigger.buoyInstanceId }"
                         esc-cancel="editVm.editCancel()"
                         bs-select>
                     </select>

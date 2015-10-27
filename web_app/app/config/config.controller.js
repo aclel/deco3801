@@ -97,7 +97,6 @@
 					return true;
 				},
 				dropped: function(event) {
-					console.log(event);
 					var groupId = event.dest.nodesScope.$nodeScope.$modelValue.id;
 					var existingName = event.source.nodeScope.$modelValue.name;
 					var instanceId = event.source.nodeScope.$modelValue.id;
@@ -131,7 +130,7 @@
 			server.getBuoyInstances().then(function(res) {
 				vm.buoyInstances = res.data.buoyInstances;
 				parseBuoyInstanceDetails();
-				console.log(vm.buoyInstances);
+				parseTriggers();
 			}, function(res) {
 				gui.alertBadResponse(res);
 			});
@@ -202,6 +201,7 @@
 				// flatten sensors
 				buoyInstance.sensors.forEach(function(sensor) {
 					sensor.buoyInstance = buoyInstance;
+					sensor.buoyInstanceId = buoyInstance.id;
 					vm.buoyInstanceSensors.push(sensor);
 				});
 			});
@@ -236,7 +236,7 @@
 				for (var i = 0; i < vm.buoyInstances.length; i++) {
 					var buoyInstance = vm.buoyInstances[i];
 					if (buoyInstance.id == trigger.buoyInstanceId) {
-						trigger.buoyName = buoyInstance.name;
+						trigger.buoyInstance = buoyInstance;
 						break;
 					}
 				}

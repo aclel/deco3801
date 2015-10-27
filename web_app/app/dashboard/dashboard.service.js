@@ -209,7 +209,7 @@
 			for (var i = 0; i < data.length; i++) {
 				var sensor = data[i];
 				
-				// if (sensor.archived) continue;
+				if (sensor.archived) continue;
 				keep.push(sensor.id + "");			
 
 				if (!sensors.hasOwnProperty(sensor.id)) {
@@ -883,6 +883,7 @@
 
 		    var charts = {};
 		    buoyInstance.readings.forEach(function(reading) {
+		    	console.log(reading);
 		        reading.sensorReadings.forEach(function(sReading) {
 		            var sensorName = sensors[sReading.sensorTypeId].name;
 		            //if no sensorReadings exist
@@ -897,18 +898,26 @@
 		                		scaleSteps : 10,
 		                		scaleStepWidth : (sensors[sReading.sensorTypeId].upperBound)/10,
 		         				scaleType: "date",
+		         				scaleTimeFormat: "h:MM TT  ",
+		         				scaleDateFormat: "mmm d  ",
 		         				scaleDateTimeFormat: "mmm d, yyyy, hh:MM",
 		         				emptyDataMessage: "chart has no data",
+		         				tooltipTemplate:"<%=argLabel%>; "+sensorName+": <%=valueLabel%>",
+		         				multiTooltipTemplate:"<%=argLabel%>; "+sensorName+": <%=valueLabel%>"
+		         				
 		                		
 		                	}
 		            	};
 		            }
 		            //then push to respective sensorReadings
-		            charts[sensorName].data[0].push({x:new Date(reading.timestamp*1000), y: sReading.value });
+		            if (sReading.value > sensors[sReading.sensorTypeId].upperBound){
+		            	sReading.value = (sensors[sReading.sensorTypeId].upperBound);
+		            }
+		            charts[sensorName].data[0].push({x:new Date((reading.timestamp*1000)+36000000), y: sReading.value });
 		        });
 
 		    });
-		    console.log(charts);
+		    
 			averageReadings(charts);
 			var arr = [];
 			for (var key in charts) {
@@ -929,7 +938,7 @@
 				var chart = charts[key];
 				var data = chart.data[0];
 
-				var xmax = 15; // maximum labels on x-axis, thus maximum data points
+				var xmax = 20; // maximum labels on x-axis, thus maximum data points
 				var division = Math.floor(data.length/xmax);
 				
 				var averageData = [];

@@ -103,7 +103,7 @@ func UsersShowWithEmail(env *models.Env, w http.ResponseWriter, r *http.Request)
 //     "email": "test@email.com",
 //     "firstName": "test",
 //     "lastName": "user",
-//     "role": "researcher"
+//     "role": "user"
 // }
 func UsersCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	user := new(models.User)

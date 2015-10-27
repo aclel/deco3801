@@ -31,6 +31,7 @@ Web App
 * Implement warning triggers on config page
 + Show loading icon on all requests 
 + Implement buoy status details on config page 
+* Clicking on the map now deselects the current buoy.
 
 iOS App
 [Release Candidate]

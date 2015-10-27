@@ -236,6 +236,10 @@
 		function closeInfoBox() {
 			infoBox.close();
 			infoBoxOpen = false;
+            currentMarkerId = -1;
+ 
+            // update charts to be empty
+            $rootScope.$broadcast('mapMarkerSelected', null);
 		}
 
 		/**

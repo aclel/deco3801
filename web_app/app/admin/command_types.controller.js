@@ -69,6 +69,7 @@
          * called on Save button click
          */
         function editSave() {
+            if (!inputValid()) return;
             if (vm.editId != -2) {
                 server.updateCommandType(vm.editObj).then(function(res) {
                     queryCommandTypes();
@@ -87,6 +88,11 @@
                 });
             }
             vm.editId = -1;
+        }
+
+        function inputValid() {
+            if (!vm.editObj.name) return false;
+            return true;
         }
         
         /**

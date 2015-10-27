@@ -49,7 +49,7 @@
                     </td>
                     <td>
                         <span ng-if="editVm.editId != trigger.id">{{ trigger.value }}</span>
-                        <input ng-if="editVm.editId == trigger.id" type="text" class="form-control" ng-model="editVm.editObj.value" placeholder="20" focus-on="editExisting" esc-cancel="editVm.editCancel()">
+                        <input ng-if="editVm.editId == trigger.id" type="text" class="form-control" ng-model="editVm.editObj.value" ng-pattern="/^\d*\.?\d*$/" placeholder="20" focus-on="editExisting" esc-cancel="editVm.editCancel()">
                     </td>
                     <td>
                         <span ng-if="editVm.editId != trigger.id">{{ trigger.message }}</span>

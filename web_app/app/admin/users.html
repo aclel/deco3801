@@ -14,7 +14,7 @@
             <tr ng-repeat="user in vm.users">
                 <td>
                     <span ng-if="user.id != -2">{{ user.email }}</span>
-                    <input ng-if="user.id == -2" type="text" class="form-control" ng-model="vm.editObj.email" placeholder="johndoe@aol.com" focus-on="editNew" esc-cancel="vm.editCancel()">
+                    <input ng-if="user.id == -2" type="email" class="form-control" ng-model="vm.editObj.email" placeholder="johndoe@aol.com" focus-on="editNew" esc-cancel="vm.editCancel()">
                 </td>
                 <td>
                     <span ng-if="vm.editId != user.id">{{ user.firstName }}</span>

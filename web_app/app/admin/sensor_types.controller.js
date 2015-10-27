@@ -69,6 +69,7 @@
          * called on Save button click
          */
         function editSave() {
+            if (!inputValid()) return;
             if (vm.editId != -2) {
                 server.updateSensorType(vm.editObj).then(function(res) {
                     querySensorTypes();
@@ -87,6 +88,14 @@
                 });
             }
             vm.editId = -1;
+        }
+
+        function inputValid() {
+            if (!/^\d*\.?\d*$/.test(vm.editObj.upperBound)) return false;
+            if (!/^\d*\.?\d*$/.test(vm.editObj.lowerBound)) return false;
+            if (!vm.editObj.name) return false;
+            if (!vm.editObj.unit) return false;
+            return true;
         }
         
         /**

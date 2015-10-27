@@ -11,7 +11,7 @@
             <tr ng-repeat="buoy in vm.buoys | filter: { archived: false }">
                 <td>
                     <span ng-if="vm.editId != buoy.id">{{ buoy.guid }}</span>
-                    <input ng-if="vm.editId == buoy.id" type="text" class="form-control" ng-model="vm.editObj.guid" esc-cancel="vm.editCancel()">
+                    <input ng-if="vm.editId == buoy.id" type="text" class="form-control" ng-model="vm.editObj.guid" ng-pattern="/^\{?[a-fA-F\d]{8}-([a-fA-F\d]{4}-){3}[a-fA-F\d]{12}\}?$/" esc-cancel="vm.editCancel()">
                 </td>
                 <td>
                     <span ng-if="vm.editId != buoy.id">{{ buoy.name }}</span>

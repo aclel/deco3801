@@ -99,6 +99,7 @@
          * called on Save button click
          */
         function editSave() {
+            if (!inputValid()) return;
             vm.editObj.id = -3;
             server.addBuoy(vm.editObj).then(function(res) {
                 queryBuoys();
@@ -109,6 +110,12 @@
                 vm.buoys.splice(vm.buoys.length - 1, 1);
             });
             vm.editId = -1;
+        }
+        
+        function inputValid() {
+            if (!/^\{?[a-fA-F\d]{8}-([a-fA-F\d]{4}-){3}[a-fA-F\d]{12}\}?$/.test(vm.editObj.guid)) return false;
+            if (!vm.editObj.name) return false;
+            return true;
         }
         
         /**

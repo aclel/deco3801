@@ -424,6 +424,7 @@
 			// convert input strings to moments 
 			// and update vm.times, which updates reference in dashboard service
 			if (timesInputsValid()) {
+				console.log(true);
 				var momentFormat = dateFormat + " " + timeFormat;
 				
 				if (times.type == 'range') {
@@ -443,6 +444,8 @@
 				}, function() {
 					defer.reject();
 				});
+			} else {
+				defer.reject();
 			}
 			return defer.promise;
 		}
@@ -450,19 +453,26 @@
 		/** Basic validation of times inputs */
 		function timesInputsValid() {
 			if (times.type == 'since') {
-				if (times.inputs.since.value) {
-					return true;
-				}
-			}
-			if (times.type == 'range') {
+				if (/^[0-9]{1,7}$/.test(times.inputs.since.value)) return true;
+			} else if (times.type == 'range') {
 				// valid combinations: all filled, dates filled, times filled
 				var fromDate = times.inputs.range.from.date;
 				var fromTime = times.inputs.range.from.time;
 				var toDate = times.inputs.range.to.date;
 				var toTime = times.inputs.range.to.time;
 				
-				if (fromDate && fromTime && toDate && toTime) return true;
-				if (fromDate && !fromTime && toDate && !toTime) return true;
+				// if (!fromDate || !toDate) return false;
+				// if ((toTime && !fromTime) || (fromTime && !toTime)) return false;
+
+				if (!/^\d{2}\/\d{2}\/\d{2}$/.test(fromDate)) return false;
+				if (!/^\d{2}\/\d{2}\/\d{2}$/.test(toDate)) return false;
+
+				if (fromTime || toTime) {
+					if (!/^([0-1][0-9]|[2][0-3]):([0-5][0-9])$/.test(fromTime)) return false;
+					if (!/^([0-1][0-9]|[2][0-3]):([0-5][0-9])$/.test(toTime)) return false;
+				}
+
+				return true;
 			}
 			if (times.type == 'point') {
 				// must have date, time is optional
@@ -507,6 +517,17 @@
 		function updateSensors() {
 			updateFilters();
 		}
+
+		function sensorInputsValid() {
+			console.log(sensors);
+			for (var key in sensors) {
+				if (!sensors.hasOwnProperty(key)) continue;
+				var sensor = sensors[key];
+				if (!sensor.inputs.enabled) continue;
+				if (!/^\d*\.?\d*$/.test(sensor.inputs.value)) return false;
+			}
+			return true;
+		}
 		
 		/** Calculate readings closest to specified time */
 		function calculatePointReadings() {
@@ -534,13 +555,14 @@
 		
 		/** Re-filter readings based on updated filters */
 		function updateFilters() {
+			if (!timesInputsValid()) return false;
+			if (!sensorInputsValid()) return false;
 			filteredReadings = [];
 			var numInstances = 0, numReadings = 0;
 			if (!readings.length || !Object.keys(sensors).length) {
 				map.hideDisabledMarkers([]); // hide all markers
 				return;
 			}
-
 			for (var i = 0; i < readings.length; i++) {
 				var buoyGroup = readings[i];
 				if (!buoyGroupEnabled(buoyGroup.id)) continue;
@@ -809,7 +831,6 @@
 		function updateMap(selectedInstance) {
 			var enabledMarkers = [];
 			var insNum = 0;
-
 			// show a marker for every reading
 			// filteredReadings.forEach(function(buoyGroup) {
 			// 	buoyGroup.buoyInstances.forEach(function(buoyInstance) {
@@ -841,13 +862,14 @@
 					if (selectedInstance) {
 						if (selectedInstance.id == buoyInstance.id) return;
 					}
-
-					var reading = buoyInstance.readings[buoyInstance.readings.length - 1];
-					insNum++;
-					enabledMarkers.push(reading.id);
-					map.showMarker(reading, buoyInstance,
-						1, //getRelativeAge(reading, buoyInstance),
-						popupContent(reading, buoyInstance));
+					if (buoyInstance.readings.length) { 
+						var reading = buoyInstance.readings[buoyInstance.readings.length - 1];
+						insNum++;
+						enabledMarkers.push(reading.id);
+						map.showMarker(reading, buoyInstance,
+							1, //getRelativeAge(reading, buoyInstance),
+							popupContent(reading, buoyInstance));
+					}
 				});
 			});
 

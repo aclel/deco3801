@@ -60,6 +60,7 @@
          * called on Save button click
          */
         function editSave() {
+            if (!inputValid()) return;
             if (editVm.editId != newId) {
                 vm.parseCommands(); // necessary to instantly update dropdown
                 server.updateCommand(editVm.editObj).then(function(res) {
@@ -79,6 +80,11 @@
                 });
             }
             editVm.editId = -1;
+        }
+
+        function inputValid() {
+            if (!/^\d*\.?\d*$/.test(editVm.editObj.value)) return false;
+            return true;
         }
 
         function getAffectedBuoyIds() {

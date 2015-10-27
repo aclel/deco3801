@@ -81,7 +81,7 @@
 			},
 			function(res) {
 				gui.alertError('Invalid email or password');
-				$rootScope.$broadcast('loading', false);
+				$rootScope.$broadcast('loading', false); // TODO (HACK)
 			});
 		}
 		
@@ -104,7 +104,7 @@
 			} else {
 				gui.alertError("Invalid password");
 				vm.waiting = false;
-				$rootScope.$broadcast('loading', false);
+				$rootScope.$broadcast('loading', false); // TODO (HACK)
 			}
 		}
 
@@ -120,7 +120,7 @@
 			} else {
 				gui.alertError("Invalid password");
 				vm.waiting = false;
-				$rootScope.$broadcast('loading', false);
+				$rootScope.$broadcast('loading', false); // TODO (HACK)
 			}
 		}
 		

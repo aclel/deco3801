@@ -60,6 +60,7 @@
          * called on Save button click
          */
         function editSave() {
+            if (!inputValid()) return;
             if (editVm.editId != newId) {
                 vm.parseTriggers(); // necessary to instantly update dropdown
                 server.updateWarningTrigger(editVm.editObj).then(function(res) {
@@ -80,6 +81,11 @@
                 });
             }
             editVm.editId = -1;
+        }
+
+        function inputValid() {
+            if (!/^\d*\.?\d*$/.test(editVm.editObj.value)) return false;
+            return true;
         }
 
         function getAffectedBuoyIds() {

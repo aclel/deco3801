@@ -43,6 +43,7 @@
 		vm.operators = [ '<', '>', '=' ];
 		vm.editingPollRate = false;
 		vm.treeOptions = {};
+		vm.redeploy = {};
 		vm.selectAll = selectAll;
 		vm.selectBuoyGroup = selectBuoyGroup;
 		vm.selectBuoyInstance = selectBuoyInstance;
@@ -66,6 +67,8 @@
 		vm.triggerFilter = triggerFilter;
 		vm.sensorFilter = sensorFilter;
 		vm.sensorsAttached = sensorsAttached;
+		vm.redeployBuoy = redeployBuoy;
+		vm.redeployShow = redeployShow;
 		
 		activate();
 		
@@ -78,6 +81,7 @@
 			queryTriggers();
 			queryBuoyInstanceSensors();
 			setTreeOptions();
+			resetRedeployInput();
 		}
 
 		/** Set the tree options for buoy groups list */
@@ -223,8 +227,8 @@
 				var duration = moment.duration(buoyInstance.pollRate, 'seconds');
 				buoyInstance.pollInterval = duration.humanize();
 				if (buoyInstance.lastPolled.Valid) {
-					buoyInstance.nextScheduled = moment(buoyInstance.pollRate.Time,
-						'X').add(duration).format("DD/MM/YY HH:mm A");
+					buoyInstance.nextScheduled = moment(buoyInstance.pollRate.Time)
+						.add(duration).format("DD/MM/YY HH:mm A");
 				} else {
 					buoyInstance.nextScheduled = 'Never';
 				}
@@ -266,8 +270,9 @@
 					}
 				}
 				// parse time
-				sensor.recentTime = moment(sensor.lastRecorded.Time,
-					'X').format("DD/MM/YY HH:mm A");
+				console.log(sensor.lastRecorded.Time);
+				sensor.recentTime = moment(sensor.lastRecorded.Time)
+					.format("DD/MM/YY HH:mm A");
 			});
 		}
 
@@ -285,7 +290,7 @@
 		 * @return {bool} show config
 		 */
 		function showBuoyConfig() {
-			if (vm.selected.type == 'instance') return true;
+			if (vm.selected.type == 'instance' && !vm.redeploy.show) return true;
 			if (vm.selected.type == 'group' && vm.groupBuoys.length > 0) return true;
 			if (vm.selected.type == 'all' && vm.buoyInstances.length > 0) return true;
 			return false;
@@ -313,6 +318,9 @@
 			vm.editGroup.on = false;
 			vm.newCommand = false;
 			vm.newTrigger = false;
+
+			vm.redeploy.show = false;
+			resetRedeployInput();
 		}
 		
 		/** Show config for selected buoy group */
@@ -660,6 +668,34 @@
 				}
 			}
 			return false;
+		}
+
+		function resetRedeployInput() {
+			vm.redeploy = { show: false, buoyGroupId: 0 };
+		}
+
+		function redeployBuoy() {
+			var oldName = vm.selected.obj.name;
+			var oldBuoyGroupId = vm.selected.obj.buoyGroupId;
+			var newName = vm.redeploy.name;
+			vm.selected.obj.name = newName;
+			vm.selected.obj.buoyGroupId = vm.redeploy.buoyGroupId;
+			server.redeployBuoy(vm.selected.obj.buoyId,
+					vm.redeploy.name,
+					vm.redeploy.buoyGroupId).then(function(res) {
+				queryBuoyInstances();
+				gui.alertSuccess(oldName + ' redeployed as ' + newName);
+			}, function(res) {
+				gui.alertBadResponse(res);
+				vm.selected.obj.name = oldName;
+				vm.selected.obj.buoyGroupId = oldBuoyGroupId;
+			});
+			resetRedeployInput();
+		}
+
+		function redeployShow() {
+			vm.redeploy.show = true;
+			gui.focus('redeploy');
 		}
 	}
 })();

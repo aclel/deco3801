@@ -354,7 +354,7 @@
 						},
 						{
 							"featureType": "transit",
-							"elementType": "geometry",
+							"elementType": "all",
 							"stylers": [
 							  { "visibility": "off" }
 							]

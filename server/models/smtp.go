@@ -36,7 +36,7 @@ func (db *DB) SendNewUserEmail(user *User, emailUser *EmailCredentials) error {
 	m := gomail.NewMessage()
 	m.SetHeader("From", emailUser.Username)
 	m.SetHeader("To", user.Email)
-	m.SetHeader("Subject", "WatcherWatcher Account")
+	m.SetHeader("Subject", "WaterWatcher Account")
 	m.SetBody("text/html",
 		`<h1>Welcome to WaterWatcher.</h1>
 		<p>Here is a link to sign in to your account: </p>

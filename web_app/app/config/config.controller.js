@@ -24,6 +24,7 @@
 	**/
 	function ConfigController(server, gui, moment) {
 		var vm = this;
+		var newId = Math.pow(2, 32) + 1;
 		
 		/** Variables and methods bound to viewmodel */
 		vm.buoyGroups = [];
@@ -491,7 +492,7 @@
 		 * @return {bool}         show command
 		 */
 		function commandFilter(command) {
-			if (command.id == -2) return true;
+			if (command.id == newId) return true;
 			if (command.commandTypeArchived) return false;
 			if (vm.selected.type == 'all') {
 				return true;
@@ -534,7 +535,7 @@
 		 * @return {bool}         show trigger
 		 */
 		function triggerFilter(trigger) {
-			if (trigger.id == -2) return true;
+			if (trigger.id == newId) return true;
 			// if (trigger.triggerTypeArchived) return false;
 			if (vm.selected.type == 'all') {
 				return true;
@@ -577,8 +578,6 @@
 		 * @return {bool}         show sensor
 		 */
 		function sensorFilter(sensor) {
-			if (sensor.id == -2) return true;
-			// if (sensor.sensorTypeArchived) return false;
 			if (vm.selected.type == 'all') {
 				return true;
 			} else if (vm.selected.type == 'instance') {

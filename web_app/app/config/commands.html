@@ -14,8 +14,8 @@
         <tbody>
             <tr ng-repeat="command in vm.commands | filter:vm.commandFilter | orderBy:'id'">
                 <td>
-                    <span ng-if="command.id != -2">{{ command.buoyName }}</span>
-                    <div ng-if="command.id == -2">
+                    <span ng-if="command.id != editVm.newId">{{ command.buoyName }}</span>
+                    <div ng-if="command.id == editVm.newId">
                         <span ng-if="vm.selected.type == 'instance'">{{ command.buoyName }}</span>
                         <em ng-if="vm.selected.type == 'group'">All buoys in {{ vm.selected.obj.name }}</em>
                         <em ng-if="vm.selected.type == 'all'">All buoys</em>

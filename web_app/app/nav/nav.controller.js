@@ -28,9 +28,6 @@
 	function NavController($rootScope, $state, $scope, $timeout, routerHelper, auth) {
 		var vm = this;
 		
-		/** Internal variables */
-		var loggedIn = auth.loggedIn();
-		
 		/** Variables and methods bound to viewmodel */
 		vm.loading = true;
 		vm.accountMenu = [
@@ -46,10 +43,6 @@
 		
 		/** Called when controller is instantiated (navbar is loaded) */
 		function activate() {
-			// after navigating to a new panel, check still logged in
-			$rootScope.$on('$stateChangeSuccess', function() {
-				loggedIn = auth.loggedIn();
-			});
 			// register loading event listener
 			$rootScope.$on('loading', function(event, on) {
 				if (on) {
@@ -79,27 +72,16 @@
 		 */
 		function checkShowNav(nav) {
 			switch(nav) {
-				case 'dashboard':
-					return loggedIn;
-				case 'config':
-					return auth.checkUser('power_user');
-				case 'warnings':
-					return auth.checkUser('power_user');
-				case 'admin':
-					return auth.checkUser('system_admin');
-				case 'logout':
-					return loggedIn;
 				case 'account':
-					return loggedIn;
+					return auth.checkUser('authed');
 				default:
-					return false;
+					return auth.checkUser($state.get(nav).data.access);
 			}
 		}
 		
 		/** Logout user and redirect to login page */
 		function logout() {
 			auth.logout();
-			loggedIn = false;
 			$state.go('login');	
 		}
 

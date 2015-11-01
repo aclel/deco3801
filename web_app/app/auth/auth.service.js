@@ -23,7 +23,17 @@
 		* @requires moment
 	**/
 	function auth($window, moment) {
-		
+
+		// Internal variables
+		var roles = {
+			'unauthed': 0,
+			'authed': 1,
+			'user': 1,
+			'power_user': 2,
+			'system_admin': 3,
+			'andrew': 99999
+		};
+	
 		/** The service methods to expose */
 		return {
 			logout: logout,
@@ -114,16 +124,7 @@
 		 * @param  {string} role role
 		 * @return {bool}      authorised
 		 */
-		function checkUser(role) {
-			var roles = {
-				'unauthed': 0,
-				'authed': 1,
-				'user': 1,
-				'power_user': 2,
-				'system_admin': 3,
-				'andrew': 99999
-			};
-			
+		function checkUser(role) {		
 			if (role == 'any') return true;
 			
 			if (role == 'unauthed') {
@@ -135,6 +136,8 @@
 					return false;
 				}
 			}
+
+			if (!roles.hasOwnProperty(role)) return false;
 			
 			return (roles[currentUserRole()] >= roles[role]);
 		}

@@ -22,7 +22,7 @@
 		* @description Provides viewmodel for admin view
 		* @requires server
 	**/
-	function UsersController($scope, server, gui) {
+	function UsersController($scope, server, gui, auth) {
 		var vm = this;
 		
 		/** Variables and methods bound to viewmodel */
@@ -85,9 +85,14 @@
 		 */
 		function editSave() {
 			if (vm.editId != -2) {
+				var user = vm.editObj.email;
 				server.updateUser(vm.editObj).then(function(res) {
 					queryUsers();
-					gui.alertSuccess('User updated.');
+					if (auth.currentUser() == user) {
+						gui.alertSuccess('User updated. Please logout and login again to update your user restrictions.');
+					} else {
+						gui.alertSuccess('User updated.');
+					}
 				}, function(res) {
 					gui.alertBadResponse(res);
 				});

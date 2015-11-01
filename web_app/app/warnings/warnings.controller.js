@@ -20,93 +20,20 @@
 		* @ngdoc object
 		* @name app.warnings.controller:WarningsController
 		* @description Provides viewmodel for warnings view
-		* @requires $log
-		* @requires server
-		* @requires moment
+		* @requires warnings
 	**/
-	function WarningsController($log, server, moment) {
+	function WarningsController(warnings) {
 		var vm = this;
 
-		var resolved = 0; // used to determine when data is received
-		
 		/** Variables and methods bound to viewmodel */
-		vm.loading = false;
 		vm.warnings = [];
-		vm.buoyInstances = [];
-		vm.sensorTypes = [];
 		
 		activate();
 		
 		/** Called when controller is instantiated (warnings page is loaded) */
 		function activate() {
-			vm.loading = true;
-			queryWarnings();
-			queryBuoyInstances();
-			querySensorTypes();
-		}
-		
-		/** Query warnings from server and update viewmodel */
-		function queryWarnings() {
-			server.getWarnings().then(function(res) {
-				vm.warnings = res.data.warnings;
-				resolved++;
-				parseWarnings();
-			}, function(res) {
-				$log.error(res);
-			});
-		}
-		
-		/** Query buoy instances from server and update viewmodel */
-		function queryBuoyInstances() {
-			server.getBuoyInstances().then(function(res) {
-				vm.buoyInstances = res.data.buoyInstances;
-				resolved++;
-				parseWarnings();
-			}, function(res) {
-				$log.error(res);
-			});
-		}
-
-		/** Query sensor types from server and parse warnings */
-		function querySensorTypes() {
-			server.getSensorTypes().then(function(res) {
-				vm.sensorTypes = res.data.sensorTypes;
-				resolved++;
-				parseWarnings();
-			}, function(res) {
-				$log.error(res);
-			});
-		}
-		
-		/** Associate buoy, sensor and time info with warnings */
-		function parseWarnings() {
-			if (resolved < 3) return; // wait until all data has been received from server
-			vm.loading = false;
-
-			vm.warnings.forEach(function(warning) {
-				// parse time
-				warning.readingTime = moment(warning.readingTimestamp,
-					'X').format("DD/MM/YY HH:mm A");
-				// get buoy name
-				for (var i = 0; i < vm.buoyInstances.length; i++) {
-					var buoyInstance = vm.buoyInstances[i];
-					if (buoyInstance.id == warning.warningTrigger.buoyInstanceId) {
-						warning.buoyName = buoyInstance.name;
-						break;
-					}
-				}
-				// get sensor name
-				for (var i = 0; i < vm.sensorTypes.length; i++) {
-					var sensorType = vm.sensorTypes[i];
-					if (sensorType.id == warning.warningTrigger.sensorTypeId) {
-						warning.sensorName = sensorType.name;
-						break;
-					}
-				}
-				// format sensor, operator and value
-				warning.warning = warning.sensorName + " " +
-					warning.warningTrigger.operator + " " +
-					warning.warningTrigger.value;
+			warnings.refreshData().then(function() {
+				vm.warnings = warnings.getWarnings();
 			});
 		}
 	}

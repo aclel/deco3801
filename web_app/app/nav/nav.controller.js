@@ -25,8 +25,11 @@
 		* @requires routerHelper
 		* @requires auth
 	**/
-	function NavController($rootScope, $state, $scope, $timeout, routerHelper, auth, server) {
+	function NavController($rootScope, $state, $timeout, routerHelper, auth, server) {
 		var vm = this;
+
+		// Internal variables
+		var justRefreshedWarnings = false;
 		
 		/** Variables and methods bound to viewmodel */
 		vm.loading = true;
@@ -34,11 +37,11 @@
 			{ text: "Change password", click: "vm.changePassword()" },
 			{ text: "Logout", click: "vm.logout()" }
 		];
+		vm.warningNum = 0;
 		vm.checkShowNav = checkShowNav;
 		vm.stateActive = stateActive;
 		vm.logout = logout;
 		vm.changePassword = changePassword;
-		vm.warningNum = 0;
 		
 		activate();
 		
@@ -47,18 +50,32 @@
 			// register loading event listener
 			$rootScope.$on('loading', function(event, on) {
 				if (on) {
-					vm.loading = on;
+					// Don't show loader when refreshing warnings
+					if (!justRefreshedWarnings) {
+						vm.loading = true;
+					}
 				} else {
+					// Prevent infinite querying of warnings
+					if (!justRefreshedWarnings) {
+						refreshWarnings();
+					} else {
+						justRefreshedWarnings = false;
+					}
 					// apply a short delay when hiding the loader
 					$timeout(function() {
-						vm.loading = on;
+						vm.loading = false;
 					}, 800);
 				}
 			});
-			// fetch warnings to show badge
+
+		}
+
+		// query the server for warnings and update badge
+		function refreshWarnings() {
 			server.getWarnings().then(function(res) {
 				vm.warningNum = res.data.warnings.length;
 			});
+			justRefreshedWarnings = true;
 		}
 		
 		/** 

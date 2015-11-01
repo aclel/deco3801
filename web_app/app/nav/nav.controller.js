@@ -25,7 +25,7 @@
 		* @requires routerHelper
 		* @requires auth
 	**/
-	function NavController($rootScope, $state, $scope, $timeout, routerHelper, auth) {
+	function NavController($rootScope, $state, $scope, $timeout, routerHelper, auth, server) {
 		var vm = this;
 		
 		/** Variables and methods bound to viewmodel */
@@ -38,6 +38,7 @@
 		vm.stateActive = stateActive;
 		vm.logout = logout;
 		vm.changePassword = changePassword;
+		vm.warningNum = 0;
 		
 		activate();
 		
@@ -53,6 +54,10 @@
 						vm.loading = on;
 					}, 800);
 				}
+			});
+			// fetch warnings to show badge
+			server.getWarnings().then(function(res) {
+				vm.warningNum = res.data.warnings.length;
 			});
 		}
 		

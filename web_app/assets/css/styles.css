@@ -531,6 +531,14 @@ input.ti-xl {
   background-color: #1A608E; 
 }
 
+.navbar .badge {
+  padding: 3px 6px 3px 5px;
+  background-color: #B9292D;
+  color: #E2E2E2;
+  font-size: 0.75em;
+  margin-top: -2px;
+}
+
 
 /************************* INPUT VALIDATION **********************/
 

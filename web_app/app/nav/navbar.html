@@ -18,7 +18,10 @@
 			</li>
 			<li ng-if="vm.checkShowNav('warnings')"
 				ng-class="{ active: vm.stateActive('warnings') }">
-				<a ui-sref="warnings">Warnings</a>
+				<a ui-sref="warnings">
+					Warnings 
+					<span class="badge" ng-if="vm.warningNum > 0">{{ vm.warningNum }}</span>
+				</a>
 			</li>
 			<li ng-if="vm.checkShowNav('admin')"
 				ng-class="{ active: vm.stateActive('admin') }">

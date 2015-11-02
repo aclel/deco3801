@@ -30,6 +30,8 @@
 
 		// Internal variables
 		var justRefreshedWarnings = false;
+		var warningTimeout;
+		var refreshingWarnings = false;
 		
 		/** Variables and methods bound to viewmodel */
 		vm.loading = true;
@@ -51,31 +53,41 @@
 			$rootScope.$on('loading', function(event, on) {
 				if (on) {
 					// Don't show loader when refreshing warnings
-					if (!justRefreshedWarnings) {
+					if (!refreshingWarnings) {
 						vm.loading = true;
 					}
 				} else {
-					// Prevent infinite querying of warnings
-					if (!justRefreshedWarnings) {
-						refreshWarnings();
-					} else {
-						justRefreshedWarnings = false;
-					}
+					refreshWarnings();
 					// apply a short delay when hiding the loader
 					$timeout(function() {
 						vm.loading = false;
 					}, 800);
 				}
 			});
-
 		}
 
 		// query the server for warnings and update badge
 		function refreshWarnings() {
+			if (justRefreshedWarnings) return;
+			if ($state.current.data.access == 'unauthed') return;
+
+			// if warnings were queried within last 10 seconds, don't query again
+			justRefreshedWarnings = true;
+			$timeout(function() {
+				justRefreshedWarnings = false;
+			}, 1000*10);
+
+			refreshingWarnings = true;
 			server.getWarnings().then(function(res) {
+				refreshingWarnings = false;
 				vm.warningNum = res.data.warnings.length;
 			});
-			justRefreshedWarnings = true;
+
+			// automatically refresh warnings every 10 minutes
+			if (warningTimeout) {
+				$timeout.cancel(warningTimeout);
+			}
+			warningTimeout = $timeout(refreshWarnings, 1000*60*10, true);
 		}
 		
 		/** 

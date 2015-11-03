@@ -31,7 +31,6 @@
 		var resolved = 0;
 		var chartObjects = [];
 		
-
 		/** Variables and methods bound to viewmodel */
 		vm.showGraphs = false;
 		vm.showCharts = false;
@@ -65,9 +64,6 @@
 				vm.charts = dashboard.calculateChartData(buoyInstance);
 				$scope.$apply(function() {
 					vm.selectedBuoy = buoyInstance;
-					// if (!vm.showGraphs) {
-					// 	toggleGraphs();
-					// }
 				});
 			});
 			$scope.$on('create', function(event, chart) {
@@ -87,7 +83,7 @@
 			});
 		}
 		
-		/** Update time filters, handle loading */
+		/** Update time filters */
 		function updateTimes() {
 			dashboard.updateTimes().then(function() {
 				vm.charts = dashboard.calculateChartData(vm.selectedBuoy);
@@ -100,12 +96,10 @@
 				vm.showCharts = false;
 			}
 			vm.showGraphs = !vm.showGraphs;
-			// var center = map.getCenter();
 			angular.element(
 				document.getElementsByClassName('dashboard-panel'))
 				.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
 					// finish expanding/contracting
-					// map.setCenter(center);
 					resizeCharts();
 			});
 		}

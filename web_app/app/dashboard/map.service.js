@@ -21,7 +21,7 @@
 		* @name app.dashboard.map
 		* @requires google
 	**/
-	function map($rootScope, $log, google) {
+	function map($rootScope, $log, google, InfoBox) {
 			
 		/** Internal variables */
 		var map;
@@ -165,16 +165,6 @@
 			markers[reading.id] = marker;
 		}
 
-		function randomisePos(pos) {
-			var magnitude = 100000;
-			if (Math.random() < 0.5) {
-				pos += Math.round(Math.random() * 100) / magnitude;
-			} else {
-				pos -= Math.round(Math.random() * 100) / magnitude;
-			}
-			return pos;
-		}
-
 		/**
 		 * Re-enable (show on map) disabled marker
 		 * @param  {int} id id of marker to enable
@@ -248,60 +238,11 @@
 		 * @return {object}        marker icon usable in google maps API
 		 */
 		function markerColour(colour) {
-			// return {
-			// 	path: 'M 0,0 C -2,-20 -10,-22 -10,-30 A 10,10 0 1,1 10,-30 C 10,-22 2,-20 0,0 z M -2,-30 a 2,2 0 1,1 4,0 2,2 0 1,1 -4,0',
-		 //        fillColor: colour,
-		 //        fillOpacity: 1,
-		 //        strokeColor: '#000',
-		 //        strokeWeight: 1,
-		 //        scale: 1
-			// };
-			
 			return (new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + colour.substr(1),
 		        new google.maps.Size(21, 34),
 		        new google.maps.Point(0, 0),
 		        new google.maps.Point(10, 34)
 	        ));
-		}
-
-		/**
-		 * Hardcoded colour palette
-		 * @param  {int} n index of colour in palette to get (wraps around)
-		 * @return {string}   hex colour
-		 */
-		function colorPalette(n) {
-			// palette generated from http://tools.medialab.sciences-po.fr/iwanthue/
-			var palette = [
-				"#84CBD1",
-				"#CC4B30",
-				"#BF54D0",
-				"#70D84C",
-				"#36362B",
-				"#CD4075",
-				"#553264",
-				"#CBCC92",
-				"#D2983C",
-				"#6B7AD0",
-				"#C78378",
-				"#5A8A37",
-				"#CCD446",
-				"#72DA9E",
-				"#598369",
-				"#6D292F",
-				"#CAB3CC",
-				"#785F2A",
-				"#596C87",
-				"#C471B4"
-			];
-			return palette[n % palette.length];	
-		}
-
-		/**
-		 * Generates a random hex colour (not currently used)
-		 * @return {string} hex colour
-		 */
-		function randomColour() {
-			return "#" + Math.random().toString(16).slice(2, 8);
 		}
 
 		/** 

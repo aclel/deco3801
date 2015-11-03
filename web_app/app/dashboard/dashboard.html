@@ -144,7 +144,10 @@
 		<h3 class="buoy-title" ng-if="!vm.showGraphs && vm.selectedBuoy">{{ vm.selectedBuoy.name }}</h3>
 		<div ng-if="vm.showGraphs && vm.selectedBuoy">
 			<h3>{{ vm.selectedBuoy.name }}</h3>
-			<em>Readings: {{ vm.selectedBuoy.readings.length }}</em>
+			<div>
+				<em>Readings:</em> {{ vm.selectedBuoy.readings.length }}<br>
+				<em>Latest reading:</em> {{ vm.selectedBuoy.latestReading }}
+			</div>
 			<br><br>
 				<div ng-repeat="chart in vm.charts">
 					<h4>

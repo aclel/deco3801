@@ -831,18 +831,6 @@
 		function updateMap(selectedInstance) {
 			var enabledMarkers = [];
 			var insNum = 0;
-			// show a marker for every reading
-			// filteredReadings.forEach(function(buoyGroup) {
-			// 	buoyGroup.buoyInstances.forEach(function(buoyInstance) {
-			// 		buoyInstance.readings.forEach(function(reading) {
-			// 			enabledMarkers.push(reading.id);
-			// 			map.showMarker(reading, buoyInstance,
-			// 				insNum, getRelativeAge(reading),
-			// 				popupContent(reading, buoyInstance));
-			// 		});
-			// 		insNum++;
-			// 	});
-			// });
 
 			// if a marker has been selected, display all readings for that instance
 			if (selectedInstance) {
@@ -886,6 +874,7 @@
 				return {};
 			}
 
+			// update graph pane correctly when time filters are updated
 			var found = false;
 			for (var i = 0; i < filteredReadings.length; i++) {
 				var buoyGroup = filteredReadings[i];
@@ -902,6 +891,10 @@
 			if (!found) {
 				return {};
 			}
+
+			// calculate some data
+			var latestTimestamp = buoyInstance.readings[buoyInstance.readings.length - 1].timestamp;
+			buoyInstance.latestReading = moment.unix(latestTimestamp).format(dateFormat + " " + timeFormat);
 
 		    var charts = {};
 		    buoyInstance.readings.forEach(function(reading) {
@@ -925,8 +918,6 @@
 		         				emptyDataMessage: "chart has no data",
 		         				tooltipTemplate:"<%=argLabel%>; "+sensorName+": <%=valueLabel%>",
 		         				multiTooltipTemplate:"<%=argLabel%>; "+sensorName+": <%=valueLabel%>"
-		         				
-		                		
 		                	}
 		            	};
 		            }
@@ -946,7 +937,6 @@
 
 			}
 			return arr;
-		   
 		}
 
 		/**

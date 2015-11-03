@@ -18,5 +18,6 @@
     /** Define globals from third-party libraries so they can be injected */
 	angular.module('app')
 		.constant('moment', moment)
-		.constant('google', google);
+		.constant('google', google)
+        .constant('InfoBox', InfoBox);
 })();

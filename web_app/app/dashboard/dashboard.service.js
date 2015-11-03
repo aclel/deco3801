@@ -420,6 +420,7 @@
 
 		/** Update filters and map when time filters are changed */
 		function updateTimes() {
+			console.log('updating times');
 			var defer = $q.defer();
 			// convert input strings to moments 
 			// and update vm.times, which updates reference in dashboard service
@@ -468,8 +469,8 @@
 				if (!/^\d{2}\/\d{2}\/\d{2}$/.test(toDate)) return false;
 
 				if (fromTime || toTime) {
-					if (!/^([0-1][0-9]|[2][0-3]):([0-5][0-9])$/.test(fromTime)) return false;
-					if (!/^([0-1][0-9]|[2][0-3]):([0-5][0-9])$/.test(toTime)) return false;
+					if (!/^ *(1[0-2]|[1-9]):[0-5][0-9] *(a|p|A|P)(m|M) *$/.test(fromTime)) return false;
+					if (!/^ *(1[0-2]|[1-9]):[0-5][0-9] *(a|p|A|P)(m|M) *$/.test(toTime)) return false;
 				}
 
 				return true;
@@ -904,7 +905,6 @@
 
 		    var charts = {};
 		    buoyInstance.readings.forEach(function(reading) {
-		    	console.log(reading);
 		        reading.sensorReadings.forEach(function(sReading) {
 		            var sensorName = sensors[sReading.sensorTypeId].name;
 		            //if no sensorReadings exist

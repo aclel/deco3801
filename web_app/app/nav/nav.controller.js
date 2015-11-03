@@ -69,7 +69,7 @@
 		// query the server for warnings and update badge
 		function refreshWarnings() {
 			if (justRefreshedWarnings) return;
-			if ($state.current.data.access == 'unauthed') return;
+			if (!auth.checkUser($state.current.data.access)) return;
 
 			// if warnings were queried within last 10 seconds, don't query again
 			justRefreshedWarnings = true;

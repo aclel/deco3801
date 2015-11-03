@@ -18,5 +18,9 @@
         * @name app.module:auth
         * @description Module for authentication across app
     **/
-	angular.module('app.auth', []);
+	angular.module('app.auth', [
+        // Shared modules
+        'app.core',
+        'app.gui'
+    ]);
 })();

@@ -33,6 +33,8 @@
 			'system_admin': 3,
 			'andrew': 99999
 		};
+		var firstLogin = false;
+		var savedPassword = "";
 	
 		/** The service methods to expose */
 		return {
@@ -43,8 +45,28 @@
 			currentUser: currentUser,
 			checkUser: checkUser,
 			saveUser: saveUser,
-			currentUserId: currentUserId
+			currentUserId: currentUserId,
+			setFirstLogin: setFirstLogin,
+			getFirstLogin: getFirstLogin,
+			setSavedPassword: setSavedPassword,
+			getSavedPassword: getSavedPassword
 		};
+
+		function setFirstLogin(first) {
+			firstLogin = first;
+		}
+
+		function getFirstLogin() {
+			return firstLogin;
+		}
+
+		function setSavedPassword(password) {
+			savedPassword = password;
+		}
+
+		function getSavedPassword() {
+			return savedPassword;
+		}
 		
 		/** Logout by removing user token from localStorage */
 		function logout() {

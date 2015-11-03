@@ -53,6 +53,12 @@ form {
   padding-bottom: 7px;
 }
 
+.btn.disabled,
+.btn[disabled],
+fieldset[disabled] .btn {
+  cursor: default;
+}
+
 /************************** FONT **************************/
 
 /* latin-ext */

@@ -27,11 +27,31 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
+      // testing dependencies
       'bower_components/angular/angular.js',
       'node_modules/angular-mocks/angular-mocks.js',
-      
+      // 3rd-party libraries
+      'https://maps.googleapis.com/maps/api/js?sensor=false',
+      'assets/js/infobox.js',
+      'bower_components/angular/angular.js',
+      'bower_components/angular-ui-router/release/angular-ui-router.js',
+      'bower_components/angular-animate/angular-animate.min.js',
+      'bower_components/angular-strap/dist/angular-strap.min.js',
+      'bower_components/angular-strap/dist/angular-strap.tpl.min.js',
+      'bower_components/angular-ui-tree/dist/angular-ui-tree.min.js',
+      'bower_components/Chart.js/Chart.min.js',
+      'bower_components/Chart.Scatter.js/Chart.Scatter.min.js',
+      'bower_components/angular-chart.js/dist/angular-chart.min.js',
+      'bower_components/moment/moment.js',
+      'bower_components/angular-ui-indeterminate/dist/indeterminate.js',
+      'bower_components/file-saver.js/FileSaver.js',
+      // app
       'app/**/*.module.js',
-      'app/**/*.js'
+      'app/**/*.js',
+      'assets/js/templates.js',
+      // tests
+      'app/**/*.mock.js',
+      'app/**/*.spec.js'
     ],
 
 
@@ -79,7 +99,7 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['PhantomJS'],
+    browsers: ['Chrome', 'PhantomJS'],
     
     phantomjsLauncher: {
       // Have phantomjs exit if a ResourceError is encountered (useful if karma exits without killing phantom)

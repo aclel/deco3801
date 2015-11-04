@@ -83,6 +83,7 @@ gulp.task('js', function () {
   gulp.src(['app/**/*.module.js',
             'app/**/*.js',
             'assets/js/templates.js',
+            '!app/**/*.mock.js',
             '!app/**/*.spec.js'])
     .pipe(plumber())
     .pipe(sourcemaps.init())
@@ -97,6 +98,7 @@ gulp.task('js-prod', function () {
   gulp.src(['app/**/*.module.js',
             'app/**/*.js',
             'assets/js/templates.js',
+            '!app/**/*.mock.js',
             '!app/**/*.spec.js'])
     .pipe(plumber())
     .pipe(concat('app.min.js'))

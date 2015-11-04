@@ -20,13 +20,13 @@
         * @ngdoc service
         * @name app.nav.nav
     **/
-    function nav($rootScope, $state, $timeout, routerHelper, auth, server) {
+    function nav($rootScope, $state, $timeout, $interval, routerHelper, auth, server) {
 
         // Internal variables
         var loading = { show: false };
         var warnings = { num: 0 };
         var justRefreshedWarnings = false;
-        var warningTimeout;
+        var warningInterval;
         var refreshingWarnings = false;
 
         registerLoadingListener();
@@ -73,11 +73,13 @@
             if (justRefreshedWarnings) return;
             if (!auth.checkUser($state.current.data.access)) return;
 
+            console.log('refreshing')
+
             // if warnings were queried within last 10 seconds, don't query again
             justRefreshedWarnings = true;
-            $timeout(function() {
+            $interval(function() {
                 justRefreshedWarnings = false;
-            }, 1000*10);
+            }, 1000*10, 1);
 
             refreshingWarnings = true;
             server.getWarnings().then(function(res) {
@@ -86,10 +88,10 @@
             });
 
             // automatically refresh warnings every 10 minutes
-            if (warningTimeout) {
-                $timeout.cancel(warningTimeout);
+            if (warningInterval) {
+                $interval.cancel(warningInterval);
             }
-            warningTimeout = $timeout(refreshWarnings, 1000*60*10, true);
+            warningInterval = $interval(refreshWarnings, 1000*60*10);
         }
         
         /** 

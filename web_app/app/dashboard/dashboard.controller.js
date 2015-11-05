@@ -26,7 +26,7 @@
 	**/	
 	function DashboardController($log, $document, $scope, dashboard, map) {
 		var vm = this;
-		
+
 		/** Used to determine when initial requests have returned */
 		var resolved = 0;
 		var chartObjects = [];
@@ -58,7 +58,7 @@
 			// set up chart listeners
 			$scope.$on('mapMarkerSelected', function(event, buoyInstance) {
 				if (vm.selectedBuoy && buoyInstance) {
-					if (vm.selectedBuoy.id == buoyInstance.id) return;
+					if (vm.selectedBuoy.id === buoyInstance.id) { return; }
 				}
 				chartObjects = [];
 				vm.charts = dashboard.calculateChartData(buoyInstance);
@@ -98,7 +98,7 @@
 			vm.showGraphs = !vm.showGraphs;
 			angular.element(
 				document.getElementsByClassName('dashboard-panel'))
-				.one("transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd", function() {
+				.one('transitionend webkitTransitionEnd oTransitionEnd MSTransitionEnd', function() {
 					// finish expanding/contracting
 					resizeCharts();
 			});
@@ -106,7 +106,7 @@
 
 		/** Resize all charts */
 		function resizeCharts() {
-			if (!vm.showGraphs) return;
+			if (!vm.showGraphs) { return; }
 			$scope.$apply(function() {
 				vm.showCharts = true;
 			});

@@ -27,7 +27,8 @@
 		return {
 			getWarnings: getWarnings,
 			getBuoyInstances: getBuoyInstances,
-			getSensorTypes: getSensorTypes
+			getSensorTypes: getSensorTypes,
+			getReadings: getReadings
 		};
 
 		/** Mocked getWarnings */
@@ -178,6 +179,159 @@
 			      "archived": false
 			    }
 			]};
+			var defer = $q.defer();
+            defer.resolve({ data: data });
+            return defer.promise;
+		}
+
+		/** Mocked getReadings */
+		function getReadings() {
+			var data = { "buoyGroups": [
+			    {
+			      "id": 10,
+			      "name": "Brisbane River",
+			      "buoyInstances": [
+			        {
+			          "id": 120,
+			          "name": "BNE4 - Drifting",
+			          "readings": [
+			            {
+			              "id": 116,
+			              "latitude": -27.533115,
+			              "longitude": 152.95779,
+			              "altitude": 0,
+			              "speedOG": 0,
+			              "course": 0,
+			              "timestamp": 1445075880,
+			              "sensorReadings": [
+			                {
+			                  "value": 21,
+			                  "sensorTypeId": 1
+			                }
+			              ]
+			            },
+			            {
+			              "id": 117,
+			              "latitude": -27.534725,
+			              "longitude": 152.959645,
+			              "altitude": 0,
+			              "speedOG": 0,
+			              "course": 0,
+			              "timestamp": 1445075940,
+			              "sensorReadings": [
+			                {
+			                  "value": 31,
+			                  "sensorTypeId": 1
+			                }
+			              ]
+			            },
+			            {
+			              "id": 118,
+			              "latitude": -27.536128,
+			              "longitude": 152.960461,
+			              "altitude": 0,
+			              "speedOG": 0,
+			              "course": 0,
+			              "timestamp": 1445076060,
+			              "sensorReadings": [
+			                {
+			                  "value": 37,
+			                  "sensorTypeId": 1
+			                }
+			              ]
+			            }
+		              ]
+			        },
+			       	{
+			          "id": 118,
+			          "name": "BNE2 - Stationary",
+			          "readings": [
+			            {
+			              "id": 21,
+			              "latitude": -27.3568,
+			              "longitude": 153.19794,
+			              "altitude": 0,
+			              "speedOG": 0,
+			              "course": 0,
+			              "timestamp": 1424339880,
+			              "sensorReadings": [
+			                {
+			                  "value": 21,
+			                  "sensorTypeId": 1
+			                }
+			              ]
+			            },
+			            {
+			              "id": 22,
+			              "latitude": -27.3568,
+			              "longitude": 153.19794,
+			              "altitude": 0,
+			              "speedOG": 0,
+			              "course": 0,
+			              "timestamp": 1424344920,
+			              "sensorReadings": [
+			                {
+			                  "value": 63,
+			                  "sensorTypeId": 1
+			                }
+			              ]
+			            }
+			          ]
+			        }
+		        ],
+		      },
+		      {
+			      "id": 11,
+			      "name": "Bremer River",
+			      "buoyInstances": [
+			        {
+			          "id": 121,
+			          "name": "BRE1 - Drifting",
+			          "readings": [
+			            {
+			              "id": 275,
+			              "latitude": -27.591166,
+			              "longitude": 152.782302,
+			              "altitude": 0,
+			              "speedOG": 0,
+			              "course": 0,
+			              "timestamp": 1443607200,
+			              "sensorReadings": [
+			                {
+			                  "value": 24,
+			                  "sensorTypeId": 2
+			                },
+			                {
+			                  "value": 21,
+			                  "sensorTypeId": 1
+			                }
+			              ]
+			            },
+			            {
+			              "id": 276,
+			              "latitude": -27.589996,
+			              "longitude": 152.782987,
+			              "altitude": 0,
+			              "speedOG": 0,
+			              "course": 0,
+			              "timestamp": 1443607440,
+			              "sensorReadings": [
+			                {
+			                  "value": 27,
+			                  "sensorTypeId": 1
+			                },
+			                {
+			                  "value": 23,
+			                  "sensorTypeId": 2
+			                }
+			              ]
+			            }
+		              ]
+		           }
+	             ]
+	         	}
+         	  ]
+			};
 			var defer = $q.defer();
             defer.resolve({ data: data });
             return defer.promise;

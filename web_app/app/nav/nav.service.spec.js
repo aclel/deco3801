@@ -19,12 +19,12 @@
 
         beforeEach(module('app'));
         beforeEach(module('mock.server'));
-        beforeEach(module('mock.state'))
+        beforeEach(module('mock.state'));
 
         beforeEach(inject(function(_auth_, _server_, _$state_, _$timeout_, _$interval_) {
             auth = _auth_;
             spyOn(auth, 'checkUser').and.callFake(function(user) {
-                if (user == 'authed') return true;
+                if (user === 'authed') { return true; }
                 return false;
             });
             spyOn(auth, 'logout').and.stub();
@@ -35,7 +35,7 @@
             spyOn(state, 'go').and.stub();
             timeout = _$timeout_;
             interval = _$interval_;
-        }))
+        }));
 
         beforeEach(inject(function(_nav_, $rootScope) {
             nav = _nav_;
@@ -93,7 +93,7 @@
                 expect(nav.checkShowNav('account')).toBe(true);
                 expect(auth.checkUser).toHaveBeenCalled();
                 expect(nav.checkShowNav('admin')).toBe(false);
-            })
+            });
         });
 
         describe('logout', function() {

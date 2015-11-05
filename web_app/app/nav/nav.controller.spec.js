@@ -12,14 +12,14 @@
  */
 (function() {
     'use strict';
-    
+
     /** Unit tests for nav controller */
     describe('Controller: NavController', function() {
         var $controller, ctrl, rootScope;
         var nav;
-        
+
         beforeEach(module('app'));
-        
+
         // Mock services and spy on methods
         beforeEach(inject(function($q, _nav_) {
             nav = _nav_;
@@ -61,29 +61,29 @@
                 expect(ctrl.loading.show).toBe(false);
             });
 
-            it ('should have 0 warnings by default', function() {
+            it('should have 0 warnings by default', function() {
                 expect(nav.getWarnings).toHaveBeenCalled();
                 expect(ctrl.warnings.num).toEqual(0);
             });
 
-            it ('should call stateActive', function() {
+            it('should call stateActive', function() {
                 var result = nav.stateActive();
                 expect(nav.stateActive).toHaveBeenCalled();
                 expect(result).toBe(true);
             });
 
-            it ('should call checkShowNav', function() {
+            it('should call checkShowNav', function() {
                 var result = nav.checkShowNav();
                 expect(nav.checkShowNav).toHaveBeenCalled();
                 expect(result).toBe(true);
             });
 
-            it ('should call logout', function() {
+            it('should call logout', function() {
                 nav.logout();
                 expect(nav.logout).toHaveBeenCalled();
             });
 
-            it ('should call change password', function() {
+            it('should call change password', function() {
                 nav.changePassword();
                 expect(nav.changePassword).toHaveBeenCalled();
             });

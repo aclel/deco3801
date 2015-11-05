@@ -33,7 +33,7 @@
 		var times = {};
 		var readingMetadata = {};
 
-		var dateFormat = 'D/M/YY';
+		var dateFormat = 'DD/M/YY';
 		var timeFormat = 'h:mm A';
 		// palette generated from http://tools.medialab.sciences-po.fr/iwanthue/
 		var colours = ['#84CBD1', '#CC4B30', '#BF54D0', '#70D84C', '#36362B',
@@ -145,8 +145,8 @@
 						'hours', 'days', 'weeks', 'months'
 					] },
 					range: {
-						from: { date: '01/07/15', time: '' },
-						to: { date: '28/10/15', time: '' },
+						from: { date: moment().subtract(2, 'weeks').format(dateFormat), time: '' },
+						to: { date: moment().format(dateFormat), time: '' },
 					}
 				}
 			};

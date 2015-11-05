@@ -112,7 +112,7 @@
 				email: email,
 				password: password
 			};
-			var promise = $http.post(SERVER_ADDRESS + '/api/login', JSON.stringify(data));
+			var promise = $http.post(SERVER_ADDRESS + '/api/login', data);
 			promise.then(function(res) {
 				auth.saveUser(res.data);
 			});
@@ -138,7 +138,7 @@
 			};
 			var id = auth.currentUserId();
 			return $http.put(SERVER_ADDRESS + '/api/users/' +
-				id + '/change_password', JSON.stringify(data), config);
+				id + '/change_password', data, config);
 		}
 
 		function resetPassword(token, newPassword) {
@@ -146,7 +146,7 @@
 				newPassword: newPassword
 			};
 			var params = '?token=' + token;
-			return $http.post(SERVER_ADDRESS + '/api/reset_password' + params, JSON.stringify(data));
+			return $http.post(SERVER_ADDRESS + '/api/reset_password' + params, data);
 		}
 		
 		/** 
@@ -159,7 +159,7 @@
 			var data = {
 				email: email
 			};
-			return $http.post(SERVER_ADDRESS + '/api/forgot_password', JSON.stringify(data));
+			return $http.post(SERVER_ADDRESS + '/api/forgot_password', data);
 		}
 		
 		/**
@@ -171,7 +171,7 @@
 		 */
 		function getReadings(from, to) {
 			var config = addToken(headers());
-			var params = "?start_time=" + from + "&end_time=" + to;
+			var params = '?start_time=' + from + '&end_time=' + to;
 			return $http.get(SERVER_ADDRESS + '/api/readings' + params, config);
 		}
 		
@@ -208,7 +208,7 @@
 				name: name
 			};
 			return $http.put(SERVER_ADDRESS + '/api/buoy_groups/' + id, 
-					JSON.stringify(data), config);
+					data, config);
 		}
 		
 		/**
@@ -226,7 +226,7 @@
 				buoyGroupId: buoyGroupId
 			};
 			return $http.put(SERVER_ADDRESS + '/api/buoy_instances/' + id, 
-					JSON.stringify(data), config);
+					data, config);
 		}
 		
 		/**
@@ -241,7 +241,7 @@
 				name: name
 			};
 			return $http.post(SERVER_ADDRESS + '/api/buoy_groups',
-					JSON.stringify(data), config);
+					data, config);
 		}
 
 		function redeployBuoy(buoyId, name, groupId) {
@@ -252,7 +252,7 @@
 				buoyGroupId: groupId
 			};
 			return $http.post(SERVER_ADDRESS + '/api/buoy_instances', 
-				JSON.stringify(data), config);
+				data, config);
 		}
 		
 		/**
@@ -270,7 +270,7 @@
 				buoyGroupId: groupId
 			};
 			return $http.put(SERVER_ADDRESS + '/api/buoy_instances/' + instanceId,
-					JSON.stringify(data), config);
+					data, config);
 		}
 		
 		/**
@@ -296,7 +296,7 @@
 				description: commandType.description
 			};
 			return $http.post(SERVER_ADDRESS + '/api/command_types', 
-				JSON.stringify(data), config);
+				data, config);
 		}
 		
 		/**
@@ -312,7 +312,7 @@
 				description: commandType.description
 			};
 			return $http.put(SERVER_ADDRESS + '/api/command_types/' + commandType.id, 
-				JSON.stringify(data), config);
+				data, config);
 		}
 		
 		/**
@@ -341,10 +341,10 @@
 			};
 			
 			var promise = $http.post(SERVER_ADDRESS + '/api/readings/export', 
-				JSON.stringify(data), config);
+				data, config);
 				
 			promise.then(function(res) {
-				var time = moment().format("DD-MM-YY-HHmmss");
+				var time = moment().format('DD-MM-YY-HHmmss');
 				var filename = 'export-' + time + '.zip';
 				openSaveAsDialog(filename, res.data, 'application/zip');
 			}, function(res) {
@@ -370,7 +370,7 @@
 		 */
 		function getBuoyInstanceSensors(buoyInstanceId) {
 			var config = addToken(headers());
-			return $http.get(SERVER_ADDRESS + '/api/buoy_instances/' + buoyInstanceId + '/sensors', config)
+			return $http.get(SERVER_ADDRESS + '/api/buoy_instances/' + buoyInstanceId + '/sensors', config);
 		}
 
 		/**
@@ -403,7 +403,7 @@
 				});
 			});
 			return $http.post(SERVER_ADDRESS + '/api/commands', 
-				JSON.stringify(data), config);
+				data, config);
 		}
 
 		/**
@@ -418,9 +418,9 @@
 				commandTypeId: command.commandTypeId,
 				value: parseInt(command.value, 10),
 				buoyId: command.buoyId
-			}
+			};
 			return $http.put(SERVER_ADDRESS + '/api/commands/' + command.id, 
-				JSON.stringify(data), config);
+				data, config);
 		}
 		
 		/**
@@ -465,7 +465,7 @@
 				});
 			});
 			return $http.post(SERVER_ADDRESS + '/api/warning_triggers', 
-				JSON.stringify(data), config);
+				data, config);
 		}
 
 		/**
@@ -482,9 +482,9 @@
 					operator: trigger.operator,
 					value: parseInt(trigger.value, 10),
 					message: trigger.message
-			}
+			};
 			return $http.put(SERVER_ADDRESS + '/api/warning_triggers/' + trigger.id, 
-				JSON.stringify(data), config);
+				data, config);
 		}
 		
 		/**
@@ -533,7 +533,7 @@
 				upperBound: parseInt(sensorType.upperBound, 10)
 			};
 			return $http.post(SERVER_ADDRESS + '/api/sensor_types', 
-				JSON.stringify(data), config);
+				data, config);
 		}
 		
 		/**
@@ -552,7 +552,7 @@
 				upperBound: parseInt(sensorType.upperBound, 10)
 			};
 			return $http.put(SERVER_ADDRESS + '/api/sensor_types/' + sensorType.id, 
-				JSON.stringify(data), config);
+				data, config);
 		}
 		
 		/**
@@ -591,7 +591,7 @@
 				role: user.role
 			};
 			return $http.post(SERVER_ADDRESS + '/api/users', 
-				JSON.stringify(data), config);
+				data, config);
 		}
 		
 		/**
@@ -608,7 +608,7 @@
 				role: user.role
 			};
 			return $http.put(SERVER_ADDRESS + '/api/users/' + user.id, 
-				JSON.stringify(data), config);
+				data, config);
 		}
 		
 		/**
@@ -645,7 +645,7 @@
 				guid: buoy.guid
 			};
 			return $http.post(SERVER_ADDRESS + '/api/buoys', 
-				JSON.stringify(data), config);
+				data, config);
 		}
 		
 		/**
@@ -661,7 +661,7 @@
 				guid: buoy.guid
 			};
 			return $http.put(SERVER_ADDRESS + '/api/buoys/' + buoy.id, 
-				JSON.stringify(data), config);
+				data, config);
 		}
 		
 		/**

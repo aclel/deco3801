@@ -20,15 +20,11 @@
         beforeEach(module('app'));
         beforeEach(module('mock.server'));
 
-        // Mock services and spy on methods
-        beforeEach(inject(function($q, _server_, $rootScope, $log) {
+        beforeEach(inject(function($q, $rootScope, $log, _warnings_, _server_) {
             scope = $rootScope.$new();
             deferred = $q.defer();
-            server = _server_;
             log = $log;
-        }));
-
-        beforeEach(inject(function(_warnings_) {
+            server = _server_;
             warnings = _warnings_;
         }));
 

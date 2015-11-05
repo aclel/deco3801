@@ -31,7 +31,7 @@ module.exports = function(config) {
       'bower_components/angular/angular.js',
       'node_modules/angular-mocks/angular-mocks.js',
       // 3rd-party libraries
-      'https://maps.googleapis.com/maps/api/js?sensor=false',
+      'https://maps.googleapis.com/maps/api/js',
       'assets/js/infobox.js',
       'bower_components/angular/angular.js',
       'bower_components/angular-ui-router/release/angular-ui-router.js',

@@ -453,7 +453,7 @@
 				var toDate = times.inputs.range.to.date;
 				var toTime = times.inputs.range.to.time;
 				
-				if (!times.range.to || !times.range.from) { return false; }
+				// if (!times.range.to || !times.range.from) { return false; }
 				if (times.range.to.isBefore(times.range.from)) { return false; }
 
 				if (!/^\d{2}\/\d{2}\/\d{2}$/.test(fromDate)) { return false; }
@@ -464,6 +464,8 @@
 					if (!/^ *(1[0-2]|[1-9]):[0-5][0-9] *(a|p|A|P)(m|M) *$/.test(toTime)) { return false; }
 				}
 
+				return true;
+			} else if (times.type == 'all') { 
 				return true;
 			}
 			
@@ -480,7 +482,7 @@
 					 times.inputs.since.quantifier).unix();
 				to = moment().unix();
 			} else if (times.type === 'all') {
-				from = 0;
+				from = 1;
 				to = moment().unix();
 			} else if (times.type === 'range') {
 				from = times.range.from.unix();

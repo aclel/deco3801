@@ -35,8 +35,7 @@
 			/** The provider methods to expose */
 			return {
 				configureStates: configureStates,
-				getStates: getStates,
-				stateActive: stateActive
+				getStates: getStates
 			};
 			
 			/** Allows the caller to add a new route (state) to the app */
@@ -57,15 +56,6 @@
 			 */
 			function getStates() {
 				return $state.get();
-			}
-			
-			/**
-			 * Return whether a state is active or not
-			 * @param  {string} name state name
-			 * @return {bool}      state is active
-			 */
-			function stateActive(name) {
-				return $state.includes(name);
 			}
 		}
 	}

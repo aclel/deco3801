@@ -20,7 +20,7 @@
         * @ngdoc service
         * @name app.nav.nav
     **/
-    function nav($rootScope, $state, $timeout, $interval, routerHelper, auth, server) {
+    function nav($rootScope, $state, $timeout, $interval, auth, server) {
 
         // Internal variables
         var loading = { show: false };
@@ -35,7 +35,6 @@
         return {
             getLoading: getLoading,
             getWarnings: getWarnings,
-            refreshWarnings: refreshWarnings,
             stateActive: stateActive,
             checkShowNav: checkShowNav,
             logout: logout,
@@ -73,8 +72,6 @@
             if (justRefreshedWarnings) return;
             if (!auth.checkUser($state.current.data.access)) return;
 
-            console.log('refreshing')
-
             // if warnings were queried within last 10 seconds, don't query again
             justRefreshedWarnings = true;
             $interval(function() {
@@ -100,7 +97,7 @@
          * @return {bool}      state is active
          */
         function stateActive(name) {
-            return routerHelper.stateActive(name);
+            return $state.includes(name);
         }
         
         /**

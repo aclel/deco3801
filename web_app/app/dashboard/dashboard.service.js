@@ -33,13 +33,13 @@
 		var times = {};
 		var readingMetadata = {};
 
-		var dateFormat = "D/M/YY";
-		var timeFormat = "h:mm A";
+		var dateFormat = 'D/M/YY';
+		var timeFormat = 'h:mm A';
 		// palette generated from http://tools.medialab.sciences-po.fr/iwanthue/
-		var colours = ["#84CBD1", "#CC4B30", "#BF54D0", "#70D84C", "#36362B",
-				"#CD4075", "#553264", "#CBCC92", "#D2983C", "#6B7AD0",
-				"#C78378", "#5A8A37", "#CCD446", "#72DA9E", "#598369",
-				"#6D292F", "#CAB3CC", "#785F2A", "#596C87", "#C471B4"
+		var colours = ['#84CBD1', '#CC4B30', '#BF54D0', '#70D84C', '#36362B',
+				'#CD4075', '#553264', '#CBCC92', '#D2983C', '#6B7AD0',
+				'#C78378', '#5A8A37', '#CCD446', '#72DA9E', '#598369',
+				'#6D292F', '#CAB3CC', '#785F2A', '#596C87', '#C471B4'
 		].reverse(); 
 		var instanceColours = {};
 
@@ -109,7 +109,7 @@
 			promise.then(function(res) {
 				readings = res.data.buoyGroups;
 				if (!readings.length) {
-					gui.alertInfo("No readings found for the selected time period.");
+					gui.alertInfo('No readings found for the selected time period.');
 				}
 				sortReadings();
 				populateBuoys();
@@ -138,21 +138,21 @@
 		/** Initialise filters and inputs */
 		function initialiseTimes() {
 			times = {
-				type: "since",
+				type: 'since',
 				range: { from: null, to: null }, // from and to contain moments
 				point: null,
 				pointReadings: [], // contains list of closest readings to point
 				inputs: {
-					since: { value: 2, quantifier: "weeks", options: [
-						"hours", "days", "weeks", "months"
+					since: { value: 2, quantifier: 'weeks', options: [
+						'hours', 'days', 'weeks', 'months'
 					] },
 					range: {
-						from: { date: "01/07/15", time: "" },
-						to: { date: "28/10/15", time: "" },
+						from: { date: '01/07/15', time: '' },
+						to: { date: '28/10/15', time: '' },
 					},
-					point: { date: "", time: "" },
+					point: { date: '', time: '' },
 				}
-			}
+			};
 		}
 
 		function initialiseListeners() {
@@ -197,7 +197,7 @@
 				if (colours.length) {
 					instanceColours[buoyInstance.id] = colours.pop();
 				} else {
-					instanceColours[buoyInstance.id] = "#FFFFFF";
+					instanceColours[buoyInstance.id] = '#FFFFFF';
 				}
 			}
 			buoyInstance.colour = instanceColours[buoyInstance.id];
@@ -209,15 +209,15 @@
 			for (var i = 0; i < data.length; i++) {
 				var sensor = data[i];
 				
-				if (sensor.archived) continue;
-				keep.push(sensor.id + "");			
+				if (sensor.archived) { continue; }
+				keep.push(sensor.id + '');			
 
 				if (!sensors.hasOwnProperty(sensor.id)) {
 						sensor.inputs = {
 						enabled: false,
-						options: [">", "<", "="],
-						selected: ">",
-						value: ""
+						options: ['>', '<', '='],
+						selected: '>',
+						value: ''
 					};
 				} else {
 					sensor.inputs = {
@@ -232,7 +232,7 @@
 			// remove old sensors
 			var sensorIds = Object.keys(sensors);
 			sensorIds.forEach(function(sensorId) {
-				if (keep.indexOf(sensorId) == -1) {
+				if (keep.indexOf(sensorId) === -1) {
 					delete sensors[sensorId];
 				}
 			});
@@ -247,7 +247,7 @@
 		function buoysFilterAddGroup(buoyGroup) {
 			var group = {};
 			var gIndex = buoysFilterGroupIndex(buoyGroup.id);
-			if (gIndex != -1) {
+			if (gIndex !== -1) {
 				group = buoys[gIndex];
 			} else {
 				group.id = buoyGroup.id;
@@ -272,7 +272,7 @@
 			var instance = {};
 			var gIndex = buoysFilterGroupIndex(group.id);
 			var iIndex = buoysFilterInstanceIndex(buoyInstance.id, group.id);
-			if (iIndex != -1) {
+			if (iIndex !== -1) {
 				instance = buoys[gIndex].buoyInstances[iIndex];
 			} else {
 				instance.id = buoyInstance.id;
@@ -291,7 +291,7 @@
 		 */
 		function buoysFilterGroupIndex(id) {
 			for (var i = 0; i < buoys.length; i++) {
-				if (buoys[i].id == id) {
+				if (buoys[i].id === id) {
 					return i;
 				}
 			}
@@ -306,9 +306,9 @@
 		 */
 		function buoysFilterInstanceIndex(id, gId) {
 			var gIndex = buoysFilterGroupIndex(gId);
-			if (gIndex == -1) return -1;
+			if (gIndex === -1) { return -1; }
 			for (var i = 0; i < buoys[gIndex].buoyInstances.length; i++) {
-				if (buoys[gIndex].buoyInstances[i].id == id) {
+				if (buoys[gIndex].buoyInstances[i].id === id) {
 					return i;
 				}
 			}
@@ -321,13 +321,14 @@
 		 */
 		function buoysFilterRemoveOldGroups(keep) {
 			var remove = [];
-			for (var i = 0; i < buoys.length; i++) {
+			var i;
+			for (i = 0; i < buoys.length; i++) {
 				var group = buoys[i];
-				if (keep.indexOf(group.id) == -1) {
+				if (keep.indexOf(group.id) === -1) {
 					remove.push(i);
 				}
 			}
-			for (var i = remove.length - 1; i >= 0; i--) {
+			for (i = remove.length - 1; i >= 0; i--) {
 				buoys.splice(remove[i], 1);
 			}
 		}
@@ -339,16 +340,17 @@
 		function buoysFilterRemoveOldInstances(keep) {
 			// if (!buoys.length) return; doesn't do anything?
 			var remove = [];
-			for (var i = 0; i < buoys.length; i++) {
+			var i;
+			for (i = 0; i < buoys.length; i++) {
 				var group = buoys[i];
 				for (var j = 0; j < group.buoyInstances.length; j++) {
 					var instance = group.buoyInstances[j];
-					if (keep.indexOf(instance.id) == -1) {
+					if (keep.indexOf(instance.id) === -1) {
 						remove.push({ group: i, instance: j });
 					}
 				}
 			}
-			for (var i = remove.length - 1; i >= 0; i--) {
+			for (i = remove.length - 1; i >= 0; i--) {
 				buoys[remove[i].group].buoyInstances.splice(remove[i].instance, 1);
 			}
 		}
@@ -426,18 +428,18 @@
 			// and update vm.times, which updates reference in dashboard service
 			if (timesInputsValid()) {
 				console.log(true);
-				var momentFormat = dateFormat + " " + timeFormat;
+				var momentFormat = dateFormat + ' ' + timeFormat;
 				
-				if (times.type == 'range') {
-					times.range.from = moment(times.inputs.range.from.date
-						+ " " + times.inputs.range.from.time, momentFormat);
-					times.range.to = moment(times.inputs.range.to.date
-						+ " " + times.inputs.range.to.time, momentFormat);
+				if (times.type === 'range') {
+					times.range.from = moment(times.inputs.range.from.date +
+						' ' + times.inputs.range.from.time, momentFormat);
+					times.range.to = moment(times.inputs.range.to.date +
+						' ' + times.inputs.range.to.time, momentFormat);
 				}
 				
-				else if (times.type == 'point') {
-					times.point = moment(times.inputs.point.date
-						+ " " + times.inputs.point.time, momentFormat);
+				else if (times.type === 'point') {
+					times.point = moment(times.inputs.point.date +
+						' ' + times.inputs.point.time, momentFormat);
 				}
 				
 				queryReadingTimes().then(function() {
@@ -453,9 +455,9 @@
 
 		/** Basic validation of times inputs */
 		function timesInputsValid() {
-			if (times.type == 'since') {
-				if (/^[0-9]{1,7}$/.test(times.inputs.since.value)) return true;
-			} else if (times.type == 'range') {
+			if (times.type === 'since') {
+				if (/^[0-9]{1,7}$/.test(times.inputs.since.value)) { return true; }
+			} else if (times.type === 'range') {
 				// valid combinations: all filled, dates filled, times filled
 				var fromDate = times.inputs.range.from.date;
 				var fromTime = times.inputs.range.from.time;
@@ -465,17 +467,17 @@
 				// if (!fromDate || !toDate) return false;
 				// if ((toTime && !fromTime) || (fromTime && !toTime)) return false;
 
-				if (!/^\d{2}\/\d{2}\/\d{2}$/.test(fromDate)) return false;
-				if (!/^\d{2}\/\d{2}\/\d{2}$/.test(toDate)) return false;
+				if (!/^\d{2}\/\d{2}\/\d{2}$/.test(fromDate)) { return false; }
+				if (!/^\d{2}\/\d{2}\/\d{2}$/.test(toDate)) { return false; }
 
 				if (fromTime || toTime) {
-					if (!/^ *(1[0-2]|[1-9]):[0-5][0-9] *(a|p|A|P)(m|M) *$/.test(fromTime)) return false;
-					if (!/^ *(1[0-2]|[1-9]):[0-5][0-9] *(a|p|A|P)(m|M) *$/.test(toTime)) return false;
+					if (!/^ *(1[0-2]|[1-9]):[0-5][0-9] *(a|p|A|P)(m|M) *$/.test(fromTime)) { return false; }
+					if (!/^ *(1[0-2]|[1-9]):[0-5][0-9] *(a|p|A|P)(m|M) *$/.test(toTime)) { return false; }
 				}
 
 				return true;
 			}
-			if (times.type == 'point') {
+			if (times.type === 'point') {
 				// must have date, time is optional
 				if (times.inputs.point.date) {
 					return true;
@@ -490,24 +492,24 @@
 			// query server for new times
 			var from, to;
 			
-			if (times.type == 'since') {
+			if (times.type === 'since') {
 				from = moment().subtract(times.inputs.since.value,
 					 times.inputs.since.quantifier).unix();
 				to = moment().unix();
-			} else if (times.type == 'all') {
+			} else if (times.type === 'all') {
 				from = 0;
 				to = moment().unix();
-			} else if (times.type == 'range') {
+			} else if (times.type === 'range') {
 				from = times.range.from.unix();
 				to = times.range.to.unix();
-			} else if (times.type == 'point') {
+			} else if (times.type === 'point') {
 				from = times.point.clone().subtract(2, 'weeks').unix();
 				to = times.point.clone().add(2, 'weeks').unix();
 			}
 			
 			var promise = queryReadings(from, to);
 			promise.then(function() {
-				if (times.type == 'point') {
+				if (times.type === 'point') {
 					calculatePointReadings();
 				}
 			});
@@ -521,10 +523,10 @@
 
 		function sensorInputsValid() {
 			for (var key in sensors) {
-				if (!sensors.hasOwnProperty(key)) continue;
+				if (!sensors.hasOwnProperty(key)) { continue; }
 				var sensor = sensors[key];
-				if (!sensor.inputs.enabled) continue;
-				if (!/^\d*\.?\d*$/.test(sensor.inputs.value)) return false;
+				if (!sensor.inputs.enabled) { continue; }
+				if (!/^\d*\.?\d*$/.test(sensor.inputs.value)) { return false; }
 			}
 			return true;
 		}
@@ -532,7 +534,7 @@
 		/** Calculate readings closest to specified time */
 		function calculatePointReadings() {
 			times.pointReadings = [];
-			if (!readings) return;
+			if (!readings) { return; }
 
 			readings.forEach(function(buoyGroup) {
 				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
@@ -555,8 +557,8 @@
 		
 		/** Re-filter readings based on updated filters */
 		function updateFilters() {
-			if (!timesInputsValid()) return false;
-			if (!sensorInputsValid()) return false;
+			if (!timesInputsValid()) { return false; }
+			if (!sensorInputsValid()) { return false; }
 			filteredReadings = [];
 			var numInstances = 0, numReadings = 0;
 			if (!readings.length || !Object.keys(sensors).length) {
@@ -565,18 +567,18 @@
 			}
 			for (var i = 0; i < readings.length; i++) {
 				var buoyGroup = readings[i];
-				if (!buoyGroupEnabled(buoyGroup.id)) continue;
+				if (!buoyGroupEnabled(buoyGroup.id)) { continue; }
 				var group = addBuoyGroup(buoyGroup);
 
 				for (var j = 0; j < buoyGroup.buoyInstances.length; j++) {
 					var buoyInstance = buoyGroup.buoyInstances[j];
-					if (!buoyInstanceEnabled(buoyInstance.id, buoyGroup.id)) continue;
+					if (!buoyInstanceEnabled(buoyInstance.id, buoyGroup.id)) { continue; }
 					numInstances++;
 					var instance = addBuoyInstance(buoyInstance, group);
 
 					for (var k = 0; k < buoyInstance.readings.length; k++) {
 						var reading = buoyInstance.readings[k];
-						if (!showReading(reading)) continue;
+						if (!showReading(reading)) { continue; }
 						numReadings++;
 						instance.readings.push(reading);
 					}
@@ -644,8 +646,8 @@
 		 * @return {bool}         true if the reading should be show, else false
 		 */
 		function showReading(reading) {
-			if (!filterTimes(reading)) return false;
-			if (!filterSensors(reading)) return false;
+			if (!filterTimes(reading)) { return false; }
+			if (!filterSensors(reading)) { return false; }
 			return true;
 		}
 		
@@ -655,20 +657,21 @@
 		 * @return {bool}         include reading
 		 */
 		function filterTimes(reading) {
-			if (times.type == 'since') {
+			var time;
+			if (times.type === 'since') {
 				var since = moment().subtract(times.inputs.since.value,
 					 times.inputs.since.quantifier);
-				var time = moment.unix(reading.timestamp);
+				time = moment.unix(reading.timestamp);
 				if (!time.isAfter(since)) {
 					return false;
 				}
-			} else if (times.type == 'range') {
-				var time = moment.unix(reading.timestamp);
+			} else if (times.type === 'range') {
+				time = moment.unix(reading.timestamp);
 				if (!time.isBetween(times.range.from, times.range.to)) {
 					return false;
 				}
-			} else if (times.type == 'point') {
-				if (times.pointReadings.indexOf(reading.id) == -1) {
+			} else if (times.type === 'point') {
+				if (times.pointReadings.indexOf(reading.id) === -1) {
 					return false;
 				}
 			}
@@ -705,16 +708,16 @@
 				return true;
 			}
 			var value = parseInt(sensor.value, 10);
-			if (sensor.selected == ">") {
+			if (sensor.selected === '>') {
 				if (sReading.value <= value) {
 					return false;
 				}
-			} else if (sensor.selected == "<") {
+			} else if (sensor.selected === '<') {
 				if (sReading.value >= value) {
 					return false;
 				}
-			} else if (sensor.selected == "=") {
-				if (sReading.value != value) {
+			} else if (sensor.selected === '=') {
+				if (sReading.value !== value) {
 					return false;
 				}
 			}
@@ -740,22 +743,22 @@
 
 			// otherwise calculate age based on time filters
 			} else {
-				if (times.type == 'all') {
+				if (times.type === 'all') {
 					// range: from 2 weeks ago until now
 					max = moment();
 					min = max.clone().subtract(2, 'weeks');
 				
-				} else if (times.type == 'since') {
+				} else if (times.type === 'since') {
 					max = moment();
 					min = moment().subtract(times.inputs.since.value,
 						 times.inputs.since.quantifier);
 						
-				} else if (times.type == 'range') {
+				} else if (times.type === 'range') {
 					// range: range of time filters
 					max = times.range.to;
 					min = times.range.from;
 				
-				}  else if (times.type == 'point') {
+				}  else if (times.type === 'point') {
 					// range: from two weeks before point until point
 					if (times.point === null) {
 						return 1.0;
@@ -807,20 +810,20 @@
 			var formattedTime = moment.unix(reading.timestamp)
 										.format('D MMMM h:mm A');
 										
-			var content = "<div>" +
-				"<h5><strong>" + buoyInstance.name + "</strong></h5>" +
-				"<em>" + formattedTime + "</em><br>" +
-				"<table class='popup-table'><tbody>";
+			var content = '<div>' +
+				'<h5><strong>' + buoyInstance.name + '</strong></h5>' +
+				'<em>' + formattedTime + '</em><br>' +
+				'<table class="popup-table"><tbody>';
 			
 
 			reading.sensorReadings.forEach(function(sensorReading) {
-				content += "<tr><td>" + 
+				content += '<tr><td>' + 
 					sensors[sensorReading.sensorTypeId].name +
-					": </td><td class='right'>" + sensorReading.value + " " +
-					sensors[sensorReading.sensorTypeId].unit + "</td></tr>";
+					': </td><td class="right">' + sensorReading.value + ' ' +
+					sensors[sensorReading.sensorTypeId].unit + '</td></tr>';
 			});			
 				
-			content += "</tbody></table></div>";
+			content += '</tbody></table></div>';
 				
 			return content;
 		}
@@ -848,7 +851,7 @@
 			filteredReadings.forEach(function(buoyGroup) {
 				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
 					if (selectedInstance) {
-						if (selectedInstance.id == buoyInstance.id) return;
+						if (selectedInstance.id === buoyInstance.id) { return; }
 					}
 					if (buoyInstance.readings.length) { 
 						var reading = buoyInstance.readings[buoyInstance.readings.length - 1];
@@ -880,7 +883,7 @@
 				var buoyGroup = filteredReadings[i];
 				for (var j = 0; j < buoyGroup.buoyInstances.length; j++) {
 					var instance = buoyGroup.buoyInstances[j];
-					if (buoyInstance.id == instance.id) {
+					if (buoyInstance.id === instance.id) {
 						found = true;
 						buoyInstance = instance;
 						break;
@@ -894,7 +897,7 @@
 
 			// calculate some data
 			var latestTimestamp = buoyInstance.readings[buoyInstance.readings.length - 1].timestamp;
-			buoyInstance.latestReading = moment.unix(latestTimestamp).format(dateFormat + " " + timeFormat);
+			buoyInstance.latestReading = moment.unix(latestTimestamp).format(dateFormat + ' ' + timeFormat);
 
 		    var charts = {};
 		    buoyInstance.readings.forEach(function(reading) {
@@ -911,13 +914,13 @@
 		                		scaleStartValue: sensors[sReading.sensorTypeId].lowerBound,
 		                		scaleSteps : 10,
 		                		scaleStepWidth : (sensors[sReading.sensorTypeId].upperBound)/10,
-		         				scaleType: "date",
-		         				scaleTimeFormat: "h:MM TT  ",
-		         				scaleDateFormat: "mmm d  ",
-		         				scaleDateTimeFormat: "mmm d, yyyy, hh:MM",
-		         				emptyDataMessage: "chart has no data",
-		         				tooltipTemplate:"<%=argLabel%>; "+sensorName+": <%=valueLabel%>",
-		         				multiTooltipTemplate:"<%=argLabel%>; "+sensorName+": <%=valueLabel%>"
+		         				scaleType: 'date',
+		         				scaleTimeFormat: 'h:MM TT  ',
+		         				scaleDateFormat: 'mmm d  ',
+		         				scaleDateTimeFormat: 'mmm d, yyyy, hh:MM',
+		         				emptyDataMessage: 'chart has no data',
+		         				tooltipTemplate:'<%=argLabel%>; '+sensorName+': <%=valueLabel%>',
+		         				multiTooltipTemplate:'<%=argLabel%>; '+sensorName+': <%=valueLabel%>'
 		                	}
 		            	};
 		            }
@@ -925,7 +928,8 @@
 		            if (sReading.value > sensors[sReading.sensorTypeId].upperBound){
 		            	sReading.value = (sensors[sReading.sensorTypeId].upperBound);
 		            }
-		            charts[sensorName].data[0].push({x:new Date((reading.timestamp*1000)+36000000), y: sReading.value });
+		            charts[sensorName].data[0].push(
+		            	{x:new Date((reading.timestamp*1000)+36000000), y: sReading.value });
 		        });
 
 		    });
@@ -933,8 +937,9 @@
 			averageReadings(charts);
 			var arr = [];
 			for (var key in charts) {
-				arr.push(charts[key]);
-
+				if (charts.hasOwnProperty(key)) {
+					arr.push(charts[key]);
+				}
 			}
 			return arr;
 		}
@@ -946,6 +951,7 @@
 		 */
 		function averageReadings(charts){
 			for (var key in charts) {
+				if (!charts.hasOwnProperty(key)) { continue; }
 				var chart = charts[key];
 				var data = chart.data[0];
 
@@ -958,7 +964,7 @@
 				if (data.length > xmax) {
 					var averagedReading = 0;
 					for (var i = 0; i < data.length; i++) {
-						if (i == 0 || i % division != 0) {
+						if (i === 0 || i % division !== 0) {
 
 							averagedReading += data[i].y;
 						} else {

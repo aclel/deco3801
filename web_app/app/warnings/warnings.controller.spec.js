@@ -32,9 +32,7 @@
         // Initialise the controller
         beforeEach(inject(function($controller, $rootScope) {
             scope = $rootScope.$new();
-            ctrl = $controller('WarningsController', {
-                warnings: warnings
-            });
+            ctrl = $controller('WarningsController');
             // $rootScope.$apply(); // needed to resolve promises?
         }));
 

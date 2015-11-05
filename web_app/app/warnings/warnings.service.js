@@ -14,7 +14,7 @@
     'use strict';
     
     angular.module('app.warnings')
-        .factory('warnings', warnings);
+        .factory('warnings', warningsService);
         
     /**
         * @ngdoc service
@@ -24,7 +24,7 @@
         * @requires server
         * @requires moment
     **/
-    function warnings($log, server, moment) {
+    function warningsService($log, server, moment) {
         /** Internal variables. These are preserved until page refresh. */
         var warnings = [];
         var buoyInstances = [];

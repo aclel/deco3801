@@ -419,21 +419,18 @@
 
 		/** Update filters and map when time filters are changed */
 		function updateTimes() {
-			console.log('updating times');
 			var defer = $q.defer();
 			// convert input strings to moments 
-			// and update vm.times, which updates reference in dashboard service
+			var momentFormat = dateFormat + ' ' + timeFormat;
+			
+			if (times.type === 'range') {
+				times.range.from = moment(times.inputs.range.from.date +
+					' ' + times.inputs.range.from.time, momentFormat);
+				times.range.to = moment(times.inputs.range.to.date +
+					' ' + times.inputs.range.to.time, momentFormat);
+			}
+
 			if (timesInputsValid()) {
-				console.log(true);
-				var momentFormat = dateFormat + ' ' + timeFormat;
-				
-				if (times.type === 'range') {
-					times.range.from = moment(times.inputs.range.from.date +
-						' ' + times.inputs.range.from.time, momentFormat);
-					times.range.to = moment(times.inputs.range.to.date +
-						' ' + times.inputs.range.to.time, momentFormat);
-				}
-				
 				queryReadingTimes().then(function() {
 					defer.resolve();	
 				}, function() {
@@ -456,8 +453,8 @@
 				var toDate = times.inputs.range.to.date;
 				var toTime = times.inputs.range.to.time;
 				
-				// if (!fromDate || !toDate) return false;
-				// if ((toTime && !fromTime) || (fromTime && !toTime)) return false;
+				if (!times.range.to || !times.range.from) { return false; }
+				if (times.range.to.isBefore(times.range.from)) { return false; }
 
 				if (!/^\d{2}\/\d{2}\/\d{2}$/.test(fromDate)) { return false; }
 				if (!/^\d{2}\/\d{2}\/\d{2}$/.test(toDate)) { return false; }

@@ -140,8 +140,6 @@
 			times = {
 				type: 'since',
 				range: { from: null, to: null }, // from and to contain moments
-				point: null,
-				pointReadings: [], // contains list of closest readings to point
 				inputs: {
 					since: { value: 2, quantifier: 'weeks', options: [
 						'hours', 'days', 'weeks', 'months'
@@ -149,8 +147,7 @@
 					range: {
 						from: { date: '01/07/15', time: '' },
 						to: { date: '28/10/15', time: '' },
-					},
-					point: { date: '', time: '' },
+					}
 				}
 			};
 		}
@@ -437,11 +434,6 @@
 						' ' + times.inputs.range.to.time, momentFormat);
 				}
 				
-				else if (times.type === 'point') {
-					times.point = moment(times.inputs.point.date +
-						' ' + times.inputs.point.time, momentFormat);
-				}
-				
 				queryReadingTimes().then(function() {
 					defer.resolve();	
 				}, function() {
@@ -477,12 +469,6 @@
 
 				return true;
 			}
-			if (times.type === 'point') {
-				// must have date, time is optional
-				if (times.inputs.point.date) {
-					return true;
-				}
-			}
 			
 			return false;
 		}
@@ -502,18 +488,9 @@
 			} else if (times.type === 'range') {
 				from = times.range.from.unix();
 				to = times.range.to.unix();
-			} else if (times.type === 'point') {
-				from = times.point.clone().subtract(2, 'weeks').unix();
-				to = times.point.clone().add(2, 'weeks').unix();
 			}
 			
-			var promise = queryReadings(from, to);
-			promise.then(function() {
-				if (times.type === 'point') {
-					calculatePointReadings();
-				}
-			});
-			return promise;
+			return queryReadings(from, to);
 		}
 		
 		/** Update internal filtered readings when sensor filters changed */
@@ -529,30 +506,6 @@
 				if (!/^\d*\.?\d*$/.test(sensor.inputs.value)) { return false; }
 			}
 			return true;
-		}
-		
-		/** Calculate readings closest to specified time */
-		function calculatePointReadings() {
-			times.pointReadings = [];
-			if (!readings) { return; }
-
-			readings.forEach(function(buoyGroup) {
-				buoyGroup.buoyInstances.forEach(function(buoyInstance) {
-					var closest = {
-						id: buoyInstance.readings[0].id,
-						timestamp: buoyInstance.readings[0].timestamp
-					};
-					buoyInstance.readings.forEach(function(reading) {
-						var diffOld = moment.unix(closest.timestamp).diff(times.point);
-						var diffNew = moment.unix(reading.timestamp).diff(times.point);
-						if (Math.abs(diffNew) < Math.abs(diffOld)) {
-							closest.id = reading.id;
-							closest.timestamp = reading.timestamp;
-						}
-					});
-					times.pointReadings.push(closest.id);
-				});
-			});
 		}
 		
 		/** Re-filter readings based on updated filters */
@@ -670,10 +623,6 @@
 				if (!time.isBetween(times.range.from, times.range.to)) {
 					return false;
 				}
-			} else if (times.type === 'point') {
-				if (times.pointReadings.indexOf(reading.id) === -1) {
-					return false;
-				}
 			}
 			return true;
 		}
@@ -758,13 +707,6 @@
 					max = times.range.to;
 					min = times.range.from;
 				
-				}  else if (times.type === 'point') {
-					// range: from two weeks before point until point
-					if (times.point === null) {
-						return 1.0;
-					}
-					max = times.point;
-					min = max.clone().subtract(2, 'weeks');
 				}
 			}
 			

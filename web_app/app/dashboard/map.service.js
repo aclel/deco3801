@@ -251,29 +251,6 @@
         }
 
         /**
-         * Map styles to disable points of interest (not currently used)
-         * @return {object} map styles usable by google maps api
-         */
-        function stylesNoPoi() {
-            return [
-                {
-                    featureType: "poi",
-                    elementType: "labels",
-                    stylers: [
-                          { visibility: "off" }
-                    ]
-                },
-                {
-                    featureType: "transit.station",
-                    elementType: "labels",
-                    stylers: [
-                          { visibility: "off" }
-                    ]
-                }
-            ];
-        }
-
-        /**
          * Map style blue water style
          * from https://snazzymaps.com/style/25/blue-water
          * @return {object} map styles usable by google maps api

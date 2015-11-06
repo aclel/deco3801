@@ -646,42 +646,16 @@
 		}
 		
 		/**
-		 * Return 0-1 depending where reading timestamp falls based on time filters
+		 * Return 0-1 depending where reading timestamp falls based on
+		 * readings for that buoy
 		 * @param  {object} reading reading
 		 * @return {float}         age (0 is old, 1 is new)
 		 */
 		function getRelativeAge(reading, buoyInstance) {
-			// returns age between 0 and 1, based on a range determined as seen below
 			var time = moment.unix(reading.timestamp);
-			var min, max;
-
-			// calculate age based on instance readings
-			if (buoyInstance) {
-				min = moment.unix(buoyInstance.readings[0].timestamp);
-				max = moment.unix(
-					buoyInstance.readings[buoyInstance.readings.length - 1].timestamp
-					);
-
-			// otherwise calculate age based on time filters
-			} else {
-				if (times.type === 'all') {
-					// range: from 2 weeks ago until now
-					max = moment();
-					min = max.clone().subtract(2, 'weeks');
-				
-				} else if (times.type === 'since') {
-					max = moment();
-					min = moment().subtract(times.inputs.since.value,
-						 times.inputs.since.quantifier);
-						
-				} else if (times.type === 'range') {
-					// range: range of time filters
-					max = times.range.to;
-					min = times.range.from;
-				
-				}
-			}
-			
+			var min = moment.unix(buoyInstance.readings[0].timestamp);
+			var max = moment.unix(buoyInstance
+				.readings[buoyInstance.readings.length - 1].timestamp);
 			return calculateAgeInRange(time, min, max);
 		}
 		

@@ -599,8 +599,8 @@ input.ng-invalid.ng-dirty.form-control:focus {
   font-size: 1.2em;
   color: #222;
   background-color: rgba(240, 240, 240, 0.96);
-  min-width: 180px;
-  max-width: 220px;
+  min-width: 250px;
+  max-width: 280px;
   padding: 10px;
   border: 1px solid #AAA;
   border-radius: 10px;

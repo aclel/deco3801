@@ -21,7 +21,7 @@
         * @name app.dashboard.map
         * @requires google
     **/
-    function mapService($rootScope, $log, google, InfoBox) {
+    function mapService($rootScope, $compile, $log, google, InfoBox) {
             
         /** Internal variables */
         var map;
@@ -46,19 +46,30 @@
         };
         var markers = {};
         var markerBuoyInstances = {};
-        var markerContent = {};
         var disabledMarkers = [];
         var infoBox;
         var infoBoxOpen = false;
         var currentMarkerId = -1;
         var mapCenter;
+
+        var sensors = {};
+
+        var popupContent = '<div ng-include="\'dashboard/popup.html\'"></div>';
+        var popupScope = $rootScope.$new();
+        var popupContentCompiled = $compile(popupContent)(popupScope);
         
         /** The service methods to expose */
         return {
+            setSensors: setSensors,
             initialiseMap: initialiseMap,
             showMarker: showMarker,
             hideDisabledMarkers: hideDisabledMarkers
         };
+
+        /** Define sensors, called by dashboard */
+        function setSensors(data) {
+            sensors = data;
+        }
 
         /** Setup google map, set styles and listeners */
         function initialiseMap() {
@@ -91,10 +102,9 @@
          * @param  {object} buoyInstance buoyInstance the reading is from
          * @param {string} colour hex colour of the marker
          */
-        function showMarker(reading, buoyInstance, age, content) {
+        function showMarker(reading, buoyInstance, age) {
             var id = reading.id;
             markerBuoyInstances[id] = buoyInstance;
-            markerContent[id] = content;
             if (!markers.hasOwnProperty(id)) {
                 // create new marker if it doesn't exist
                 addMarker(reading);
@@ -176,7 +186,7 @@
             if (infoBoxOpen) {
                 closeInfoBox();
                 
-                if (reading.id == currentMarkerId) {
+                if (reading.id === currentMarkerId) {
                     return;
                 }
             }
@@ -185,9 +195,18 @@
 
             // update charts
             $rootScope.$broadcast('mapMarkerSelected', buoyInstance);
-            
+
+            // put data into scope
+            popupScope.vm = {
+                time: moment.unix(reading.timestamp) .format('D MMMM h:mm A'),
+                buoyInstance: buoyInstance,
+                reading: reading,
+                sensors: sensors
+            };
+            popupScope.$apply();
+
             infoBox = new InfoBox({
-                content: markerContent[reading.id],
+                content: popupContentCompiled[0].nextSibling.innerHTML,
                 pixelOffset: new google.maps.Size(-90, 0),
                 zIndex: null,
                 closeBoxMargin: "-6px -6px 2px 2px"

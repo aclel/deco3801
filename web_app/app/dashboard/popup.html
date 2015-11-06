@@ -1,0 +1,36 @@
+<div>
+    <h5><strong>{{ vm.buoyInstance.name }}</strong></h5>
+    <em>{{ vm.time }}</em>
+    <table class="popup-table">
+        <tbody>
+            <tr>
+                <td>Lat/Long: </td>
+                <td class="right">
+                    {{ vm.reading.latitude }}, {{ vm.reading.longitude }}
+                </td>
+            </tr>
+            <tr>
+                <td>Altitude</td>
+                <td class="right">{{ vm.reading.altitude }} m</td>
+            </tr>
+            <tr>
+                <td>Speed OG</td>
+                <td class="right">{{ vm.reading.speedOG }} knots</td>
+            </tr>
+            <tr>
+                <td>Course</td>
+                <td class="right">{{ vm.reading.course }}&deg;s</td>
+            </tr>
+        </tbody>
+    </table>
+    <table class="popup-table">
+        <tbody>
+            <tr ng-repeat="sReading in vm.reading.sensorReadings">
+                <td>{{ vm.sensors[sReading.sensorTypeId].name }}</td>
+                <td class="right">
+                    {{ sReading.value }} {{ vm.sensors[sReading.sensorTypeId].unit }}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>

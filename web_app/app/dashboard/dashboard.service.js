@@ -128,6 +128,7 @@
 			var promise = server.getSensorTypes();
 			promise.then(function(res) {
 				populateSensors(res.data.sensorTypes);
+				map.setSensors(sensors);
 				updateFilters();
 			}, function(res) {
 				$log.error(res);
@@ -741,34 +742,6 @@
 			server.exportData(readingIds);
 		}
 
-		/** 
-		 * Determine content to set for marker popup
-		 * @param  {object} reading      reading
-		 * @param  {object} buoyInstance buoy instance
-		 * @return {string}              popup content
-		 */
-		function popupContent(reading, buoyInstance) {
-			var formattedTime = moment.unix(reading.timestamp)
-										.format('D MMMM h:mm A');
-										
-			var content = '<div>' +
-				'<h5><strong>' + buoyInstance.name + '</strong></h5>' +
-				'<em>' + formattedTime + '</em><br>' +
-				'<table class="popup-table"><tbody>';
-			
-
-			reading.sensorReadings.forEach(function(sensorReading) {
-				content += '<tr><td>' + 
-					sensors[sensorReading.sensorTypeId].name +
-					': </td><td class="right">' + sensorReading.value + ' ' +
-					sensors[sensorReading.sensorTypeId].unit + '</td></tr>';
-			});			
-				
-			content += '</tbody></table></div>';
-				
-			return content;
-		}
-
 		/**
 		 * Update the map to show markers for filtered readings
 		 */
@@ -783,8 +756,7 @@
 					insNum++;
 					enabledMarkers.push(reading.id);
 					map.showMarker(reading, selectedInstance,
-						getRelativeAge(reading, selectedInstance),
-						popupContent(reading, selectedInstance));
+						getRelativeAge(reading, selectedInstance));
 				});
 			}
 
@@ -798,9 +770,7 @@
 						var reading = buoyInstance.readings[buoyInstance.readings.length - 1];
 						insNum++;
 						enabledMarkers.push(reading.id);
-						map.showMarker(reading, buoyInstance,
-							1, //getRelativeAge(reading, buoyInstance),
-							popupContent(reading, buoyInstance));
+						map.showMarker(reading, buoyInstance, 1);
 					}
 				});
 			});

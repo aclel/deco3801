@@ -18,21 +18,23 @@ import (
 
 // Implements all model methods to allow for unit testing with dependency injection.
 type MockDB struct {
-	users []User
-	buoys []Buoy
+	Users    []User
+	Buoys    []Buoy
+	Commands []Command
 }
 
 // BUOYS
 func (mdb *MockDB) GetAllBuoys() ([]Buoy, error) {
-	return mdb.buoys, nil
+	return mdb.Buoys, nil
 }
 
 func (mdb *MockDB) CreateBuoy(buoy *Buoy) (int64, error) {
-	return -1, nil
+	mdb.Buoys = append(mdb.Buoys, *buoy)
+	return buoy.Id, nil
 }
 
 func (mdb *MockDB) GetBuoyById(id int) (*Buoy, error) {
-	return &Buoy{}, nil
+	return &mdb.Buoys[0], nil
 }
 
 func (mdb *MockDB) UpdateBuoy(buoy *Buoy) error {
@@ -52,15 +54,16 @@ func (mdb *MockDB) GetBuoyInstancesForBuoyGroup(id int) ([]BuoyInstance, error) 
 }
 
 func (mdb *MockDB) AddCommandToBuoy(command *Command) (int64, error) {
-	return -1, nil
+	mdb.Commands = append(mdb.Commands, *command)
+	return int64(command.Id), nil
 }
 
 func (mdb *MockDB) GetBuoyCommands(guid string, sent bool) ([]Command, error) {
-	return nil, nil
+	return mdb.Commands, nil
 }
 
 func (mdb *MockDB) GetBuoyCommandsById(id int, sent bool) ([]Command, error) {
-	return nil, nil
+	return mdb.Commands, nil
 }
 
 // BUOY INSTANCES
@@ -208,7 +211,7 @@ func (mdb *MockDB) ArchiveCommandTypeWithId(id int) error {
 
 // COMMANDS
 func (mdb *MockDB) GetCommandWithId(id int) (*Command, error) {
-	return nil, nil
+	return &Command{Id: id, BuoyId: 1}, nil
 }
 
 func (mdb *MockDB) GetAllCommands() ([]Command, error) {

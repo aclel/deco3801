@@ -10,6 +10,8 @@
 // @link       https://github.com/aclel/deco3801
 package models
 
+import "errors"
+
 // Represents a physical buoy
 type Buoy struct {
 	Id                   int64  `json:"id" db:"id"`
@@ -31,6 +33,26 @@ type BuoyRepository interface {
 	GetBuoyCommandsById(id int, sent bool) ([]Command, error)
 }
 
+func (buoy *Buoy) ValidateNew() error {
+	if buoy.Guid == "" {
+		return errors.New("Missing guid")
+	}
+
+	if buoy.Name == "" {
+		return errors.New("Missing name of initial buoy instance")
+	}
+
+	return nil
+}
+
+func (buoy *Buoy) ValidateUpdate() error {
+	if buoy.Guid == "" {
+		return errors.New("Missing guid")
+	}
+
+	return nil
+}
+
 // Gets all buoys from the database.
 // Returns a slice of buoys.
 func (db *DB) GetAllBuoys() ([]Buoy, error) {
@@ -49,7 +71,7 @@ func (db *DB) GetBuoyById(id int) (*Buoy, error) {
 	err := db.Get(&buoy, "SELECT * FROM buoy WHERE id=?", id)
 
 	if err != nil {
-		return &buoy, err
+		return nil, err
 	}
 
 	// Assume that the id is unique and that one row was retrieved.

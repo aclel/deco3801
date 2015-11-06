@@ -28,7 +28,8 @@
 			getWarnings: getWarnings,
 			getBuoyInstances: getBuoyInstances,
 			getSensorTypes: getSensorTypes,
-			getReadings: getReadings
+			getReadings: getReadings,
+			exportData: function() {}
 		};
 
 		/** Mocked getWarnings */
@@ -232,7 +233,7 @@
 			              "altitude": 0,
 			              "speedOG": 0,
 			              "course": 0,
-			              "timestamp": 1445076060,
+			              "timestamp": 1446830929,
 			              "sensorReadings": [
 			                {
 			                  "value": 37,
@@ -295,7 +296,7 @@
 			              "altitude": 0,
 			              "speedOG": 0,
 			              "course": 0,
-			              "timestamp": 1443607200,
+			              "timestamp": 1438882130,
 			              "sensorReadings": [
 			                {
 			                  "value": 24,
@@ -314,7 +315,7 @@
 			              "altitude": 0,
 			              "speedOG": 0,
 			              "course": 0,
-			              "timestamp": 1443607440,
+			              "timestamp": 1438968530,
 			              "sensorReadings": [
 			                {
 			                  "value": 27,
@@ -325,7 +326,27 @@
 			                  "sensorTypeId": 2
 			                }
 			              ]
-			            }
+			            },
+			            {"id": 277, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438978531, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 278, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438988532, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 279, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438998533, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 280, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438958534, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 281, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438948535, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 282, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438938536, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 283, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438928537, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 284, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438918538, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 285, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438908539, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 286, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438668540, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 287, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438668541, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 288, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438658542, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 289, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438648543, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 290, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438638544, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 291, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438628545, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 292, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438618546, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 293, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438698547, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 294, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438688548, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 295, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438678549, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
+			            {"id": 296, "latitude": -27.589996, "longitude": 152.782987, "altitude": 0, "speedOG": 0, "course": 0, "timestamp": 1438968530, "sensorReadings": [{"value": 27, "sensorTypeId": 1 }, {"value": 23, "sensorTypeId": 2 } ] },
 		              ]
 		           }
 	             ]

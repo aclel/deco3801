@@ -23,12 +23,14 @@
         beforeEach(inject(function($q, $log, _server_, _gui_, _map_) {
             deferred = $q.defer();
             server = _server_;
+            spyOn(server, 'exportData').and.stub();
             log = $log;
             spyOn(log, 'error').and.callThrough();
             gui = _gui_;
             spyOn(gui, 'alertInfo').and.callThrough();
             map = _map_;
             spyOn(map, 'hideDisabledMarkers').and.callThrough();
+            spyOn(map, 'showMarker').and.callThrough();
         }));
 
         beforeEach(inject(function(_dashboard_, $rootScope) {
@@ -213,10 +215,12 @@
                     expect(instance.enabled).toBe(true);
                 });
                 group.enabled = false;
+                map.showMarker.calls.reset();
                 dashboard.selectBuoyGroup(group);
                 group.buoyInstances.forEach(function(instance) {
                     expect(instance.enabled).toBe(false);
                 });
+                expect(map.showMarker.calls.count()).toEqual(1);
             });
 
             it('should disable buoy instance', function () {
@@ -224,8 +228,10 @@
                 var instance = group.buoyInstances[0];
                 expect(instance.enabled).toBe(true);
                 instance.enabled = false;
+                map.showMarker.calls.reset();
                 dashboard.selectBuoyInstance(group);
                 expect(instance.enabled).toBe(false);
+                expect(map.showMarker.calls.count()).toEqual(2);
             });
 
             it('should affect group enabled and indeterminate', function () {
@@ -255,7 +261,7 @@
                 scope.$digest();
             });
 
-            it('should update map', function () {
+            it('should handle since filters', function () {
                 var count = map.hideDisabledMarkers.calls.count();
                 assertFiltersUpdated();
             });
@@ -276,6 +282,37 @@
                 var times = dashboard.times();
                 times.type = 'all';
                 assertFiltersUpdated();
+            });
+
+            /** Assert filters have updated */
+            function assertFiltersUpdated() {
+                var count = map.hideDisabledMarkers.calls.count();
+                dashboard.updateTimes();
+                scope.$digest();
+                expect(map.hideDisabledMarkers.calls.count()).toEqual(count + 1);
+            }
+        });
+
+        describe('selecting marker', function () {
+            beforeEach(function() {
+                dashboard.queryReadings();
+                dashboard.querySensors();
+                // get readings
+                var readings;
+                server.getReadings().then(function(res) {
+                    readings = res.data.buoyGroups;
+                });
+                scope.$digest();
+                var selected = readings[0].buoyInstances[0];
+                selected.colour = '#FFFFFF';
+                rootScope.$broadcast('mapMarkerSelected', selected);
+            });
+
+            it('should update map', function () {
+                var count = map.hideDisabledMarkers.calls.count();
+                map.showMarker.calls.reset();
+                assertFiltersUpdated();
+                expect(map.showMarker.calls.count()).toEqual(3);
             });
 
             /** Assert filters have updated */
@@ -356,7 +393,7 @@
             }
         });
 
-        describe('update sensors', function () {
+        describe('update sensor filters', function () {
             beforeEach(function() {
                 dashboard.queryReadings();
                 dashboard.querySensors();
@@ -378,6 +415,24 @@
                 assertFiltersNotUpdated();
             });
 
+            it('should filter based on sensors', function () {
+                var sensors = dashboard.sensors();
+                sensors[0].inputs.enabled = true;
+                sensors[0].inputs.value = 31;
+                sensors[0].inputs.selected = '>';
+                map.showMarker.calls.reset();
+                assertFiltersUpdated();
+                expect(map.showMarker.calls.count()).toEqual(2);
+                sensors[0].inputs.selected = '<';
+                map.showMarker.calls.reset();
+                assertFiltersUpdated();
+                expect(map.showMarker.calls.count()).toEqual(3);
+                sensors[0].inputs.selected = '=';
+                map.showMarker.calls.reset();
+                assertFiltersUpdated();
+                expect(map.showMarker.calls.count()).toEqual(1);
+            });
+
             /** Assert filters haven't updated */
             function assertFiltersNotUpdated() {
                 var count = map.hideDisabledMarkers.calls.count();
@@ -395,28 +450,49 @@
             }
         });
 
-        describe('sensor filters', function () {
+        describe('export data', function () {
+            it('should export data', function () {
+                dashboard.queryReadings();
+                dashboard.querySensors();
+                scope.$digest();
+                dashboard.exportData();
+                expect(server.exportData).toHaveBeenCalled();
+                var arg0 = [21, 22, 116, 117, 118, 275, 276,
+                277, 278, 279, 280, 281, 282, 283, 284, 285,
+                286, 287, 288, 289, 290, 291, 292, 293, 294, 295, 296];
+                expect(server.exportData.calls.mostRecent().args).toEqual([arg0]);
+            });
+        });
+
+        describe('calculate chart data', function () {
             beforeEach(function() {
                 dashboard.queryReadings();
                 dashboard.querySensors();
                 scope.$digest();
             });
 
-            it('should filter based on sensors', function () {
-                var sensors = dashboard.sensors();
-                sensors[0].inputs.enabled = true;
-                sensors[0].inputs.value = 1000;
-                sensors[0].inputs.selected = '>';
-                assertFiltersUpdated();
+            it('should do nothing for an empty buoy', function () {
+                expect(dashboard.calculateChartData(null)).toEqual({});
             });
 
-            /** Assert filters have updated */
-            function assertFiltersUpdated() {
-                var count = map.hideDisabledMarkers.calls.count();
-                dashboard.updateSensors();
-                scope.$digest();
-                expect(map.hideDisabledMarkers.calls.count()).toEqual(count + 1);
-            }
+            it('should calculate data', function () {
+                var instance = dashboard.buoys()[0].buoyInstances[0];
+                var data = dashboard.calculateChartData(instance);
+                expect(angular.isArray(data)).toBe(true);
+                expect(data.length).toEqual(1);
+            });
+
+            it('should average readings', function () {
+                var instance = dashboard.buoys()[1].buoyInstances[0];
+                var data = dashboard.calculateChartData(instance);
+                expect(angular.isArray(data)).toBe(true);
+                expect(data.length).toEqual(2);
+            });
+
+            it('should not calculate data for an old buoy', function () {
+                var instance = { id: 999 };
+                expect(dashboard.calculateChartData(instance)).toEqual({});
+            });
         });
     });
 })();

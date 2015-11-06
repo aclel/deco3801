@@ -13,7 +13,6 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -92,9 +91,13 @@ func BuoysCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(&buoy)
 
-	// Check if Buoy JSON is valid
+	// Check if JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid Buoy", http.StatusInternalServerError}
+		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
+	}
+
+	if err = buoy.ValidateNew(); err != nil {
+		return &AppError{err, "Invalid Buoy: " + err.Error(), http.StatusBadRequest}
 	}
 
 	// Insert the Buoy into the database
@@ -145,9 +148,13 @@ func BuoysUpdate(env *models.Env, w http.ResponseWriter, r *http.Request) *AppEr
 
 	// Check if Buoy JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid Buoy", http.StatusInternalServerError}
+		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
 	}
 	buoy.Id = id
+
+	if err = buoy.ValidateUpdate(); err != nil {
+		return &AppError{err, "Invalid Buoy: " + err.Error(), http.StatusBadRequest}
+	}
 
 	// Replace Buoy in the database
 	err = env.DB.UpdateBuoy(buoy)
@@ -205,7 +212,17 @@ func BuoyCommandsCreate(env *models.Env, w http.ResponseWriter, r *http.Request)
 
 	// Check if Command JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid Commands", http.StatusInternalServerError}
+		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
+	}
+
+	// Check if Buoy exists with Id
+	buoy, err := env.DB.GetBuoyById(buoyId)
+	if err != nil {
+		return &AppError{err, "Error while checking for existence of buoy", http.StatusInternalServerError}
+	}
+
+	if buoy == nil {
+		return &AppError{err, "Buoy does not exist", http.StatusNotFound}
 	}
 
 	addedIds := make([]int64, 0)
@@ -233,6 +250,9 @@ func BuoyCommandsCreate(env *models.Env, w http.ResponseWriter, r *http.Request)
 	return nil
 }
 
+// GET /api/buoys/id/commands
+// Get all Commnds for the Buoy with the given id. Responds with HTTP 200 OK if successful.
+// Used in the AppRouter. Serves requests from web app and iOS app.
 func BuoyCommandsAppIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	vars := mux.Vars(r)
 	id, err := strconv.Atoi(vars["id"])
@@ -258,6 +278,9 @@ func BuoyCommandsAppIndex(env *models.Env, w http.ResponseWriter, r *http.Reques
 	return nil
 }
 
+// GET /buoys/api/commands
+// Get all unsent Commnds for the Buoy with the given id. Responds with HTTP 200 OK if successful.
+// Used in the BuoyRouter. Serves requests from the buoy.
 func BuoyCommandsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) *AppError {
 	// Parse query parameters
 	u, err := url.Parse(r.URL.String())
@@ -283,11 +306,8 @@ func BuoyCommandsIndex(env *models.Env, w http.ResponseWriter, r *http.Request) 
 		return &AppError{err, "Error retrieving active buoy instance", http.StatusInternalServerError}
 	}
 
-	fmt.Println(buoyInstance)
-
 	// Update the 'last polled' field on the buoy instance
 	buoyInstance.LastPolled = models.Now()
-	fmt.Println(buoyInstance.LastPolled)
 	err = env.DB.UpdateBuoyInstance(buoyInstance)
 	if err != nil {
 		return &AppError{err, "Error updating last polled on buoy instance", http.StatusInternalServerError}
@@ -330,7 +350,7 @@ func BuoyCommandsAcknowledge(env *models.Env, w http.ResponseWriter, r *http.Req
 
 	// Check if Acknowledgement JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON for Acknowledgement", http.StatusInternalServerError}
+		return &AppError{err, "Invalid JSON for Acknowledgement", http.StatusBadRequest}
 	}
 
 	// Update commands in database to "sent"

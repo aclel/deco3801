@@ -12,16 +12,16 @@
  */
 (function() {
     'use strict';
-    
+
     /** Unit tests for dashboard controller */
     describe('Controller: DashboardController', function() {
         var $controller, ctrl, rootScope, scope, google, map, deferred;
         var dashboard;
-        
+
         beforeEach(module('app'));
         beforeEach(module('mock.google'));
         beforeEach(module('mock.server'));
-        
+
         // Mock services and spy on methods
         beforeEach(inject(function($q, _dashboard_, _google_, _map_) {
             deferred = $q.defer();
@@ -78,15 +78,15 @@
                 expect(ctrl.toggleGraphs).toBeDefined();
             });
 
-            it('should bind to dashboard service', function () {
+            it('should bind to dashboard service', function() {
                 expect(ctrl.buoys).toBe(dashboard.buoys());
                 expect(ctrl.times).toBe(dashboard.times());
                 expect(ctrl.readingMetadata).toBe(dashboard.readingMetadata());
             });
         });
 
-        describe('activate', function () {
-            it('should have updated vm', function () {
+        describe('activate', function() {
+            it('should have updated vm', function() {
                 expect(ctrl.buoys).toEqual([]);
                 expect(ctrl.sensors).toEqual([]);
                 expect(ctrl.readingMetadata).toEqual({});
@@ -97,34 +97,34 @@
             });
         });
 
-        describe('selectBuoyGroup', function () {
-            it('should call dashboard.selectBuoyGroup', function () {
+        describe('selectBuoyGroup', function() {
+            it('should call dashboard.selectBuoyGroup', function() {
                 ctrl.selectBuoyGroup();
                 expect(dashboard.selectBuoyGroup).toHaveBeenCalled();
             });
         });
 
-        describe('selectBuoyInstance', function () {
-            it('should call dashboard.selectBuoyInstance', function () {
+        describe('selectBuoyInstance', function() {
+            it('should call dashboard.selectBuoyInstance', function() {
                 ctrl.selectBuoyInstance();
                 expect(dashboard.selectBuoyInstance).toHaveBeenCalled();
             });
         });
 
-        describe('updateSensors', function () {
-            it('should call dashboard.updateSensors', function () {
+        describe('updateSensors', function() {
+            it('should call dashboard.updateSensors', function() {
                 ctrl.updateSensors();
                 expect(dashboard.updateSensors).toHaveBeenCalled();
             });
         });
 
-        describe('updateTimes', function () {
-            it('should call dashboard.updateTimes', function () {
+        describe('updateTimes', function() {
+            it('should call dashboard.updateTimes', function() {
                 ctrl.updateTimes();
                 expect(dashboard.updateTimes).toHaveBeenCalled();
             });
 
-            it('should update charts', function () {
+            it('should update charts', function() {
                 ctrl.updateTimes();
                 expect(dashboard.updateTimes).toHaveBeenCalled();
                 deferred.resolve();
@@ -134,15 +134,15 @@
             });
         });
 
-        describe('exportData', function () {
-            it('should call dashboard.exportData', function () {
+        describe('exportData', function() {
+            it('should call dashboard.exportData', function() {
                 ctrl.exportData();
                 expect(dashboard.exportData).toHaveBeenCalled();
             });
         });
 
-        describe('toggleGraphs', function () {
-            it('update vm', function () {
+        describe('toggleGraphs', function() {
+            it('update vm', function() {
                 var original = ctrl.showGraphs;
                 ctrl.toggleGraphs();
                 expect(ctrl.showGraphs).not.toBe(original);
@@ -153,10 +153,33 @@
             });
         });
 
-        describe('mapMarkerSelected event', function () {
-            it('should update charts', function () {
-                rootScope.$broadcast('mapMarkerSelected');
+        describe('mapMarkerSelected event', function() {
+            it('should update charts', function() {
+                ctrl.selectedBuoy = {
+                    id: 0
+                };
+                var instance = {
+                    id: 1,
+                    readings: []
+                };
+                rootScope.$broadcast('mapMarkerSelected', instance);
                 expect(dashboard.calculateChartData).toHaveBeenCalled();
+            });
+
+            it('should not update charts if same buoy was selected', function() {
+                rootScope.$apply();
+                var instance = {
+                    id: 0,
+                    readings: []
+                };
+                rootScope.$broadcast('mapMarkerSelected', instance);
+                expect(dashboard.calculateChartData).toHaveBeenCalled();
+                expect(dashboard.calculateChartData.calls.count()).toEqual(1);
+                ctrl.selectedBuoy = {
+                    id: 0
+                };
+                rootScope.$broadcast('mapMarkerSelected', instance);
+                expect(dashboard.calculateChartData.calls.count()).toEqual(1);
             });
         });
     });

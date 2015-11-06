@@ -16,6 +16,7 @@
     /** Unit tests for nav service */
     describe('Service: nav', function() {
         var nav, rootScope, auth, server, state, scope, timeout, interval;
+        var authCheckUserSpy;
 
         beforeEach(module('app'));
         beforeEach(module('mock.server'));
@@ -23,7 +24,7 @@
 
         beforeEach(inject(function(_auth_, _server_, _$state_, _$timeout_, _$interval_) {
             auth = _auth_;
-            spyOn(auth, 'checkUser').and.callFake(function(user) {
+            authCheckUserSpy = spyOn(auth, 'checkUser').and.callFake(function(user) {
                 if (user === 'authed') { return true; }
                 return false;
             });
@@ -78,6 +79,19 @@
                 interval.flush(1000*10);
                 rootScope.$broadcast('loading', false);
                 expect(server.getWarnings.calls.count()).toEqual(2);
+            });
+
+            it('should not update warnings if not authed', function () {
+                authCheckUserSpy.and.returnValue(false);
+                rootScope.$broadcast('loading', false);
+                expect(server.getWarnings).not.toHaveBeenCalled();
+            });
+
+            it('should not show loading if updating warnings', function () {
+                rootScope.$broadcast('loading', false);
+                expect(server.getWarnings).toHaveBeenCalled();
+                rootScope.$broadcast('loading', true);
+                expect(nav.getLoading().show).toBe(false);
             });
         });
 

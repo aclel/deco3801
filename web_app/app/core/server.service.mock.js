@@ -176,7 +176,7 @@
 			      "name": "Pressure",
 			      "lowerBound": 0,
 			      "upperBound": 500,
-			      "archived": false
+			      "archived": true
 			    }
 			]};
 			var defer = $q.defer();

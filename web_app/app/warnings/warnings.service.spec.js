@@ -24,6 +24,7 @@
             scope = $rootScope.$new();
             deferred = $q.defer();
             log = $log;
+            spyOn(log, 'error').and.callThrough();
             server = _server_;
             warnings = _warnings_;
         }));
@@ -59,9 +60,9 @@
                 expect(warning.readingTime).toBeDefined();
                 // expect(warning.readingTime).toEqual("22/02/15 23:06 PM");
                 expect(warning.sensorName).toBeDefined();
-                expect(warning.sensorName).toEqual("Turbidity");
+                expect(warning.sensorName).toEqual('Turbidity');
                 expect(warning.warning).toBeDefined();
-                expect(warning.warning).toEqual("Turbidity > 100");
+                expect(warning.warning).toEqual('Turbidity > 100');
             });
         });
 
@@ -84,6 +85,7 @@
                 warnings.refreshData();
                 deferred.reject();
                 scope.$digest();
+                expect(log.error).toHaveBeenCalled();
                 expect(log.assertEmpty).toThrow();
                 expect(log.error.logs.length).toEqual(3);                
             });

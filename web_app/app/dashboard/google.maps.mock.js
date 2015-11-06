@@ -31,7 +31,11 @@
             },
             OverlayView: function() {return {}; },
             InfoWindow: function() {return {}; },
-            Marker: function() {return {}; },
+            Marker: function() {return {
+                    setIcon: function() {},
+                    setOpacity: function() {}
+                };
+            },
             MarkerImage: function() {return {}; },
             Map: function() {return {}; },
             Point: function() {return {}; },

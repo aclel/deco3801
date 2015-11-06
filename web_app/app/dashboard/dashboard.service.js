@@ -784,9 +784,6 @@
 		            	};
 		            }
 		            //then push to respective sensorReadings
-		            if (sReading.value > sensors[sReading.sensorTypeId].upperBound){
-		            	sReading.value = (sensors[sReading.sensorTypeId].upperBound);
-		            }
 		            charts[sensorName].data[0].push(
 		            	{x:new Date((reading.timestamp*1000)+36000000), y: sReading.value });
 		        });

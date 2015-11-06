@@ -18,11 +18,12 @@
         var $controller, ctrl, state, server;
         
         beforeEach(module('app'));
+        beforeEach(module('mock.state'));
 
         beforeEach(inject(function($state, _server_) {
             state = $state;
             spyOn(state, 'go').and.stub();
-            spyOn(state, 'includes').and.callThrough();
+            spyOn(state, 'includes').and.returnValue(true);
         }));
 
         // Initialise the controller
@@ -30,7 +31,7 @@
             ctrl = $controller('HelloController', {
                 $state: state
             });
-            $rootScope.$apply(); // needed to resolve activate?
+            $rootScope.$apply(); // needed to resolve activate
         }));
 
         describe('State', function() {
@@ -38,6 +39,36 @@
                 expect(ctrl).toBeDefined();
             });
         });
+
+        describe('Activate', function() {
+            it('should redirect', function() {
+                expect(state.go).toHaveBeenCalled();
+                expect(state.includes).toHaveBeenCalled();
+            });
+        });
+    });
+
+    /** 2nd set of unit tests for hello controller
+        injects a different state spy */
+    describe('Controller: HelloController', function() {
+        var $controller, ctrl, state, server;
+        
+        beforeEach(module('app'));
+        beforeEach(module('mock.state'));
+
+        beforeEach(inject(function($state, _server_) {
+            state = $state;
+            spyOn(state, 'go').and.stub();
+            spyOn(state, 'includes').and.returnValue(false); // this is the difference
+        }));
+
+        // Initialise the controller
+        beforeEach(inject(function($controller, $rootScope, $log) {
+            ctrl = $controller('HelloController', {
+                $state: state
+            });
+            $rootScope.$apply(); // needed to resolve activate
+        }));
 
         describe('Activate', function() {
             it('should redirect', function() {

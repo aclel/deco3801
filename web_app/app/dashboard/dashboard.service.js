@@ -599,31 +599,7 @@
 		 * @return {bool}         true if the reading should be show, else false
 		 */
 		function showReading(reading) {
-			if (!filterTimes(reading)) { return false; }
 			if (!filterSensors(reading)) { return false; }
-			return true;
-		}
-		
-		/**
-		 * Filter readings based on timestamp
-		 * @param  {object} reading reading
-		 * @return {bool}         include reading
-		 */
-		function filterTimes(reading) {
-			var time;
-			if (times.type === 'since') {
-				var since = moment().subtract(times.inputs.since.value,
-					 times.inputs.since.quantifier);
-				time = moment.unix(reading.timestamp);
-				if (!time.isAfter(since)) {
-					return false;
-				}
-			} else if (times.type === 'range') {
-				time = moment.unix(reading.timestamp);
-				if (!time.isBetween(times.range.from, times.range.to)) {
-					return false;
-				}
-			}
 			return true;
 		}
 		
@@ -633,10 +609,6 @@
 		 * @return {bool}         include reading
 		 */
 		function filterSensors(reading) {
-			if (Object.keys(sensors).length === 0) {
-				return true;
-			}
-			
 			for (var i = 0; i < reading.sensorReadings.length; i++) {
 				if (!filterSensor(reading.sensorReadings[i])) {
 					return false;
@@ -748,6 +720,8 @@
 		function updateMap(selectedInstance) {
 			var enabledMarkers = [];
 			var insNum = 0;
+
+			if (!filteredReadings.length) { return; }
 
 			// if a marker has been selected, display all readings for that instance
 			if (selectedInstance) {

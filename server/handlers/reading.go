@@ -116,6 +116,9 @@ func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 	var e *AppError
 	// Constructs the Readings from the data
 	readings, e := buildReadings(env, readingsContainer)
+	if e != nil {
+		return e
+	}
 
 	// Insert each reading into db
 	for _, reading := range *readings {

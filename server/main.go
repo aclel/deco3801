@@ -17,6 +17,7 @@ import (
 	"strconv"
 
 	"github.com/aclel/deco3801/server/handlers"
+	"github.com/aclel/deco3801/server/logger"
 	"github.com/aclel/deco3801/server/models"
 	"github.com/kelseyhightower/envconfig"
 )
@@ -75,8 +76,11 @@ func main() {
 		Port:     conf.SmtpPort,
 	}
 
-	// Initialise app context (db, settings) - available in every handler
-	env := &models.Env{db, emailUser}
+	logServer := logger.NewServer("/buoy_logs")
+	buoyLogger := models.BuoyLogger{LogServer: logServer}
+
+	// Initialise app context (db, settings, loggers) - available in every handler
+	env := &models.Env{db, emailUser, *logServer, buoyLogger}
 	appRouter := handlers.NewAppRouter(env)
 	buoyRouter := handlers.NewBuoyRouter(env)
 
@@ -85,6 +89,8 @@ func main() {
 		log.Println("Buoy web service listening on :" + buoyPort)
 		log.Fatal(http.ListenAndServe(":"+buoyPort, buoyRouter))
 	}()
+
+	go logServer.Listen()
 
 	// Run web service which listens to all requests from API clients (web app, iOS app)
 	log.Println("App web service listening on :" + appPort)

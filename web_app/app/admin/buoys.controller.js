@@ -24,6 +24,9 @@
     **/
     function BuoysController($scope, server, gui) {
         var vm = this;
+
+        /** Internal variables */
+        var editOriginal;
         
         /** Variables and methods bound to viewmodel */
         vm.buoys = [];
@@ -90,6 +93,7 @@
          * @param  {object} buoy 
          */
         function editExisting(buoy) {
+            saveOriginal(buoy);
             vm.editId = buoy.id;
             vm.editObj = buoy;
         }
@@ -125,6 +129,7 @@
             if (vm.editId == -2) {
                 vm.buoys.splice(vm.buoys.length - 1, 1);
             }
+            restoreOriginal();
             vm.editId = -1;
         }
         
@@ -180,6 +185,16 @@
                 var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
                 return v.toString(16);
             });
+        }
+
+        function saveOriginal(obj) {
+            editOriginal = JSON.parse(JSON.stringify(obj));
+        }
+
+        function restoreOriginal() {
+            if (!editOriginal) { return; }
+            vm.editObj.guid = editOriginal.guid;
+            vm.editObj.name = editOriginal.name;
         }
     }
 })();

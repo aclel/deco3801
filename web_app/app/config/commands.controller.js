@@ -25,6 +25,7 @@
     function CommandsController($scope, server, gui, config) {
         var vm = this;
 
+        /** Internal variables */
         var editOriginal;
         
         /** Variables and methods bound to viewmodel */
@@ -173,8 +174,6 @@
         }
 
         function saveOriginal(obj) {
-            // deep copy by value
-            console.log(obj);
             editOriginal = JSON.parse(JSON.stringify(obj));
         }
 

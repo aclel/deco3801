@@ -24,6 +24,9 @@
     **/
     function SensorTypesController($scope, server, gui) {
         var vm = this;
+
+        /** Internal variables */
+        var editOriginal;
         
         /** Variables and methods bound to viewmodel */
         vm.sensorTypes = [];
@@ -59,6 +62,7 @@
          * @param  {object} sensor type 
          */
         function editExisting(sensorType) {
+            saveOriginal(sensorType);
             vm.editId = sensorType.id;
             vm.editObj = sensorType;
             gui.focus('editExisting');
@@ -105,6 +109,7 @@
             if (vm.editId == -2) {
                 vm.sensorTypes.splice(vm.sensorTypes.length - 1, 1);
             }
+            restoreOriginal();
             vm.editId = -1;
         }
         
@@ -151,6 +156,19 @@
             var temp = { id: -2, archived: false };
             vm.sensorTypes.push(temp);
             editExisting(temp);
+        }
+
+        function saveOriginal(obj) {
+            editOriginal = JSON.parse(JSON.stringify(obj));
+        }
+
+        function restoreOriginal() {
+            if (!editOriginal) { return; }
+            vm.editObj.name = editOriginal.name;
+            vm.editObj.description = editOriginal.description;
+            vm.editObj.unit = editOriginal.unit;
+            vm.editObj.upperBound = editOriginal.upperBound;
+            vm.editObj.lowerBound = editOriginal.lowerBound;
         }
     }
 })();

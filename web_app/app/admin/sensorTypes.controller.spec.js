@@ -93,6 +93,16 @@
                 expect(ctrl.editId).toEqual(-1);
             });
 
+            it('editCancel should restore existing back to its original state', function () {
+                var sensorType = ctrl.sensorTypes[1];
+                var original = JSON.stringify(sensorType);
+                ctrl.editExisting(sensorType);
+                sensorType.upperBound++;
+                ctrl.editCancel();
+                expect(JSON.stringify(sensorType)).toEqual(original);
+                expect(ctrl.editId).toEqual(-1);
+            });
+
             it('editDelete should prepare to delete', function () {
                 var sensorType = ctrl.sensorTypes[1];
                 ctrl.editDelete(sensorType);

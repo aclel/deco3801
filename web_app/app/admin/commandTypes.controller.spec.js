@@ -93,6 +93,16 @@
                 expect(ctrl.editId).toEqual(-1);
             });
 
+            it('editCancel should restore existing back to its original state', function () {
+                var commandType = ctrl.commandTypes[1];
+                var original = JSON.stringify(commandType);
+                ctrl.editExisting(commandType);
+                commandType.name += 'asda';
+                ctrl.editCancel();
+                expect(JSON.stringify(commandType)).toEqual(original);
+                expect(ctrl.editId).toEqual(-1);
+            });
+
             it('editDelete should prepare to delete', function () {
                 var commandType = ctrl.commandTypes[1];
                 ctrl.editDelete(commandType);

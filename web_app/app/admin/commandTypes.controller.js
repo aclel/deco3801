@@ -24,6 +24,9 @@
     **/
     function CommandTypesController($scope, server, gui) {
         var vm = this;
+
+        /** Internal variables */
+        var editOriginal;
         
         /** Variables and methods bound to viewmodel */
         vm.commandTypes = [];
@@ -59,6 +62,7 @@
          * @param  {object} command type 
          */
         function editExisting(commandType) {
+            saveOriginal(commandType);
             vm.editId = commandType.id;
             vm.editObj = commandType;
             gui.focus('editExisting');
@@ -102,6 +106,7 @@
             if (vm.editId == -2) {
                 vm.commandTypes.splice(vm.commandTypes.length - 1, 1);
             }
+            restoreOriginal();
             vm.editId = -1;
         }
         
@@ -148,6 +153,16 @@
             var temp = { id: -2, archived: false };
             vm.commandTypes.push(temp);
             editExisting(temp);
+        }
+
+        function saveOriginal(obj) {
+            editOriginal = JSON.parse(JSON.stringify(obj));
+        }
+
+        function restoreOriginal() {
+            if (!editOriginal) { return; }
+            vm.editObj.name = editOriginal.name;
+            vm.editObj.description = editOriginal.description;
         }
     }
 })();

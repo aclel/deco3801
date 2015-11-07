@@ -25,12 +25,80 @@
 		
 		/** The mock service methods to expose */
 		return {
+			getBuoys: getBuoys,
 			getWarnings: getWarnings,
 			getBuoyInstances: getBuoyInstances,
 			getSensorTypes: getSensorTypes,
 			getReadings: getReadings,
-			exportData: function() {}
+			exportData: function() {},
+			addBuoy: function() {},
+			deleteBuoy: function() {}
 		};
+
+		/** Mocked getBuoys */
+		function getBuoys() {
+			var data = { "buoys" : [
+				    {
+				      "id": 1,
+				      "guid": "e9528b5e-1d8f-4960-91ae-8b21ecc0bcab",
+				      "name": "",
+				      "activeBuoyInstanceId": 63,
+				      "archived": false
+				    },
+				    {
+				      "id": 27,
+				      "guid": "dd32376b-c944-4501-9ec4-b834d4cd0337",
+				      "name": "",
+				      "activeBuoyInstanceId": 95,
+				      "archived": false
+				    },
+				    {
+				      "id": 50,
+				      "guid": "73e3a204-4219-4098-8f5b-58b935727b93",
+				      "name": "",
+				      "activeBuoyInstanceId": 117,
+				      "archived": false
+				    },
+				    {
+				      "id": 51,
+				      "guid": "eaa777c0-c994-489d-aa94-49ce2ebb0c10",
+				      "name": "",
+				      "activeBuoyInstanceId": 118,
+				      "archived": false
+				    },
+				    {
+				      "id": 52,
+				      "guid": "bc42db99-4d3c-4883-8568-66d837057efb",
+				      "name": "",
+				      "activeBuoyInstanceId": 119,
+				      "archived": false
+				    },
+				    {
+				      "id": 53,
+				      "guid": "67793f41-bf19-40fa-bb1e-a93cb3599acc",
+				      "name": "",
+				      "activeBuoyInstanceId": 120,
+				      "archived": false
+				    },
+				    {
+				      "id": 54,
+				      "guid": "84419686-920e-402f-8369-bb3ed1ddbb07",
+				      "name": "",
+				      "activeBuoyInstanceId": 121,
+				      "archived": false
+				    },
+				    {
+				      "id": 55,
+				      "guid": "e2016e55-1f6b-4ecb-9094-7b30a7b94da0",
+				      "name": "",
+				      "activeBuoyInstanceId": 122,
+				      "archived": false
+				    }
+			]};
+			var defer = $q.defer();
+			defer.resolve({ data: data });
+			return defer.promise;
+		}
 
 		/** Mocked getWarnings */
 		function getWarnings() {

@@ -685,7 +685,7 @@ input.ng-invalid.ng-dirty.form-control:focus {
 /************************* ADMIN **********************/
 
 .buoyLogs {
-  border: 1px solid #333;
+  border: 1px solid #888;
   height: 500px;
   overflow-y: scroll;
 }

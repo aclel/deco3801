@@ -1,6 +1,7 @@
-<div class="buoyLogs">
-    <em ng-if="vm.logs.length == 0">No logs to display.</em>
-    <ul ng-if="vm.logs.length != 0">
+<h3 ng-if="vm.closed.closed" class="errorMsg">Connection to the server has closed. Please refresh the page.</h3>
+<div class="buoyLogs" scroll-glue>
+    <em ng-if="vm.logs.length == 0 && !vm.closed.closed">No logs to display.</em>
+    <ul>
         <li ng-repeat="log in vm.logs track by $index">
             {{ log }}
         </li>

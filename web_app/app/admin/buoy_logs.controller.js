@@ -27,5 +27,6 @@
         var vm = this;
         
         vm.logs = buoyLogs.getLogs();
+        vm.closed = buoyLogs.getClosed();
     }
 })();

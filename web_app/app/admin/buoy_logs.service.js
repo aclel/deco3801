@@ -20,34 +20,56 @@
         * @ngdoc service
         * @name app.admin.buoyLogs
     **/
-    function buoyLogs($websocket, server, gui) {
+    function buoyLogs($websocket, $log, server) {
 
         // Internal variables
         var webSocket;
         var logs = [];
+        var closed = { closed: false };
 
         initialiseWebSocket();
 
         /** The service methods to expose */
         return {
-            getLogs: getLogs
+            getLogs: getLogs,
+            getClosed: getClosed
         };
 
         function initialiseWebSocket() {
+            logs.length = 0;
             webSocket = $websocket(server.getBuoyLogsAddress());
             webSocket.onMessage(onMessage);
+            webSocket.onClose(onClose);
+            closed.closed = false;
+            $log.debug('websocket opened');
         }
 
         function getLogs() {
             return logs;
         }
 
+        function getClosed() {
+            return closed;
+        }
+
         function onMessage(message) {
-            logs.push(JSON.parse(message.data));
+            logMessage(JSON.parse(message.data));
+
         }
 
         function onClose() {
-            gui.alertInfo('Connection to server closed.');
+            closed.closed = true;
+            $log.debug('websocket closed');
+            initialiseWebSocket(); // try and reopen the socket immediately
+        }
+
+        function logMessage(message) {
+            message = message.body;
+            var lines = message.split('\n');
+            lines.forEach(function(line) {
+                logs.push(line);
+            });
+            logs.push('----------------------------------');
         }
     }
 })();

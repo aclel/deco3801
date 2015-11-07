@@ -22,6 +22,7 @@
 		// Shared modules
 		'app.core',
 		'app.gui',
-        'ngWebSocket'
+        'ngWebSocket',
+        'luegg.directives' // angularjs-scroll-glue
 	]);
 })();

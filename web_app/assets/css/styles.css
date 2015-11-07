@@ -59,6 +59,10 @@ fieldset[disabled] .btn {
   cursor: default;
 }
 
+.errorMsg {
+  color: #BD0B10;
+}
+
 /************************** FONT **************************/
 
 /* latin-ext */

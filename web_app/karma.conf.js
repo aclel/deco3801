@@ -42,6 +42,7 @@ module.exports = function(config) {
       'bower_components/Chart.js/Chart.min.js',
       'bower_components/Chart.Scatter.js/Chart.Scatter.min.js',
       'bower_components/angular-chart.js/dist/angular-chart.min.js',
+      'bower_components/angular-websocket/angular-websocket.min.js',
       'bower_components/moment/moment.js',
       'bower_components/angular-ui-indeterminate/dist/indeterminate.js',
       'bower_components/file-saver.js/FileSaver.js',

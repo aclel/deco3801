@@ -1,0 +1,8 @@
+<div class="buoyLogs">
+    <em ng-if="vm.logs.length == 0">No logs to display.</em>
+    <ul ng-if="vm.logs.length != 0">
+        <li ng-repeat="log in vm.logs track by $index">
+            {{ log }}
+        </li>
+    </ul>
+</div>

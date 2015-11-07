@@ -21,6 +21,7 @@
 	angular.module('app.admin', [
 		// Shared modules
 		'app.core',
-		'app.gui'
+		'app.gui',
+        'ngWebSocket'
 	]);
 })();

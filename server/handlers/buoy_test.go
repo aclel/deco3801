@@ -334,6 +334,8 @@ func TestBuoyCommandsIndex(t *testing.T) {
 		t.Errorf("Error parsing time: " + err.Error())
 	}
 
+	TestEnv.DB.CreateBuoyInstance(&models.BuoyInstance{Id: 1, BuoyId: 1, Name: "test"})
+
 	// Add two buoys to mock db
 	TestEnv.DB.AddCommandToBuoy(&models.Command{Id: 1, BuoyId: 1, CommandTypeId: 1, Value: 30, Sent: false, CreatedAt: parsedTime})
 	TestEnv.DB.AddCommandToBuoy(&models.Command{Id: 2, BuoyId: 1, CommandTypeId: 1, Value: 40, Sent: false, CreatedAt: parsedTime})
@@ -368,12 +370,16 @@ var buoyCommandsAcknowledgeGoodInput = `{
 
 var buoyCommandsAcknowledgeTests = []TestWithRequestBody{
 	{"Basic", "", http.StatusOK, buoyCommandsAcknowledgeGoodInput},
-	{"Invalid json", "", http.StatusBadRequest, `{`},
+	{"Invalid json", "", http.StatusInternalServerError, `{`},
 	// {"Empty json", "", http.StatusBadRequest, `{}`},
 }
 
 func TestBuoyCommandsAcknowledge(t *testing.T) {
 	TestSetup()
+
+	// Add a buoy instance to mock db
+	TestEnv.DB.CreateBuoyInstance(&models.BuoyInstance{Id: 1, BuoyId: 1, Name: "test"})
+
 	// Add a buoy to mock db
 	TestEnv.DB.CreateBuoy(&models.Buoy{Id: 1, Guid: "test", ActiveBuoyInstanceId: 1, Archived: false})
 

@@ -18,9 +18,10 @@ import (
 
 // Implements all model methods to allow for unit testing with dependency injection.
 type MockDB struct {
-	Users    []User
-	Buoys    []Buoy
-	Commands []Command
+	Users         []User
+	Buoys         []Buoy
+	Commands      []Command
+	BuoyInstances []BuoyInstance
 }
 
 // BUOYS
@@ -68,7 +69,7 @@ func (mdb *MockDB) GetBuoyCommandsById(id int, sent bool) ([]Command, error) {
 
 // BUOY INSTANCES
 func (mdb *MockDB) GetActiveBuoyInstance(guid string) (*BuoyInstance, error) {
-	return &BuoyInstance{}, nil
+	return &mdb.BuoyInstances[0], nil
 }
 
 func (mdb *MockDB) GetAllBuoyInstances() ([]*BuoyInstance, error) {
@@ -80,6 +81,7 @@ func (mdb *MockDB) GetAllActiveBuoyInstances() ([]*BuoyInstance, error) {
 }
 
 func (mdb *MockDB) CreateBuoyInstance(buoyInstance *BuoyInstance) error {
+	mdb.BuoyInstances = append(mdb.BuoyInstances, *buoyInstance)
 	return nil
 }
 

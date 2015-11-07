@@ -116,6 +116,9 @@ func ReadingsCreate(env *models.Env, w http.ResponseWriter, r *http.Request) *Ap
 	var e *AppError
 	// Constructs the Readings from the data
 	readings, e := buildReadings(env, readingsContainer)
+	if e != nil {
+		return e
+	}
 
 	// Insert each reading into db
 	for _, reading := range *readings {
@@ -316,93 +319,6 @@ func toFixed(num float64, precision int) float64 {
 	output := math.Pow(10, float64(precision))
 	return float64(round(num*output)) / output
 }
-
-/*
-func parseDegreesMinutes(input string, coordType string) (float64, error) {
-	var degrees, minutes float64
-
-	var signed bool
-	if input[0] == '+' || input[1] == '-' {
-		signed = true
-	}
-
-	temp := make([]byte, 20)
-
-	// get degress from input string
-	if signed {
-		if input[5] == '.' {
-			// latitude format: DDmm.mmmm
-			temp[0] = input[1]
-			temp[1] = input[2]
-		}
-		else {
-			// longitude format: DDDmm.mmmm
-			temp[0] = input[1]
-			temp[1] = input[2]
-			temp[2] = input[3]
-		}
-	} else {
-		if input[4] == '.' {
-			// latitude format: DDmm.mmmm
-			temp[0] = input[0]
-			temp[1] = input[1]
-		} else {
-			// longitude format: DDDmm.mmmm
-			temp[0] = input[0]
-			temp[1] = input[1]
-			temp[2] = input[2]
-		}
-	}
-
-	// pull out the number of bytes from the array that we need,
-	// depending on if it's the latitude or longitude
-	var conv []byte
-	if coordType == "lat" {
-		conv = temp[:2]
-	} else {
-		conv = temp[:3]
-	}
-
-	// convert string to integer and it to final float variable
-	x, err := strconv.Atoi(string(conv))
-	if err != nil {
-		return 0, err
-	}
-	degrees = float64(x)
-
-	// get 'minutes' from input string
-	if input[5] == '.' {
-		fmt.Println(input)
-		// latitude format: DDmm.mmmm
-		for i := 0; i < 9; i++ {
-			temp[i] = input[i+3]
-		}
-	} else {
-		// longitude format: DDDmm.mmmm
-		for i := 0; i < 10; i++ {
-			fmt.Println(i)
-			temp[i] = input[i+4]
-		}
-	}
-
-	// convert string to integer and add it to final float variable
-	y, err := strconv.Atoi(string(temp))
-	if err != nil {
-		return 0, err
-	}
-	minutes = float64(y)
-
-	// add minutes to degrees
-	degrees = degrees + minutes/60
-
-	// convert to negative if there's a minus at the start of the string
-	if input[0] == '-' {
-		degrees *= -1.0
-	}
-
-	return degrees, nil
-}
-*/
 
 // Add new sensors and update the "last recorded" time of the other sensors with sensor readings.
 func updateBuoyInstanceSensorConfiguration(env *models.Env, buoyInstanceId int, readingTimestamp mysql.NullTime, sensorReadings *[]*models.SensorReading) *AppError {

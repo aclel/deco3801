@@ -4,6 +4,7 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/aclel/deco3801/server/logger"
 	"github.com/aclel/deco3801/server/models"
 	"github.com/gorilla/mux"
 )
@@ -35,7 +36,9 @@ type TestWithoutBody struct {
 }
 
 func TestSetup() {
-	TestEnv = &models.Env{DB: &models.MockDB{}}
+	logServer := logger.NewServer()
+	buoyLogger := models.MockLogger{LogServer: logServer}
+	TestEnv = &models.Env{DB: &models.MockDB{}, LogServer: *logServer, BuoyLogger: buoyLogger}
 	TestAppRouter = NewAppRouter(TestEnv)
 	TestBuoyRouter = NewBuoyRouter(TestEnv)
 }

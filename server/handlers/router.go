@@ -11,11 +11,17 @@
 package handlers
 
 import (
+	"bytes"
+	"encoding/json"
+	"errors"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/httputil"
+	"net/url"
 	"os"
+	"time"
 
 	"github.com/aclel/deco3801/server/models"
 	jwt "github.com/dgrijalva/jwt-go"
@@ -23,6 +29,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 	"github.com/rs/cors"
+	"golang.org/x/net/websocket"
 )
 
 // Setup all routes routes which are served to app clients (web app, iOS app).
@@ -116,6 +123,7 @@ func NewAppRouter(env *models.Env) *mux.Router {
 	r.Handle("/api/reset_password", defaultChain.Then(AppHandler{env, UsersResetPassword})).Methods("POST", "OPTIONS")
 	r.Handle("/api/login", defaultChain.Then(AppHandler{env, LoginHandler})).Methods("POST", "OPTIONS")
 	r.Handle("/api/readings", defaultChain.Then(AppHandler{env, ReadingsCreate})).Methods("POST", "OPTIONS")
+	r.Handle("/api/buoy_logs", websocket.Handler(env.LogServer.Handler))
 
 	return r
 }
@@ -138,10 +146,10 @@ func NewBuoyRouter(env *models.Env) *mux.Router {
 	// is executed.
 	defaultChain := alice.New(loggingHandler, c.Handler)
 
-	r.Handle("/buoys/api/commands", defaultChain.Then(AppHandler{env, BuoyCommandsIndex})).Methods("GET", "OPTIONS")
-	r.Handle("/buoys/api/commands/ack", defaultChain.Then(AppHandler{env, BuoyCommandsAcknowledge})).Methods("POST", "OPTIONS")
-	r.Handle("/buoys/api/readings", defaultChain.Then(AppHandler{env, ReadingsCreate})).Methods("POST", "OPTIONS")
-	r.Handle("/buoys/api/readings/test", defaultChain.Then(AppHandler{env, ReadingsTest})).Methods("POST", "OPTIONS")
+	r.Handle("/buoys/api/commands", defaultChain.Then(BuoyHandler{env, BuoyCommandsIndex})).Methods("GET", "OPTIONS")
+	r.Handle("/buoys/api/commands/ack", defaultChain.Then(BuoyHandler{env, BuoyCommandsAcknowledge})).Methods("POST", "OPTIONS")
+	r.Handle("/buoys/api/readings", defaultChain.Then(BuoyHandler{env, ReadingsCreate})).Methods("POST", "OPTIONS")
+	r.Handle("/buoys/api/readings/test", defaultChain.Then(BuoyHandler{env, ReadingsTest})).Methods("POST", "OPTIONS")
 
 	return r
 }
@@ -188,14 +196,12 @@ func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 
 	// Check token validity
 	if err != nil || !token.Valid {
-		log.Println(err)
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
 
 	// Check if the user has the permissions to access the resource with their role
 	if !models.UserHasPermissions(authHandler.role, token.Claims["role"].(string)) {
-		log.Println("User does not have the permissions to access this resource")
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
@@ -220,18 +226,121 @@ type AppHandler struct {
 // and it will be hard to debug what's going on. The handler can now just return an error
 // code and this function will server the http.Error.
 func (appHandler AppHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	dumpRequest(r)
 	if e := appHandler.handle(appHandler.Env, w, r); e != nil {
-		log.Println(e.Message + ": " + e.Error.Error())
+		log.Println(e.Error.Error())
 		http.Error(w, e.Message, e.Code)
 	}
 }
 
-func dumpRequest(r *http.Request) {
-	rawBytes, err := httputil.DumpRequest(r, true)
-	if err != nil {
-		panic(err)
+// HandlerFunc which wraps handlers for buoy communication
+type BuoyHandler struct {
+	*models.Env
+	handle func(*models.Env, http.ResponseWriter, *http.Request) *AppError
+}
+
+// Handles all HTTP requests for a Buoy
+func (buoyHandler BuoyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	logger := buoyHandler.Env.BuoyLogger
+
+	var buf []byte
+	var err error
+	// Read the request body and stored it in two different buffers
+	if r.Body != nil {
+		buf, err = ioutil.ReadAll(r.Body)
+		if err != nil {
+			logger.LogError(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
-	s := string(rawBytes)
-	fmt.Printf("%+q\n", s)
+
+	body := requestBodyReader{bytes.NewBuffer(buf)}
+	clone := requestBodyReader{bytes.NewBuffer(buf)}
+
+	// Get the Guid from the url params or the request body.
+	// Use the first buffer instead of the actual request, so that we can still
+	// decode the body in the actual handler.
+	guid, err := getGuidFromRequest(r.URL, body)
+	if err != nil {
+		logger.LogError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Assign the second buffer back to the request body so that it can be
+	// decoded again in the actual handler.
+	r.Body = clone
+
+	// Get the active buoy instance for the buoy with the guid
+	activeBuoyInstance, err := buoyHandler.Env.DB.GetActiveBuoyInstance(guid)
+	if err != nil {
+		logger.LogError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	logger.Log("\nTime: " + time.Now().Format(time.RFC1123) +
+		"\nBuoy: " + activeBuoyInstance.Name + " (" + guid + ")\n\n" +
+		dumpRequest(r))
+	if e := buoyHandler.handle(buoyHandler.Env, w, r); e != nil {
+		logger.Log(e.Message + ": " + e.Error.Error())
+		http.Error(w, e.Message, e.Code)
+	}
+}
+
+// Used to read the body of a request, which can then be
+// stored in multiple buffers. decoder.Decode drains the request body
+// which means that request.Body can't be read twice. By reading the
+// body into a buffer, it can be reassigned after decoding.
+type requestBodyReader struct {
+	*bytes.Buffer
+}
+
+// Make it implement the io.ReadCloser interface
+func (reader requestBodyReader) Close() error {
+	return nil
+}
+
+// httputil.DumpRequest ommits Content-Length for some strange reason.
+// This method does a bit of a hack to put it back in.
+func dumpRequest(r *http.Request) string {
+	dumpHead, _ := httputil.DumpRequest(r, false)
+	dumpBody, _ := httputil.DumpRequest(r, true)
+	dumpBody = dumpBody[len(dumpHead):]
+
+	if len(r.TransferEncoding) == 0 {
+		cl := []byte(fmt.Sprintf("Content-Length: %d\r\n\r\n", len(dumpBody)))
+		dumpHead = append(dumpHead[:len(dumpHead)-2], cl...)
+	}
+	dump := append(dumpHead, dumpBody...)
+	s := string(dump)
+	return fmt.Sprintf("%+q\n", s)
+}
+
+// Get buoy guid out of url params or json body
+func getGuidFromRequest(requestURL *url.URL, requestBody requestBodyReader) (string, error) {
+	// Parse query parameters
+	u, err := url.Parse(requestURL.String())
+	if err != nil {
+		return "", err
+	}
+	params, err := url.ParseQuery(u.RawQuery)
+	if err != nil {
+		return "", err
+	}
+
+	if params["guid"] != nil {
+		return params["guid"][0], nil
+	}
+
+	// Parse request body
+	buoy := new(models.Buoy)
+	decoder := json.NewDecoder(requestBody)
+	err = decoder.Decode(&buoy)
+	if err != nil {
+		return "", err
+	}
+
+	if buoy.Guid == "" {
+		return "", errors.New("guid is missing")
+	}
+
+	return buoy.Guid, nil
 }

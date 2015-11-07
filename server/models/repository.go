@@ -10,12 +10,16 @@
 // @link       https://github.com/aclel/deco3801
 package models
 
+import "github.com/aclel/deco3801/server/logger"
+
 // Represents app context.
 // Provides a means to safely pass around context variables,
 // such as the database.
 type Env struct {
-	DB        Repository
-	EmailUser EmailCredentials
+	DB         Repository
+	EmailUser  EmailCredentials
+	LogServer  logger.Server
+	BuoyLogger Logger
 }
 
 // Every model that's added needs to have a Repository interface

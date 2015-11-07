@@ -350,7 +350,7 @@ func BuoyCommandsAcknowledge(env *models.Env, w http.ResponseWriter, r *http.Req
 
 	// Check if Acknowledgement JSON is valid
 	if err != nil {
-		return &AppError{err, "Invalid JSON for Acknowledgement", http.StatusBadRequest}
+		return &AppError{err, "Invalid JSON", http.StatusBadRequest}
 	}
 
 	// Update commands in database to "sent"

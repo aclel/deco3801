@@ -9,7 +9,7 @@ import (
 
 type Logger interface {
 	Log(string)
-	LogError(string, int)
+	LogError(http.ResponseWriter, string, int)
 }
 
 type BuoyLogger struct {
@@ -23,5 +23,18 @@ func (l BuoyLogger) Log(str string) {
 
 func (l BuoyLogger) LogError(w http.ResponseWriter, str string, code int) {
 	l.Log(str)
+	http.Error(w, str, code)
+}
+
+type MockLogger struct {
+	LogServer *logger.Server
+}
+
+func (m MockLogger) Log(str string) {
+	fmt.Println(str)
+}
+
+func (m MockLogger) LogError(w http.ResponseWriter, str string, code int) {
+	fmt.Println(str)
 	http.Error(w, str, code)
 }

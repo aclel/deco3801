@@ -19,7 +19,7 @@ type Env struct {
 	DB         Repository
 	EmailUser  EmailCredentials
 	LogServer  logger.Server
-	BuoyLogger BuoyLogger
+	BuoyLogger Logger
 }
 
 // Every model that's added needs to have a Repository interface

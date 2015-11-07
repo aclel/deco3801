@@ -7,7 +7,6 @@ import (
 )
 
 type Server struct {
-	pattern   string
 	messages  []*Message
 	clients   map[int]*Client
 	addCh     chan *Client
@@ -17,7 +16,7 @@ type Server struct {
 	errCh     chan error
 }
 
-func NewServer(pattern string) *Server {
+func NewServer() *Server {
 	messages := []*Message{}
 	clients := make(map[int]*Client)
 	addCh := make(chan *Client)
@@ -27,7 +26,6 @@ func NewServer(pattern string) *Server {
 	errCh := make(chan error)
 
 	return &Server{
-		pattern,
 		messages,
 		clients,
 		addCh,

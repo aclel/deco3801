@@ -244,8 +244,16 @@ type BuoyHandler struct {
 func (buoyHandler BuoyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	logger := buoyHandler.Env.BuoyLogger
 
+	var buf []byte
+	var err error
 	// Read the request body and stored it in two different buffers
-	buf, _ := ioutil.ReadAll(r.Body)
+	if r.Body != nil {
+		buf, err = ioutil.ReadAll(r.Body)
+		if err != nil {
+			logger.LogError(w, err.Error(), http.StatusInternalServerError)
+		}
+	}
+
 	body := requestBodyReader{bytes.NewBuffer(buf)}
 	clone := requestBodyReader{bytes.NewBuffer(buf)}
 

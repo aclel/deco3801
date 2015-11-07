@@ -76,7 +76,7 @@ func main() {
 		Port:     conf.SmtpPort,
 	}
 
-	logServer := logger.NewServer("/buoy_logs")
+	logServer := logger.NewServer()
 	buoyLogger := models.BuoyLogger{LogServer: logServer}
 
 	// Initialise app context (db, settings, loggers) - available in every handler

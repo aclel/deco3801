@@ -32,7 +32,18 @@
 			getReadings: getReadings,
 			exportData: function() {},
 			addBuoy: function() {},
-			deleteBuoy: function() {}
+			deleteBuoy: function() {},
+			getCommandTypes: getCommandTypes,
+			addCommandType: function() {},
+			updateCommandType: function() {},
+			deleteCommandType: function() {},
+			addSensorType: function() {},
+			updateSensorType: function() {},
+			deleteSensorType: function() {},
+			getUsers: getUsers,
+			addUser: function() {},
+			updateUser: function() {},
+			deleteUser: function() {}
 		};
 
 		/** Mocked getBuoys */
@@ -421,6 +432,87 @@
 	         	}
          	  ]
 			};
+			var defer = $q.defer();
+            defer.resolve({ data: data });
+            return defer.promise;
+		}
+
+		/** Mocked getCommandTypes */
+		function getCommandTypes() {
+			var data = { "commandTypes": [
+			    {
+			      "id": 1,
+			      "name": "Base Wakeup Rate",
+			      "description": "How frequently the buoy wakes up",
+			      "archived": false
+			    },
+			    {
+			      "id": 2,
+			      "name": "Ping",
+			      "description": "Used during deployment to test buoy connection to server",
+			      "archived": false
+			    },
+			    {
+			      "id": 3,
+			      "name": "GPS Wakeup Rate",
+			      "description": "How frequently the GPS module on the buoy wakes up to update its coordinates",
+			      "archived": false
+			    },
+			    {
+			      "id": 4,
+			      "name": "Transmit Reading Rate",
+			      "description": "How frequently the buoy queries the server for new commands and transmits its collected readings",
+			      "archived": false
+			    }
+			]};
+			var defer = $q.defer();
+            defer.resolve({ data: data });
+            return defer.promise;
+		}
+
+		/** Mocked getUsers */
+		function getUsers() {
+			var data = { "users": [
+			    {
+			      "id": 23,
+			      "email": "andrew@dyergroup.com.au",
+			      "password": "$2a$10$0y7AQ5gESxnkl4CovBf0W.ROl/im/JhWGCgsSUhTc/ocsHIx4IGLW",
+			      "firstName": "Andrew",
+			      "lastName": "Dyer",
+			      "lastLogin": {
+			        "Time": "2015-11-07T12:33:20Z",
+			        "Valid": true
+			      },
+			      "role": "system_admin",
+			      "token": ""
+			    },
+			    {
+			      "id": 46,
+			      "email": "m.marker@uq.edu.au",
+			      "password": "$2a$10$kDc7ZrBEAvOua1GNgv0uCOgvv7/vqPTmbBIR.HhAzvk6pN/iP54XO",
+			      "firstName": "Malcolm",
+			      "lastName": "Marker",
+			      "lastLogin": {
+			        "Time": "2015-09-30T05:18:38Z",
+			        "Valid": false
+			      },
+			      "role": "power_user",
+			      "token": ""
+			    },
+			    {
+			      "id": 61,
+			      "email": "andrew.cleland3@gmail.com",
+			      "password": "$2a$10$CBGWu3oDZe.VkKIPbR5yeODDFcdfawUHlchXA51vey8t09gizc9Pm",
+			      "firstName": "Andrew",
+			      "lastName": "Cleland",
+			      "lastLogin": {
+			        "Time": "2015-10-23T12:15:35Z",
+			        "Valid": true
+			      },
+			      "role": "system_admin",
+			      "token": ""
+			    }
+			]};
 			var defer = $q.defer();
             defer.resolve({ data: data });
             return defer.promise;

@@ -84,6 +84,7 @@
 		 * called on Save button click
 		 */
 		function editSave() {
+			if (!inputValid()) return;
 			if (vm.editId != -2) {
 				var user = vm.editObj.email;
 				server.updateUser(vm.editObj).then(function(res) {
@@ -108,6 +109,12 @@
 			}
 			vm.editId = -1;
 		}
+
+		function inputValid() {
+            if (!vm.editObj.email) return false;
+            if (!/[\w-]+@([\w-]+\.)+[\w-]+/.test(vm.editObj.email)) return false;
+            return true;
+        }
 		
 		/**
 		 * User edits are discarded, called on Cancel button click

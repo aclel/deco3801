@@ -13,8 +13,8 @@
 (function() {
     'use strict';
 
-    /** Unit tests for buoyLogs controller */
-    describe('Controller: BuoysController', function() {
+    /** Unit tests for sensorTypes controller */
+    describe('Controller: SensorTypesController', function() {
         var $controller, ctrl, scope, rootScope, server, deferred, gui, timeout;
 
         beforeEach(module('app'));
@@ -24,10 +24,10 @@
         beforeEach(inject(function($q, _server_, _gui_) {
             deferred = $q.defer();
             server = _server_;
-            spyOn(server, 'getBuoys').and.callThrough();
-            spyOn(server, 'getBuoyInstances').and.callThrough();
-            spyOn(server, 'addBuoy').and.returnValue(deferred.promise);
-            spyOn(server, 'deleteBuoy').and.returnValue(deferred.promise);
+            spyOn(server, 'getSensorTypes').and.callThrough();
+            spyOn(server, 'addSensorType').and.returnValue(deferred.promise);
+            spyOn(server, 'updateSensorType').and.returnValue(deferred.promise);
+            spyOn(server, 'deleteSensorType').and.returnValue(deferred.promise);
             gui = _gui_;
             spyOn(gui, 'alertBadResponse').and.callThrough();
             spyOn(gui, 'focus').and.callThrough();
@@ -38,7 +38,7 @@
         // Initialise the controller
         beforeEach(inject(function($controller, $rootScope, $timeout) {
             scope = $rootScope.$new();
-            ctrl = $controller('BuoysController', {
+            ctrl = $controller('SensorTypesController', {
                 $scope: scope,
             });
             rootScope = $rootScope;
@@ -51,8 +51,7 @@
             });
 
             it('should expose stuff', function() {
-                expect(angular.isArray(ctrl.buoys)).toBe(true);
-                expect(angular.isArray(ctrl.buoyInstances)).toBe(true);
+                expect(angular.isArray(ctrl.sensorTypes)).toBe(true);
                 expect(ctrl.editId).toEqual(-1);
 
                 expect(ctrl.editExisting).toBeDefined();
@@ -66,19 +65,8 @@
         });
 
         describe('Activate', function () {
-            it('should query buoys', function () {
-                expect(server.getBuoys).toHaveBeenCalled();
-            });
-
-            it('should query buoyInstances', function () {
-                expect(server.getBuoyInstances).toHaveBeenCalled();
-            });
-
-            it('should format buoys', function () {
-                scope.$digest();
-                ctrl.buoys.forEach(function(buoy) {
-                    expect(buoy.name).toBeDefined();
-                });
+            it('should query sensorTypes', function () {
+                expect(server.getSensorTypes).toHaveBeenCalled();
             });
         });
 
@@ -88,86 +76,108 @@
             });
 
             it('editExisting should update editObj', function () {
-                var buoy = ctrl.buoys[1];
-                ctrl.editExisting(buoy);
-                expect(ctrl.editId).toEqual(buoy.id);
-                expect(ctrl.editObj).toEqual(buoy);
+                var sensorType = ctrl.sensorTypes[1];
+                ctrl.editExisting(sensorType);
+                expect(ctrl.editId).toEqual(sensorType.id);
+                expect(ctrl.editObj).toEqual(sensorType);
             });
 
             it('editCancel should discard temp editObj', function () {
-                var len = ctrl.buoys.length;
+                var len = ctrl.sensorTypes.length;
                 ctrl.editCancel();
-                expect(ctrl.buoys.length).toEqual(len);
+                expect(ctrl.sensorTypes.length).toEqual(len);
                 ctrl.editNew();
-                len = ctrl.buoys.length;
+                len = ctrl.sensorTypes.length;
                 ctrl.editCancel();
-                expect(ctrl.buoys.length).toEqual(len - 1);
+                expect(ctrl.sensorTypes.length).toEqual(len - 1);
                 expect(ctrl.editId).toEqual(-1);
             });
 
             it('editDelete should prepare to delete', function () {
-                var buoy = ctrl.buoys[1];
-                ctrl.editDelete(buoy);
-                expect(ctrl.deleteObject).toEqual(buoy);
-                expect(ctrl.deleteType).toEqual('buoy');
-                expect(ctrl.deleteName).toEqual(buoy.guid);
+                var sensorType = ctrl.sensorTypes[1];
+                ctrl.editDelete(sensorType);
+                expect(ctrl.deleteObject).toEqual(sensorType);
+                expect(ctrl.deleteType).toEqual('sensor type');
+                expect(ctrl.deleteName).toEqual(sensorType.name);
                 expect(gui.confirmDelete).toHaveBeenCalled();
             });
 
             it('editNew should create a temp editObj', function () {
                 ctrl.editNew();
                 expect(ctrl.editId).toEqual(-2);
-                expect(ctrl.buoys[ctrl.buoys.length - 1]).toEqual(ctrl.editObj); 
+                expect(ctrl.sensorTypes[ctrl.sensorTypes.length - 1]).toEqual(ctrl.editObj); 
                 expect(gui.focus).toHaveBeenCalled();
                 timeout.flush();
             });
 
             it('showDeleteButton should work', function () {
-                var buoy = ctrl.buoys[1];
-                expect(ctrl.showDeleteButton(buoy)).toBe(true);
-                ctrl.editExisting(buoy);
-                expect(ctrl.showDeleteButton(buoy)).toBe(true);
-                ctrl.editExisting(ctrl.buoys[0]);
-                expect(ctrl.showDeleteButton(buoy)).toBe(false);
+                var sensorType = ctrl.sensorTypes[1];
+                expect(ctrl.showDeleteButton(sensorType)).toBe(true);
+                ctrl.editExisting(sensorType);
+                expect(ctrl.showDeleteButton(sensorType)).toBe(true);
+                ctrl.editExisting(ctrl.sensorTypes[0]);
+                expect(ctrl.showDeleteButton(sensorType)).toBe(false);
                 ctrl.editNew();
-                expect(ctrl.showDeleteButton(buoy)).toBe(false);
+                expect(ctrl.showDeleteButton(sensorType)).toBe(false);
             });
 
-            it('editSave should update buoys on success', function () {
+            it('editSave of new should update sensorTypes on success', function () {
                 ctrl.editNew();
                 ctrl.editObj.name = 'asd';
+                ctrl.editObj.unit = '%';
+                ctrl.editObj.upperBound = 100;
+                ctrl.editObj.lowerBound = 0;
                 ctrl.editSave();
                 deferred.resolve();
-                server.getBuoys.calls.reset();
-                server.getBuoyInstances.calls.reset();
+                server.getSensorTypes.calls.reset();
                 scope.$digest();
-                expect(server.getBuoys).toHaveBeenCalled();
-                expect(server.getBuoyInstances).toHaveBeenCalled();
+                expect(server.getSensorTypes).toHaveBeenCalled();
                 expect(gui.alertSuccess).toHaveBeenCalled();
             });
 
-            it('editSave should revert on failure', function () {
+            it('editSave of existing should update sensorTypes on success', function () {
+                ctrl.editExisting(ctrl.sensorTypes[1]);
+                ctrl.editSave();
+                deferred.resolve();
+                server.getSensorTypes.calls.reset();
+                scope.$digest();
+                expect(server.getSensorTypes).toHaveBeenCalled();
+                expect(gui.alertSuccess).toHaveBeenCalled();
+            });
+
+            it('editSave of new should revert on failure', function () {
                 ctrl.editNew();
                 ctrl.editObj.name = 'asd';
+                ctrl.editObj.unit = '%';
+                ctrl.editObj.upperBound = 100;
+                ctrl.editObj.lowerBound = 0;
                 ctrl.editSave();
-                var len = ctrl.buoys.length;
+                var len = ctrl.sensorTypes.length;
                 deferred.reject({ data: '' });
                 scope.$digest();
                 expect(gui.alertBadResponse).toHaveBeenCalled();
-                expect(ctrl.buoys.length).toEqual(len - 1);
+                expect(ctrl.sensorTypes.length).toEqual(len - 1);
             });
 
-            it('confirmDelete should delete the buoy', function () {
-                ctrl.confirmDelete(ctrl.buoys[1]);
-                deferred.resolve();
-                server.getBuoys.calls.reset();
+            it('editSave of existing should revert on failure', function () {
+                ctrl.editExisting(ctrl.sensorTypes[1]);
+                ctrl.editSave();
+                deferred.reject({ data: '' });
                 scope.$digest();
-                expect(server.getBuoys).toHaveBeenCalled();
+                expect(gui.alertBadResponse).toHaveBeenCalled();
+            });
+
+            it('confirmDelete should delete the sensorType', function () {
+                ctrl.confirmDelete(ctrl.sensorTypes[1]);
+                deferred.resolve();
+                server.getSensorTypes.calls.reset();
+                scope.$digest();
+                expect(server.getSensorTypes).toHaveBeenCalled();
                 expect(gui.alertSuccess).toHaveBeenCalled();
             });
 
             it('confirmDelete should display an alert on failure', function () {
-                ctrl.confirmDelete(ctrl.buoys[1]);
+                ctrl.confirmDelete(ctrl.sensorTypes[1]);
                 deferred.reject({ data: '' });
                 scope.$digest();
                 expect(gui.alertBadResponse).toHaveBeenCalled();
@@ -180,37 +190,53 @@
             });
 
             it('should accept valid inputs', function () {
-                ctrl.editObj.guid = 'e2016e55-1f6b-4ecb-9094-7b30a7b94da0';
                 ctrl.editObj.name = 'asd';
+                ctrl.editObj.unit = '%';
+                ctrl.editObj.upperBound = 100;
+                ctrl.editObj.lowerBound = 0;
                 ctrl.editSave();
                 expect(ctrl.editObj.id).toEqual(-3);
             });
 
-            it('should reject an invalid GUID', function () {
-                ctrl.editObj.guid = 'eda0';
-                ctrl.editObj.name = 'asd';
-                ctrl.editSave();
-                expect(ctrl.editObj.id).toEqual(-2);
-            });
-
             it('should reject an empty name', function () {
-                ctrl.editObj.guid = 'e2016e55-1f6b-4ecb-9094-7b30a7b94da0';
                 ctrl.editObj.name = '';
+                ctrl.editObj.unit = '%';
+                ctrl.editObj.upperBound = 100;
+                ctrl.editObj.lowerBound = 0;
                 ctrl.editSave();
                 expect(ctrl.editObj.id).toEqual(-2);
             });
-        });
 
-        describe('generateGuid', function () {
-            it('should return a valid GUID', function () {
-                ctrl.editNew();
-                expect(/^\{?[a-fA-F\d]{8}-([a-fA-F\d]{4}-){3}[a-fA-F\d]{12}\}?$/
-                    .test(ctrl.editObj.guid)).toBe(true);
+            it('should reject an empty unit', function () {
+                ctrl.editObj.name = 'asd';
+                ctrl.editObj.unit = '';
+                ctrl.editObj.upperBound = 100;
+                ctrl.editObj.lowerBound = 0;
+                ctrl.editSave();
+                expect(ctrl.editObj.id).toEqual(-2);
+            });
+
+            it('should reject an invalid upperBound', function () {
+                ctrl.editObj.name = 'asd';
+                ctrl.editObj.unit = '%';
+                ctrl.editObj.upperBound = 'asd';
+                ctrl.editObj.lowerBound = 0;
+                ctrl.editSave();
+                expect(ctrl.editObj.id).toEqual(-2);
+            });
+
+            it('should reject an invalid lowerBound', function () {
+                ctrl.editObj.name = 'asd';
+                ctrl.editObj.unit = '%';
+                ctrl.editObj.upperBound = 100;
+                ctrl.editObj.lowerBound = 'asd';
+                ctrl.editSave();
+                expect(ctrl.editObj.id).toEqual(-2);
             });
         });
     });
 
-    describe('Controller: BuoysController (error handling)', function() {
+    describe('Controller: SensorTypesController (error handling)', function() {
         var $controller, ctrl, scope, rootScope, server, deferred, gui;
 
         beforeEach(module('app'));
@@ -220,8 +246,7 @@
         beforeEach(inject(function($q, _server_, _gui_) {
             deferred = $q.defer();
             server = _server_;
-            spyOn(server, 'getBuoys').and.returnValue(deferred.promise);
-            spyOn(server, 'getBuoyInstances').and.returnValue(deferred.promise);
+            spyOn(server, 'getSensorTypes').and.returnValue(deferred.promise);
             gui = _gui_;
             spyOn(gui, 'alertBadResponse').and.callThrough();
         }));
@@ -229,7 +254,7 @@
         // Initialise the controller
         beforeEach(inject(function($controller, $rootScope) {
             scope = $rootScope.$new();
-            ctrl = $controller('BuoysController', {
+            ctrl = $controller('SensorTypesController', {
                 $scope: scope,
             });
             rootScope = $rootScope;
@@ -240,7 +265,6 @@
                 deferred.reject('');
                 scope.$digest();
                 expect(gui.alertBadResponse).toHaveBeenCalled();
-                expect(gui.alertBadResponse.calls.count()).toEqual(2);
             });
         });
     });

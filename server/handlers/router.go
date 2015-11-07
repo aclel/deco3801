@@ -276,10 +276,9 @@ func (buoyHandler BuoyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	logger.Log("\n=====REQUEST TIME======\n" + time.Now().Format(time.RFC1123))
-	logger.Log("=======BUOY GUID=======\n" + guid)
-	logger.Log("=======BUOY NAME=======\n" + activeBuoyInstance.Name + "\n")
-	logger.Log(dumpRequest(r))
+	logger.Log("\nTime: " + time.Now().Format(time.RFC1123) +
+		"\nBuoy: " + activeBuoyInstance.Name + " (" + guid + ")\n\n" +
+		dumpRequest(r))
 	if e := buoyHandler.handle(buoyHandler.Env, w, r); e != nil {
 		logger.Log(e.Message + ": " + e.Error.Error())
 		http.Error(w, e.Message, e.Code)

@@ -1,6 +1,6 @@
 phpmyadmin:
   container_name: phpmyadmin
-  image: corbinu/docker-phpmyadmin
+  image: clelanda/phpmyadmin
   environment:
    - MYSQL_USERNAME=root
   external_links:

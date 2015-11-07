@@ -3,8 +3,8 @@
 FROM golang
 MAINTAINER Andrew Cleland <andrew.cleland3@gmail.com>
 
-ENV FMS_DB_HOST "localhost"
-ENV FMS_DB_PORT 3306
+#ENV FMS_DB_PORT_3306_TCP_ADDR "localhost"
+#ENV FMS_DB_PORT_3306_TCP_PORT 3306
 ENV FMS_DB_USERNAME "root"
 ENV FMS_DB_PASSWORD "secret123"
 ENV FMS_DB_NAME "fms"

@@ -13,7 +13,6 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 	"os"
@@ -299,7 +298,6 @@ func UsersForgotPassword(env *models.Env, w http.ResponseWriter, r *http.Request
 	token := passwordreset.NewToken(user.Email, 24*time.Hour, []byte(user.Password), []byte(os.Getenv("FMS_SECRET_KEY")))
 
 	link := "https://teamneptune.co/#/reset_password?token=" + url.QueryEscape(token)
-	fmt.Println(link)
 
 	// Send email to user with link (with token) to reset password
 	err = env.DB.SendPasswordResetEmail(user, link, &env.EmailUser)

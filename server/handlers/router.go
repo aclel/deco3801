@@ -196,14 +196,12 @@ func (authHandler AuthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 
 	// Check token validity
 	if err != nil || !token.Valid {
-		log.Println(err)
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
 
 	// Check if the user has the permissions to access the resource with their role
 	if !models.UserHasPermissions(authHandler.role, token.Claims["role"].(string)) {
-		log.Println("User does not have the permissions to access this resource")
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
@@ -251,6 +249,7 @@ func (buoyHandler BuoyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 		buf, err = ioutil.ReadAll(r.Body)
 		if err != nil {
 			logger.LogError(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 	}
 
@@ -263,6 +262,7 @@ func (buoyHandler BuoyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	guid, err := getGuidFromRequest(r.URL, body)
 	if err != nil {
 		logger.LogError(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// Assign the second buffer back to the request body so that it can be
@@ -273,11 +273,12 @@ func (buoyHandler BuoyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	activeBuoyInstance, err := buoyHandler.Env.DB.GetActiveBuoyInstance(guid)
 	if err != nil {
 		logger.LogError(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	logger.Log("\n=====REQUEST TIME======\n" + time.Now().Format(time.RFC1123))
 	logger.Log("=======BUOY GUID=======\n" + guid)
-	logger.Log("=======BUOY NAME======\n" + activeBuoyInstance.Name + "\n")
+	logger.Log("=======BUOY NAME=======\n" + activeBuoyInstance.Name + "\n")
 	logger.Log(dumpRequest(r))
 	if e := buoyHandler.handle(buoyHandler.Env, w, r); e != nil {
 		logger.Log(e.Message + ": " + e.Error.Error())

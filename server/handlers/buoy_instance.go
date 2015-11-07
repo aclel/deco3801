@@ -13,7 +13,6 @@ package handlers
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -63,7 +62,6 @@ func BuoyInstancesIndex(env *models.Env, w http.ResponseWriter, r *http.Request)
 	// Get the buoy instance sensors for each buoy instance
 	for _, buoyInstance := range buoyInstanceWrapper.BuoyInstances {
 		sensors, err := env.DB.GetSensorsForBuoyInstance(buoyInstance.Id)
-		fmt.Println(sensors)
 		if err != nil {
 			return &AppError{err, "Error retrieving sensors for buoy instance", http.StatusInternalServerError}
 		}

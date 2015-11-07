@@ -25,12 +25,91 @@
 		
 		/** The mock service methods to expose */
 		return {
+			getBuoys: getBuoys,
 			getWarnings: getWarnings,
 			getBuoyInstances: getBuoyInstances,
 			getSensorTypes: getSensorTypes,
 			getReadings: getReadings,
-			exportData: function() {}
+			exportData: function() {},
+			addBuoy: function() {},
+			deleteBuoy: function() {},
+			getCommandTypes: getCommandTypes,
+			addCommandType: function() {},
+			updateCommandType: function() {},
+			deleteCommandType: function() {},
+			addSensorType: function() {},
+			updateSensorType: function() {},
+			deleteSensorType: function() {},
+			getUsers: getUsers,
+			addUser: function() {},
+			updateUser: function() {},
+			deleteUser: function() {}
 		};
+
+		/** Mocked getBuoys */
+		function getBuoys() {
+			var data = { "buoys" : [
+				    {
+				      "id": 1,
+				      "guid": "e9528b5e-1d8f-4960-91ae-8b21ecc0bcab",
+				      "name": "",
+				      "activeBuoyInstanceId": 63,
+				      "archived": false
+				    },
+				    {
+				      "id": 27,
+				      "guid": "dd32376b-c944-4501-9ec4-b834d4cd0337",
+				      "name": "",
+				      "activeBuoyInstanceId": 95,
+				      "archived": false
+				    },
+				    {
+				      "id": 50,
+				      "guid": "73e3a204-4219-4098-8f5b-58b935727b93",
+				      "name": "",
+				      "activeBuoyInstanceId": 117,
+				      "archived": false
+				    },
+				    {
+				      "id": 51,
+				      "guid": "eaa777c0-c994-489d-aa94-49ce2ebb0c10",
+				      "name": "",
+				      "activeBuoyInstanceId": 118,
+				      "archived": false
+				    },
+				    {
+				      "id": 52,
+				      "guid": "bc42db99-4d3c-4883-8568-66d837057efb",
+				      "name": "",
+				      "activeBuoyInstanceId": 119,
+				      "archived": false
+				    },
+				    {
+				      "id": 53,
+				      "guid": "67793f41-bf19-40fa-bb1e-a93cb3599acc",
+				      "name": "",
+				      "activeBuoyInstanceId": 120,
+				      "archived": false
+				    },
+				    {
+				      "id": 54,
+				      "guid": "84419686-920e-402f-8369-bb3ed1ddbb07",
+				      "name": "",
+				      "activeBuoyInstanceId": 121,
+				      "archived": false
+				    },
+				    {
+				      "id": 55,
+				      "guid": "e2016e55-1f6b-4ecb-9094-7b30a7b94da0",
+				      "name": "",
+				      "activeBuoyInstanceId": 122,
+				      "archived": false
+				    }
+			]};
+			var defer = $q.defer();
+			defer.resolve({ data: data });
+			return defer.promise;
+		}
 
 		/** Mocked getWarnings */
 		function getWarnings() {
@@ -353,6 +432,87 @@
 	         	}
          	  ]
 			};
+			var defer = $q.defer();
+            defer.resolve({ data: data });
+            return defer.promise;
+		}
+
+		/** Mocked getCommandTypes */
+		function getCommandTypes() {
+			var data = { "commandTypes": [
+			    {
+			      "id": 1,
+			      "name": "Base Wakeup Rate",
+			      "description": "How frequently the buoy wakes up",
+			      "archived": false
+			    },
+			    {
+			      "id": 2,
+			      "name": "Ping",
+			      "description": "Used during deployment to test buoy connection to server",
+			      "archived": false
+			    },
+			    {
+			      "id": 3,
+			      "name": "GPS Wakeup Rate",
+			      "description": "How frequently the GPS module on the buoy wakes up to update its coordinates",
+			      "archived": false
+			    },
+			    {
+			      "id": 4,
+			      "name": "Transmit Reading Rate",
+			      "description": "How frequently the buoy queries the server for new commands and transmits its collected readings",
+			      "archived": false
+			    }
+			]};
+			var defer = $q.defer();
+            defer.resolve({ data: data });
+            return defer.promise;
+		}
+
+		/** Mocked getUsers */
+		function getUsers() {
+			var data = { "users": [
+			    {
+			      "id": 23,
+			      "email": "andrew@dyergroup.com.au",
+			      "password": "$2a$10$0y7AQ5gESxnkl4CovBf0W.ROl/im/JhWGCgsSUhTc/ocsHIx4IGLW",
+			      "firstName": "Andrew",
+			      "lastName": "Dyer",
+			      "lastLogin": {
+			        "Time": "2015-11-07T12:33:20Z",
+			        "Valid": true
+			      },
+			      "role": "system_admin",
+			      "token": ""
+			    },
+			    {
+			      "id": 46,
+			      "email": "m.marker@uq.edu.au",
+			      "password": "$2a$10$kDc7ZrBEAvOua1GNgv0uCOgvv7/vqPTmbBIR.HhAzvk6pN/iP54XO",
+			      "firstName": "Malcolm",
+			      "lastName": "Marker",
+			      "lastLogin": {
+			        "Time": "2015-09-30T05:18:38Z",
+			        "Valid": false
+			      },
+			      "role": "power_user",
+			      "token": ""
+			    },
+			    {
+			      "id": 61,
+			      "email": "andrew.cleland3@gmail.com",
+			      "password": "$2a$10$CBGWu3oDZe.VkKIPbR5yeODDFcdfawUHlchXA51vey8t09gizc9Pm",
+			      "firstName": "Andrew",
+			      "lastName": "Cleland",
+			      "lastLogin": {
+			        "Time": "2015-10-23T12:15:35Z",
+			        "Valid": true
+			      },
+			      "role": "system_admin",
+			      "token": ""
+			    }
+			]};
 			var defer = $q.defer();
             defer.resolve({ data: data });
             return defer.promise;

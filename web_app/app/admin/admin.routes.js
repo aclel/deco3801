@@ -27,8 +27,6 @@
 				state: 'admin',
 				config: {
 					url: '/admin',
-					controller: 'AdminController',
-					controllerAs: 'vm',
 					templateUrl: '/app/admin/admin.html',
 					data: {
 						access: 'system_admin'

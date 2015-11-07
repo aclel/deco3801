@@ -34,8 +34,7 @@
 			
 			/** The provider methods to expose */
 			return {
-				configureStates: configureStates,
-				getStates: getStates
+				configureStates: configureStates
 			};
 			
 			/** Allows the caller to add a new route (state) to the app */
@@ -48,14 +47,6 @@
 					hasOtherwise = true;
 					$urlRouterProvider.otherwise(otherwisePath);
 				}
-			}
-			
-			/**
-			 * Return app routes
-			 * @return {object} routes
-			 */
-			function getStates() {
-				return $state.get();
 			}
 		}
 	}

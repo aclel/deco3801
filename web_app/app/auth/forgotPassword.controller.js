@@ -24,7 +24,7 @@
 		* @requires $state
 		* @requires server
 	**/
-	function ForgotPasswordController($rootScope, $state, server, gui) {
+	function ForgotPasswordController($rootScope, server) {
 		var vm = this;
 
 		/** Variables and methods bound to viewmodel */

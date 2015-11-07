@@ -69,7 +69,8 @@
 			addBuoy: addBuoy,
 			updateBuoy: updateBuoy,
 			deleteBuoy: deleteBuoy,
-			redeployBuoy: redeployBuoy
+			redeployBuoy: redeployBuoy,
+			getBuoyLogsAddress: getBuoyLogsAddress
 		};
 		
 		/** 
@@ -673,6 +674,15 @@
 		function deleteBuoy(id) {
 			var config = addToken(headers());
 			return $http.delete(SERVER_ADDRESS + '/api/buoys/' + id, config);
+		}
+
+		/**
+		 * Get the address for the buoy logs websocket
+		 * Used in buoyLog service
+		 * @return {string} buoy logs websocket address
+		 */
+		function getBuoyLogsAddress() {
+			return (SERVER_ADDRESS + '/api/buoy_logs').replace('https', 'wss');
 		}
 	}
 })();

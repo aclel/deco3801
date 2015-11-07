@@ -27,7 +27,7 @@
 				state: 'admin',
 				config: {
 					url: '/admin',
-					templateUrl: '/app/admin/admin.html',
+					templateUrl: 'admin/admin.html',
 					data: {
 						access: 'system_admin'
 					}

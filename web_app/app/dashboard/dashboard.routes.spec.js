@@ -30,7 +30,7 @@
                     url: '/dashboard',
                     controller: 'DashboardController',
                     controllerAs: 'vm',
-                    templateUrl: '/app/dashboard/dashboard.html',
+                    templateUrl: 'dashboard/dashboard.html',
                     data: {
                         access: 'authed'
                     }

@@ -39,7 +39,6 @@
         var editName = { on: false };
         var editGroup = { on: false };
         var operators = [ '<', '>', '=' ];
-        var editingPollRate = false;
         var treeOptions = {};
         var redeploy = {};
         var newEdit = { command: false, trigger: false };
@@ -59,10 +58,8 @@
             editName: editName,
             editGroup: editGroup,
             operators: operators,
-            editingPollRate: editingPollRate,
             treeOptions: treeOptions,
             redeploy: redeploy,
-            newEdit: newEdit,
 
             refreshData: refreshData,
             selectAll: selectAll,
@@ -330,15 +327,6 @@
             redeploy.buoyGroupId = 0;
         }
 
-        function updatePollRate(buoyInstance) {
-            var command = {
-                commandTypeId: 1,
-                value: buoyInstance.pollRate,
-                buoyId: buoyInstance.buoyId
-            };
-            server.addCommand(command, [buoyInstance.buoyId]);
-        }
-        
         /**
          * Determine whether to show command and warning trigger config
          * @return {bool} show config

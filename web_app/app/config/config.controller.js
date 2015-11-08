@@ -33,10 +33,8 @@
 		vm.selected = config.selected;
 		vm.editName = config.editName;
 		vm.editGroup = config.editGroup;
-		vm.editingPollRate = config.editingPollRate;
 		vm.treeOptions = config.treeOptions;
 		vm.redeploy = config.redeploy;
-		vm.newEdit = config.newEdit;
 
 		vm.selectAll = config.selectAll;
 		vm.selectBuoyGroup = config.selectBuoyGroup;

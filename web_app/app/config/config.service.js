@@ -43,6 +43,8 @@
         var redeploy = {};
         var newEdit = { command: false, trigger: false };
 
+        setTreeOptions();
+
         /** The service methods to expose */
         return {
             newId: newId,
@@ -67,7 +69,6 @@
             selectBuoyInstance: selectBuoyInstance,
             startEditingName: startEditingName,
             finishEditingName: finishEditingName,
-            startEditingBuoyGroup: startEditingBuoyGroup,
             finishEditingBuoyGroup: finishEditingBuoyGroup,
             selectNewBuoyGroup: selectNewBuoyGroup,
             saveNewBuoyGroup: saveNewBuoyGroup,
@@ -76,7 +77,6 @@
             showBuoyConfig: showBuoyConfig,
             editing: editing,
             cancelEditName: cancelEditName,
-            cancelEditGroup: cancelEditGroup,
             toggleBuoyGroup: toggleBuoyGroup,
             queryCommands: queryCommands,
             parseCommands: parseCommands,
@@ -95,7 +95,7 @@
             queryBuoyInstances();
             queryCommandTypes();
             queryTriggers();
-            setTreeOptions();
+            queryCommands();
             resetRedeployInput();
         }
 
@@ -118,8 +118,13 @@
             };
             treeOptions.dropped = function(event) {
                 var groupId = event.dest.nodesScope.$nodeScope.$modelValue.id;
+                var existingGroup = event.source.nodeScope.$modelValue.buoyGroupId;
                 var existingName = event.source.nodeScope.$modelValue.name;
                 var instanceId = event.source.nodeScope.$modelValue.id;
+                if (groupId === existingGroup) {
+                    queryBuoyInstances(); // easiest way to undo drag-drop
+                    return;
+                }
                 server.updateBuoyInstanceGroup(
                     instanceId,
                     groupId,
@@ -156,6 +161,7 @@
                 });
                 parseBuoyInstanceDetails();
                 parseTriggers();
+                parseCommands();
             }, function(res) {
                 gui.alertBadResponse(res);
             });
@@ -168,7 +174,7 @@
                 res.data.commandTypes.forEach(function(commandType) {
                     commandTypes.push(commandType);
                 });
-                queryCommands();
+                parseCommands();
             }, function(res) {
                 gui.alertBadResponse(res);
             });
@@ -236,7 +242,7 @@
 
         function parseBuoyInstanceStatus(buoyInstance) {
             if (buoyInstance.lastPolled.Valid) {
-                buoyInstance.lastReceived = buoyInstance.pollRate.Time;
+                buoyInstance.lastReceived = buoyInstance.lastPolled.Time;
             } else {
                 buoyInstance.lastReceived = 'Never';
             }
@@ -445,12 +451,6 @@
             editName.on = false;
         }
         
-        /** Start editing the group is a buoy instance is in */
-        function startEditingBuoyGroup() {
-            editGroup.on = true;
-            editGroup.buoyGroupId = selected.obj.buoyGroupId;
-        }
-        
         /** Save buoy's new group and name to server and update page */
         function finishEditingBuoyGroup() {
             editGroup.on = false;
@@ -469,11 +469,6 @@
             });
         }
         
-        /** Cancel edit of a buoy's group */
-        function cancelEditGroup() {
-            editGroup.on = false;
-        }
-        
         /**
          * Determine whether an edit field is currently open. Used to
          * ensure that users can only edit one particular thing at once.
@@ -482,8 +477,8 @@
         function editing() {
             if (editName.on) { return true; }
             if (editGroup.on) { return true; }
-            if (newEdit.command) { return true; }
-            if (newEdit.trigger) { return true; }
+            // if (newEdit.command) { return true; }
+            // if (newEdit.trigger) { return true; }
             return false;
         }
         
@@ -529,7 +524,6 @@
             } else if (selected.type === 'group') {
                 return buoyGroupCommandFilter(command);
             }
-            return false;
         }
         
         /**
@@ -572,7 +566,6 @@
             } else if (selected.type === 'group') {
                 return buoyGroupTriggerFilter(trigger);
             }
-            return false;
         }
         
         /**
@@ -613,7 +606,6 @@
             } else if (selected.type === 'group') {
                 return buoyGroupSensorFilter(sensor);
             }
-            return false;
         }
 
         /**
@@ -654,18 +646,6 @@
                 str = str.substr(0, str.length - 1);
             }
             return str;
-        }
-
-        /**
-         * Return true if argument is a float. Otherwise make error
-         * and return false
-         */
-        function isValueFloat(value) {
-            if (isNaN(parseFloat(value))) {
-                gui.alertError('Value must be a number.');
-                return false;
-            } 
-            return true;                
         }
 
         /**

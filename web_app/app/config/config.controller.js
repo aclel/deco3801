@@ -41,7 +41,6 @@
 		vm.selectBuoyInstance = config.selectBuoyInstance;
 		vm.startEditingName = config.startEditingName;
 		vm.finishEditingName = config.finishEditingName;
-		vm.startEditingBuoyGroup = config.startEditingBuoyGroup;
 		vm.finishEditingBuoyGroup = config.finishEditingBuoyGroup;
 		vm.selectNewBuoyGroup = config.selectNewBuoyGroup;
 		vm.saveNewBuoyGroup = config.saveNewBuoyGroup;
@@ -49,7 +48,6 @@
 		vm.showBuoyConfig = config.showBuoyConfig;
 		vm.editing = config.editing;
 		vm.cancelEditName = config.cancelEditName;
-		vm.cancelEditGroup = config.cancelEditGroup;
 		vm.toggleBuoyGroup = config.toggleBuoyGroup;
 		vm.sensorFilter = config.sensorFilter;
 		vm.redeployBuoy = config.redeployBuoy;

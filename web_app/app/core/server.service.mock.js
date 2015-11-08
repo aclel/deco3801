@@ -27,6 +27,7 @@
 		return {
 			getBuoys: getBuoys,
 			getWarnings: getWarnings,
+			getBuoyGroups: getBuoyGroups,
 			getBuoyInstances: getBuoyInstances,
 			getSensorTypes: getSensorTypes,
 			getReadings: getReadings,
@@ -43,7 +44,20 @@
 			getUsers: getUsers,
 			addUser: function() {},
 			updateUser: function() {},
-			deleteUser: function() {}
+			deleteUser: function() {},
+			getCommands: getCommands,
+			addCommand: function() {},
+			updateCommand: function() {},
+			deleteCommand: function() {},
+			getWarningTriggers: getWarningTriggers,
+			addWarningTrigger: function() {},
+			updateWarningTrigger: function() {},
+			deleteWarningTrigger: function() {},
+			updateBuoyInstanceGroup: function() {},
+			updateBuoyGroupName: function() {},
+			updateBuoyInstanceName: function() {},
+			newBuoyGroup: function() {},
+			redeployBuoy: function() {}
 		};
 
 		/** Mocked getBuoys */
@@ -144,6 +158,35 @@
             return defer.promise;
 		}
 
+		/** Mocked getBuoyGroups */
+		function getBuoyGroups() {
+			var data = { "buoyGroups": [
+			    {
+			      "id": 0,
+			      "name": "(Unassigned Group)",
+			      "archived": false
+			    },
+			    {
+			      "id": 1,
+			      "name": "Dredging South",
+			      "archived": false
+			    },
+			    {
+			      "id": 10,
+			      "name": "Brisbane River",
+			      "archived": false
+			    },
+			    {
+			      "id": 11,
+			      "name": "Bremer River",
+			      "archived": false
+			    }
+		  	]};
+		  	var defer = $q.defer();
+            defer.resolve({ data: data });
+            return defer.promise;
+		}
+
 		/** Mocked getBuoyInstances */
 		function getBuoyInstances() {
 			var data = { "buoyInstances": [
@@ -168,25 +211,15 @@
 			        "Time": "0001-01-01T00:00:00Z",
 			        "Valid": false
 			      },
-			      "sensors": [
-			        {
-			          "id": 41,
-			          "sensorTypeId": 1,
-			          "buoyInstanceId": 117,
-			          "lastRecorded": {
-			            "Time": "2015-10-07T00:00:00Z",
-			            "Valid": true
-			          }
-			        }
-			      ]
+			      "sensors": []
 			    },
 			    {
 			      "id": 118,
-			      "name": "BNE2 - Stationary",
+			      "name": "",
 			      "buoyId": 51,
 			      "buoyGuid": "eaa777c0-c994-489d-aa94-49ce2ebb0c10",
-			      "buoyGroupId": 10,
-			      "buoyGroupName": "Brisbane River",
+			      "buoyGroupId": 0,
+			      "buoyGroupName": "(Unassigned Group)",
 			      "latitude": {
 			        "Float64": -27.3568,
 			        "Valid": true
@@ -196,9 +229,42 @@
 			        "Valid": true
 			      },
 			      "dateCreated": "2015-10-26T02:07:55Z",
-			      "pollRate": 0,
+			      "pollRate": 20,
 			      "lastPolled": {
-			        "Time": "0001-01-01T00:00:00Z",
+			        "Time": "2015-02-22T00:00:00Z",
+			        "Valid": true
+			      },
+			      "sensors": [
+			        {
+			          "id": 42,
+			          "sensorTypeId": 1,
+			          "buoyInstanceId": 118,
+			          "lastRecorded": {
+			            "Time": "2015-02-22T00:00:00Z",
+			            "Valid": true
+			          }
+			        }
+			      ]
+			    },
+			    {
+			      "id": 333,
+			      "name": "",
+			      "buoyId": 19,
+			      "buoyGuid": "eaa777c0-c994-489d-aa94-49ce2ebb0c10",
+			      "buoyGroupId": 90,
+			      "buoyGroupName": "(Unassigned Group)",
+			      "latitude": {
+			        "Float64": -27.3568,
+			        "Valid": true
+			      },
+			      "longitude": {
+			        "Float64": 153.19794,
+			        "Valid": true
+			      },
+			      "dateCreated": "2015-10-26T02:07:55Z",
+			      "pollRate": 20,
+			      "lastPolled": {
+			        "Time": "2015-02-22T00:00:00Z",
 			        "Valid": false
 			      },
 			      "sensors": [
@@ -514,6 +580,84 @@
 			    }
 			]};
 			var defer = $q.defer();
+            defer.resolve({ data: data });
+            return defer.promise;
+		}
+
+		/** Mocked getCommands */
+		function getCommands() {
+			var data = { "commands": [
+			    {
+			      "id": 1,
+			      "buoyId": 50,
+			      "commandTypeId": 1,
+			      "value": 892,
+			      "sent": false,
+			      "sentAt": {
+			        "Time": "0001-01-01T00:00:00Z",
+			        "Valid": false
+			      },
+			      "createdAt": "2015-10-28T03:54:38Z"
+			    },
+			    {
+			      "id": 10,
+			      "buoyId": 51,
+			      "commandTypeId": 2,
+			      "value": 0,
+			      "sent": false,
+			      "sentAt": {
+			        "Time": "0001-01-01T00:00:00Z",
+			        "Valid": false
+			      },
+			      "createdAt": "2015-10-28T05:15:05Z"
+			    },
+			    {
+			      "id": 11,
+			      "buoyId": 50,
+			      "commandTypeId": 2,
+			      "value": 0,
+			      "sent": false,
+			      "sentAt": {
+			        "Time": "0001-01-01T00:00:00Z",
+			        "Valid": false
+			      },
+			      "createdAt": "2015-10-28T05:27:09Z"
+			    }
+		  	]};
+		  	var defer = $q.defer();
+            defer.resolve({ data: data });
+            return defer.promise;
+		}
+
+		/** Mocked getWarningTriggers */
+		function getWarningTriggers() {
+			var data = { "warningTriggers": [
+			    {
+			      "id": 49,
+			      "value": 100,
+			      "operator": ">",
+			      "message": "The water is very dirty!",
+			      "buoyInstanceId": 117,
+			      "sensorTypeId": 1
+			    },
+			    {
+			      "id": 50,
+			      "value": 100,
+			      "operator": ">",
+			      "message": "The water is very dirty!",
+			      "buoyInstanceId": 118,
+			      "sensorTypeId": 1
+			    },
+			    {
+			      "id": 51,
+			      "value": 100,
+			      "operator": ">",
+			      "message": "The water is very dirty!",
+			      "buoyInstanceId": 117,
+			      "sensorTypeId": 1
+			    }
+		  	]};
+		  	var defer = $q.defer();
             defer.resolve({ data: data });
             return defer.promise;
 		}

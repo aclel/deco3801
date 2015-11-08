@@ -13,7 +13,6 @@ package models
 import (
 	"encoding/json"
 	"errors"
-	"log"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -67,7 +66,6 @@ func (db *DB) Login(user *User) (*User, error) {
 				dbUser.LastLogin = mysql.NullTime{}
 			}
 
-			log.Println("Authenticated " + dbUser.Email)
 			return dbUser, nil
 		}
 	}

@@ -370,7 +370,7 @@ var buoyCommandsAcknowledgeGoodInput = `{
 
 var buoyCommandsAcknowledgeTests = []TestWithRequestBody{
 	{"Basic", "", http.StatusOK, buoyCommandsAcknowledgeGoodInput},
-	{"Invalid json", "", http.StatusInternalServerError, `{`},
+	{"Invalid json", "", http.StatusBadRequest, `{`},
 	// {"Empty json", "", http.StatusBadRequest, `{}`},
 }
 

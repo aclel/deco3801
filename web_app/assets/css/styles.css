@@ -677,10 +677,25 @@ input.ng-invalid.ng-dirty.form-control:focus {
   margin-right: 10px;
 }
 
+
+/************************* CONFIG **********************/
+
 .btn.align-h3 {
   margin-top: -8px;
 }
 
+.btn.align-h3-edit {
+  margin-top: 5px;
+}
+
+.left-n10 {
+  margin-left: -10px;
+}
+
+.name-input {
+  width: 70%;
+  margin-top: -25px;
+}
 
 /************************* ADMIN **********************/
 
@@ -748,15 +763,4 @@ input.ng-invalid.ng-dirty.form-control:focus {
 
 .red {
   color: red;
-}
-
-
-/************************* !UNUSED! **********************/
-
-.invalidSensor {
-  border: 1px solid red;
-}
-    
-.unconfiguredSensor {
-  border: 1px solid limegreen;
 }

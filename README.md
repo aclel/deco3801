@@ -43,18 +43,19 @@ Several environment variables need to be configured for the server to run.
 2. Run the edited environment script.  
 
 Alternatively, you may manually add the following variables:
-| Variable Name|Value| Description           
-| ---------------------------- | ------------------ | ------------------------------
-| `FMS_DB_PORT_3306_TCP_ADDR` | "localhost"      | The hostname of the database
-| `FMS_DB_PORT_3306_TCP_PORT` | "3306"           | The port of the database
-| `FMS_DB_USERNAME`           | "username"       | Database user's username 
-| `FMS_DB_PASSWORD`           | "password"       | Database user's password 
-| `FMS_DB_NAME`               | "water"          | The name of the database  
-| `FMS_SECRET_KEY`            | "<ommited>"      | 32 character random string.  
-| `FMS_SMTP_USERNAME`         | "me@domain.com"  | Provide your own SMTP username
-| `FMS_SMTP_PASSWORD`         | "password"       | Provide your own SMTP password  
-| `FMS_SMTP_SERVER`           | "smtp.gmail.com" | SMTP server hostname
-| `FMS_SMTP_PORT`             | 587              | Remember not to add quotes.  
+
+| Variable Name               | Value            | Description                    |
+|-----------------------------|------------------|--------------------------------|
+| `FMS_DB_PORT_3306_TCP_ADDR` | "localhost"      | The hostname of the database   |
+| `FMS_DB_PORT_3306_TCP_PORT` | "3306"           | The port of the database       |
+| `FMS_DB_USERNAME`           | "username"       | Database user's username       |
+| `FMS_DB_PASSWORD`           | "password"       | Database user's password       |
+| `FMS_DB_NAME`               | "water"          | The name of the database       |
+| `FMS_SECRET_KEY`            | "test"           | 32 character random string.    |
+| `FMS_SMTP_USERNAME`         | "me@domain.com"  | Provide your own SMTP username |
+| `FMS_SMTP_PASSWORD`         | "password"       | Provide your own SMTP password |
+| `FMS_SMTP_SERVER`           | "smtp.gmail.com" | SMTP server hostname           |
+| `FMS_SMTP_PORT`             | 587              | Remember not to add quotes.    |
 
 On Mac OSX/Unix you can set environment variables in `~/.bash_profile`.
 On Windows you can set environment variables through a GUI, just search for it from the start menu: "environment variables".

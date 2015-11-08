@@ -233,7 +233,7 @@
          * @return {object}        marker icon usable in google maps API
          */
         function markerColour(colour) {
-            return (new google.maps.MarkerImage("http://chart.apis.google.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + colour.substr(1),
+            return (new google.maps.MarkerImage("https://chart.googleapis.com/chart?chst=d_map_pin_letter&chld=%E2%80%A2|" + colour.substr(1),
                 new google.maps.Size(21, 34),
                 new google.maps.Point(0, 0),
                 new google.maps.Point(10, 34)

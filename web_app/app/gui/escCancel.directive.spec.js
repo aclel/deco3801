@@ -15,26 +15,27 @@
 
     /** Unit tests for escCancel directive */
     describe('Directive: escCancel', function() {
-        var element, scope, rootScope;
+        var element, scope;
 
         beforeEach(module('app'));
 
         beforeEach(inject(function($rootScope, $compile) {
-            rootScope = $rootScope;
             scope = $rootScope.$new();
-            element = angular.element('<input type="text" focus-on="editNew">');
+            element = angular.element('<input type="text" esc-cancel="vm.editCancel()">');
             element = $compile(element)(scope);
             scope.$digest();
+            element.triggerHandler('focus');
         }));
 
-        it('should focus', function () {
-            rootScope.$broadcast('focusOn', 'editNew');
-            // console.log(document.activeElement);
+        it('should do something', function () {
+            // keyPress(27); cross-browser inconsistent
         });
 
-        it('should not focus', function () {
-            rootScope.$broadcast('focusOn', 'blah');
-            // console.log(document.activeElement);
-        });
+        function keyPress(key) {
+            var event = document.createEvent('Event');
+            event.keyCode = key;
+            event.initEvent('keydown');
+            document.dispatchEvent(event);
+        }
     });
 })();

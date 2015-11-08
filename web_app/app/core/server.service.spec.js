@@ -133,11 +133,11 @@
             });
 
             // PhantomJS can't download files
-            xit('should request POST /readings/export and respond success', function () {
-                httpBackend.expectPOST(/\/api\/readings\/export/).respond(res);
-                server.exportData([]);
-                httpBackend.flush();
-            });
+            // xit('should request POST /readings/export and respond success', function () {
+            //     httpBackend.expectPOST(/\/api\/readings\/export/).respond(res);
+            //     server.exportData([]);
+            //     httpBackend.flush();
+            // });
 
             it('should request POST /readings/export and respond error', function () {
                 httpBackend.expectPOST(/\/api\/readings\/export/).respond(404);

@@ -17,6 +17,9 @@
     describe('Service: auth', function() {
         var auth, $window;
 
+        // update this if tests are failing
+        var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0NDcwNzI1NjUsImlhdCI6MTQ0Njk4NjE2NSwicm9sZSI6InN5c3RlbV9hZG1pbiIsInN1YiI6ImFuZHJld0BkeWVyZ3JvdXAuY29tLmF1In0.hQ2cbitTLyPlu-7YoUrRN3PwdMiL1ez79m2OA-bZcqc';
+
         beforeEach(module('app'));
 
         beforeEach(inject(function(_$window_, _auth_) {
@@ -67,7 +70,6 @@
             });
 
             it('should return true if user is logged in', function () {
-                var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0NDY5ODU5OTksImlhdCI6MTQ0Njg5OTU5OSwicm9sZSI6InN5c3RlbV9hZG1pbiIsInN1YiI6ImFuZHJld0BkeWVyZ3JvdXAuY29tLmF1In0.A23wBuDjrG0WGPf3VIQYSGgnIVlWt7HqxGvFSi4QwJA';
                 $window.localStorage['token'] = token;
                 auth.loggedIn();
             });
@@ -80,7 +82,6 @@
 
         describe('currentUser', function () {
             it('should return the currently logged in user email', function () {
-                var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0NDY5ODU5OTksImlhdCI6MTQ0Njg5OTU5OSwicm9sZSI6InN5c3RlbV9hZG1pbiIsInN1YiI6ImFuZHJld0BkeWVyZ3JvdXAuY29tLmF1In0.A23wBuDjrG0WGPf3VIQYSGgnIVlWt7HqxGvFSi4QwJA';
                 $window.localStorage['token'] = token;
                 expect(auth.currentUser()).toEqual('andrew@dyergroup.com.au');
             });
@@ -88,7 +89,6 @@
 
         describe('checkUser', function () {
             beforeEach(function() {
-                var token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE0NDY5ODU5OTksImlhdCI6MTQ0Njg5OTU5OSwicm9sZSI6InN5c3RlbV9hZG1pbiIsInN1YiI6ImFuZHJld0BkeWVyZ3JvdXAuY29tLmF1In0.A23wBuDjrG0WGPf3VIQYSGgnIVlWt7HqxGvFSi4QwJA';
                 $window.localStorage['token'] = token;
             });
 

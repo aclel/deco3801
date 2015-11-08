@@ -14,17 +14,17 @@
 <div class="push-down-h3" ng-if="vm.selected.type == 'group'">
     <h3 class="inline-header" ng-if="!vm.editing()">{{ vm.selected.obj.name }}</h3>
     <h3 class="inline-header" ng-if="vm.editName.on">
-        <input type="text" class="form-control" ng-model="vm.selected.obj.name">
+        <input type="text" class="form-control name-input" ng-model="vm.selected.obj.name">
     </h3>
     <button class="btn btn-sm btn-default align-h3" ng-click="vm.startEditingName()"
         ng-if="!vm.editing()">
         <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
     </button>
-    <button class="btn btn-sm btn-default align-h3" ng-click="vm.finishEditingName()"
+    <button class="btn btn-sm btn-default align-h3-edit left-n10" ng-click="vm.finishEditingName()"
         ng-if="vm.editName.on">
         <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
     </button>
-    <button class="btn btn-sm btn-default align-h3" ng-click="vm.cancelEditName()"
+    <button class="btn btn-sm btn-default align-h3-edit" ng-click="vm.cancelEditName()"
         ng-if="vm.editName.on">
         <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
     </button>
@@ -34,17 +34,17 @@
     <div ng-if="!vm.redeploy.show">
         <h3 class="inline-header" ng-if="!vm.editing()">{{ vm.selected.obj.name }}</h3>
         <h3 class="inline-header" ng-if="vm.editName.on">
-            <input type="text" class="form-control" ng-model="vm.selected.obj.name">
+            <input type="text" class="form-control name-input" ng-model="vm.selected.obj.name">
         </h3>
         <button class="btn btn-sm btn-default align-h3" ng-click="vm.startEditingName()"
             ng-if="!vm.editing()">
             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
         </button>
-        <button class="btn btn-sm btn-default align-h3" ng-click="vm.finishEditingName()"
+        <button class="btn btn-sm btn-default align-h3-edit left-n10" ng-click="vm.finishEditingName()"
             ng-if="vm.editName.on">
             <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
         </button>
-        <button class="btn btn-sm btn-default align-h3" ng-click="vm.cancelEditName()"
+        <button class="btn btn-sm btn-default align-h3-edit" ng-click="vm.cancelEditName()"
             ng-if="vm.editName.on">
             <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
         </button>

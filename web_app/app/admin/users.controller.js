@@ -24,6 +24,9 @@
 	**/
 	function UsersController($scope, server, gui, auth) {
 		var vm = this;
+
+		/** Internal variables */
+        var editOriginal;
 		
 		/** Variables and methods bound to viewmodel */
 		vm.roles = ['user', 'power_user', 'system_admin'];
@@ -74,6 +77,7 @@
 		 * @param  {object} user 
 		 */
 		function editExisting(user) {
+			saveOriginal(user);
 			vm.editId = user.id;
 			vm.editObj = user;
 			gui.focus('editExisting');
@@ -84,6 +88,7 @@
 		 * called on Save button click
 		 */
 		function editSave() {
+			if (!inputValid()) return;
 			if (vm.editId != -2) {
 				var user = vm.editObj.email;
 				server.updateUser(vm.editObj).then(function(res) {
@@ -108,6 +113,12 @@
 			}
 			vm.editId = -1;
 		}
+
+		function inputValid() {
+            if (!vm.editObj.email) return false;
+            if (!/[\w-]+@([\w-]+\.)+[\w-]+/.test(vm.editObj.email)) return false;
+            return true;
+        }
 		
 		/**
 		 * User edits are discarded, called on Cancel button click
@@ -116,6 +127,7 @@
 			if (vm.editId == -2) {
 				vm.users.splice(vm.users.length - 1, 1);
 			}
+			restoreOriginal();
 			vm.editId = -1;
 		}
 		
@@ -163,5 +175,16 @@
 			editExisting(tempUser);
 			gui.focus('editNew');
 		}
+
+		function saveOriginal(obj) {
+            editOriginal = JSON.parse(JSON.stringify(obj));
+        }
+
+        function restoreOriginal() {
+            if (!editOriginal) { return; }
+            vm.editObj.firstName = editOriginal.firstName;
+            vm.editObj.lastName = editOriginal.lastName;
+            vm.editObj.role = editOriginal.role;
+        }
 	}
 })();

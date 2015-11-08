@@ -13,8 +13,8 @@
 (function() {
     'use strict';
     
-    /** Unit tests for dashboard routes */
-    describe('Routes: dashboard', function() {
+    /** Unit tests for config routes */
+    describe('Routes: config', function() {
         var state;
 
         beforeEach(module('app'));
@@ -23,19 +23,19 @@
             state = $state;
         }));
 
-        describe('Dashboard route', function() {
+        describe('Warnings route', function() {
             it('should be defined', function() {
                 var expected = {
-                    name: 'dashboard',
-                    url: '/dashboard',
-                    controller: 'DashboardController',
+                    name: 'config',
+                    url: '/config',
+                    controller: 'ConfigController',
                     controllerAs: 'vm',
-                    templateUrl: 'dashboard/dashboard.html',
+                    templateUrl: 'config/config.html',
                     data: {
-                        access: 'authed'
+                        access: 'power_user'
                     }
                 };
-                expect(angular.equals(state.get('dashboard'), expected)).toBe(true);
+                expect(angular.equals(state.get('config'), expected)).toBe(true);
             });
         });
     });

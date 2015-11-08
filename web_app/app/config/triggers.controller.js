@@ -22,27 +22,34 @@
         * @description Provides viewmodel for config view
         * @requires server
     **/
-    function TriggersController($scope, server, gui) {
-        var vm = $scope.vm; // parent controller
-        var editVm = this;
-        var newId = Math.pow(2, 32) + 1;
+    function TriggersController($scope, server, gui, config) {
+        var vm = this;
+
+        /** Internal variables */
+        var editOriginal;
         
         /** Variables and methods bound to viewmodel */
-        editVm.newId = newId;
-        editVm.triggers = [];
-        editVm.editId = -1;
-        editVm.editExisting = editExisting;
-        editVm.editSave = editSave;
-        editVm.editDelete = editDelete;
-        editVm.editCancel = editCancel;
-        editVm.editNew = editNew;
-        editVm.showDeleteButton = showDeleteButton;
-        editVm.confirmDelete  = confirmDelete;
-        
+        vm.newId = config.newId;
+        vm.triggers = config.triggers;
+        vm.editId = -1;
+        vm.selected = config.selected;
+        vm.buoyInstanceSensors = config.buoyInstanceSensors;
+        vm.operators = config.operators;
+        vm.editExisting = editExisting;
+        vm.editSave = editSave;
+        vm.editDelete = editDelete;
+        vm.editCancel = editCancel;
+        vm.editNew = editNew;
+        vm.showDeleteButton = showDeleteButton;
+        vm.confirmDelete  = confirmDelete;
+        vm.triggerFilter = config.triggerFilter;
+        vm.sensorsAttached = config.sensorsAttached;
+
+
         activate();
-        
-        /** Called when controller is instantiated (admin page is loaded) */
+
         function activate() {
+            $scope.$on('cancelEditing', editCancel);
         }
 
         /**
@@ -50,8 +57,9 @@
          * @param  {object} trigger type 
          */
         function editExisting(trigger) {
-            editVm.editId = trigger.id;
-            editVm.editObj = trigger;
+            saveOriginal(trigger);
+            vm.editId = trigger.id;
+            vm.editObj = trigger;
             gui.focus('editExisting');
         }
 
@@ -60,48 +68,48 @@
          * called on Save button click
          */
         function editSave() {
-            if (!inputValid()) return;
-            if (editVm.editId != newId) {
-                vm.parseTriggers(); // necessary to instantly update dropdown
-                server.updateWarningTrigger(editVm.editObj).then(function(res) {
-                    vm.queryTriggers();
+            if (!inputValid()) { return; }
+            if (vm.editId !== vm.newId) {
+                config.parseTriggers(); // necessary to instantly update dropdown
+                server.updateWarningTrigger(vm.editObj).then(function(res) {
+                    config.queryTriggers();
                     gui.alertSuccess('Warning trigger updated.');
                 }, function(res) {
                     gui.alertBadResponse(res);
                 });
             } else {
-                editVm.editObj.id = -3;
-                vm.parseTriggers(); // necessary to instantly update dropdown
-                server.addWarningTrigger(editVm.editObj, getAffectedBuoyIds()).then(function(res) {
-                    vm.queryTriggers();
+                vm.editObj.id = -3;
+                config.parseTriggers(); // necessary to instantly update dropdown
+                server.addWarningTrigger(vm.editObj, getAffectedBuoyIds()).then(function(res) {
+                    config.queryTriggers();
                     gui.alertSuccess('Warning trigger added.');
                 }, function(res) {
                     gui.alertBadResponse(res);
-                    vm.triggers.splice(vm.triggers.length - 1, 1);
+                    config.triggers.splice(config.triggers.length - 1, 1);
                 });
             }
-            editVm.editId = -1;
+            vm.editId = -1;
         }
 
         function inputValid() {
-            if (!/^\d*\.?\d*$/.test(editVm.editObj.value)) return false;
+            if (!/^\d*\.?\d*$/.test(vm.editObj.value)) { return false; }
             return true;
         }
 
         function getAffectedBuoyIds() {
             var ids = [];
-            if (vm.selected.type == 'instance') {
-                ids.push(vm.selected.obj.id);
-            } else if (vm.selected.type == 'group') {
+            if (config.selected.type === 'instance') {
+                ids.push(config.selected.obj.id);
+            } else if (config.selected.type === 'group') {
                 // send trigger to each buoy in selected group
-                vm.buoyInstances.forEach(function(buoyInstance) {
-                    if (buoyInstance.buoyGroupId == vm.selected.obj.id) {
+                config.buoyInstances.forEach(function(buoyInstance) {
+                    if (buoyInstance.buoyGroupId === config.selected.obj.id) {
                         ids.push(buoyInstance.id);
                     }
                 });
-            } else if (vm.selected.type == 'all') {
+            } else if (config.selected.type === 'all') {
                 // send trigger to all buoys
-                vm.buoyInstances.forEach(function(buoyInstance) {
+                config.buoyInstances.forEach(function(buoyInstance) {
                     ids.push(buoyInstance.id);
                 });
             }
@@ -112,10 +120,11 @@
          * Edits are discarded, called on Cancel button click
          */
         function editCancel() {
-            if (editVm.editId == newId) {
-                vm.triggers.splice(vm.triggers.length - 1, 1);
+            if (vm.editId === vm.newId) {
+                config.triggers.splice(config.triggers.length - 1, 1);
             }
-            editVm.editId = -1;
+            restoreOriginal();
+            vm.editId = -1;
         }
         
         /**
@@ -124,7 +133,7 @@
          */
         function confirmDelete(trigger) {
             server.deleteWarningTrigger(trigger.id).then(function(res) {
-                vm.queryTriggers();
+                config.queryTriggers();
                 gui.alertSuccess('Warning trigger deleted.');
             }, function(res) {
                 gui.alertBadResponse(res);
@@ -138,9 +147,9 @@
         function editDelete(trigger) {
             vm.deleteObject = trigger;
             vm.deleteType = 'trigger';
-            vm.deleteName = trigger.buoyName + " " + trigger.sensorName;
+            vm.deleteName = trigger.buoyName + ' ' + trigger.sensorName;
             vm.confirmDelete = confirmDelete;
-            // vm.deletePostscript = "(This won't affect old readings.)";
+            // vm.deletePostscript = '(This won't affect old readings.)';
             gui.confirmDelete($scope);
         }
         
@@ -150,8 +159,8 @@
          * @return {bool}      whether to show delete button
          */
         function showDeleteButton(trigger) {
-            return ((editVm.editId == -1 || editVm.editId == trigger.id) &&
-                trigger.id != newId);
+            return ((vm.editId === -1 || vm.editId === trigger.id) &&
+                trigger.id !== vm.newId);
         }
         
         /**
@@ -159,13 +168,25 @@
          * called on Add button click
          */
         function editNew() {
-            var temp = { id: newId, sensorTypeId: 1, operator: "<" };
-            if (vm.selected.type == 'instance') {
-                temp.buoyInstance = vm.selected.obj;
-                temp.buoyInstanceId = vm.selected.obj.id;
+            var temp = { id: vm.newId, sensorTypeId: 1, operator: '<' };
+            if (config.selected.type === 'instance') {
+                temp.buoyInstanceName = config.selected.obj.name;
+                temp.buoyInstanceId = config.selected.obj.id;
             }
-            vm.triggers.push(temp);
+            config.triggers.push(temp);
             editExisting(temp);
+        }
+
+        function saveOriginal(obj) {
+            editOriginal = JSON.parse(JSON.stringify(obj));
+        }
+
+        function restoreOriginal() {
+            if (!editOriginal) { return; }
+            vm.editObj.sensorTypeId = editOriginal.sensorTypeId;
+            vm.editObj.operator = editOriginal.operator;
+            vm.editObj.value = editOriginal.value;
+            vm.editObj.message = editOriginal.message;
         }
     }
 })();

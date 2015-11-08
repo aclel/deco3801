@@ -5,7 +5,7 @@
     <div ng-if="!(vm.triggers | filter:vm.triggerFilter).length">
         <em>No warning triggers.</em>
     </div>
-    <form ng-submit="editVm.editSave()" ng-if="(vm.triggers | filter:vm.triggerFilter).length">
+    <form ng-submit="vm.editSave()" ng-if="(vm.triggers | filter:vm.triggerFilter).length">
         <table class="data-table">
             <thead>
                 <tr>
@@ -20,52 +20,52 @@
             <tbody>
                 <tr ng-repeat="trigger in vm.triggers | filter:vm.triggerFilter | orderBy:'id'">
                     <td>
-                        <span ng-if="trigger.id != editVm.newId">{{ trigger.id + " " + trigger.buoyInstance.name }}</span>
-                        <div ng-if="trigger.id == editVm.newId">
-                            <span ng-if="vm.selected.type == 'instance'">{{ trigger.buoyInstance.name }}</span>
+                        <span ng-if="trigger.id != vm.newId">{{ trigger.buoyInstanceName }}</span>
+                        <div ng-if="trigger.id == vm.newId">
+                            <span ng-if="vm.selected.type == 'instance'">{{ trigger.buoyInstanceName }}</span>
                             <em ng-if="vm.selected.type == 'group'">All buoys in {{ vm.selected.obj.name }}</em>
                             <em ng-if="vm.selected.type == 'all'">All buoys</em>
                         </div>
                     </td>
                     <td>
-                        <span ng-if="editVm.editId != trigger.id">{{ trigger.sensorName }}</span>
-                        <select ng-if="editVm.editId == trigger.id"
+                        <span ng-if="vm.editId != trigger.id">{{ trigger.sensorName }}</span>
+                        <select ng-if="vm.editId == trigger.id"
                             type="button" class="btn btn-default" 
-                            ng-model="editVm.editObj.sensorTypeId" 
+                            ng-model="vm.editObj.sensorTypeId" 
                             bs-options="opt.sensorTypeId as opt.sensorName for opt in vm.buoyInstanceSensors | filter: { buoyInstanceId: trigger.buoyInstanceId }"
-                            esc-cancel="editVm.editCancel()"
+                            esc-cancel="vm.editCancel()"
                             bs-select>
                         </select>
                     </td>
                     <td>
-                        <span ng-if="editVm.editId != trigger.id">{{ trigger.operator }}</span>
-                        <select ng-if="editVm.editId == trigger.id"
+                        <span ng-if="vm.editId != trigger.id">{{ trigger.operator }}</span>
+                        <select ng-if="vm.editId == trigger.id"
                             type="button" class="btn btn-default" 
-                            ng-model="editVm.editObj.operator" 
+                            ng-model="vm.editObj.operator" 
                             bs-options="opt for opt in vm.operators"
-                            esc-cancel="editVm.editCancel()"
+                            esc-cancel="vm.editCancel()"
                             bs-select>
                         </select>
                     </td>
                     <td>
-                        <span ng-if="editVm.editId != trigger.id">{{ trigger.value }}</span>
-                        <input ng-if="editVm.editId == trigger.id" type="text" class="form-control" ng-model="editVm.editObj.value" required ng-pattern="/^\d*\.?\d*$/" placeholder="20" focus-on="editExisting" esc-cancel="editVm.editCancel()">
+                        <span ng-if="vm.editId != trigger.id">{{ trigger.value }}</span>
+                        <input ng-if="vm.editId == trigger.id" type="text" class="form-control" ng-model="vm.editObj.value" required ng-pattern="/^\d*\.?\d*$/" placeholder="20" focus-on="editExisting" esc-cancel="vm.editCancel()">
                     </td>
                     <td>
-                        <span ng-if="editVm.editId != trigger.id">{{ trigger.message }}</span>
-                        <input ng-if="editVm.editId == trigger.id" type="text" class="form-control" ng-model="editVm.editObj.message" placeholder="Battery is too low" esc-cancel="editVm.editCancel()">
+                        <span ng-if="vm.editId != trigger.id">{{ trigger.message }}</span>
+                        <input ng-if="vm.editId == trigger.id" type="text" class="form-control" ng-model="vm.editObj.message" placeholder="Battery is too low" esc-cancel="vm.editCancel()">
                     </td>
                     <td class="button-cell">
-                        <button type="button" class="btn btn-default btn-sm right" ng-if="editVm.showDeleteButton(trigger)" ng-click="editVm.editDelete(trigger)">
+                        <button type="button" class="btn btn-default btn-sm right" ng-if="vm.showDeleteButton(trigger)" ng-click="vm.editDelete(trigger)">
                             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
                         </button>
-                        <button type="button" class="btn btn-default btn-sm right" ng-if="editVm.editId == -1" ng-click="editVm.editExisting(trigger)">
+                        <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == -1" ng-click="vm.editExisting(trigger)">
                             <span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
                         </button>
-                        <button type="button" class="btn btn-default btn-sm right" ng-if="editVm.editId == trigger.id" ng-click="editVm.editCancel()">
+                        <button type="button" class="btn btn-default btn-sm right" ng-if="vm.editId == trigger.id" ng-click="vm.editCancel()">
                             <span class="glyphicon glyphicon-ban-circle" aria-hidden="true"></span>
                         </button>
-                        <button type="submit" class="btn btn-default btn-sm right" ng-if="editVm.editId == trigger.id">
+                        <button type="submit" class="btn btn-default btn-sm right" ng-if="vm.editId == trigger.id">
                             <span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>
                         </button>
                     </td>
@@ -73,7 +73,7 @@
             </tbody>
         </table>
     </form>
-    <button type="button" class="btn btn-default" ng-if="editVm.editId == -1" ng-click="editVm.editNew()">
+    <button type="button" class="btn btn-default" ng-if="vm.editId == -1" ng-click="vm.editNew()">
         <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
         <small>New Warning Trigger</small>
     </button>

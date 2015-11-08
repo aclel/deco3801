@@ -29,7 +29,7 @@
 					url: '/login',
 					controller: 'LoginController',
 					controllerAs: 'vm',
-					templateUrl: '/app/auth/login.html',
+					templateUrl: 'auth/login.html',
 					data: {
 						access: 'unauthed'
 					}
@@ -41,7 +41,7 @@
 					url: '/change_password',
 					controller: 'ChangePasswordController',
 					controllerAs: 'vm',
-					templateUrl: '/app/auth/change_password.html',
+					templateUrl: 'auth/change_password.html',
 					data: {
 						access: 'authed'
 					}
@@ -53,7 +53,7 @@
 					url: '/reset_password?token',
 					controller: 'ResetPasswordController',
 					controllerAs: 'vm',
-					templateUrl: '/app/auth/reset_password.html',
+					templateUrl: 'auth/reset_password.html',
 					data: {
 						access: 'unauthed'
 					}
@@ -65,7 +65,7 @@
 					url: '/forgot_password',
 					controller: 'ForgotPasswordController',
 					controllerAs: 'vm',
-					templateUrl: '/app/auth/forgot_password.html',
+					templateUrl: 'auth/forgot_password.html',
 					data: {
 						access: 'unauthed'
 					}

@@ -13,8 +13,8 @@
 (function() {
     'use strict';
     
-    /** Unit tests for dashboard routes */
-    describe('Routes: dashboard', function() {
+    /** Unit tests for admin routes */
+    describe('Routes: admin', function() {
         var state;
 
         beforeEach(module('app'));
@@ -23,19 +23,17 @@
             state = $state;
         }));
 
-        describe('Dashboard route', function() {
+        describe('Admin route', function() {
             it('should be defined', function() {
                 var expected = {
-                    name: 'dashboard',
-                    url: '/dashboard',
-                    controller: 'DashboardController',
-                    controllerAs: 'vm',
-                    templateUrl: 'dashboard/dashboard.html',
+                    name: 'admin',
+                    url: '/admin',
+                    templateUrl: 'admin/admin.html',
                     data: {
-                        access: 'authed'
+                        access: 'system_admin'
                     }
                 };
-                expect(angular.equals(state.get('dashboard'), expected)).toBe(true);
+                expect(angular.equals(state.get('admin'), expected)).toBe(true);
             });
         });
     });

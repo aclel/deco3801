@@ -24,7 +24,7 @@
 		* @requires $state
 		* @requires server
 	**/
-	function ChangePasswordController($rootScope, $state, server, gui, auth) {
+	function ChangePasswordController($rootScope, server, auth, gui) {
 		var vm = this;
 
 		/** Variables and methods bound to viewmodel */

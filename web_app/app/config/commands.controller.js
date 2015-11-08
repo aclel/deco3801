@@ -22,36 +22,42 @@
         * @description Provides viewmodel for config view
         * @requires server
     **/
-    function CommandsController($scope, server, gui) {
-        var vm = $scope.vm; // parent controller
-        var editVm = this;
-        var newId = Math.pow(2, 32) + 1;
+    function CommandsController($scope, server, gui, config) {
+        var vm = this;
+
+        /** Internal variables */
+        var editOriginal;
         
         /** Variables and methods bound to viewmodel */
-        editVm.newId = newId;
-        editVm.commands = [];
-        editVm.editId = -1;
-        editVm.editExisting = editExisting;
-        editVm.editSave = editSave;
-        editVm.editDelete = editDelete;
-        editVm.editCancel = editCancel;
-        editVm.editNew = editNew;
-        editVm.showDeleteButton = showDeleteButton;
-        editVm.confirmDelete  = confirmDelete;
+        vm.newId = config.newId;
+        vm.commands = config.commands;
+        vm.commandTypes = config.commandTypes;
+        vm.editId = -1;
+        vm.selected = config.selected;
+        vm.editExisting = editExisting;
+        vm.editSave = editSave;
+        vm.editDelete = editDelete;
+        vm.editCancel = editCancel;
+        vm.editNew = editNew;
+        vm.showDeleteButton = showDeleteButton;
+        vm.confirmDelete  = confirmDelete;
+        vm.commandFilter = config.commandFilter;
         
+
         activate();
-        
-        /** Called when controller is instantiated (admin page is loaded) */
+
         function activate() {
+            $scope.$on('cancelEditing', editCancel);
         }
-        
+
         /**
          * Start editing a command type, called on Edit button click
          * @param  {object} command type 
          */
         function editExisting(command) {
-            editVm.editId = command.id;
-            editVm.editObj = command;
+            saveOriginal(command);
+            vm.editId = command.id;
+            vm.editObj = command;
             gui.focus('editExisting');
         }
 
@@ -60,47 +66,47 @@
          * called on Save button click
          */
         function editSave() {
-            if (!inputValid()) return;
-            if (editVm.editId != newId) {
-                vm.parseCommands(); // necessary to instantly update dropdown
-                server.updateCommand(editVm.editObj).then(function(res) {
-                    vm.queryCommands();
+            if (!inputValid()) { return; }
+            if (vm.editId !== vm.newId) {
+                config.parseCommands(); // necessary to instantly update dropdown
+                server.updateCommand(vm.editObj).then(function(res) {
+                    config.queryCommands();
                     gui.alertSuccess('Command updated.');
                 }, function(res) {
                     gui.alertBadResponse(res);
                 });
             } else {
-                editVm.editObj.id = -3;
-                server.addCommand(editVm.editObj, getAffectedBuoyIds()).then(function(res) {
-                    vm.queryCommands();
+                vm.editObj.id = -3;
+                server.addCommand(vm.editObj, getAffectedBuoyIds()).then(function(res) {
+                    config.queryCommands();
                     gui.alertSuccess('Command added.');
                 }, function(res) {
                     gui.alertBadResponse(res);
-                    vm.commands.splice(vm.commands.length - 1, 1);
+                    config.commands.splice(config.commands.length - 1, 1);
                 });
             }
-            editVm.editId = -1;
+            vm.editId = -1;
         }
 
         function inputValid() {
-            if (!/^\d*\.?\d*$/.test(editVm.editObj.value)) return false;
+            if (!/^\d*\.?\d*$/.test(vm.editObj.value)) { return false; }
             return true;
         }
 
         function getAffectedBuoyIds() {
             var ids = [];
-            if (vm.selected.type == 'instance') {
-                ids.push(vm.selected.obj.buoyId);
-            } else if (vm.selected.type == 'group') {
+            if (config.selected.type === 'instance') {
+                ids.push(config.selected.obj.buoyId);
+            } else if (config.selected.type === 'group') {
                 // send command to each buoy in selected group
-                vm.buoyInstances.forEach(function(buoyInstance) {
-                    if (buoyInstance.buoyGroupId == vm.selected.obj.id) {
+                config.buoyInstances.forEach(function(buoyInstance) {
+                    if (buoyInstance.buoyGroupId === config.selected.obj.id) {
                         ids.push(buoyInstance.buoyId);
                     }
                 });
-            } else if (vm.selected.type == 'all') {
+            } else if (config.selected.type === 'all') {
                 // send command to all buoys
-                vm.buoyInstances.forEach(function(buoyInstance) {
+                config.buoyInstances.forEach(function(buoyInstance) {
                     ids.push(buoyInstance.buoyId);
                 });
             }
@@ -111,10 +117,11 @@
          * Edits are discarded, called on Cancel button click
          */
         function editCancel() {
-            if (editVm.editId == newId) {
-                vm.commands.splice(vm.commands.length - 1, 1);
+            if (vm.editId === vm.newId) {
+                config.commands.splice(config.commands.length - 1, 1);
             }
-            editVm.editId = -1;
+            restoreOriginal();
+            vm.editId = -1;
         }
         
         /**
@@ -123,7 +130,7 @@
          */
         function confirmDelete(command) {
             server.deleteCommand(command.id).then(function(res) {
-                vm.queryCommands();
+                config.queryCommands();
                 gui.alertSuccess('Command deleted.');
             }, function(res) {
                 gui.alertBadResponse(res);
@@ -137,7 +144,7 @@
         function editDelete(command) {
             vm.deleteObject = command;
             vm.deleteType = 'command';
-            vm.deleteName = command.buoyName + " " + command.commandName;
+            vm.deleteName = command.buoyName + ' ' + command.commandName;
             vm.confirmDelete = confirmDelete;
             // vm.deletePostscript = "(This won't affect old readings.)";
             gui.confirmDelete($scope);
@@ -149,8 +156,8 @@
          * @return {bool}      whether to show delete button
          */
         function showDeleteButton(command) {
-            return ((editVm.editId == -1 || editVm.editId == command.id) &&
-                command.id != newId);
+            return ((vm.editId === -1 || vm.editId === command.id) &&
+                command.id !== vm.newId);
         }
         
         /**
@@ -158,12 +165,22 @@
          * called on Add button click
          */
         function editNew() {
-            var temp = { id: newId, commandTypeId: 1 };
-            if (vm.selected.type == 'instance') {
-                temp.buoyName = vm.selected.obj.name;
+            var temp = { id: vm.newId, commandTypeId: 1 };
+            if (config.selected.type === 'instance') {
+                temp.buoyName = config.selected.obj.name;
             }
-            vm.commands.push(temp);
+            config.commands.push(temp);
             editExisting(temp);
+        }
+
+        function saveOriginal(obj) {
+            editOriginal = JSON.parse(JSON.stringify(obj));
+        }
+
+        function restoreOriginal() {
+            if (!editOriginal) { return; }
+            vm.editObj.commandTypeId = editOriginal.commandTypeId;
+            vm.editObj.value = editOriginal.value;
         }
     }
 })();

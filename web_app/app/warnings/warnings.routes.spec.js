@@ -30,7 +30,7 @@
                     url: '/warnings',
                     controller: 'WarningsController',
                     controllerAs: 'vm',
-                    templateUrl: '/app/warnings/warnings.html',
+                    templateUrl: 'warnings/warnings.html',
                     data: {
                         access: 'power_user'
                     }

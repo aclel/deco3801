@@ -135,7 +135,7 @@
 		 */
 		function currentUserRole() {
 			var token = getToken();
-			if (token == null) {
+			if (!token) {
 				return 'unauthed';
 			}
 			return parseJwt(token).role;
@@ -148,18 +148,19 @@
 		 */
 		function checkUser(role) {		
 			if (role == 'any') return true;
-			
+
 			if (role == 'unauthed') {
 				if (loggedIn()) {
 					return false;
 				}
+				return true;
 			} else {
 				if (!loggedIn()) {
 					return false;
 				}
 			}
 
-			if (!roles.hasOwnProperty(role)) return false;
+			if (!roles.hasOwnProperty(role)) { return false; }
 			
 			return (roles[currentUserRole()] >= roles[role]);
 		}

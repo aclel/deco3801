@@ -14,19 +14,22 @@
     'use strict';
     
     angular.module('app.admin')
-        .controller('CommandTypesController', CommandTypesController);
+        .controller('SensorTypesController', SensorTypesController);
     
     /**
         * @ngdoc object
-        * @name app.admin.controller:CommandTypesController
+        * @name app.admin.controller:SensorTypesController
         * @description Provides viewmodel for admin view
         * @requires server
     **/
-    function CommandTypesController($scope, server, gui) {
+    function SensorTypesController($scope, server, gui) {
         var vm = this;
+
+        /** Internal variables */
+        var editOriginal;
         
         /** Variables and methods bound to viewmodel */
-        vm.commandTypes = [];
+        vm.sensorTypes = [];
         vm.editId = -1;
         vm.editExisting = editExisting;
         vm.editSave = editSave;
@@ -40,27 +43,28 @@
         
         /** Called when controller is instantiated (admin page is loaded) */
         function activate() {
-            queryCommandTypes();
+            querySensorTypes();
         }
 
         /**
-         * Query command types from the server
+         * Query sensor types from the server
          */
-        function queryCommandTypes() {
-            server.getCommandTypes().then(function(res) {
-                vm.commandTypes = res.data.commandTypes;
+        function querySensorTypes() {
+            server.getSensorTypes().then(function(res) {
+                vm.sensorTypes = res.data.sensorTypes;
             }, function(res) {
                 gui.alertBadResponse(res);
             });
         }
         
         /**
-         * Start editing a command type, called on Edit button click
-         * @param  {object} command type 
+         * Start editing a sensor type, called on Edit button click
+         * @param  {object} sensor type 
          */
-        function editExisting(commandType) {
-            vm.editId = commandType.id;
-            vm.editObj = commandType;
+        function editExisting(sensorType) {
+            saveOriginal(sensorType);
+            vm.editId = sensorType.id;
+            vm.editObj = sensorType;
             gui.focus('editExisting');
         }
 
@@ -71,27 +75,30 @@
         function editSave() {
             if (!inputValid()) return;
             if (vm.editId != -2) {
-                server.updateCommandType(vm.editObj).then(function(res) {
-                    queryCommandTypes();
-                    gui.alertSuccess('Command type updated.');
+                server.updateSensorType(vm.editObj).then(function(res) {
+                    querySensorTypes();
+                    gui.alertSuccess('Sensor type updated.');
                 }, function(res) {
                     gui.alertBadResponse(res);
                 });
             } else {
                 vm.editObj.id = -3;
-                server.addCommandType(vm.editObj).then(function(res) {
-                    queryCommandTypes();
-                    gui.alertSuccess('Command type added.');
+                server.addSensorType(vm.editObj).then(function(res) {
+                    querySensorTypes();
+                    gui.alertSuccess('Sensor type added.');
                 }, function(res) {
                     gui.alertBadResponse(res);
-                    vm.commandTypes.splice(vm.commandTypes.length - 1, 1);
+                    vm.sensorTypes.splice(vm.sensorTypes.length - 1, 1);
                 });
             }
             vm.editId = -1;
         }
 
         function inputValid() {
+            if (!/^\d*\.?\d*$/.test(vm.editObj.upperBound)) return false;
+            if (!/^\d*\.?\d*$/.test(vm.editObj.lowerBound)) return false;
             if (!vm.editObj.name) return false;
+            if (!vm.editObj.unit) return false;
             return true;
         }
         
@@ -100,19 +107,20 @@
          */
         function editCancel() {
             if (vm.editId == -2) {
-                vm.commandTypes.splice(vm.commandTypes.length - 1, 1);
+                vm.sensorTypes.splice(vm.sensorTypes.length - 1, 1);
             }
+            restoreOriginal();
             vm.editId = -1;
         }
         
         /**
-         * Command type is deleted, called on Confirm button click in delete modal
-         * @param  {object} command type to delete
+         * Sensor type is deleted, called on Confirm button click in delete modal
+         * @param  {object} sensor type sensor type to delete
          */
-        function confirmDelete(commandType) {
-            server.deleteCommandType(commandType.id).then(function(res) {
-                queryCommandTypes();
-                gui.alertSuccess('Command type deleted.');
+        function confirmDelete(sensorType) {
+            server.deleteSensorType(sensorType.id).then(function(res) {
+                querySensorTypes();
+                gui.alertSuccess('Sensor type deleted.');
             }, function(res) {
                 gui.alertBadResponse(res);
             });
@@ -120,24 +128,24 @@
 
         /**
          * Shows a delete confirmation, called on Delete button click
-         * @param  {object} command type to edit
+         * @param  {object} sensor type sensor type to delete
          */
-        function editDelete(commandType) {
-            vm.deleteObject = commandType;
-            vm.deleteType = 'command type';
-            vm.deleteName = commandType.name;
+        function editDelete(sensorType) {
+            vm.deleteObject = sensorType;
+            vm.deleteType = 'sensor type';
+            vm.deleteName = sensorType.name;
             vm.deletePostscript = "(This won't affect old readings.)";
             gui.confirmDelete($scope);
         }
         
         /**
          * Determines whether to show delete button for each row
-         * @param  {object} command type
+         * @param  {object} sensor type
          * @return {bool}      whether to show delete button
          */
-        function showDeleteButton(commandType) {
-            return ((vm.editId == -1 || vm.editId == commandType.id) &&
-                commandType.id != -2);
+        function showDeleteButton(sensorType) {
+            return ((vm.editId == -1 || vm.editId == sensorType.id) &&
+                sensorType.id != -2);
         }
         
         /**
@@ -146,8 +154,21 @@
          */
         function editNew() {
             var temp = { id: -2, archived: false };
-            vm.commandTypes.push(temp);
+            vm.sensorTypes.push(temp);
             editExisting(temp);
+        }
+
+        function saveOriginal(obj) {
+            editOriginal = JSON.parse(JSON.stringify(obj));
+        }
+
+        function restoreOriginal() {
+            if (!editOriginal) { return; }
+            vm.editObj.name = editOriginal.name;
+            vm.editObj.description = editOriginal.description;
+            vm.editObj.unit = editOriginal.unit;
+            vm.editObj.upperBound = editOriginal.upperBound;
+            vm.editObj.lowerBound = editOriginal.lowerBound;
         }
     }
 })();

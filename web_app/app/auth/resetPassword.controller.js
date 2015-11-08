@@ -25,7 +25,7 @@
 		* @requires auth
 		* @requires server
 	**/
-	function ResetPasswordController($rootScope, $state, $stateParams, auth, server, gui) {
+	function ResetPasswordController($rootScope, $state, $stateParams, server, gui) {
 		var vm = this;
 
 		/** Variables and methods bound to viewmodel */

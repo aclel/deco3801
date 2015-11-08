@@ -29,7 +29,7 @@
 					url: '/config',
 					controller: 'ConfigController',
 					controllerAs: 'vm',
-					templateUrl: '/app/config/config.html',
+					templateUrl: 'config/config.html',
 					data: {
 						access: 'power_user'
 					}

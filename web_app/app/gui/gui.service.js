@@ -77,7 +77,7 @@
         function confirmDelete(scope) {
             $modal({
                 scope: scope,
-                templateUrl: '/app/gui/delete.modal.html',
+                templateUrl: 'gui/delete.modal.html',
                 show: true
             });
         }

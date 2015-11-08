@@ -677,15 +677,30 @@ input.ng-invalid.ng-dirty.form-control:focus {
   margin-right: 10px;
 }
 
+
+/************************* CONFIG **********************/
+
 .btn.align-h3 {
   margin-top: -8px;
 }
 
+.btn.align-h3-edit {
+  margin-top: 5px;
+}
+
+.left-n10 {
+  margin-left: -10px;
+}
+
+.name-input {
+  width: 70%;
+  margin-top: -25px;
+}
 
 /************************* ADMIN **********************/
 
 .buoyLogs {
-  border: 1px solid #333;
+  border: 1px solid #888;
   height: 500px;
   overflow-y: scroll;
 }
@@ -748,15 +763,4 @@ input.ng-invalid.ng-dirty.form-control:focus {
 
 .red {
   color: red;
-}
-
-
-/************************* !UNUSED! **********************/
-
-.invalidSensor {
-  border: 1px solid red;
-}
-    
-.unconfiguredSensor {
-  border: 1px solid limegreen;
 }

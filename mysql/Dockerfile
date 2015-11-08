@@ -1,8 +1,8 @@
-FROM mysql:5.6
+FROM n3ziniuka5/ubuntu-oracle-jdk:14.04-JDK8
 MAINTAINER Andrew Cleland andrew.cleland3@gmail.com
 
-ADD fms.sql /docker-entrypoint-initdb.d/fms.sql
+#ADD fms.sql /docker-entrypoint-initdb.sh
 
-# Command doesn't actually work, but the docker container stops
-# which is what we want
-CMD ["mysqld stop"]
+VOLUME /var/lib/mysql
+
+CMD ["true"]

@@ -234,16 +234,24 @@
                 expect(map.showMarker.calls.count()).toEqual(2);
             });
 
-            it('should affect group enabled and indeterminate', function () {
+            it('should affect group enabled', function () {
                 var group = dashboard.buoys()[0];
                 expect(group.enabled).toBe(true);
                 group.buoyInstances[0].enabled = false;
                 dashboard.selectBuoyInstance(group);
                 expect(group.enabled).toBe(true);
-                expect(group.indeterminate).toBe(true);
                 group.buoyInstances[1].enabled = false;
                 dashboard.selectBuoyInstance(group);
                 expect(group.enabled).toBe(false);
+            });
+
+            it('should affect group indeterminate', function () {
+                var group = dashboard.buoys()[0];
+                group.buoyInstances[0].enabled = false;
+                dashboard.selectBuoyInstance(group);
+                expect(group.indeterminate).toBe(true);
+                group.buoyInstances[1].enabled = false;
+                dashboard.selectBuoyInstance(group);
                 expect(group.indeterminate).toBe(false);
             });
 

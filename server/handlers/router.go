@@ -53,8 +53,6 @@ func NewAppRouter(env *models.Env) *mux.Router {
 	// is executed.
 	defaultChain := alice.New(loggingHandler, c.Handler)
 
-	//TODO: Update roles in routes
-
 	// Authenticated routes
 	r.Handle("/api/buoys", defaultChain.Then(AuthHandler{env, BuoysIndex, "user"})).Methods("GET", "OPTIONS")
 	r.Handle("/api/buoys", defaultChain.Then(AuthHandler{env, BuoysCreate, "power_user"})).Methods("POST", "OPTIONS")

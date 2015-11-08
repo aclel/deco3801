@@ -186,21 +186,21 @@ func buildReadings(env *models.Env, readingsContainer *models.BuoyReadingContain
 		reading.BuoyGuid = readingsContainer.BuoyGuid
 		reading.Timestamp, err = parseDatetime(reading)
 		if err != nil {
-			e = &AppError{err, "Error parsing datetime", http.StatusInternalServerError}
+			e = &AppError{err, "Error parsing datetime", http.StatusBadRequest}
 			continue
 		}
 
 		// Parse latitude from DDmm.mmmm format
 		reading.Latitude, err = parseLatitude(reading.LatitudeString)
 		if err != nil {
-			e = &AppError{err, "Error parsing latitude", http.StatusInternalServerError}
+			e = &AppError{err, "Error parsing latitude", http.StatusBadRequest}
 			continue
 		}
 
 		// Parse longitude from DDDmm.mmmm format
 		reading.Longitude, err = parseLongitude(reading.LongitudeString)
 		if err != nil {
-			e = &AppError{err, "Error parsing latitude", http.StatusInternalServerError}
+			e = &AppError{err, "Error parsing latitude", http.StatusBadRequest}
 			continue
 		}
 
@@ -230,6 +230,12 @@ func parseDatetime(reading *models.Reading) (time.Time, error) {
 // Parse the latitude from a string with format DDmm.mmmm.
 // DD is the degrees and mm.mmmm is the minutes.
 func parseLatitude(input string) (float64, error) {
+	// Check the input can be parsed as a decimal
+	_, err := strconv.ParseFloat(input, 64)
+	if err != nil {
+		return 0, err
+	}
+
 	// Check if the decimal point is in the correct place depending
 	// on if there's a sign or not
 	if ((input[0] == '+' || input[0] == '-') && input[5] != '.') ||
@@ -272,6 +278,12 @@ func parseLatitude(input string) (float64, error) {
 // Parse the longitude from a string with format DDDmm.mmmm.
 // DDD is the degrees and mm.mmmm is the minutes.
 func parseLongitude(input string) (float64, error) {
+	// Check the input can be parsed as a decimal
+	_, err := strconv.ParseFloat(input, 64)
+	if err != nil {
+		return 0, err
+	}
+
 	// Check if the decimal point is in the correct place depending
 	// on if there's a sign or not
 	if ((input[0] == '+' || input[0] == '-') && input[6] != '.') ||

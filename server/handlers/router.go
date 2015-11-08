@@ -261,7 +261,7 @@ func (buoyHandler BuoyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	// decode the body in the actual handler.
 	guid, err := getGuidFromRequest(r.URL, body)
 	if err != nil {
-		logger.LogError(w, err.Error(), http.StatusInternalServerError)
+		logger.LogError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -272,7 +272,7 @@ func (buoyHandler BuoyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request)
 	// Get the active buoy instance for the buoy with the guid
 	activeBuoyInstance, err := buoyHandler.Env.DB.GetActiveBuoyInstance(guid)
 	if err != nil {
-		logger.LogError(w, err.Error(), http.StatusInternalServerError)
+		logger.LogError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

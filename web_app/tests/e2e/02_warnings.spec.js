@@ -17,23 +17,14 @@
 
     describe('Warnings page', function() {
 
-        // login
-        beforeAll(function() {
-            browser.get('/');
-            element(by.model('vm.email')).sendKeys('andrew@dyergroup.com.au');
-            element(by.model('vm.password')).sendKeys('waterwatcher', protractor.Key.ENTER);
-            // wait for dashboard page to load, otherwise protractor redirects too fast
-            browser.wait(element(by.id('dashboard')).isPresent()); 
-            browser.get('/#/warnings');
-        });
-
         it('should be on the warnings page', function() {
-            expect(browser.getCurrentUrl()).toMatch("warnings");
+            browser.get('/#/warnings');
+            expect(browser.getCurrentUrl()).toMatch('warnings');
         });
 
         it('should display 2 warnings', function() {
             var warnings = element.all(by.repeater('warning in vm.warnings'));
-            expect(warnings.count()).toEqual(2);
+            expect(warnings.count()).toEqual(3);
         });
     });
 })();

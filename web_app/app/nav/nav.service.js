@@ -19,6 +19,12 @@
     /**
         * @ngdoc service
         * @name app.nav.nav
+        * @requires $rootScope
+        * @requires $state
+        * @requires $timeout
+        * @requires $interval
+        * @requires auth
+        * @requires server
     **/
     function nav($rootScope, $state, $timeout, $interval, auth, server) {
 
@@ -41,14 +47,23 @@
             changePassword: changePassword
         };
 
+        /**
+         * Get loading state
+         * @return {object} object (contains true if loading, else false)
+         */
         function getLoading() {
             return loading;
         }
 
+        /**
+         * Get number of current warnings
+         * @return {object} object (contains number of warnings)
+         */
         function getWarnings() {
             return warnings;
         }
 
+        /** Register callback for loading event */
         function registerLoadingListener() {
             $rootScope.$on('loading', function(event, on) {
                 if (on) {
@@ -66,8 +81,7 @@
             });
         }
 
-
-        // query the server for warnings and update badge
+        /** Query the server for warnings and update badge */
         function refreshWarnings() {
             if (justRefreshedWarnings) return;
             if (!auth.checkUser($state.current.data.access)) return;

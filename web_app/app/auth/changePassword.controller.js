@@ -20,9 +20,10 @@
 		* @ngdoc object
 		* @name app.auth.controller:ChangePasswordController
 		* @description Controller for login view
-		* @requires $scope
-		* @requires $state
+		* @requires $rootScope
 		* @requires server
+		* @requires auth
+		* @requires gui
 	**/
 	function ChangePasswordController($rootScope, server, auth, gui) {
 		var vm = this;
@@ -36,6 +37,7 @@
 
 		activate();
 
+		/** Called when controller is instantiated (view is loaded) */
 		function activate() {
 			var savedPassword = auth.getSavedPassword();
 			if (savedPassword != "") {
@@ -66,6 +68,7 @@
 			}
 		}
 
+		/** Try again (reset view) */
 		function tryAgain() {
 			vm.success = -1;
 			resetPasswordForm();

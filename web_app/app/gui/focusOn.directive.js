@@ -16,6 +16,14 @@
     angular.module('app.gui')
         .directive('focusOn', focusOn);
     
+    /**
+        * @ngdoc directive
+        * @name app.gui.directive:focusOn
+        * @description Adding this attribute to an input allows it to be focused 
+        *              when an event with the specified name is broadcast
+        * @element any
+        * @example focus-on="editNew"
+    **/
     function focusOn() {
         return function(scope, elem, attrs) {
             scope.$on('focusOn', function(e, name) {

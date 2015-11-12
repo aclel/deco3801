@@ -20,10 +20,11 @@
 		* @ngdoc object
 		* @name app.auth.controller:LoginController
 		* @description Controller for login view
-		* @requires $scope
+		* @requires $rootScope
 		* @requires $state
 		* @requires auth
 		* @requires server
+		* @requires gui
 	**/
 	function LoginController($rootScope, $state, auth, server, gui) {
 		var vm = this;

@@ -82,6 +82,10 @@
             });
         }
 
+        /**
+         * Broadcast a focusOn event with specified argument
+         * @param  {object} name event argument
+         */
         function focus(name) {
             $timeout(function() {
                 $rootScope.$broadcast('focusOn', name);

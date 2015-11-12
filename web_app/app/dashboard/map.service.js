@@ -19,7 +19,11 @@
     /**
         * @ngdoc service
         * @name app.dashboard.map
+        * @requires $rootScope
+        * @requires $compile
+        * @requires $log
         * @requires google
+        * @requires InfoBox
     **/
     function mapService($rootScope, $compile, $log, google, InfoBox) {
             
@@ -54,6 +58,7 @@
 
         var sensors = {};
 
+        // Compile the popup template
         var popupContent = '<div ng-include="\'dashboard/popup.html\'"></div>';
         var popupScope = $rootScope.$new();
         var popupContentCompiled = $compile(popupContent)(popupScope);

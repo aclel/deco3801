@@ -19,7 +19,7 @@
     /**
         * @ngdoc service
         * @name mock.state
-        * @description Mock of state service for testing
+        * @description Mock of $state service for testing
     **/
     function state() {
 
@@ -33,6 +33,7 @@
             get: get
         };
 
+        /** Mock get method */
         function get(name) {
             if (name == 'dashboard') return { data: { access: 'user' }};
             if (name == 'admin') return { data: { access: 'system_admin' }};

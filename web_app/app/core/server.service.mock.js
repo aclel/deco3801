@@ -20,6 +20,7 @@
 		* @ngdoc service
 		* @name mock.server
 		* @description Mock of server service for testing
+		* @requires $q
 	**/
 	function server($q) {
 		

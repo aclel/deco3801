@@ -20,7 +20,10 @@
         * @ngdoc object
         * @name app.config.controller:TriggersController
         * @description Provides viewmodel for config view
+        * @requires $scope
         * @requires server
+        * @requires gui
+        * @requires config
     **/
     function TriggersController($scope, server, gui, config) {
         var vm = this;
@@ -48,6 +51,7 @@
 
         activate();
 
+        /** Called when controller is instantiated (config page is loaded) */
         function activate() {
             $scope.$on('cancelEditing', editCancel);
         }
@@ -91,11 +95,19 @@
             vm.editId = -1;
         }
 
+        /**
+         * Validate input
+         * @return {boolean} true if input is valid, else false
+         */
         function inputValid() {
             if (!/^\d*\.?\d*$/.test(vm.editObj.value)) { return false; }
             return true;
         }
 
+        /**
+         * Get a list of buoy IDs affected by command update
+         * @return {[type]} [description]
+         */
         function getAffectedBuoyIds() {
             var ids = [];
             if (config.selected.type === 'instance') {
@@ -177,10 +189,17 @@
             editExisting(temp);
         }
 
+        /**
+         * Save an object details so it can be restored if an edit is cancelled
+         * @param  {object} obj object to save
+         */
         function saveOriginal(obj) {
             editOriginal = JSON.parse(JSON.stringify(obj));
         }
 
+        /**
+         * Restore an object details if an edit was cancelled
+         */
         function restoreOriginal() {
             if (!editOriginal) { return; }
             vm.editObj.sensorTypeId = editOriginal.sensorTypeId;

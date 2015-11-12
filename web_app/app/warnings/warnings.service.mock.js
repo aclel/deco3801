@@ -20,6 +20,7 @@
         * @ngdoc service
         * @name mock.warnings
         * @description Mock of warnings service for testing
+        * @requires $q
     **/
     function warnings($q) {
         

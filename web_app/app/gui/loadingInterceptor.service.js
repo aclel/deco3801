@@ -20,8 +20,7 @@
         * @ngdoc service
         * @name module.loadingInterceptor
         * @requires gui
-        * @description intercepts all requests and responses,
-        *              saves incoming authentication tokens
+        * @description intercepts all requests and responses, sets loading state
     **/
     function loadingInterceptor($rootScope) {
         

@@ -25,6 +25,7 @@
 	function ConfigController(config) {
 		var vm = this;
 
+		/** Variables bound to viewmodel */
 		vm.buoyGroups = config.buoyGroups;
 		vm.buoyInstances = config.buoyInstances;
 		vm.groupBuoys = config.groupBuoys;
@@ -36,6 +37,7 @@
 		vm.treeOptions = config.treeOptions;
 		vm.redeploy = config.redeploy;
 
+		/** Methods bound to viewmodel */
 		vm.selectAll = config.selectAll;
 		vm.selectBuoyGroup = config.selectBuoyGroup;
 		vm.selectBuoyInstance = config.selectBuoyInstance;

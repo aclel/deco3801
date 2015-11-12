@@ -23,7 +23,7 @@
             state = $state;
         }));
 
-        describe('Warnings route', function() {
+        describe('Config route', function() {
             it('should be defined', function() {
                 var expected = {
                     name: 'config',

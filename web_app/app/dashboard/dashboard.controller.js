@@ -20,7 +20,9 @@
 		* @ngdoc object
 		* @name app.dashboard.controller:DashboardController
 		* @description Provides viewmodel for dashboard view
+		* @requires $log
 		* @requires $document
+		* @requires $scope
 		* @requires dashboard
 		* @requires map
 	**/	

@@ -16,6 +16,13 @@
     angular.module('app.gui')
         .directive('escCancel', escCancel);
     
+    /**
+        * @ngdoc directive
+        * @name app.gui.directive:escCancel
+        * @description Adding this attribute allows a function to be called when esc is pressed
+        * @element any
+        * @example esc-cancel="vm.cancelEditing()"
+    **/
     function escCancel() {
         return function(scope, elem, attrs) {
             elem.bind("keydown keypress", function (event) {

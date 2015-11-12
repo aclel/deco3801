@@ -19,9 +19,8 @@
     /**
         * @ngdoc object
         * @name app.admin.controller:BuoyLogsController
-        * @description Provides viewmodel for admin view.
-        *              Most functionaliy is delegated to tab subcontrollers.
-        * @requires server
+        * @description Provides viewmodel for buoy logs tab tab on admin view.
+        * @requires buoyLogs
     **/
     function BuoyLogsController(buoyLogs) {
         var vm = this;

@@ -20,8 +20,9 @@
         * @ngdoc service
         * @name app.config.config
         * @description Handles logic for config page
-        * @requires $log
+        * @requires $rootScope
         * @requires server
+        * @requires gui
         * @requires moment
     **/
     function configService($rootScope, server, gui, moment) {
@@ -89,6 +90,7 @@
             redeployShow: redeployShow
         };
 
+        /** Query server and refresh all data in model, clear inputs */
         function refreshData() {
             querySensorTypes();
             queryBuoyGroups();
@@ -240,6 +242,7 @@
             parseBuoyInstanceSensors();
         }
 
+        /** Format buoy status details */
         function parseBuoyInstanceStatus(buoyInstance) {
             if (buoyInstance.lastPolled.Valid) {
                 buoyInstance.lastReceived = buoyInstance.lastPolled.Time;
@@ -328,6 +331,7 @@
             });
         }
 
+        /** Reset redeploy buoy inputs */
         function resetRedeployInput() {
             redeploy.show = false;
             redeploy.buoyGroupId = 0;
@@ -670,6 +674,7 @@
             return false;
         }
 
+        /** Redeploy a buoy and update server, called on redeploy confirm button click */
         function redeployBuoy() {
             var oldName = selected.obj.name;
             var oldBuoyGroupId = selected.obj.buoyGroupId;
@@ -689,6 +694,7 @@
             resetRedeployInput();
         }
 
+        /** Show the redeploy buoy inputs */
         function redeployShow() {
             redeploy.show = true;
             gui.focus('redeploy');

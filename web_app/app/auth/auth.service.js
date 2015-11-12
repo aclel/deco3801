@@ -52,18 +52,34 @@
 			getSavedPassword: getSavedPassword
 		};
 
+		/**
+		 * Set firstLogin
+		 * @param {boolean} true if first login, else false
+		 */
 		function setFirstLogin(first) {
 			firstLogin = first;
 		}
 
+		/**
+		 * Get firstLogin
+		 * @return {boolean} true if first login, else false
+		 */
 		function getFirstLogin() {
 			return firstLogin;
 		}
 
+		/**
+		 * Set saved password (used for first login)
+		 * @param {string} password password
+		 */
 		function setSavedPassword(password) {
 			savedPassword = password;
 		}
 
+		/**
+		 * Get saved password (used for first login)
+		 * @return {string} password
+		 */
 		function getSavedPassword() {
 			return savedPassword;
 		}

@@ -20,8 +20,7 @@
 		* @ngdoc object
 		* @name app.auth.controller:ForgotPasswordController
 		* @description Controller for login view
-		* @requires $scope
-		* @requires $state
+		* @requires $rootScope
 		* @requires server
 	**/
 	function ForgotPasswordController($rootScope, server) {

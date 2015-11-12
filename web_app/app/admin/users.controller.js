@@ -19,8 +19,10 @@
 	/**
 		* @ngdoc object
 		* @name app.admin.controller:UsersController
-		* @description Provides viewmodel for admin view
-		* @requires server
+		* @description Provides viewmodel for Users tab on admin view
+		* @requires $scope
+        * @requires server
+        * @requires gui
 	**/
 	function UsersController($scope, server, gui, auth) {
 		var vm = this;
@@ -114,6 +116,10 @@
 			vm.editId = -1;
 		}
 
+		/**
+         * Validate input
+         * @return {boolean} true if input is valid, else false
+         */
 		function inputValid() {
             if (!vm.editObj.email) return false;
             if (!/[\w-]+@([\w-]+\.)+[\w-]+/.test(vm.editObj.email)) return false;
@@ -176,10 +182,17 @@
 			gui.focus('editNew');
 		}
 
+		/**
+         * Save an object details so it can be restored if an edit is cancelled
+         * @param  {object} obj object to save
+         */
 		function saveOriginal(obj) {
             editOriginal = JSON.parse(JSON.stringify(obj));
         }
 
+        /**
+         * Restore an object details if an edit was cancelled
+         */
         function restoreOriginal() {
             if (!editOriginal) { return; }
             vm.editObj.firstName = editOriginal.firstName;

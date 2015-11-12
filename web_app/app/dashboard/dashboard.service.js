@@ -20,9 +20,12 @@
 		* @ngdoc service
 		* @name app.dashboard.dashboard
 		* @requires $log
+		* @requires $q
+		* @requires $rootScope
 		* @requires server
 		* @requires map
 		* @requires moment
+		* @requires gui
 	**/
 	function dashboard($log, $q, $rootScope, server, map, moment, gui) {
 		/** Internal variables. These are preserved until page refresh. */
@@ -153,6 +156,7 @@
 			};
 		}
 
+		/** Set event listener callbacks */
 		function initialiseListeners() {
 			$rootScope.$on('mapMarkerSelected', function(event, buoyInstance) {
 				updateMap(buoyInstance);
@@ -443,7 +447,10 @@
 			return defer.promise;
 		}
 
-		/** Basic validation of times inputs */
+		/** 
+		 * Validate time inputs
+		 * @return {boolean} true if inputs are valid, else false
+		 */
 		function timesInputsValid() {
 			if (times.type === 'since') {
 				if (/^[0-9]{1,7}$/.test(times.inputs.since.value)) { return true; }
@@ -498,6 +505,10 @@
 			updateFilters();
 		}
 
+		/**
+		 * Validate sensor inputs
+		 * @return {boolean} true if inputs valid, else false
+		 */
 		function sensorInputsValid() {
 			for (var key in sensors) {
 				if (!sensors.hasOwnProperty(key)) { continue; }

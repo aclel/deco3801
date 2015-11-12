@@ -20,10 +20,11 @@
 		* @ngdoc object
 		* @name app.auth.controller:ResetPasswordController
 		* @description Controller for login view
-		* @requires $scope
+		* @requires $rootScope
 		* @requires $state
-		* @requires auth
+		* @requires $sateParams
 		* @requires server
+		* @requires gui
 	**/
 	function ResetPasswordController($rootScope, $state, $stateParams, server, gui) {
 		var vm = this;
@@ -35,6 +36,7 @@
 
 		activate();
 
+		/** Called when controller is instantiated (view is loaded) */
 		function activate() {
 			if (!$stateParams.token) {
 				$state.go('login');

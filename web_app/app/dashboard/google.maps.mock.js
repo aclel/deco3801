@@ -13,6 +13,9 @@
 (function() {
     'use strict';
 
+    /**
+     * Mock of the google maps object, defines fields required by map service
+     */
     var google = { maps: {
             LatLng: function(lat, lng) {
                 return {

@@ -7,6 +7,16 @@ Legend:
 * Changed
 ! Fixed
 
+v0.7 - Week 13 3/11
+
+Web App
+! Numerous bug fixes
+* Numerous styling and layout tweaks
++ Implement buoy logs on admin page
++ Implement warnings badge on navbar
++ Unit tests for all untested components
++ e2e tests
+
 v0.6 - Week 12 27/10
 
 Server

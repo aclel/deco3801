@@ -76,7 +76,7 @@ The web app is a single-page application built with [AngularJS](https://angularj
 
 ### Quickstart
 
-1. `cd` into `web_app` and run `npm install`, `bower install` and `gulp build`
+1. `cd` into `web_app` and run `npm install`, `bower install`, `gulp html` and `gulp build`
 2. Serve *web_app* through a web server (eg. [http-server](https://www.npmjs.com/package/http-server))
 
 ### Getting Started
@@ -84,7 +84,8 @@ The web app is a single-page application built with [AngularJS](https://angularj
 Before the web app can be run, it needs to be built. Make sure you have installed the dependencies, and then follow these instructions.
 
  1. Install dependencies by running `npm install` followed by `bower install` from the *web_app* directory.
- 2. Build the javascript files by running `gulp build` or `gulp build-prod` from the *web_app* directory.
+ 2. Compile HTML templates into javascript by running `gulp html` from the *web_app* directory.
+ 3. Build the javascript files by running `gulp build` or `gulp build-prod` from the *web_app* directory.
 
 The web app needs to be served through a web server with the server root directory configured as *web_app*. One way to do this is by running a Node.js http-server from this directory.
 
